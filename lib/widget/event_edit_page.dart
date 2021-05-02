@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:planimon/bloc/budget_prediction_bloc.dart';
-import 'package:planimon/sdk/domain.dart';
+import 'package:moniplan/bloc/budget_prediction_bloc.dart';
+import 'package:moniplan/sdk/domain.dart';
 import "package:flutter_bloc/flutter_bloc.dart";
-import 'package:planimon/sdk/service/record_service.dart';
-import 'package:planimon/widget/operation_edit_widget.dart';
+import 'package:moniplan/sdk/service/record_service.dart';
+import 'package:moniplan/widget/operation_edit_widget.dart';
 import 'package:dartx/dartx.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';

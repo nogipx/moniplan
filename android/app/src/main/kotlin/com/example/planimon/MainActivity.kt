@@ -1,4 +1,4 @@
-package com.example.planimon
+package com.example.moniplan
 
 import io.flutter.embedding.android.FlutterActivity
 

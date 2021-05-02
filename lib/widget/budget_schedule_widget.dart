@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:planimon/bloc/budget_prediction_bloc.dart';
+import 'package:moniplan/bloc/budget_prediction_bloc.dart';
 
-import 'package:planimon/widget/day_widgets.dart';
-import 'package:planimon/widget/event_edit_page.dart';
+import 'package:moniplan/widget/day_widgets.dart';
+import 'package:moniplan/widget/event_edit_page.dart';
 import 'package:sticky_infinite_list/sticky_infinite_list.dart';
-import 'package:planimon/sdk/domain.dart';
+import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
 
 class BudgetScheduleWidget extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money2/money2.dart';
-import 'package:planimon/sdk/domain.dart';
-import 'package:planimon/util/export.dart';
+import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/util/export.dart';
 
 class OperationWidget extends StatelessWidget {
   final Operation operation;

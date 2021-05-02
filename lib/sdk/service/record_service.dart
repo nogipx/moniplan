@@ -1,4 +1,4 @@
-import 'package:planimon/sdk/domain.dart';
+import 'package:moniplan/sdk/domain.dart';
 
 abstract class BudgetEventService {
   List<BudgetEvent> getEvents();

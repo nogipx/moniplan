@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:planimon/main.dart';
+import 'package:moniplan/main.dart';
 
 void main() {
   runApp(ExampleApp());

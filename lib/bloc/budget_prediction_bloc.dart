@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:planimon/sdk/domain.dart';
-import 'package:planimon/sdk/service/record_service.dart';
+import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/sdk/service/record_service.dart';
 import 'package:dartx/dartx.dart';
 
 class BudgetPredictionBloc

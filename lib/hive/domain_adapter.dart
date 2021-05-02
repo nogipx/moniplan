@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:planimon/sdk/domain.dart';
+import 'package:moniplan/sdk/domain.dart';
 
 class BudgetEventAdapter extends TypeAdapter<BudgetEvent> {
   @override

@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:planimon/bloc/budget_prediction_bloc.dart';
-import 'package:planimon/hive/domain_adapter.dart';
-import 'package:planimon/sdk/domain.dart';
-import 'package:planimon/sdk/service/record_service.dart';
-import 'package:planimon/service/budget_event_service_hive.dart';
+import 'package:moniplan/bloc/budget_prediction_bloc.dart';
+import 'package:moniplan/hive/domain_adapter.dart';
+import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/sdk/service/record_service.dart';
+import 'package:moniplan/service/budget_event_service_hive.dart';
 import 'package:dartx/dartx.dart';
-import 'package:planimon/widget/budget_schedule_widget.dart';
-import 'package:planimon/widget/event_edit_page.dart';
+import 'package:moniplan/widget/budget_schedule_widget.dart';
+import 'package:moniplan/widget/event_edit_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

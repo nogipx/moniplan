@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:planimon/sdk/domain.dart';
-import 'package:planimon/widget/operation_widgets.dart';
+import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/widget/operation_widgets.dart';
 
 class OperationListWidget extends StatefulWidget {
   final List<Operation> operations;

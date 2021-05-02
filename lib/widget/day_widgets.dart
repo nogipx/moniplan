@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:dartx/dartx.dart';
 import 'package:money2/money2.dart';
-import 'package:planimon/bloc/budget_prediction_bloc.dart';
-import 'package:planimon/sdk/domain.dart';
-import 'package:planimon/widget/layout.dart';
-import 'package:planimon/widget/operation_edit_widget.dart';
-import 'package:planimon/widget/operation_widgets.dart';
-import 'package:planimon/util/export.dart';
+import 'package:moniplan/bloc/budget_prediction_bloc.dart';
+import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/widget/layout.dart';
+import 'package:moniplan/widget/operation_edit_widget.dart';
+import 'package:moniplan/widget/operation_widgets.dart';
+import 'package:moniplan/util/export.dart';
 
 class DayMarkerWidget extends StatelessWidget {
   final DateTime date;

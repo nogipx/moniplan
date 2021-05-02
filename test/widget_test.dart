@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:planimon/main_std.dart';
+import 'package:moniplan/main_std.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {

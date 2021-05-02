@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:planimon/sdk/domain/operation.dart';
+import 'package:moniplan/sdk/domain/operation.dart';
 
 void main() {
   final firstDate = DateTime(2000, 1, 1, 4, 19);
