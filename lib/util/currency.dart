@@ -9,10 +9,8 @@ extension CurrencyDouble on double {
       symbol: "₽",
       decimalDigits: this % 1 == 0 ? 0 : 2,
     ).format(abs());
-    if (this == 0) {
+    if (this >= 0) {
       return value;
-    } else if (this > 0) {
-      return "+ $value";
     } else {
       return "- $value";
     }

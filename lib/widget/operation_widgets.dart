@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:money2/money2.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/util/export.dart';
 
@@ -15,7 +14,7 @@ class OperationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme.caption?.copyWith(
+    final textStyle = Theme.of(context).textTheme.bodyText2?.copyWith(
           decorationThickness: 3,
           decorationStyle: TextDecorationStyle.solid,
           decoration: operation.enabled
@@ -28,15 +27,15 @@ class OperationWidget extends StatelessWidget {
         Expanded(
           child: Text(
             operation.reason.isNotEmpty ? operation.reason : "No reason",
-            style: textStyle?.apply(color: textColor),
+            style: textStyle?.copyWith(color: textColor),
           ),
         ),
         SizedBox(width: 8),
         Text(
-          operation.result.rubCurrencyString,
+          (operation.result > 0 ? '+ ' : '') +
+              operation.result.rubCurrencyString,
           style: textStyle?.copyWith(
             color: textColor,
-            fontWeight: FontWeight.bold,
           ),
         )
       ],

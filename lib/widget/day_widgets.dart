@@ -80,7 +80,7 @@ class DayEventWidget extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.all(0),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(4),
@@ -99,27 +99,44 @@ class DayEventWidget extends StatelessWidget {
               operations: event.operations,
               textColor: color.luminance(),
             ),
-            Divider(height: event.operations.isNotEmpty ? 12 : 0),
+            if (event.operations.isNotEmpty) Divider(height: 16),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  event.predictionValue.rubCurrencyString,
-                  style: Theme.of(context)
-                      .textTheme
-                      .subtitle2
-                      ?.apply(color: textColor),
+                Expanded(
+                  child: Text(
+                    (event.predictionValue - eventTotal).rubCurrencyString,
+                    textAlign: TextAlign.left,
+                    style: Theme.of(context).textTheme.caption?.copyWith(
+                          color: textColor,
+                        ),
+                  ),
                 ),
-                Text(
-                  eventTotal.rubCurrencyString,
-                  style: Theme.of(context).textTheme.bodyText1?.apply(
-                        color: eventTotal == 0
-                            ? Colors.grey
-                            : eventTotal > 0
-                                ? Colors.green
-                                : Colors.red,
-                      ),
-                )
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    (eventTotal > 0 ? '+ ' : '') + eventTotal.rubCurrencyString,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.caption?.apply(
+                          color: eventTotal == 0
+                              ? Colors.grey
+                              : eventTotal > 0
+                                  ? Colors.green
+                                  : Colors.red,
+                        ),
+                  ),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    event.predictionValue.rubCurrencyString,
+                    textAlign: TextAlign.right,
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                          color: textColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
               ],
             ),
           ],

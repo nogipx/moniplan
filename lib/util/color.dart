@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:money2/money2.dart';
 
 extension TextColor on Color {
   static Color Function(Color) luminanceDyer({

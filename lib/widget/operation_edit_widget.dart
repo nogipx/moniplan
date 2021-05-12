@@ -31,7 +31,7 @@ class _OperationListWidgetState extends State<OperationListWidget> {
         ListView.separated(
           shrinkWrap: true,
           primary: false,
-          separatorBuilder: (_, __) => SizedBox(height: 4),
+          separatorBuilder: (_, __) => SizedBox(height: 8),
           itemCount: widget.operations.length,
           itemBuilder: (context, index) {
             final operation = widget.operations[index];
