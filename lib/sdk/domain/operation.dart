@@ -78,6 +78,8 @@ class BudgetEvent extends Equatable {
   final DateTime dateStart;
   final DateTime dateEnd;
 
+  final String title;
+
   List<Operation> get operations => _operations;
 
   const BudgetEvent({
@@ -85,12 +87,14 @@ class BudgetEvent extends Equatable {
     required this.dateStart,
     required this.dateEnd,
     required this.id,
+    this.title = "",
   }) : _operations = operations;
 
   BudgetEvent.single({
     required List<Operation> operations,
     required DateTime date,
-  })   : dateStart = date,
+    this.title = "",
+  })  : dateStart = date,
         dateEnd = date,
         _operations = operations,
         id = Uuid().v4().toString();
@@ -99,7 +103,8 @@ class BudgetEvent extends Equatable {
     required List<Operation> operations,
     required this.dateStart,
     required this.dateEnd,
-  })   : _operations = operations,
+    this.title = "",
+  })  : _operations = operations,
         id = Uuid().v4();
 
   void editOperation(Operation operation) =>

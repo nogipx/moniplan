@@ -15,11 +15,6 @@ class OperationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final operationSign = operation.type == OperationType.Income ? "+" : "-";
-    final money = Money.from(
-      operation.value,
-      operation.value.rubCurrency,
-    );
     final textStyle = Theme.of(context).textTheme.caption?.copyWith(
           decorationThickness: 3,
           decorationStyle: TextDecorationStyle.solid,
@@ -38,7 +33,7 @@ class OperationWidget extends StatelessWidget {
         ),
         SizedBox(width: 8),
         Text(
-          "$operationSign $money",
+          operation.result.rubCurrencyString,
           style: textStyle?.copyWith(
             color: textColor,
             fontWeight: FontWeight.bold,

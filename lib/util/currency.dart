@@ -1,12 +1,20 @@
-import 'package:money2/money2.dart';
-
-final rubExtendedCurrency =
-    Currency.create("RUB", 2, symbol: "₽", pattern: "0.00 S");
-final rubSimpleCurrency =
-    Currency.create("RUB", 0, symbol: "₽", pattern: "0 S");
+import 'package:intl/intl.dart';
 
 extension CurrencyDouble on double {
   bool get isWhole => this % 1 == 0;
 
-  Currency get rubCurrency => isWhole ? rubSimpleCurrency : rubExtendedCurrency;
+  String get rubCurrencyString {
+    final value = NumberFormat.currency(
+      locale: "RU",
+      symbol: "₽",
+      decimalDigits: this % 1 == 0 ? 0 : 2,
+    ).format(abs());
+    if (this == 0) {
+      return value;
+    } else if (this > 0) {
+      return "+ $value";
+    } else {
+      return "- $value";
+    }
+  }
 }
