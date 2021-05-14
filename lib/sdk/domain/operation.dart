@@ -19,10 +19,18 @@ class Operation extends Equatable {
   final OperationType type;
   final bool enabled;
 
+  @JsonKey(fromJson: Operation.dateFromJson, toJson: Operation.dateToJson)
+  final DateTime date;
+
+  static DateTime dateFromJson(String json) => DateTime.parse(json).date;
+  static String dateToJson(DateTime instance) =>
+      instance.date.toIso8601String();
+
   double get result => type == OperationType.Income ? value : value * -1;
 
   const Operation({
     required this.value,
+    required this.date,
     required this.type,
     required this.id,
     required this.reason,
@@ -32,6 +40,7 @@ class Operation extends Equatable {
   Operation.income({
     required this.value,
     required this.reason,
+    required this.date,
     this.enabled = true,
   })  : assert(value >= 0),
         id = Uuid().v4().toString(),
@@ -40,6 +49,7 @@ class Operation extends Equatable {
   Operation.outcome({
     required this.value,
     required this.reason,
+    required this.date,
     this.enabled = true,
   })  : assert(value >= 0),
         id = Uuid().v4().toString(),
@@ -54,7 +64,7 @@ class Operation extends Equatable {
 }
 
 extension OperationList on List<Operation> {
-  void addOperation(Operation operation) {
+  void replaceOperation(Operation operation) {
     final index = indexWhere((e) => e.id == operation.id);
     if (index != -1) {
       this[index] = operation;
@@ -63,95 +73,37 @@ extension OperationList on List<Operation> {
     }
   }
 
-  void deleteOperation(Operation operation) {
-    remove(operation);
-  }
+  void deleteOperation(Operation operation) => remove(operation);
+
+  double get total => isNotEmpty
+      ? where((e) => e.enabled).map((e) => e.result).fold(0, (a, b) => a + b)
+      : 0;
 }
 
 @CopyWith()
 @JsonSerializable(explicitToJson: true, anyMap: true)
-class BudgetEvent extends Equatable {
+class BudgetPrediction extends Equatable {
   @CopyWithField(immutable: true)
   final String id;
-
-  final List<Operation> _operations;
-  final DateTime dateStart;
-  final DateTime dateEnd;
-
-  final String title;
-
-  List<Operation> get operations => _operations;
-
-  const BudgetEvent({
-    required List<Operation> operations,
-    required this.dateStart,
-    required this.dateEnd,
-    required this.id,
-    this.title = "",
-  }) : _operations = operations;
-
-  BudgetEvent.single({
-    required List<Operation> operations,
-    required DateTime date,
-    this.title = "",
-  })  : dateStart = date,
-        dateEnd = date,
-        _operations = operations,
-        id = Uuid().v4().toString();
-
-  BudgetEvent.period({
-    required List<Operation> operations,
-    required this.dateStart,
-    required this.dateEnd,
-    this.title = "",
-  })  : _operations = operations,
-        id = Uuid().v4();
-
-  void editOperation(Operation operation) =>
-      copyWith(operations: List.of(_operations..addOperation(operation)));
-
-  void deleteOperation(Operation operation) =>
-      copyWith(operations: _operations..deleteOperation(operation));
-
-  factory BudgetEvent.fromJson(Map<String, dynamic> json) =>
-      _$BudgetEventFromJson(json);
-  Map<String, dynamic> toJson() => _$BudgetEventToJson(this);
-
-  bool get isSingle => dateStart.isAtSameDayAs(dateEnd);
-
-  double get total => operations.isNotEmpty
-      ? operations
-          .where((e) => e.enabled)
-          .map((e) => e.result)
-          .fold(0, (a, b) => a + b)
-      : 0;
-
-  @override
-  List<Object> get props => [
-        id,
-        dateStart.year,
-        dateStart.month,
-        dateStart.day,
-        dateEnd.year,
-        dateEnd.month,
-        dateEnd.day,
-        _operations
-      ];
-}
-
-class BudgetPrediction extends BudgetEvent {
   final double predictionValue;
 
-  BudgetPrediction(this.predictionValue, BudgetEvent event)
-      : super(
-          operations: event.operations,
-          dateEnd: event.dateEnd,
-          dateStart: event.dateStart,
-          id: event.id,
-        );
+  final List<Operation> operations;
+
+  const BudgetPrediction({
+    required this.predictionValue,
+    required this.operations,
+    required this.id,
+  });
+
+  factory BudgetPrediction.fromJson(Map<String, dynamic> json) =>
+      _$BudgetPredictionFromJson(json);
+  Map<String, dynamic> toJson() => _$BudgetPredictionToJson(this);
+
+  @override
+  List<Object> get props => [id, operations];
 }
 
-extension RecordList on List<BudgetEvent> {
-  double get total =>
-      map((e) => e.total).reduce((value, element) => value + element);
+extension RecordList on List<BudgetPrediction> {
+  double get total => map((e) => e.operations.total)
+      .reduce((value, element) => value + element);
 }

@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan/bloc/budget_prediction_bloc.dart';
+import 'package:moniplan/widget/budget/budget_summary.dart';
+import 'package:moniplan/widget/budget/operation_widget.dart';
 
-import 'package:moniplan/widget/day_widgets.dart';
-import 'package:moniplan/widget/event_edit_page.dart';
-import 'package:moniplan/widget/layout.dart';
+import 'package:moniplan/widget/util/layout.dart';
 import 'package:moniplan/util/export.dart';
+import 'package:moniplan/widget/budget/operation_edit_widget.dart';
 import 'package:sticky_infinite_list/sticky_infinite_list.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
 
 class BudgetScheduleWidget extends StatelessWidget {
-  final Map<DateTime, List<BudgetEvent>> eventsByDay;
+  final Map<DateTime, BudgetPrediction> eventsByDay;
 
   const BudgetScheduleWidget({Key? key, required this.eventsByDay})
       : super(key: key);
@@ -31,7 +32,7 @@ class BudgetScheduleWidget extends StatelessWidget {
 
             if (eventsByDay.containsKey(day)) {
               return InfiniteListItem(
-                padding: const EdgeInsets.only(top: 12),
+                padding: const EdgeInsets.only(top: 16),
                 positionAxis: HeaderPositionAxis.mainAxis,
                 headerBuilder: (context) => ExpandWidthLayout.builder(
                   builder: (context, width) {
@@ -65,18 +66,46 @@ class BudgetScheduleWidget extends StatelessWidget {
                 ),
                 contentBuilder: (context) {
                   if (state is PredictionSuccess) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: DayPlanWidget(
-                        date: day,
-                        events: state.events[day] ?? [],
-                        onPressed: (event) async {
-                          BudgetEventEditPage.showEditModal(
-                            context: context,
-                            event: event,
-                          );
-                        },
-                      ),
+                    final operations = state.events[day]!.operations;
+
+                    return Column(
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: true,
+                          primary: false,
+                          // separatorBuilder: (_, __) => SizedBox(height: 8),
+                          itemCount: operations.length,
+                          itemBuilder: (context, index) {
+                            return OperationWidget(
+                              data: operations[index],
+                              onPressed: () async {
+                                await OperationEditDialog.showEdit(
+                                  context: context,
+                                  initialData: operations[index],
+                                ).then((value) {
+                                  if (value != null) {
+                                    context
+                                        .read<OperationService>()
+                                        .save(value);
+                                    context
+                                        .read<BudgetPredictionBloc>()
+                                        .compute();
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Divider(),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: BudgetSummaryWidget(data: state.events[day]!),
+                        )
+                      ],
                     );
                   } else if (state is PredictionInProgress) {
                     return CircularProgressIndicator();

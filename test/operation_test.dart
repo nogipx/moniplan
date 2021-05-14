@@ -6,17 +6,18 @@ void main() {
   final secondDate = DateTime(2000, 1, 1, 5, 20);
   final thirdDate = DateTime(2000, 1, 20, 4, 20);
 
-  test(
-    "Cannot explicitly modify operations in record.",
-    () {
-      final record = BudgetEvent.single(operations: const [], date: firstDate);
-      expect(
-        () => record.operations
-            .add(Operation.income(value: 1000, reason: "test")),
-        throwsA(anything),
-      );
-    },
-  );
+  // test(
+  //   "Cannot explicitly modify operations in record.",
+  //   () {
+  //     final record =
+  //         BudgetPrediction.single(operations: const [], date: firstDate);
+  //     expect(
+  //       () => record.operations
+  //           .add(Operation.income(value: 1000, reason: "test")),
+  //       throwsA(anything),
+  //     );
+  //   },
+  // );
 
   // test(
   //   "Records equated by day.",
