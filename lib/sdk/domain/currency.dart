@@ -1,8 +1,13 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:money2/money2.dart';
 export "package:money2/money2.dart";
 
-extension SerializableCurrency on Currency {
-  static Currency fromJson(Map<String, dynamic>? json) {
+class CurrencyConverter
+    implements JsonConverter<Currency, Map<dynamic, dynamic>?> {
+  const CurrencyConverter();
+
+  @override
+  Currency fromJson(Map<dynamic, dynamic>? json) {
     if (json != null) {
       return Currency.create(
         json['code'] as String,
@@ -16,13 +21,14 @@ extension SerializableCurrency on Currency {
     }
   }
 
-  static Map<String, dynamic> toJson(Currency currency) {
+  @override
+  Map<String, dynamic> toJson(Currency object) {
     return <String, dynamic>{
-      'code': currency.code,
-      'precision': currency.precision,
-      'symbol': currency.symbol,
-      'pattern': currency.pattern,
-      'invertSeparators': currency.invertSeparators
+      'code': object.code,
+      'precision': object.precision,
+      'symbol': object.symbol,
+      'pattern': object.pattern,
+      'invertSeparators': object.invertSeparators
     };
   }
 }

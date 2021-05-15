@@ -51,8 +51,7 @@ Operation _$OperationFromJson(Map<String, dynamic> json) {
     type: _$enumDecode(_$OperationTypeEnumMap, json['type']),
     id: json['id'] as String,
     reason: json['reason'] as String,
-    currency: SerializableCurrency.fromJson(
-        json['currency'] as Map<String, dynamic>?),
+    currency: const CurrencyConverter().fromJson(json['currency'] as Map?),
     enabled: json['enabled'] as bool,
   );
 }
@@ -63,7 +62,7 @@ Map<String, dynamic> _$OperationToJson(Operation instance) => <String, dynamic>{
       'reason': instance.reason,
       'type': _$OperationTypeEnumMap[instance.type],
       'enabled': instance.enabled,
-      'currency': SerializableCurrency.toJson(instance.currency),
+      'currency': const CurrencyConverter().toJson(instance.currency),
       'date': Operation.dateToJson(instance.date),
     };
 

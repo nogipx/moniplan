@@ -20,11 +20,8 @@ class Operation extends Equatable {
   final OperationType type;
   final bool enabled;
 
-  @JsonKey(
-      fromJson: SerializableCurrency.fromJson,
-      toJson: SerializableCurrency.toJson,
-      required: false,
-      includeIfNull: true)
+  @JsonKey(includeIfNull: true)
+  @CurrencyConverter()
   final Currency currency;
 
   @JsonKey(fromJson: Operation.dateFromJson, toJson: Operation.dateToJson)
