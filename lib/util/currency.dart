@@ -13,10 +13,16 @@ extension CurrencyDouble on double {
       (dynamic key, dynamic value) =>
           MapEntry((value as NumberSymbols).DEF_CURRENCY_CODE, value));
 
+  static const _overrideSimpleCurrency = <String, String>{
+    "RUB": r"₽",
+  };
+  static final _format = NumberFormat();
+
   String currency(Currency currency, {Locale? locale}) {
     final localeTag = locale?.toLanguageTag();
     final value = NumberFormat.currency(
-      symbol: currency.symbol,
+      symbol: _overrideSimpleCurrency[currency.code] ??
+          _format.simpleCurrencySymbol(currency.code),
       decimalDigits: this % 1 == 0 ? 0 : currency.precision,
       locale: localeTag ?? currencies[currency.code]?.NAME,
     ).format(abs());

@@ -12,9 +12,6 @@ class CurrencyConverter
       return Currency.create(
         json['code'] as String,
         json['precision'] as int,
-        symbol: json['symbol'] as String,
-        pattern: json['pattern'] as String,
-        invertSeparators: json['invertSeparators'] as bool,
       );
     } else {
       return CommonCurrencies().usd;
@@ -26,9 +23,6 @@ class CurrencyConverter
     return <String, dynamic>{
       'code': object.code,
       'precision': object.precision,
-      'symbol': object.symbol,
-      'pattern': object.pattern,
-      'invertSeparators': object.invertSeparators
     };
   }
 }
