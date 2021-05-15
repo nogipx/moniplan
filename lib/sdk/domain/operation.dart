@@ -1,6 +1,7 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:moniplan/sdk/domain/currency.dart';
 import 'package:uuid/uuid.dart';
 import 'package:dartx/dartx.dart';
 
@@ -19,6 +20,13 @@ class Operation extends Equatable {
   final OperationType type;
   final bool enabled;
 
+  @JsonKey(
+      fromJson: SerializableCurrency.fromJson,
+      toJson: SerializableCurrency.toJson,
+      required: false,
+      includeIfNull: true)
+  final Currency currency;
+
   @JsonKey(fromJson: Operation.dateFromJson, toJson: Operation.dateToJson)
   final DateTime date;
 
@@ -34,6 +42,7 @@ class Operation extends Equatable {
     required this.type,
     required this.id,
     required this.reason,
+    required this.currency,
     this.enabled = true,
   }) : assert(value >= 0);
 
@@ -41,6 +50,7 @@ class Operation extends Equatable {
     required this.value,
     required this.reason,
     required this.date,
+    required this.currency,
     this.enabled = true,
   })  : assert(value >= 0),
         id = Uuid().v4().toString(),
@@ -50,6 +60,7 @@ class Operation extends Equatable {
     required this.value,
     required this.reason,
     required this.date,
+    required this.currency,
     this.enabled = true,
   })  : assert(value >= 0),
         id = Uuid().v4().toString(),

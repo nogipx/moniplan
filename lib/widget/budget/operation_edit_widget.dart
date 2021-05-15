@@ -5,6 +5,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:moniplan/sdk/domain.dart';
 
 import 'package:dartx/dartx.dart';
+import 'package:moniplan/sdk/domain/currency.dart';
 
 class OperationEditDialog extends StatefulWidget {
   final Operation? initialData;
@@ -46,6 +47,7 @@ class _OperationEditDialogState extends State<OperationEditDialog> {
           date: DateTime.now().date,
           value: widget.initialData?.value ?? 0,
           reason: widget.initialData?.reason ?? "",
+          currency: CommonCurrencies().rub,
         );
     _selectedOperationType = [
       widget.initialData?.type == OperationType.Outcome,
@@ -109,9 +111,27 @@ class _OperationEditDialogState extends State<OperationEditDialog> {
             controller: _value,
             decoration: InputDecoration(
               hintText: "Value",
-              suffix: Text("RUB"),
+              suffix: Text(_data.currency.code),
             ),
           ),
+          DropdownButtonFormField<Currency>(
+            value: _data.currency,
+            items: [
+              CommonCurrencies().rub,
+              CommonCurrencies().usd,
+              // CommonCurrencies().euro,
+            ].map((e) {
+              return DropdownMenuItem<Currency>(
+                child: Text(e.code),
+                value: e,
+              );
+            }).toList(),
+            onChanged: (Currency? selected) {
+              setState(() {
+                _data = _data.copyWith(currency: selected);
+              });
+            },
+          )
         ],
       ),
       actions: [

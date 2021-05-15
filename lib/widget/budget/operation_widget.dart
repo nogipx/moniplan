@@ -37,6 +37,7 @@ class OperationWidget extends StatelessWidget {
             CurrencyColorWidget(
               value: data.result,
               textStyle: Theme.of(context).textTheme.subtitle1,
+              currency: data.currency,
             )
           ],
         ),

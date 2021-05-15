@@ -8,6 +8,7 @@ part of 'operation.dart';
 
 extension OperationCopyWith on Operation {
   Operation copyWith({
+    Currency? currency,
     DateTime? date,
     bool? enabled,
     String? reason,
@@ -15,6 +16,7 @@ extension OperationCopyWith on Operation {
     double? value,
   }) {
     return Operation(
+      currency: currency ?? this.currency,
       date: date ?? this.date,
       enabled: enabled ?? this.enabled,
       id: id,
@@ -49,6 +51,8 @@ Operation _$OperationFromJson(Map<String, dynamic> json) {
     type: _$enumDecode(_$OperationTypeEnumMap, json['type']),
     id: json['id'] as String,
     reason: json['reason'] as String,
+    currency: SerializableCurrency.fromJson(
+        json['currency'] as Map<String, dynamic>?),
     enabled: json['enabled'] as bool,
   );
 }
@@ -59,6 +63,7 @@ Map<String, dynamic> _$OperationToJson(Operation instance) => <String, dynamic>{
       'reason': instance.reason,
       'type': _$OperationTypeEnumMap[instance.type],
       'enabled': instance.enabled,
+      'currency': SerializableCurrency.toJson(instance.currency),
       'date': Operation.dateToJson(instance.date),
     };
 

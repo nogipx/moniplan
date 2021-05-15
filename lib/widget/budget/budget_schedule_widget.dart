@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:money2/money2.dart';
 import 'package:moniplan/bloc/budget_prediction_bloc.dart';
 import 'package:moniplan/widget/budget/budget_summary.dart';
 import 'package:moniplan/widget/budget/operation_widget.dart';
@@ -103,7 +104,10 @@ class BudgetScheduleWidget extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8),
-                          child: BudgetSummaryWidget(data: state.events[day]!),
+                          child: BudgetSummaryWidget(
+                            data: state.events[day]!,
+                            currency: CommonCurrencies().rub,
+                          ),
                         )
                       ],
                     );
