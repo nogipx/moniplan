@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money2/money2.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/util/export.dart';
 
@@ -18,7 +19,7 @@ class CurrencyColorWidget extends StatelessWidget {
             : Colors.red;
     return Container(
       child: Text(
-        (value > 0 ? '+ ' : '') + value.rubCurrencyString,
+        (value > 0 ? '+ ' : '') + value.currency(CommonCurrencies().rub),
         textAlign: TextAlign.center,
         style: (textStyle ?? Theme.of(context).textTheme.caption)
             ?.apply(color: color),
@@ -41,7 +42,8 @@ class BudgetSummaryWidget extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            (data.predictionValue - eventTotal).rubCurrencyString,
+            (data.predictionValue - eventTotal)
+                .currency(CommonCurrencies().rub),
             textAlign: TextAlign.left,
             style: Theme.of(context).textTheme.caption?.copyWith(
                   color: textColor,
@@ -53,7 +55,9 @@ class BudgetSummaryWidget extends StatelessWidget {
         SizedBox(width: 8),
         Expanded(
           child: Text(
-            data.predictionValue.rubCurrencyString,
+            data.predictionValue.currency(CommonCurrencies().rub),
+            // data.predictionValue
+            //     .currency(Currency.create('BYN', 2, symbol: "Br")),
             textAlign: TextAlign.right,
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
                   color: textColor,
