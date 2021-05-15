@@ -56,8 +56,6 @@ class BudgetSummaryWidget extends StatelessWidget {
         Expanded(
           child: Text(
             data.predictionValue.currency(CommonCurrencies().rub),
-            // data.predictionValue
-            //     .currency(Currency.create('BYN', 2, symbol: "Br")),
             textAlign: TextAlign.right,
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
                   color: textColor,
