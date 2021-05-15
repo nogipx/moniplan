@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/widget/budget/budget_summary.dart';
+import 'package:moniplan/widget/budget/operation_edit.dart';
 
 class OperationWidget extends StatelessWidget {
   final Operation data;
@@ -14,26 +16,20 @@ class OperationWidget extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(
-              Icons.remove_circle,
-              color: Colors.black38,
-            ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  data.reason.isNotEmpty ? data.reason : "No reason",
-                  style: Theme.of(context)
-                      .textTheme
-                      .subtitle1
-                      ?.copyWith(color: Colors.black87),
-                ),
+              child: Text(
+                data.reason.isNotEmpty ? data.reason : "No reason",
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText2
+                    ?.copyWith(color: Colors.black87),
               ),
             ),
+            SizedBox(width: 16),
             CurrencyColorWidget(
               value: data.result,
               textStyle: Theme.of(context).textTheme.subtitle1,
@@ -43,5 +39,24 @@ class OperationWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  static Future<Operation?> showEdit({
+    required BuildContext context,
+    Operation? initialData,
+  }) async {
+    final result = await showBarModalBottomSheet<Operation?>(
+      barrierColor: Colors.black38,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: Colors.grey,
+      expand: true,
+      duration: Duration(milliseconds: 250),
+      enableDrag: true,
+      context: context,
+      builder: (context) {
+        return OperationEditWidget(initialData: initialData);
+      },
+    );
+    return result;
   }
 }

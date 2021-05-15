@@ -8,7 +8,6 @@ import 'package:moniplan/widget/budget/operation_widget.dart';
 
 import 'package:moniplan/widget/util/layout.dart';
 import 'package:moniplan/util/export.dart';
-import 'package:moniplan/widget/budget/operation_edit_widget.dart';
 import 'package:sticky_infinite_list/sticky_infinite_list.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
@@ -33,7 +32,7 @@ class BudgetScheduleWidget extends StatelessWidget {
 
             if (eventsByDay.containsKey(day)) {
               return InfiniteListItem(
-                padding: const EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.only(top: 20),
                 positionAxis: HeaderPositionAxis.mainAxis,
                 headerBuilder: (context) => ExpandWidthLayout.builder(
                   builder: (context, width) {
@@ -69,47 +68,52 @@ class BudgetScheduleWidget extends StatelessWidget {
                   if (state is PredictionSuccess) {
                     final operations = state.events[day]!.operations;
 
-                    return Column(
-                      children: [
-                        ListView.builder(
-                          shrinkWrap: true,
-                          primary: false,
-                          // separatorBuilder: (_, __) => SizedBox(height: 8),
-                          itemCount: operations.length,
-                          itemBuilder: (context, index) {
-                            return OperationWidget(
-                              data: operations[index],
-                              onPressed: () async {
-                                await OperationEditDialog.showEdit(
-                                  context: context,
-                                  initialData: operations[index],
-                                ).then((value) {
-                                  if (value != null) {
-                                    context
-                                        .read<OperationService>()
-                                        .save(value);
-                                    context
-                                        .read<BudgetPredictionBloc>()
-                                        .compute();
-                                  }
-                                });
-                              },
-                            );
-                          },
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Divider(),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: BudgetSummaryWidget(
-                            data: state.events[day]!,
-                            currency: CommonCurrencies().rub,
+                    return Card(
+                      margin: const EdgeInsets.all(0),
+                      elevation: 1,
+                      shape: RoundedRectangleBorder(),
+                      child: Column(
+                        children: [
+                          ListView.builder(
+                            shrinkWrap: true,
+                            primary: false,
+                            // separatorBuilder: (_, __) => SizedBox(height: 8),
+                            itemCount: operations.length,
+                            itemBuilder: (context, index) {
+                              return OperationWidget(
+                                data: operations[index],
+                                onPressed: () async {
+                                  await OperationWidget.showEdit(
+                                    context: context,
+                                    initialData: operations[index],
+                                  ).then((value) {
+                                    if (value != null) {
+                                      context
+                                          .read<OperationService>()
+                                          .save(value);
+                                      context
+                                          .read<BudgetPredictionBloc>()
+                                          .compute();
+                                    }
+                                  });
+                                },
+                              );
+                            },
                           ),
-                        )
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Divider(height: 4),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: BudgetSummaryWidget(
+                              data: state.events[day]!,
+                              currency: CommonCurrencies().rub,
+                            ),
+                          )
+                        ],
+                      ),
                     );
                   } else if (state is PredictionInProgress) {
                     return CircularProgressIndicator();

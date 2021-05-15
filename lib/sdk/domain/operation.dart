@@ -23,6 +23,7 @@ class Operation extends Equatable {
   @JsonKey(includeIfNull: true)
   @CurrencyConverter()
   final Currency currency;
+  String get currencyString => result.currency(currency);
 
   @JsonKey(fromJson: Operation.dateFromJson, toJson: Operation.dateToJson)
   final DateTime date;
@@ -68,7 +69,7 @@ class Operation extends Equatable {
   Map<String, dynamic> toJson() => _$OperationToJson(this);
 
   @override
-  List<Object?> get props => [id, type, value];
+  List<Object?> get props => [id, type, value, date, currency, reason];
 }
 
 extension OperationList on List<Operation> {

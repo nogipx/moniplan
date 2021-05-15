@@ -6,9 +6,8 @@ import 'package:moniplan/bloc/budget_prediction_bloc.dart';
 import 'package:moniplan/hive/domain_adapter.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/service/budget_event_service_hive.dart';
-import 'package:moniplan/widget/budget/operation_edit_widget.dart';
 import 'package:moniplan/widget/budget/budget_schedule_widget.dart';
-import 'package:moniplan/widget/event_edit_page.dart';
+import 'package:moniplan/widget/budget/operation_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,13 +76,15 @@ class _ExampleScreenState extends State<ExampleScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () async {
-          await OperationEditDialog.showEdit(
+          await OperationWidget.showEdit(
             context: context,
           ).then((value) {
-            if (value != null) {
-              context.read<OperationService>().save(value);
-              context.read<BudgetPredictionBloc>().compute();
-            }
+            setState(() {
+              if (value != null) {
+                context.read<OperationService>().save(value);
+                context.read<BudgetPredictionBloc>().compute();
+              }
+            });
           });
         },
       ),
