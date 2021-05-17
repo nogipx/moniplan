@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
@@ -7,33 +5,28 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:moniplan/bloc/budget_prediction_bloc.dart';
 import 'package:moniplan/hive/domain_adapter.dart';
 import 'package:moniplan/sdk/domain.dart';
-import 'package:moniplan/sdk/service/record_service.dart';
 import 'package:moniplan/service/budget_event_service_hive.dart';
-import 'package:dartx/dartx.dart';
-import 'package:moniplan/widget/budget_schedule_widget.dart';
-import 'package:moniplan/widget/event_edit_page.dart';
+import 'package:moniplan/widget/budget/budget_schedule_widget.dart';
+import 'package:moniplan/widget/budget/operation_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  Hive.registerAdapter(BudgetEventAdapter());
+  Hive.registerAdapter(OperationAdapter());
 
-  final budgetEventBox =
-      await Hive.openBox<BudgetEvent>(BudgetEventService.boxName);
+  final operationBox = await Hive.openBox<Operation>(OperationService.key);
 
-  final budgetEventService = BudgetEventServiceHive(hive: budgetEventBox);
-  // budgetEventBox.clear();
+  final operationService = OperationServiceHive(hive: operationBox);
   runApp(
     MultiRepositoryProvider(
       providers: [
-        RepositoryProvider<BudgetEventService>.value(value: budgetEventService)
+        RepositoryProvider<OperationService>.value(value: operationService)
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider<BudgetPredictionBloc>(
             create: (BuildContext context) =>
-                BudgetPredictionBloc(eventService: budgetEventService)
-                  ..compute(),
+                BudgetPredictionBloc(eventService: operationService)..compute(),
           )
         ],
         child: ExampleApp(),
@@ -59,11 +52,11 @@ class ExampleScreen extends StatefulWidget {
 
 class _ExampleScreenState extends State<ExampleScreen> {
   late final BudgetPredictionBloc predictionBloc;
-  late final BudgetEventService budgetEventService;
+  late final OperationService operationService;
 
   @override
   void initState() {
-    budgetEventService = context.read<BudgetEventService>();
+    operationService = context.read<OperationService>();
     predictionBloc = context.read<BudgetPredictionBloc>();
     super.initState();
   }
@@ -82,16 +75,26 @@ class _ExampleScreenState extends State<ExampleScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {
-          BudgetEventEditPage.showEditModal(context: context);
+        onPressed: () async {
+          await OperationWidget.showEdit(
+            context: context,
+          ).then((value) {
+            setState(() {
+              if (value != null) {
+                context.read<OperationService>().save(value);
+                context.read<BudgetPredictionBloc>().compute();
+              }
+            });
+          });
         },
       ),
-      body: ValueListenableBuilder<Box<BudgetEvent>>(
-        valueListenable:
-            Hive.box<BudgetEvent>(BudgetEventService.boxName).listenable(),
+      body: ValueListenableBuilder(
+        valueListenable: Hive.box<Operation>(OperationService.key).listenable(),
         builder: (context, box, widget) {
-          final days = budgetEventService.getEventsByDays();
-          return BudgetScheduleWidget(eventsByDay: days);
+          final operations = operationService.getAll();
+          return BudgetScheduleWidget(
+            eventsByDay: predictionBloc.predictBudget(operations),
+          );
         },
       ),
     );

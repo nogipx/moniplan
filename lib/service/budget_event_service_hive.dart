@@ -1,32 +1,24 @@
 import 'package:moniplan/sdk/domain.dart';
-import 'package:moniplan/sdk/service/record_service.dart';
 import 'package:hive/hive.dart';
-import 'package:dartx/dartx.dart';
 
-class BudgetEventServiceHive implements BudgetEventService {
-  final Box<BudgetEvent> hive;
+class OperationServiceHive implements OperationService {
+  final Box<Operation> hive;
 
-  BudgetEventServiceHive({required this.hive});
+  OperationServiceHive({required this.hive});
 
   @override
-  Future<void> delete(BudgetEvent event) async {
+  Future<void> delete(Operation event) async {
     hive.delete(event.id);
   }
 
   @override
-  List<BudgetEvent> getEvents() {
+  List<Operation> getAll() {
     final data = hive.toMap();
     return data.values.toList();
   }
 
   @override
-  Map<DateTime, List<BudgetEvent>> getEventsByDays() {
-    final data = getEvents();
-    return data.groupBy((e) => e.dateStart.date);
-  }
-
-  @override
-  Future<void> save(BudgetEvent event) async {
+  Future<void> save(Operation event) async {
     hive.put(event.id, event);
   }
 }

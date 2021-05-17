@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:moniplan/sdk/domain.dart';
-import 'package:moniplan/sdk/service/record_service.dart';
 import 'package:dartx/dartx.dart';
+import 'package:uuid/uuid.dart';
 
 class BudgetPredictionBloc
     extends Bloc<BudgetPredictionEvent, BudgetPredictionState> {
-  final BudgetEventService eventService;
+  final OperationService eventService;
 
   BudgetPredictionBloc({
     required this.eventService,
@@ -15,31 +15,43 @@ class BudgetPredictionBloc
   Stream<BudgetPredictionState> mapEventToState(
       BudgetPredictionEvent event) async* {
     if (event is PredictionComputed) {
-      yield PredictionSuccess(_predictBudget(eventService.getEvents()));
+      yield PredictionSuccess(predictBudget(eventService.getAll()));
     } else {
       yield PredictionInProgress();
     }
   }
 
-  Map<DateTime, List<BudgetPrediction>> _predictBudget(
-      List<BudgetEvent> events) {
-    events.sort((a, b) => a.dateStart.date.compareTo(b.dateStart.date));
-    if (events.isEmpty) {
-      return {};
-    }
+  Map<DateTime, BudgetPrediction> predictBudget(List<Operation> events) {
+    final predictions = <DateTime, BudgetPrediction>{};
+    events
+        .groupBy((e) => e.date.date)
+        .entries
+        .sortedBy((e) => e.key)
+        .map((e) => MapEntry(
+            e.key,
+            BudgetPrediction(
+                id: Uuid().v4(),
+                operations: e.value,
+                predictionValue: e.value.total)))
+        .fold<MapEntry<DateTime, BudgetPrediction>>(
+      MapEntry(
+        DateTime.now(),
+        BudgetPrediction(
+          id: Uuid().v4(),
+          operations: const [],
+          predictionValue: 0,
+        ),
+      ),
+      (prev, curr) {
+        predictions[curr.key] = curr.value.copyWith(
+          predictionValue:
+              prev.value.predictionValue + curr.value.predictionValue,
+        );
+        return curr;
+      },
+    );
 
-    final List<BudgetPrediction> predictions = [
-      BudgetPrediction(events.first.total, events.first),
-    ];
-
-    events.map((e) => BudgetPrediction(e.total, e)).reduce((prev, cur) {
-      final prediction =
-          BudgetPrediction(prev.predictionValue + cur.predictionValue, cur);
-      predictions.add(prediction);
-      return prediction;
-    });
-
-    return predictions.groupBy((e) => e.dateStart.date);
+    return predictions;
   }
 
   void compute() => add(PredictionComputed());
@@ -58,7 +70,7 @@ abstract class BudgetPredictionState {}
 class PredictionInitial extends BudgetPredictionState {}
 
 class PredictionSuccess extends BudgetPredictionState {
-  final Map<DateTime, List<BudgetPrediction>> events;
+  final Map<DateTime, BudgetPrediction> events;
 
   PredictionSuccess(this.events);
 }

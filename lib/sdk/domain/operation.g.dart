@@ -8,32 +8,21 @@ part of 'operation.dart';
 
 extension OperationCopyWith on Operation {
   Operation copyWith({
+    Currency? currency,
+    DateTime? date,
     bool? enabled,
     String? reason,
     OperationType? type,
     double? value,
   }) {
     return Operation(
+      currency: currency ?? this.currency,
+      date: date ?? this.date,
       enabled: enabled ?? this.enabled,
       id: id,
       reason: reason ?? this.reason,
       type: type ?? this.type,
       value: value ?? this.value,
-    );
-  }
-}
-
-extension BudgetEventCopyWith on BudgetEvent {
-  BudgetEvent copyWith({
-    DateTime? dateEnd,
-    DateTime? dateStart,
-    List<Operation>? operations,
-  }) {
-    return BudgetEvent(
-      dateEnd: dateEnd ?? this.dateEnd,
-      dateStart: dateStart ?? this.dateStart,
-      id: id,
-      operations: operations ?? this.operations,
     );
   }
 }
@@ -45,9 +34,11 @@ extension BudgetEventCopyWith on BudgetEvent {
 Operation _$OperationFromJson(Map<String, dynamic> json) {
   return Operation(
     value: (json['value'] as num).toDouble(),
+    date: Operation.dateFromJson(json['date'] as String),
     type: _$enumDecode(_$OperationTypeEnumMap, json['type']),
     id: json['id'] as String,
     reason: json['reason'] as String,
+    currency: const CurrencyConverter().fromJson(json['currency'] as Map?),
     enabled: json['enabled'] as bool,
   );
 }
@@ -58,6 +49,8 @@ Map<String, dynamic> _$OperationToJson(Operation instance) => <String, dynamic>{
       'reason': instance.reason,
       'type': _$OperationTypeEnumMap[instance.type],
       'enabled': instance.enabled,
+      'currency': const CurrencyConverter().toJson(instance.currency),
+      'date': Operation.dateToJson(instance.date),
     };
 
 K _$enumDecode<K, V>(
@@ -90,22 +83,3 @@ const _$OperationTypeEnumMap = {
   OperationType.Income: 'Income',
   OperationType.Outcome: 'Outcome',
 };
-
-BudgetEvent _$BudgetEventFromJson(Map json) {
-  return BudgetEvent(
-    operations: (json['operations'] as List<dynamic>)
-        .map((e) => Operation.fromJson(Map<String, dynamic>.from(e as Map)))
-        .toList(),
-    dateStart: DateTime.parse(json['dateStart'] as String),
-    dateEnd: DateTime.parse(json['dateEnd'] as String),
-    id: json['id'] as String,
-  );
-}
-
-Map<String, dynamic> _$BudgetEventToJson(BudgetEvent instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'dateStart': instance.dateStart.toIso8601String(),
-      'dateEnd': instance.dateEnd.toIso8601String(),
-      'operations': instance.operations.map((e) => e.toJson()).toList(),
-    };
