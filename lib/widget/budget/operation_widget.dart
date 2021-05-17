@@ -47,7 +47,12 @@ class OperationWidget extends StatelessWidget {
   }) async {
     final result = await showBarModalBottomSheet<Operation?>(
       barrierColor: Colors.black38,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+      ),
       backgroundColor: Colors.grey,
       expand: true,
       duration: Duration(milliseconds: 250),
