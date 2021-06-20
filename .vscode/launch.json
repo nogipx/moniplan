@@ -5,9 +5,19 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "moniplan",
+      "name": "mobile moniplan",
       "request": "launch",
       "type": "dart"
+    },
+    {
+      "name": "web moniplan",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "args": [
+        "-d",
+        "chrome"
+      ]
     }
   ]
 }

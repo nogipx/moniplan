@@ -1,0 +1,58 @@
+import 'package:flutter/material.dart';
+import 'package:responsive_framework/responsive_framework.dart';
+
+class DashboardLayout extends StatelessWidget {
+  final Widget? content;
+  final Widget? drawer;
+  final PreferredSizeWidget? appBar;
+  final FloatingActionButton? floatingActionButton;
+
+  const DashboardLayout({
+    Key? key,
+    this.content,
+    this.drawer,
+    this.appBar,
+    this.floatingActionButton,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
+      builder: (context) {
+        final screenTypeName =
+            ResponsiveWrapper.of(context).activeBreakpoint.name;
+        if (screenTypeName == DESKTOP) {
+          return Scaffold(
+            appBar: appBar,
+            floatingActionButton: floatingActionButton,
+            body: Row(
+              children: [
+                if (drawer != null)
+                  Expanded(
+                    flex: 3,
+                    child: drawer!,
+                  ),
+                if (content != null)
+                  Expanded(
+                    flex: 9,
+                    child: content!,
+                  )
+              ],
+            ),
+          );
+        }
+        if (screenTypeName == MOBILE) {
+          return Scaffold(
+            body: content,
+            appBar: appBar,
+            floatingActionButton: floatingActionButton,
+            drawer: Drawer(
+              child: drawer,
+            ),
+          );
+        }
+        return SizedBox();
+      },
+    );
+  }
+}

@@ -1,4 +1,4 @@
-import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/_sdk/domain.dart';
 import 'package:hive/hive.dart';
 
 class OperationServiceHive implements OperationService {
@@ -8,7 +8,7 @@ class OperationServiceHive implements OperationService {
 
   @override
   Future<void> delete(Operation event) async {
-    hive.delete(event.id);
+    return hive.delete(event.id);
   }
 
   @override
@@ -19,6 +19,6 @@ class OperationServiceHive implements OperationService {
 
   @override
   Future<void> save(Operation event) async {
-    hive.put(event.id, event);
+    return hive.put(event.id, event);
   }
 }
