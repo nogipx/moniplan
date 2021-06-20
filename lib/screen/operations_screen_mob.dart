@@ -53,7 +53,6 @@ class _OperationsScreenMobState extends State<OperationsScreenMob> {
           });
         },
       ),
-      drawer: Container(color: Colors.green),
       content: ValueListenableBuilder(
         valueListenable: Hive.box<Operation>(OperationService.key).listenable(),
         builder: (context, box, widget) {

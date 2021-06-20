@@ -19,9 +19,8 @@ class DashboardLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) {
-        final screenTypeName =
-            ResponsiveWrapper.of(context).activeBreakpoint.name;
-        if (screenTypeName == DESKTOP) {
+        final wrapper = ResponsiveWrapper.of(context);
+        if (wrapper.isDesktop) {
           return Scaffold(
             appBar: appBar,
             floatingActionButton: floatingActionButton,
@@ -41,16 +40,15 @@ class DashboardLayout extends StatelessWidget {
             ),
           );
         }
-        if (screenTypeName == MOBILE) {
-          return Scaffold(
-            body: content,
-            appBar: appBar,
-            floatingActionButton: floatingActionButton,
-            drawer: Drawer(
-              child: drawer,
-            ),
-          );
-        }
+        if (wrapper.isPhone) {}
+        return Scaffold(
+          body: content,
+          appBar: appBar,
+          floatingActionButton: floatingActionButton,
+          drawer: Drawer(
+            child: drawer,
+          ),
+        );
         return SizedBox();
       },
     );

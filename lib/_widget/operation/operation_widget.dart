@@ -58,49 +58,38 @@ class OperationWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ResponsiveVisibility(
-          visibleWhen: const [
-            Condition<dynamic>.largerThan(breakpoint: 500),
+        Column(
+          children: [
+            Text(
+              "Ожидаемая сумма",
+              style: Theme.of(context).textTheme.caption,
+            ),
+            SizedBox(height: 4),
+            CurrencyColorWidget(
+              value: data.expectedValue,
+              overrideColor: !data.enabled || data.actualValue != null
+                  ? Colors.grey
+                  : null,
+              currency: CommonCurrencies().rub,
+              textStyle: Theme.of(context).textTheme.subtitle1,
+            )
           ],
-          child: Column(
-            children: [
-              Text(
-                "Ожидаемая сумма",
-                style: Theme.of(context).textTheme.caption,
-              ),
-              SizedBox(height: 4),
-              CurrencyColorWidget(
-                value: data.expectedValue,
-                overrideColor: !data.enabled || data.actualValue != null
-                    ? Colors.grey
-                    : null,
-                currency: CommonCurrencies().rub,
-                textStyle: Theme.of(context).textTheme.subtitle1,
-              )
-            ],
-          ),
         ),
         SizedBox(width: 32),
-        ResponsiveVisibility(
-          visible: data.actualValue != null,
-          visibleWhen: const [
-            Condition<dynamic>.largerThan(breakpoint: 500),
+        Column(
+          children: [
+            Text(
+              "Фактическая сумма",
+              style: Theme.of(context).textTheme.caption,
+            ),
+            SizedBox(height: 4),
+            CurrencyColorWidget(
+              value: data.actualValue,
+              overrideColor: !data.enabled ? Colors.grey : null,
+              currency: CommonCurrencies().rub,
+              textStyle: Theme.of(context).textTheme.subtitle1,
+            )
           ],
-          child: Column(
-            children: [
-              Text(
-                "Фактическая сумма",
-                style: Theme.of(context).textTheme.caption,
-              ),
-              SizedBox(height: 4),
-              CurrencyColorWidget(
-                value: data.actualValue,
-                overrideColor: !data.enabled ? Colors.grey : null,
-                currency: CommonCurrencies().rub,
-                textStyle: Theme.of(context).textTheme.subtitle1,
-              )
-            ],
-          ),
         )
       ],
     );
@@ -111,7 +100,6 @@ class OperationWidget extends StatelessWidget {
     return Grayscale(
       grayscale: !data.enabled,
       child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: InkWell(
           onTap: onPressed,
           child: Padding(
@@ -119,29 +107,57 @@ class OperationWidget extends StatelessWidget {
               horizontal: 16,
               vertical: 16,
             ),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 35,
-                    child: Row(
-                      children: [
-                        _buildToggleEnable(),
-                        VerticalDivider(width: 24),
-                        Expanded(
-                          child: _buildReason(context),
+            child: Builder(
+              builder: (context) {
+                return ResponsiveRowColumn(
+                  rowMainAxisAlignment: MainAxisAlignment.center,
+                  layout: ResponsiveWrapper.of(context).isLargerThan(MOBILE)
+                      ? ResponsiveRowColumnType.ROW
+                      : ResponsiveRowColumnType.COLUMN,
+                  children: [
+                    ResponsiveRowColumnItem(
+                      columnOrder: 1,
+                      rowOrder: 1,
+                      rowFit: FlexFit.loose,
+                      child: IntrinsicHeight(
+                        child: Row(
+                          children: [
+                            _buildToggleEnable(),
+                            VerticalDivider(width: 24),
+                            Expanded(
+                              child: _buildReason(context),
+                            ),
+                            ResponsiveVisibility(
+                              visibleWhen: const [
+                                Condition<dynamic>.smallerThan(name: TABLET)
+                              ],
+                              child: SizedBox(height: 8),
+                            )
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                  VerticalDivider(width: 24),
-                  Expanded(
-                    flex: 65,
-                    child: _buildBudgetValue(context),
-                  ),
-                ],
-              ),
+                    ResponsiveRowColumnItem(
+                      rowOrder: 2,
+                      columnOrder: 2,
+                      rowFit: FlexFit.tight,
+                      child: ResponsiveVisibility(
+                        hiddenWhen: const [
+                          Condition<dynamic>.largerThan(name: MOBILE)
+                        ],
+                        child: Divider(height: 24),
+                      ),
+                    ),
+                    ResponsiveRowColumnItem(
+                      rowOrder: 3,
+                      columnOrder: 3,
+                      rowColumn: false,
+                      rowFit: FlexFit.loose,
+                      child: _buildBudgetValue(context),
+                    )
+                  ],
+                );
+              },
             ),
           ),
         ),

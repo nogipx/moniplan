@@ -16,10 +16,9 @@ class MoniplanResponsiveApp extends StatelessWidget {
           // maxWidth: 360,
           defaultScale: true,
           breakpoints: [
-            ResponsiveBreakpoint.resize(480, name: MOBILE),
+            ResponsiveBreakpoint.resize(360, name: MOBILE),
             ResponsiveBreakpoint.autoScale(800, name: TABLET),
-            ResponsiveBreakpoint.resize(1000, name: DESKTOP),
-            ResponsiveBreakpoint.autoScale(1600),
+            ResponsiveBreakpoint.resize(1200, name: DESKTOP),
           ],
           background: Container(
             color: Color(0xFFF5F5F5),

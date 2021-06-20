@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:dartx/dartx.dart';
 import 'package:moniplan/_sdk/domain.dart';
 import 'package:moniplan/_sdk/domain/currency.dart';
+import 'package:moniplan/bloc/budget_prediction_bloc.dart';
+import 'package:provider/provider.dart';
 
 class OperationEditWidget extends StatefulWidget {
   final Operation? initialData;
@@ -235,6 +237,18 @@ class _OperationEditWidgetState extends State<OperationEditWidget> {
                 ),
               ],
             ),
+            if (widget.initialData != null)
+              OutlinedButton.icon(
+                icon: Icon(Icons.remove),
+                label: Text("Удалить"),
+                onPressed: () {
+                  context.read<BudgetPredictionBloc>().compute(
+                      (context.read<OperationService>()
+                            ..delete(widget.initialData!))
+                          .getAll());
+                  Navigator.pop(context);
+                },
+              )
           ],
         ),
       )),
