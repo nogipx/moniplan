@@ -7,11 +7,31 @@ import 'package:sticky_infinite_list/sticky_infinite_list.dart';
 import 'package:moniplan/_sdk/domain.dart';
 import 'package:dartx/dartx.dart';
 
-class OperationsListWidget extends StatelessWidget {
+class OperationsListWidget extends StatefulWidget {
   final Map<DateTime, Prediction> eventsByDay;
 
   const OperationsListWidget({Key? key, required this.eventsByDay})
       : super(key: key);
+
+  @override
+  _OperationsListWidgetState createState() => _OperationsListWidgetState();
+}
+
+class _OperationsListWidgetState extends State<OperationsListWidget>
+    with TickerProviderStateMixin {
+  late Map<DateTime, bool> _isDateExpanded;
+
+  @override
+  void initState() {
+    _isDateExpanded = {};
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _isDateExpanded.clear();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +47,20 @@ class OperationsListWidget extends StatelessWidget {
             builder: (BuildContext context, int index) {
               final day = now.add(Duration(days: index));
 
-              if (eventsByDay.containsKey(day)) {
+              if (widget.eventsByDay.containsKey(day)) {
                 return InfiniteListItem(
-                  padding: const EdgeInsets.only(top: 32),
+                  padding: const EdgeInsets.only(top: 16),
                   positionAxis: HeaderPositionAxis.mainAxis,
                   headerBuilder: (context) => CalendarHeaderWidget(
                     day: day,
                     prediction:
                         state is PredictionSuccess ? state.events[day] : null,
+                    onToggleExpand: () {
+                      setState(() {
+                        final currentToggle = _isDateExpanded[day];
+                        _isDateExpanded[day] = !(currentToggle ?? false);
+                      });
+                    },
                   ),
                   contentBuilder: (context) {
                     if (state is PredictionSuccess) {
@@ -42,7 +68,18 @@ class OperationsListWidget extends StatelessWidget {
                       if (prediction == null) {
                         return SizedBox();
                       } else {
-                        return CalendarItem(prediction: prediction);
+                        return AnimatedSize(
+                          vsync: this,
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.fastLinearToSlowEaseIn,
+                          child: Container(
+                            child: (_isDateExpanded[day] ?? true)
+                                ? CalendarItem(
+                                    prediction: prediction,
+                                  )
+                                : null,
+                          ),
+                        );
                       }
                     } else if (state is PredictionInProgress) {
                       return CircularProgressIndicator();
