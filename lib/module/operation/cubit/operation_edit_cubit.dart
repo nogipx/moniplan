@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:moniplan/_sdk/domain.dart';
 import 'package:dartx/dartx.dart';
+import 'package:moniplan/util/export.dart';
 
 @immutable
 abstract class OperationEditState {}
@@ -17,9 +21,10 @@ class OperationEditSuccess extends OperationEditState {
 class OperationEditCubit extends Cubit<OperationEditState> {
   final Operation? initial;
 
-  late final TextEditingController title;
-  late final TextEditingController money;
-  late final TextEditingController actualMoney;
+  late final DebounceTextEditingController title;
+  late final DebounceTextEditingController money;
+  late final DebounceTextEditingController actualMoney;
+
   late Operation _operation;
   Operation get operation => _operation;
 
@@ -34,36 +39,45 @@ class OperationEditCubit extends Cubit<OperationEditState> {
           currency: CommonCurrencies().rub,
         );
 
-    money = TextEditingController(
-        text: _operation.expectedValue == 0
-            ? null
-            : _operation.expectedValue.isWhole
-                ? _operation.expectedValue.toInt().toString()
-                : _operation.expectedValue.toString())
-      ..addListener(() {
-        _operation = _operation.copyWith(
-          expectedValue: double.tryParse(money.text.trim()),
-        );
+    money = DebounceTextEditingController(
+      name: '$runtimeType-money',
+      text: _operation.expectedValue == 0
+          ? null
+          : _operation.expectedValue.isWhole
+              ? _operation.expectedValue.toInt().toString()
+              : _operation.expectedValue.toString(),
+    )..addListener(() {
+        money.createDebounce(() {
+          _operation = _operation.copyWith(
+            expectedValue: double.tryParse(money.text.trim()),
+          );
+        });
       });
 
-    actualMoney = TextEditingController(
-        text: _operation.actualValue == 0 || _operation.actualValue == null
-            ? null
-            : _operation.actualValue!.isWhole
-                ? _operation.actualValue!.toInt().toString()
-                : _operation.actualValue.toString())
-      ..addListener(() {
-        final newOperation = _operation.copyWith(
-          actualValue: double.tryParse(actualMoney.text.trim()),
-        );
-        _operation = newOperation;
-        print(_operation.actualValue);
+    actualMoney = DebounceTextEditingController(
+      name: '$runtimeType-actualMoney',
+      text: _operation.actualValue == 0 || _operation.actualValue == null
+          ? null
+          : _operation.actualValue!.isWhole
+              ? _operation.actualValue!.toInt().toString()
+              : _operation.actualValue.toString(),
+    )..addListener(() {
+        actualMoney.createDebounce(() {
+          final newOperation = _operation.copyWith(
+            actualValue: double.tryParse(actualMoney.text.trim()),
+          );
+          _operation = newOperation;
+          print(_operation.actualValue);
+        });
       });
 
-    title = TextEditingController()
+    title = DebounceTextEditingController(name: '$runtimeType-title')
       ..text = _operation.reason
       ..addListener(() {
-        _operation = _operation.copyWith(reason: title.text);
+        title.createDebounce(() {
+          _operation = _operation.copyWith(reason: title.text);
+          print('Save title');
+        });
       });
   }
 

@@ -23,6 +23,7 @@ dependencies:
   dartx: ^0.7.1
   bloc: ^7.0.0
   flutter_bloc: ^7.0.0
+  easy_debounce: ^2.0.1
 
   # Storage
   hive: ^2.0.4
