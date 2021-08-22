@@ -7,6 +7,7 @@ import 'package:moniplan/module/operation/export.dart';
 import 'package:moniplan/util/export.dart';
 
 class CalendarHeaderWidget extends StatelessWidget {
+  final DateTime today;
   final DateTime day;
   final Prediction? prediction;
   final VoidCallback? onToggleExpand;
@@ -14,6 +15,7 @@ class CalendarHeaderWidget extends StatelessWidget {
   const CalendarHeaderWidget({
     Key? key,
     required this.day,
+    required this.today,
     this.prediction,
     this.onToggleExpand,
   }) : super(key: key);
@@ -23,6 +25,7 @@ class CalendarHeaderWidget extends StatelessWidget {
     return ExpandWidthLayout.builder(
       builder: (context, width) {
         final color = Theme.of(context).scaffoldBackgroundColor;
+        final accentColor = Theme.of(context).accentColor;
         return Material(
           elevation: 0,
           color: color,
@@ -37,11 +40,26 @@ class CalendarHeaderWidget extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Text(
-                    DateFormat("dd MMM").format(day).toUpperCase(),
-                    style: Theme.of(context).textTheme.subtitle2?.apply(
-                          color: color.luminance(light: Colors.black),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (today == day)
+                        Text(
+                          'Сегодня',
+                          style: Theme.of(context)
+                              .textTheme
+                              .caption
+                              ?.copyWith(fontSize: 11),
                         ),
+                      Text(
+                        DateFormat("dd MMM").format(day).toUpperCase(),
+                        style: Theme.of(context).textTheme.subtitle2?.apply(
+                              color: color.luminance(
+                                dark: today == day ? accentColor : Colors.black,
+                              ),
+                            ),
+                      ),
+                    ],
                   ),
                   if (prediction != null)
                     Expanded(

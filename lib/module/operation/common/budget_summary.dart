@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/_sdk/domain.dart';
+import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/module/operation/export.dart';
 
 class BudgetSummaryWidget extends StatelessWidget {
@@ -14,8 +15,11 @@ class BudgetSummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Colors.black87;
     final eventTotal = data.operations.total;
+    final hintStyle = Theme.of(context).textTheme.caption!.copyWith(
+          fontSize: 11,
+          color: secondaryTextColor,
+        );
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -25,14 +29,16 @@ class BudgetSummaryWidget extends StatelessWidget {
             children: [
               Text(
                 "Имеется",
-                style: Theme.of(context).textTheme.caption,
+                style: hintStyle,
+                textAlign: TextAlign.center,
               ),
               Text(
                 (data.budget - eventTotal).currency(currency),
                 textAlign: TextAlign.left,
-                style: Theme.of(context).textTheme.caption?.copyWith(
-                      color: textColor,
-                    ),
+                style: Theme.of(context)
+                    .textTheme
+                    .caption
+                    ?.copyWith(color: primaryTextColor),
               ),
             ],
           ),
@@ -43,7 +49,8 @@ class BudgetSummaryWidget extends StatelessWidget {
             children: [
               Text(
                 "Итог за день",
-                style: Theme.of(context).textTheme.caption,
+                style: hintStyle,
+                textAlign: TextAlign.center,
               ),
               CurrencyColorWidget(
                 value: eventTotal,
@@ -58,7 +65,8 @@ class BudgetSummaryWidget extends StatelessWidget {
             children: [
               Text(
                 "Общий итог",
-                style: Theme.of(context).textTheme.caption,
+                style: hintStyle,
+                textAlign: TextAlign.center,
               ),
               CurrencyColorWidget(
                 value: data.budget,

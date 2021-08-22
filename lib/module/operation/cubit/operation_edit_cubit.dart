@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
-import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:moniplan/_sdk/domain.dart';
@@ -51,6 +48,7 @@ class OperationEditCubit extends Cubit<OperationEditState> {
           _operation = _operation.copyWith(
             expectedValue: double.tryParse(money.text.trim()),
           );
+          _emitSave;
         });
       });
 
@@ -67,7 +65,7 @@ class OperationEditCubit extends Cubit<OperationEditState> {
             actualValue: double.tryParse(actualMoney.text.trim()),
           );
           _operation = newOperation;
-          print(_operation.actualValue);
+          _emitSave;
         });
       });
 
@@ -76,20 +74,24 @@ class OperationEditCubit extends Cubit<OperationEditState> {
       ..addListener(() {
         title.createDebounce(() {
           _operation = _operation.copyWith(reason: title.text);
-          print('Save title');
+          _emitSave;
         });
       });
   }
 
   void setOperationExpectedDate(DateTime value) {
-    _operation = _operation..copyWith(date: value.date);
+    _operation = _operation.copyWith(date: value.date);
+    _emitSave;
   }
 
   void setOperationActualDate() {}
 
   void resetActualMoney() {
     _operation = _operation.copyWithNull(actualValue: true);
+    _emitSave;
   }
+
+  void get _emitSave => emit(OperationEditSuccess(operation));
 
   String get currencySymbol => _operation.currency.intlSymbol;
 

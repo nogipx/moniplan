@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:moniplan/_sdk/domain/currency.dart';
 import 'package:uuid/uuid.dart';
 import 'package:dartx/dartx.dart';
+export 'operation_collection.dart';
 
 part 'operation.g.dart';
 

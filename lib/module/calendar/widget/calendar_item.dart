@@ -22,7 +22,7 @@ class CalendarItem extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: OperationWidget(
-            data: operation,
+            operation: operation,
             onPressed: () async {
               await OperationWidget.showEdit(
                 context: context,

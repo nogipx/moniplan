@@ -37,63 +37,70 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
     final now = DateTime.now().date;
     return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
       builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 80),
-          child: InfiniteList(
-            posChildCount: 365,
-            negChildCount: 730,
-            direction: InfiniteListDirection.multi,
-            builder: (BuildContext context, int index) {
-              final day = now.add(Duration(days: index));
+        final latestDate =
+            state is PredictionSuccess && state.events.keys.isNotEmpty
+                ? state.events.keys.last
+                : null;
 
-              if (widget.eventsByDay.containsKey(day)) {
-                return InfiniteListItem(
-                  padding: const EdgeInsets.only(top: 16),
-                  positionAxis: HeaderPositionAxis.mainAxis,
-                  headerBuilder: (context) => CalendarHeaderWidget(
-                    day: day,
-                    prediction:
-                        state is PredictionSuccess ? state.events[day] : null,
-                    onToggleExpand: () {
-                      setState(() {
-                        final currentToggle = _isDateExpanded[day];
-                        _isDateExpanded[day] = !(currentToggle ?? false);
-                      });
-                    },
-                  ),
-                  contentBuilder: (context) {
-                    if (state is PredictionSuccess) {
-                      final prediction = state.events[day];
-                      if (prediction == null) {
-                        return SizedBox();
-                      } else {
-                        return AnimatedSize(
-                          vsync: this,
-                          duration: Duration(milliseconds: 500),
-                          curve: Curves.fastLinearToSlowEaseIn,
-                          child: Container(
-                            child: (_isDateExpanded[day] ?? true)
-                                ? CalendarItem(
-                                    prediction: prediction,
-                                  )
-                                : null,
-                          ),
-                        );
-                      }
-                    } else if (state is PredictionInProgress) {
-                      return CircularProgressIndicator();
-                    } else {
-                      return Text("ERROR");
-                    }
+        return InfiniteList(
+          posChildCount: 730,
+          negChildCount: 730,
+          physics: BouncingScrollPhysics(),
+          direction: InfiniteListDirection.multi,
+          builder: (BuildContext context, int index) {
+            final day = now.add(Duration(days: index)).date;
+
+            if (widget.eventsByDay.containsKey(day)) {
+              return InfiniteListItem(
+                padding: EdgeInsets.only(
+                  bottom: latestDate != null && day == latestDate ? 80 : 0,
+                ),
+                positionAxis: HeaderPositionAxis.mainAxis,
+                headerBuilder: (context) => CalendarHeaderWidget(
+                  day: day,
+                  today: now,
+                  prediction:
+                      state is PredictionSuccess ? state.events[day] : null,
+                  onToggleExpand: () {
+                    setState(() {
+                      final currentToggle = _isDateExpanded[day];
+                      _isDateExpanded[day] = !(currentToggle ?? false);
+                    });
                   },
-                );
-              } else {
-                return InfiniteListItem(
-                  contentBuilder: (context) => SizedBox(),
-                );
-              }
-            },
-          ),
+                ),
+                contentBuilder: (context) {
+                  if (state is PredictionSuccess) {
+                    final prediction = state.events[day];
+                    if (prediction == null) {
+                      return SizedBox();
+                    } else {
+                      return AnimatedSize(
+                        vsync: this,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.fastLinearToSlowEaseIn,
+                        child: Container(
+                          padding: const EdgeInsets.only(bottom: 30),
+                          child: (_isDateExpanded[day] ?? true)
+                              ? CalendarItem(
+                                  prediction: prediction,
+                                )
+                              : null,
+                        ),
+                      );
+                    }
+                  } else if (state is PredictionInProgress) {
+                    return CircularProgressIndicator();
+                  } else {
+                    return Text("ERROR");
+                  }
+                },
+              );
+            } else {
+              return InfiniteListItem(
+                contentBuilder: (context) => SizedBox.shrink(),
+              );
+            }
+          },
         );
       },
     );
