@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:moniplan/_sdk/domain.dart';
 import 'package:moniplan/_widget/export.dart';
 import 'package:moniplan/_widget/util/grayscale.dart';
+import 'package:moniplan/module/operation/cubit/operation_edit_cubit.dart';
 import 'package:moniplan/module/operation/export.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_framework/responsive_value.dart';
@@ -188,7 +189,11 @@ class OperationWidget extends StatelessWidget {
         return SizedBox(
           width: 330,
           child: AlertDialog(
-            content: OperationEditWidget(initialData: initialData),
+            content: OperationEditWidget(
+              operationEditCubit: OperationEditCubit(
+                initial: initialData,
+              ),
+            ),
           ),
         );
       },

@@ -1,81 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartx/dartx.dart';
 import 'package:moniplan/_sdk/domain.dart';
-import 'package:moniplan/_sdk/domain/currency.dart';
-import 'package:moniplan/bloc/budget_prediction_bloc.dart';
+import 'package:moniplan/cubit/budget_prediction_cubit.dart';
+import 'package:moniplan/module/operation/cubit/operation_edit_cubit.dart';
 import 'package:provider/provider.dart';
 
 class OperationEditWidget extends StatefulWidget {
-  final Operation? initialData;
+  final OperationEditCubit operationEditCubit;
 
-  const OperationEditWidget({Key? key, this.initialData}) : super(key: key);
+  const OperationEditWidget({
+    Key? key,
+    required this.operationEditCubit,
+  }) : super(key: key);
 
   @override
   _OperationEditWidgetState createState() => _OperationEditWidgetState();
 }
 
 class _OperationEditWidgetState extends State<OperationEditWidget> {
-  late final TextEditingController _title;
-  late final TextEditingController _money;
-  late final TextEditingController _actualMoney;
-  late Operation _operation;
+  late final OperationEditCubit _edit;
 
   @override
   void initState() {
-    _operation = widget.initialData?.copyWith() ??
-        Operation.create(
-          expectedValue: 0,
-          reason: "",
-          date: DateTime.now(),
-          currency: CommonCurrencies().rub,
-        );
-
-    _money = TextEditingController(
-        text: _operation.expectedValue == 0
-            ? null
-            : _operation.expectedValue.isWhole
-                ? _operation.expectedValue.toInt().toString()
-                : _operation.expectedValue.toString())
-      ..addListener(() {
-        setState(() {
-          _operation = _operation.copyWith(
-            expectedValue: double.tryParse(_money.text.trim()),
-          );
-        });
-      });
-    _actualMoney = TextEditingController(
-        text: _operation.actualValue == 0 || _operation.actualValue == null
-            ? null
-            : _operation.actualValue!.isWhole
-                ? _operation.actualValue!.toInt().toString()
-                : _operation.actualValue.toString())
-      ..addListener(() {
-        // print(_actualMoney.text);
-        // print(double.tryParse(_actualMoney.text));
-        setState(() {
-          final newOperation = _operation.copyWith(
-            actualValue: double.tryParse(_actualMoney.text.trim()),
-          );
-          _operation = newOperation;
-        });
-        print(_operation.actualValue);
-      });
-
-    _title = TextEditingController()
-      ..text = _operation.reason
-      ..addListener(() {
-        _operation = _operation.copyWith(reason: _title.text);
-      });
-
+    _edit = widget.operationEditCubit;
     super.initState();
   }
 
   @override
   void dispose() {
-    _title.dispose();
-    _money.dispose();
-    _actualMoney.dispose();
+    _edit.dispose();
     super.dispose();
   }
 
@@ -97,7 +50,7 @@ class _OperationEditWidgetState extends State<OperationEditWidget> {
                     .subtitle1!
                     .copyWith(fontWeight: FontWeight.normal);
                 return TextFormField(
-                  controller: _title,
+                  controller: _edit.title,
                   style: textStyle,
                   maxLines: 3,
                   minLines: 1,
@@ -111,7 +64,7 @@ class _OperationEditWidgetState extends State<OperationEditWidget> {
                       child: InkWell(
                         child: Icon(Icons.clear, color: Colors.black45),
                         onTap: () {
-                          _title.clear();
+                          _edit.title.clear();
                         },
                       ),
                     ),
@@ -131,7 +84,7 @@ class _OperationEditWidgetState extends State<OperationEditWidget> {
                     .subtitle1!
                     .copyWith(fontWeight: FontWeight.normal);
                 return TextFormField(
-                  controller: _money,
+                  controller: _edit.money,
                   keyboardType: TextInputType.number,
                   style: textStyle,
                   autofocus: true,
@@ -146,14 +99,14 @@ class _OperationEditWidgetState extends State<OperationEditWidget> {
                     prefix: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
-                        _operation.currency.intlSymbol,
+                        _edit.currencySymbol,
                         style: textStyle.apply(color: Colors.black87),
                       ),
                     ),
                     suffix: InkWell(
                       child: Icon(Icons.clear, color: Colors.black45),
                       onTap: () {
-                        _money.clear();
+                        _edit.money.clear();
                       },
                     ),
                     labelStyle: textStyle.apply(color: Colors.black87),
@@ -171,7 +124,7 @@ class _OperationEditWidgetState extends State<OperationEditWidget> {
                     .subtitle1!
                     .copyWith(fontWeight: FontWeight.normal);
                 return TextFormField(
-                  controller: _actualMoney,
+                  controller: _edit.actualMoney,
                   keyboardType: TextInputType.number,
                   style: textStyle,
                   autofocus: true,
@@ -186,15 +139,14 @@ class _OperationEditWidgetState extends State<OperationEditWidget> {
                     prefix: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
-                        _operation.currency.intlSymbol,
+                        _edit.currencySymbol,
                         style: textStyle.apply(color: Colors.black87),
                       ),
                     ),
                     suffix: InkWell(
                       child: Icon(Icons.clear, color: Colors.black45),
                       onTap: () {
-                        _actualMoney.clear();
-                        _operation = _operation.copyWithNull(actualValue: true);
+                        _edit.actualMoney.clear();
                       },
                     ),
                     labelStyle: textStyle.apply(color: Colors.black87),
@@ -206,17 +158,19 @@ class _OperationEditWidgetState extends State<OperationEditWidget> {
             ),
             Divider(height: 0),
             TextButton(
-              child: Text(_operation.date.toString()),
+              child: Text(_edit.operation.date.toString()),
               onPressed: () async {
                 await showDatePicker(
                   context: context,
-                  initialDate: _operation.date,
+                  initialDate: _edit.operation.date,
                   firstDate: DateTime.now().subtract(Duration(days: 3650)),
                   lastDate: DateTime.now().add(Duration(days: 3650)),
                 ).then((value) {
-                  setState(() {
-                    _operation = _operation.copyWith(date: value?.date);
-                  });
+                  if (value != null) {
+                    setState(() {
+                      _edit.setOperationExpectedDate(value);
+                    });
+                  }
                 });
               },
             ),
@@ -232,20 +186,25 @@ class _OperationEditWidgetState extends State<OperationEditWidget> {
                 TextButton(
                   child: Text("Save"),
                   onPressed: () {
-                    Navigator.of(context).pop(_operation);
+                    Navigator.of(context).pop(_edit.operation);
                   },
                 ),
               ],
             ),
-            if (widget.initialData != null)
+            if (_edit.initial != null)
               OutlinedButton.icon(
                 icon: Icon(Icons.remove),
                 label: Text("Удалить"),
-                onPressed: () {
-                  context.read<BudgetPredictionBloc>().compute(
-                      (context.read<OperationService>()
-                            ..delete(widget.initialData!))
-                          .getAll());
+                onPressed: () async {
+                  if (_edit.initial != null) {
+                    await context
+                        .read<OperationService>()
+                        .delete(_edit.initial!);
+                  }
+                  final operations = context.read<OperationService>().getAll();
+                  context
+                      .read<BudgetPredictionCubit>()
+                      .predictBudgetByDays(operations);
                   Navigator.pop(context);
                 },
               )

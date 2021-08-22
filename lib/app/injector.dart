@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
-import 'package:moniplan/bloc/budget_prediction_bloc.dart';
+import 'package:moniplan/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/_sdk/domain.dart';
 import 'package:moniplan/service/budget_event_service_hive.dart';
 
@@ -36,9 +36,10 @@ class _InjectorState extends State<Injector> {
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider<BudgetPredictionBloc>(
+          BlocProvider<BudgetPredictionCubit>(
             create: (BuildContext context) {
-              return BudgetPredictionBloc()..compute(operationService.getAll());
+              return BudgetPredictionCubit()
+                ..predictBudgetByDays(operationService.getAll());
             },
           )
         ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:moniplan/bloc/budget_prediction_bloc.dart';
+import 'package:moniplan/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/_sdk/domain.dart';
 import 'package:moniplan/layout/dashboard_layout.dart';
 import 'package:moniplan/module/calendar/export.dart';
@@ -15,13 +15,13 @@ class OperationsScreenMob extends StatefulWidget {
 }
 
 class _OperationsScreenMobState extends State<OperationsScreenMob> {
-  late final BudgetPredictionBloc predictionBloc;
+  late final BudgetPredictionCubit predictionBloc;
   late final OperationService operationService;
 
   @override
   void initState() {
     operationService = context.read<OperationService>();
-    predictionBloc = context.read<BudgetPredictionBloc>();
+    predictionBloc = context.read<BudgetPredictionCubit>();
     super.initState();
   }
 
@@ -46,9 +46,8 @@ class _OperationsScreenMobState extends State<OperationsScreenMob> {
             setState(() {
               if (value != null) {
                 context.read<OperationService>().save(value);
-                context
-                    .read<BudgetPredictionBloc>()
-                    .compute(context.read<OperationService>().getAll());
+                context.read<BudgetPredictionCubit>().predictBudgetByDays(
+                    context.read<OperationService>().getAll());
               }
             });
           });
@@ -57,10 +56,14 @@ class _OperationsScreenMobState extends State<OperationsScreenMob> {
       content: ValueListenableBuilder(
         valueListenable: Hive.box<Operation>(OperationService.key).listenable(),
         builder: (context, box, widget) {
-          final operations = operationService.getAll();
-          return OperationsListWidget(
-            eventsByDay: predictionBloc.predictBudgetByDay(operations),
-          );
+          final predictionState = predictionBloc.state;
+          if (predictionState is PredictionSuccess) {
+            return OperationsListWidget(
+              eventsByDay: predictionState.events,
+            );
+          } else {
+            return CircularProgressIndicator();
+          }
         },
       ),
     );

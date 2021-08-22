@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/_sdk/domain.dart';
-import 'package:moniplan/bloc/budget_prediction_bloc.dart';
+import 'package:moniplan/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/module/operation/export.dart';
 import 'package:provider/provider.dart';
 
@@ -30,9 +30,8 @@ class CalendarItem extends StatelessWidget {
               ).then((value) {
                 if (value != null) {
                   context.read<OperationService>().save(value);
-                  context
-                      .read<BudgetPredictionBloc>()
-                      .compute(context.read<OperationService>().getAll());
+                  context.read<BudgetPredictionCubit>().predictBudgetByDays(
+                      context.read<OperationService>().getAll());
                 }
               });
             },
@@ -40,9 +39,8 @@ class CalendarItem extends StatelessWidget {
               context
                   .read<OperationService>()
                   .save(operation.copyWith(enabled: !operation.enabled));
-              context
-                  .read<BudgetPredictionBloc>()
-                  .compute(context.read<OperationService>().getAll());
+              context.read<BudgetPredictionCubit>().predictBudgetByDays(
+                  context.read<OperationService>().getAll());
             },
           ),
         );

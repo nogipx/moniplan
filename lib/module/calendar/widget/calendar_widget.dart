@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/module/calendar/export.dart';
-import 'package:moniplan/bloc/budget_prediction_bloc.dart';
+import 'package:moniplan/cubit/budget_prediction_cubit.dart';
 import 'package:sticky_infinite_list/sticky_infinite_list.dart';
 import 'package:moniplan/_sdk/domain.dart';
 import 'package:dartx/dartx.dart';
@@ -35,7 +35,7 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now().date;
-    return BlocBuilder<BudgetPredictionBloc, BudgetPredictionState>(
+    return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 80),

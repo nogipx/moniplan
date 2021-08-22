@@ -3,21 +3,10 @@ import 'package:moniplan/_sdk/domain.dart';
 import 'package:dartx/dartx.dart';
 import 'package:uuid/uuid.dart';
 
-class BudgetPredictionBloc
-    extends Bloc<BudgetPredictionEvent, BudgetPredictionState> {
-  BudgetPredictionBloc() : super(PredictionInitial());
+class BudgetPredictionCubit extends Cubit<BudgetPredictionState> {
+  BudgetPredictionCubit() : super(PredictionInitial());
 
-  @override
-  Stream<BudgetPredictionState> mapEventToState(
-      BudgetPredictionEvent event) async* {
-    if (event is PredictionComputed) {
-      yield PredictionSuccess(predictBudgetByDay(event.operations));
-    } else {
-      yield PredictionInProgress();
-    }
-  }
-
-  Map<DateTime, Prediction> predictBudgetByDay(List<Operation> events) {
+  void predictBudgetByDays(List<Operation> events) {
     final predictions = <DateTime, Prediction>{};
     events
         .groupBy((e) => e.date.date)
@@ -44,22 +33,8 @@ class BudgetPredictionBloc
         return MapEntry(curr.key, prediction);
       },
     );
-
-    return predictions;
+    emit(PredictionSuccess(predictions));
   }
-
-  void compute(List<Operation> operations) =>
-      add(PredictionComputed(operations));
-}
-
-//
-
-abstract class BudgetPredictionEvent {}
-
-class PredictionComputed extends BudgetPredictionEvent {
-  final List<Operation> operations;
-
-  PredictionComputed(this.operations);
 }
 
 //

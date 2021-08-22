@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/_sdk/domain.dart';
-import 'package:moniplan/_widget/export.dart';
 import 'package:moniplan/module/operation/export.dart';
 
 class BudgetSummaryWidget extends StatelessWidget {
