@@ -1,4 +1,4 @@
-import 'package:moniplan/_sdk/domain.dart';
+import 'package:moniplan/sdk/domain.dart';
 
 abstract class OperationService {
   static const String key = "operationService";

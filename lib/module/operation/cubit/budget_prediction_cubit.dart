@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:bloc/bloc.dart';
-import 'package:moniplan/_sdk/domain.dart';
+import 'package:moniplan/sdk/domain.dart';
 
 class BudgetPredictionCubit extends Cubit<BudgetPredictionState> {
   BudgetPredictionCubit() : super(PredictionInitial());

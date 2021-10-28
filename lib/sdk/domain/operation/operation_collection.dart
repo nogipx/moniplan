@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:moniplan/_sdk/domain.dart';
+import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
 import 'package:uuid/uuid.dart';
 

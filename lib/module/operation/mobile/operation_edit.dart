@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan/_sdk/domain.dart';
-import 'package:moniplan/cubit/budget_prediction_cubit.dart';
+import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/module/operation/cubit/operation_edit_cubit.dart';
 import 'package:provider/provider.dart';
 

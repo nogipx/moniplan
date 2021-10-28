@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'package:moniplan/_sdk/domain.dart';
+import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
-import 'package:moniplan/util/export.dart';
+import 'package:moniplan/common/util/export.dart';
 
 @immutable
 abstract class OperationEditState {}
@@ -18,9 +18,9 @@ class OperationEditSuccess extends OperationEditState {
 class OperationEditCubit extends Cubit<OperationEditState> {
   final Operation? initial;
 
-  late final DebounceTextEditingController title;
-  late final DebounceTextEditingController money;
-  late final DebounceTextEditingController actualMoney;
+  late final AdvancedTextEditingController title;
+  late final AdvancedTextEditingController money;
+  late final AdvancedTextEditingController actualMoney;
 
   late Operation _operation;
   Operation get operation => _operation;
@@ -36,7 +36,7 @@ class OperationEditCubit extends Cubit<OperationEditState> {
           currency: CommonCurrencies().rub,
         );
 
-    money = DebounceTextEditingController(
+    money = AdvancedTextEditingController(
       name: '$runtimeType-money',
       text: _operation.expectedValue == 0
           ? null
@@ -52,7 +52,7 @@ class OperationEditCubit extends Cubit<OperationEditState> {
         });
       });
 
-    actualMoney = DebounceTextEditingController(
+    actualMoney = AdvancedTextEditingController(
       name: '$runtimeType-actualMoney',
       text: _operation.actualValue == 0 || _operation.actualValue == null
           ? null
@@ -69,7 +69,7 @@ class OperationEditCubit extends Cubit<OperationEditState> {
         });
       });
 
-    title = DebounceTextEditingController(name: '$runtimeType-title')
+    title = AdvancedTextEditingController(name: '$runtimeType-title')
       ..text = _operation.reason
       ..addListener(() {
         title.createDebounce(() {

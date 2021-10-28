@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:moniplan/_sdk/domain.dart';
+import 'package:moniplan/sdk/domain.dart';
 
 class OperationAdapter extends TypeAdapter<Operation> {
   @override

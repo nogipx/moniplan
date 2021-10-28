@@ -1,20 +1,30 @@
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 
-class DebounceTextEditingController extends TextEditingController {
+class AdvancedTextEditingController extends TextEditingController {
   final String name;
   final Duration debounceTimeout;
+  final bool Function(String v)? validator;
 
-  DebounceTextEditingController({
+  AdvancedTextEditingController({
     required this.name,
     String? text,
     this.debounceTimeout = const Duration(milliseconds: 500),
+    this.validator,
   }) : super(text: text);
 
   @override
   void dispose() {
     cancelDebounce();
     super.dispose();
+  }
+
+  bool get isValid {
+    if (validator != null) {
+      return validator!(text);
+    } else {
+      throw ArgumentError.notNull('validator');
+    }
   }
 
   void createDebounce(VoidCallback action) {

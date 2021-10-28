@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/screen/export.dart';
+import 'package:moniplan/module/operation/screen/operations_screen_mob.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 class MoniplanResponsiveApp extends StatelessWidget {

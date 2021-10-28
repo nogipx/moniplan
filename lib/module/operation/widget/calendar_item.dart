@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/_sdk/domain.dart';
-import 'package:moniplan/cubit/budget_prediction_cubit.dart';
+import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/module/operation/export.dart';
 import 'package:provider/provider.dart';
 

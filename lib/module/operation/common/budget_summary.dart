@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/_sdk/domain.dart';
+import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/module/operation/export.dart';
 

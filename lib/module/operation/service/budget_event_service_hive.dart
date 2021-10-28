@@ -1,4 +1,4 @@
-import 'package:moniplan/_sdk/domain.dart';
+import 'package:moniplan/sdk/domain.dart';
 import 'package:hive/hive.dart';
 
 class OperationServiceHive implements OperationService {
