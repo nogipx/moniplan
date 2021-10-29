@@ -5,13 +5,12 @@ import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
 import 'package:provider/provider.dart';
 
 class CalendarItem extends StatelessWidget {
-  final Prediction prediction;
+  final List<Operation> operations;
 
-  const CalendarItem({Key? key, required this.prediction}) : super(key: key);
+  const CalendarItem({Key? key, required this.operations}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final operations = prediction.operations;
     return ListView.separated(
       shrinkWrap: true,
       primary: false,
@@ -27,19 +26,14 @@ class CalendarItem extends StatelessWidget {
               initialData: operation,
             ).then((value) {
               if (value != null) {
-                context.read<OperationService>().save(value);
-                context.read<BudgetPredictionCubit>().predictBudgetByDays(
-                    context.read<OperationService>().getAll());
+                context.read<BudgetPredictionCubit>().saveOperation(value);
               }
             });
           },
           onToggleEnable: () {
             context
-                .read<OperationService>()
-                .save(operation.copyWith(enabled: !operation.enabled));
-            context
                 .read<BudgetPredictionCubit>()
-                .predictBudgetByDays(context.read<OperationService>().getAll());
+                .saveOperation(operation.copyWith(enabled: !operation.enabled));
           },
         );
       },

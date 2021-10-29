@@ -7,14 +7,14 @@ import 'package:moniplan/common/util/export.dart';
 class CalendarHeaderWidget extends StatelessWidget {
   final DateTime today;
   final DateTime day;
-  final Prediction? prediction;
+  final double? predictionValue;
   final VoidCallback? onPressed;
 
   const CalendarHeaderWidget({
     Key? key,
     required this.day,
     required this.today,
-    this.prediction,
+    this.predictionValue,
     this.onPressed,
   }) : super(key: key);
 
@@ -50,9 +50,9 @@ class CalendarHeaderWidget extends StatelessWidget {
                           ),
                     ),
                   ),
-                  if (prediction != null)
+                  if (predictionValue != null)
                     BudgetSummaryWidget(
-                      data: prediction!,
+                      summaryValue: predictionValue!,
                       currency: CommonCurrencies().rub,
                     )
                 ],

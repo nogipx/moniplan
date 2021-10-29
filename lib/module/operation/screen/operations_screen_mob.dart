@@ -42,7 +42,7 @@ class _OperationsScreenMobState extends State<OperationsScreenMob> {
             final predictionState = predictionBloc.state;
             if (predictionState is PredictionSuccess) {
               return OperationsListWidget(
-                eventsByDay: predictionState.events,
+                eventsByDay: predictionState.operations,
               );
             } else {
               return CircularProgressIndicator();

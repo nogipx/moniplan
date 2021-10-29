@@ -10,7 +10,7 @@ import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
 
 class OperationsListWidget extends StatefulWidget {
-  final Map<DateTime, Prediction> eventsByDay;
+  final Map<DateTime, List<Operation>> eventsByDay;
 
   const OperationsListWidget({Key? key, required this.eventsByDay})
       : super(key: key);
@@ -41,16 +41,13 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
     return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
       builder: (context, state) {
         final latestDate =
-            state is PredictionSuccess && state.events.keys.isNotEmpty
-                ? state.events.keys.last
+            state is PredictionSuccess && state.operations.keys.isNotEmpty
+                ? state.operations.keys.last
                 : null;
 
         return InfiniteList(
           posChildCount: 730,
           negChildCount: 730,
-          physics: BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
-          ),
           anchor: (latestDate?.isAfter(now) ?? false) ? .2 : 0,
           direction: InfiniteListDirection.multi,
           builder: (BuildContext context, int index) {
@@ -62,12 +59,13 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
                 headerBuilder: (context) => CalendarHeaderWidget(
                   day: day,
                   today: now,
-                  prediction:
-                      state is PredictionSuccess ? state.events[day] : null,
+                  predictionValue: state is PredictionSuccess
+                      ? state.predictions[day]
+                      : null,
                 ),
                 contentBuilder: (context) {
                   if (state is PredictionSuccess) {
-                    final prediction = state.events[day];
+                    final prediction = state.operations[day];
                     if (prediction == null) {
                       return SizedBox();
                     } else {
@@ -76,7 +74,9 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
                         child: Column(
                           children: [
                             if (_isDateExpanded[day] ?? true)
-                              CalendarItem(prediction: prediction),
+                              CalendarItem(
+                                operations: state.operations[day] ?? [],
+                              ),
                             if (day == now)
                               CreateOperationItem(
                                 onPressed: () async {

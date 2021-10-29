@@ -120,9 +120,7 @@ class OperationWidget extends StatelessWidget {
     ).then((value) {
       if (value != null) {
         context.read<OperationService>().save(value);
-        context
-            .read<BudgetPredictionCubit>()
-            .predictBudgetByDays(context.read<OperationService>().getAll());
+        context.read<BudgetPredictionCubit>().predictBudgetByDays();
       }
       return value;
     });

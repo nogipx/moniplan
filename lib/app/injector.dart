@@ -38,8 +38,8 @@ class _InjectorState extends State<Injector> {
         providers: [
           BlocProvider<BudgetPredictionCubit>(
             create: (BuildContext context) {
-              return BudgetPredictionCubit()
-                ..predictBudgetByDays(operationService.getAll());
+              return BudgetPredictionCubit(operationService: operationService)
+                ..predictBudgetByDays();
             },
           )
         ],

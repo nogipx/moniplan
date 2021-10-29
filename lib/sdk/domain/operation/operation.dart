@@ -25,6 +25,8 @@ class Operation extends Equatable {
 
   final bool enabled;
 
+  final RepeatConfig? repeat;
+
   @JsonKey(includeIfNull: true)
   @CurrencyConverter()
   final Currency currency;
@@ -37,7 +39,7 @@ class Operation extends Equatable {
   static String dateToJson(DateTime instance) =>
       instance.date.toIso8601String();
 
-  double get result => actualValue ?? expectedValue;
+  double get result => enabled ? actualValue ?? expectedValue : 0;
 
   const Operation({
     required this.expectedValue,
@@ -46,6 +48,7 @@ class Operation extends Equatable {
     required this.reason,
     required this.currency,
     this.actualValue,
+    this.repeat,
     this.enabled = true,
   });
 
@@ -56,6 +59,7 @@ class Operation extends Equatable {
     required this.currency,
     this.actualValue,
     this.enabled = true,
+    this.repeat,
   }) : id = Uuid().v4().toString();
 
   factory Operation.fromJson(Map<String, dynamic> json) =>
@@ -89,3 +93,5 @@ extension OperationList on List<Operation> {
       ? where((e) => e.enabled).map((e) => e.result).fold(0, (a, b) => a + b)
       : 0;
 }
+
+class RepeatConfig {}

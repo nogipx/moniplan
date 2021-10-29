@@ -200,15 +200,10 @@ class _OperationEditWidgetState extends State<OperationEditWidget> {
                     label: Text("Удалить"),
                     onPressed: () async {
                       if (_edit.initial != null) {
-                        await context
-                            .read<OperationService>()
-                            .delete(_edit.initial!);
+                        context
+                            .read<BudgetPredictionCubit>()
+                            .deleteOperation(_edit.initial!);
                       }
-                      final operations =
-                          context.read<OperationService>().getAll();
-                      context
-                          .read<BudgetPredictionCubit>()
-                          .predictBudgetByDays(operations);
                       Navigator.pop(context);
                     },
                   )

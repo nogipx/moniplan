@@ -4,12 +4,12 @@ import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/module/operation/export.dart';
 
 class BudgetSummaryWidget extends StatelessWidget {
-  final Prediction data;
+  final double summaryValue;
   final Currency currency;
 
   const BudgetSummaryWidget({
     Key? key,
-    required this.data,
+    required this.summaryValue,
     required this.currency,
   }) : super(key: key);
 
@@ -28,7 +28,7 @@ class BudgetSummaryWidget extends StatelessWidget {
         ),
         SizedBox(width: 8),
         CurrencyColorWidget(
-          value: data.budget,
+          value: summaryValue,
           currency: currency,
           showPlusSign: false,
           textStyle: Theme.of(context).textTheme.bodyText1?.copyWith(
