@@ -9,6 +9,7 @@
 .history
 .svn/
 *.jks*
+assets/testicon/*
 
 # IntelliJ related
 *.iml

@@ -8,14 +8,14 @@ class CalendarHeaderWidget extends StatelessWidget {
   final DateTime today;
   final DateTime day;
   final Prediction? prediction;
-  final VoidCallback? onToggleExpand;
+  final VoidCallback? onPressed;
 
   const CalendarHeaderWidget({
     Key? key,
     required this.day,
     required this.today,
     this.prediction,
-    this.onToggleExpand,
+    this.onPressed,
   }) : super(key: key);
 
   @override
@@ -28,49 +28,32 @@ class CalendarHeaderWidget extends StatelessWidget {
           elevation: 0,
           color: color,
           child: InkWell(
-            onTap: () => onToggleExpand?.call(),
+            onTap: onPressed,
             child: Container(
               alignment: Alignment.centerLeft,
               width: width,
               padding: const EdgeInsets.symmetric(
                 horizontal: 16,
-                vertical: 8,
+                vertical: 12,
               ),
               child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (today == day)
-                        Text(
-                          'Сегодня',
-                          style: Theme.of(context)
-                              .textTheme
-                              .caption
-                              ?.copyWith(fontSize: 11),
-                        ),
-                      Text(
-                        DateFormat("dd MMM").format(day).toUpperCase(),
-                        style: Theme.of(context).textTheme.subtitle2?.apply(
-                              color: color.luminance(
-                                dark: today == day ? accentColor : Colors.black,
-                              ),
+                  Expanded(
+                    child: Text(
+                      DateFormat(DateFormat.MONTH_DAY, 'ru').format(day),
+                      style: Theme.of(context).textTheme.subtitle1?.apply(
+                            color: color.luminance(
+                              dark: today == day ? accentColor : Colors.black,
                             ),
-                      ),
-                    ],
+                          ),
+                    ),
                   ),
                   if (prediction != null)
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: BudgetSummaryWidget(
-                          data: prediction!,
-                          currency: CommonCurrencies().rub,
-                        ),
-                      ),
+                    BudgetSummaryWidget(
+                      data: prediction!,
+                      currency: CommonCurrencies().rub,
                     )
                 ],
               ),

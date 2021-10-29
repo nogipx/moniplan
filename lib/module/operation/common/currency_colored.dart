@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/sdk/domain/currency.dart';
 
 class CurrencyColorWidget extends StatelessWidget {
@@ -6,6 +7,7 @@ class CurrencyColorWidget extends StatelessWidget {
   final TextStyle? textStyle;
   final Currency currency;
   final Color? overrideColor;
+  final bool showPlusSign;
 
   const CurrencyColorWidget({
     Key? key,
@@ -13,27 +15,26 @@ class CurrencyColorWidget extends StatelessWidget {
     required this.currency,
     this.textStyle,
     this.overrideColor,
+    this.showPlusSign = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final color = value == 0 || value == null
-        ? Colors.grey
+        ? AppTheme.disabledColor
         : (value ?? 0) > 0
-            // ? Color(0xff00B64F)
-            ? Color(0xff00A287)
-            : Color(0xffFB000D);
-    // : Colors.red;
+            ? AppTheme.positiveMoneyColor
+            : AppTheme.negativeMoneyColor;
 
     final _text = value != null
-        ? (value! > 0 ? '+ ' : '') + value!.currency(currency)
+        ? (value! > 0 && showPlusSign ? '+ ' : '') + value!.currency(currency)
         : "-";
 
     return Container(
       child: Text(
         _text,
         textAlign: TextAlign.center,
-        style: (textStyle ?? Theme.of(context).textTheme.caption)
+        style: (textStyle ?? Theme.of(context).textTheme.bodyText1)
             ?.apply(color: overrideColor ?? color),
       ),
     );

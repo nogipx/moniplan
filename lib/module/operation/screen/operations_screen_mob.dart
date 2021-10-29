@@ -34,37 +34,21 @@ class _OperationsScreenMobState extends State<OperationsScreenMob> {
   @override
   Widget build(BuildContext context) {
     return DashboardLayout(
-      appBar: AppBar(
-        title: const Text('Moniplan'),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () async {
-          await OperationWidget.showEdit(
-            context: context,
-          ).then((value) {
-            setState(() {
-              if (value != null) {
-                context.read<OperationService>().save(value);
-                context.read<BudgetPredictionCubit>().predictBudgetByDays(
-                    context.read<OperationService>().getAll());
-              }
-            });
-          });
-        },
-      ),
-      content: ValueListenableBuilder(
-        valueListenable: Hive.box<Operation>(OperationService.key).listenable(),
-        builder: (context, box, widget) {
-          final predictionState = predictionBloc.state;
-          if (predictionState is PredictionSuccess) {
-            return OperationsListWidget(
-              eventsByDay: predictionState.events,
-            );
-          } else {
-            return CircularProgressIndicator();
-          }
-        },
+      content: SafeArea(
+        child: ValueListenableBuilder(
+          valueListenable:
+              Hive.box<Operation>(OperationService.key).listenable(),
+          builder: (context, box, widget) {
+            final predictionState = predictionBloc.state;
+            if (predictionState is PredictionSuccess) {
+              return OperationsListWidget(
+                eventsByDay: predictionState.events,
+              );
+            } else {
+              return CircularProgressIndicator();
+            }
+          },
+        ),
       ),
     );
   }

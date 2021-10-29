@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/module/operation/screen/operations_screen_mob.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'theme.dart';
 
 class MoniplanResponsiveApp extends StatelessWidget {
   const MoniplanResponsiveApp({Key? key}) : super(key: key);
@@ -9,6 +10,7 @@ class MoniplanResponsiveApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: lightTheme,
       builder: (context, child) {
         return ResponsiveWrapper.builder(
           child,
