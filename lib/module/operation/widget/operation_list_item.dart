@@ -97,7 +97,20 @@ class OperationWidget extends StatelessWidget {
       previousRouteAnimationCurve: Curves.easeInCubic,
       duration: Duration(milliseconds: 300),
       builder: (context) {
-        return OperationPreview(operation: initialData);
+        return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
+          builder: (context, state) {
+            return OperationPreview(
+              operation: context
+                      .read<BudgetPredictionCubit>()
+                      .operationsByDay[initialData.date]
+                      ?.singleWhere(
+                        (e) => e.id == initialData.id,
+                        orElse: () => initialData,
+                      ) ??
+                  initialData,
+            );
+          },
+        );
       },
     );
     return result;

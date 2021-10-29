@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/common/bottom_sheet.dart';
+import 'package:moniplan/common/buttons.dart';
 import 'package:moniplan/module/operation/common/currency_colored.dart';
+import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/sdk/domain.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class OperationPreview extends StatelessWidget {
   final Operation operation;
@@ -54,23 +57,24 @@ class OperationPreview extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 32),
+          SizedBox(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: _buildAction(
                   context,
-                  icon: Icon(Icons.edit),
-                  title: 'Изменить',
+                  icon: Icon(Icons.merge_type_outlined,
+                      color: AppTheme.blueColor),
+                  title: 'Объединить',
                   action: () {},
                 ),
               ),
               Expanded(
                 child: _buildAction(
                   context,
-                  icon: Icon(Icons.edit),
-                  title: 'Изменить',
+                  icon: Icon(Icons.edit_outlined, color: AppTheme.blueColor),
+                  title: 'Изменить сумму',
                   action: () {},
                 ),
               ),
@@ -79,18 +83,31 @@ class OperationPreview extends StatelessWidget {
                   context,
                   icon: Icon(
                     Icons.power_settings_new_rounded,
-                    color: operation.enabled
-                        ? Colors.white
-                        : AppTheme.primaryTextColor,
+                    color:
+                        operation.enabled ? Colors.white : AppTheme.blueColor,
                   ),
                   title: operation.enabled ? 'Не учитывать' : 'Учитывать',
-                  action: () {},
                   enabled: operation.enabled,
+                  action: () {
+                    context
+                        .read<BudgetPredictionCubit>()
+                        .saveOperation(operation.copyWith(
+                          enabled: !operation.enabled,
+                        ));
+                  },
                 ),
               ),
             ],
           ),
-          SizedBox(height: 32),
+          SizedBox(height: 30),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SecondaryActionButton(
+              text: 'Редактировать',
+              onTap: () {},
+            ),
+          ),
+          SizedBox(height: 24),
         ],
       ),
     );

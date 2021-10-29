@@ -45,57 +45,60 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
                 ? state.predictions.keys.last
                 : null;
 
-        return InfiniteList(
-          posChildCount: 730,
-          negChildCount: 730,
-          anchor: (latestDate?.isAfter(now) ?? false) ? .2 : 0,
-          direction: InfiniteListDirection.multi,
-          builder: (BuildContext context, int index) {
-            final day = now.subtract(Duration(days: index)).date;
-            final isDayNow = day == now;
-            final isLatestDate = day == latestDate;
+        return ScrollConfiguration(
+          behavior: const ScrollBehavior().copyWith(overscroll: false),
+          child: InfiniteList(
+            posChildCount: 730,
+            negChildCount: 730,
+            anchor: (latestDate?.isAfter(now) ?? false) ? .2 : 0,
+            direction: InfiniteListDirection.multi,
+            builder: (BuildContext context, int index) {
+              final day = now.subtract(Duration(days: index)).date;
+              final isDayNow = day == now;
+              final isLatestDate = day == latestDate;
 
-            if (widget.eventsByDay.containsKey(day) || day == now) {
-              return InfiniteListItem(
-                padding: EdgeInsets.only(top: isLatestDate ? 20 : 0),
-                positionAxis: HeaderPositionAxis.mainAxis,
-                headerBuilder: (context) => CalendarHeaderWidget(
-                  day: day,
-                  today: now,
-                  predictionValue: state is PredictionSuccess
-                      ? state.predictions[day]
-                      : null,
-                ),
-                contentBuilder: (context) {
-                  if (state is PredictionSuccess) {
-                    final prediction = state.operations[day];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 30),
-                      child: Column(
-                        children: [
-                          if (prediction != null &&
-                              (_isDateExpanded[day] ?? true))
-                            CalendarItem(
-                              key: ObjectKey(state),
-                              operations: state.operations[day] ?? [],
-                            ),
-                          if (isDayNow) _buildCreateOperation()
-                        ],
-                      ),
-                    );
-                  } else if (state is PredictionInProgress) {
-                    return CircularProgressIndicator();
-                  } else {
-                    return Text("ERROR");
-                  }
-                },
-              );
-            } else {
-              return InfiniteListItem(
-                contentBuilder: (context) => const SizedBox.shrink(),
-              );
-            }
-          },
+              if (widget.eventsByDay.containsKey(day) || day == now) {
+                return InfiniteListItem(
+                  padding: EdgeInsets.only(top: isLatestDate ? 20 : 0),
+                  positionAxis: HeaderPositionAxis.mainAxis,
+                  headerBuilder: (context) => CalendarHeaderWidget(
+                    day: day,
+                    today: now,
+                    predictionValue: state is PredictionSuccess
+                        ? state.predictions[day]
+                        : null,
+                  ),
+                  contentBuilder: (context) {
+                    if (state is PredictionSuccess) {
+                      final prediction = state.operations[day];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 30),
+                        child: Column(
+                          children: [
+                            if (prediction != null &&
+                                (_isDateExpanded[day] ?? true))
+                              CalendarItem(
+                                key: ObjectKey(state),
+                                operations: state.operations[day] ?? [],
+                              ),
+                            if (isDayNow) _buildCreateOperation()
+                          ],
+                        ),
+                      );
+                    } else if (state is PredictionInProgress) {
+                      return CircularProgressIndicator();
+                    } else {
+                      return Text("ERROR");
+                    }
+                  },
+                );
+              } else {
+                return InfiniteListItem(
+                  contentBuilder: (context) => const SizedBox.shrink(),
+                );
+              }
+            },
+          ),
         );
       },
     );
