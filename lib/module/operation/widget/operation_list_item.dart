@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -63,12 +64,14 @@ class OperationWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     operation.reason,
+                    maxLines: 3,
                     style: Theme.of(context).textTheme.bodyText1?.apply(
                           color:
                               operation.enabled ? null : AppTheme.disabledColor,
                         ),
                   ),
                 ),
+                SizedBox(width: 4),
                 CurrencyColorWidget(
                   value: operation.actualValue ?? operation.expectedValue,
                   overrideColor:
@@ -91,6 +94,8 @@ class OperationWidget extends StatelessWidget {
     final result = await showCupertinoModalBottomSheet<Operation?>(
       barrierColor: Colors.black38,
       context: context,
+      previousRouteAnimationCurve: Curves.easeInCubic,
+      duration: Duration(milliseconds: 300),
       builder: (context) {
         return OperationPreview(operation: initialData);
       },
@@ -119,8 +124,7 @@ class OperationWidget extends StatelessWidget {
       },
     ).then((value) {
       if (value != null) {
-        context.read<OperationService>().save(value);
-        context.read<BudgetPredictionCubit>().predictBudgetByDays();
+        context.read<BudgetPredictionCubit>().saveOperation(value);
       }
       return value;
     });

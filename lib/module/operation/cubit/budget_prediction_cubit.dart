@@ -1,8 +1,10 @@
 import 'dart:collection';
 
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
+import 'package:uuid/uuid.dart';
 
 class BudgetPredictionCubit extends Cubit<BudgetPredictionState> {
   BudgetPredictionCubit({
@@ -20,9 +22,13 @@ class BudgetPredictionCubit extends Cubit<BudgetPredictionState> {
   Map<DateTime, List<Operation>> get operationsByDay =>
       Map.unmodifiable(_operationsByDay);
 
-  void pullOperations() {
-    _prepareOperations(_operationService.getAll());
-  }
+  late SplayTreeMap<DateTime, double> _currentPrediction;
+  SplayTreeMap<DateTime, double> get prediction => _currentPrediction;
+
+  double? previousPrediction(DateTime date) =>
+      _currentPrediction[_currentPrediction.firstKeyAfter(date)];
+
+  void pullOperations() => _prepareOperations(_operationService.getAll());
 
   void _prepareOperations(List<Operation> data) {
     _operations = data;
@@ -30,9 +36,10 @@ class BudgetPredictionCubit extends Cubit<BudgetPredictionState> {
   }
 
   void predictBudgetByDays() {
+    _currentPrediction = _operations.predict();
     emit(PredictionSuccess(
       operations: _operationsByDay,
-      predictions: _operations.predict(),
+      predictions: _currentPrediction,
     ));
   }
 
@@ -61,7 +68,7 @@ abstract class BudgetPredictionState {}
 
 class PredictionInitial extends BudgetPredictionState {}
 
-class PredictionSuccess extends BudgetPredictionState {
+class PredictionSuccess extends BudgetPredictionState with EquatableMixin {
   final Map<DateTime, List<Operation>> operations;
   final SplayTreeMap<DateTime, double> predictions;
 
@@ -69,6 +76,9 @@ class PredictionSuccess extends BudgetPredictionState {
     required this.operations,
     required this.predictions,
   });
+
+  @override
+  List<Object?> get props => [Uuid().v4()];
 }
 
 class PredictionInProgress extends BudgetPredictionState {}

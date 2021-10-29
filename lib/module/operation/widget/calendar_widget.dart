@@ -41,8 +41,8 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
     return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
       builder: (context, state) {
         final latestDate =
-            state is PredictionSuccess && state.operations.keys.isNotEmpty
-                ? state.operations.keys.last
+            state is PredictionSuccess && state.predictions.keys.isNotEmpty
+                ? state.predictions.keys.last
                 : null;
 
         return InfiniteList(
@@ -52,9 +52,12 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
           direction: InfiniteListDirection.multi,
           builder: (BuildContext context, int index) {
             final day = now.subtract(Duration(days: index)).date;
+            final isDayNow = day == now;
+            final isLatestDate = day == latestDate;
 
-            if (widget.eventsByDay.containsKey(day)) {
+            if (widget.eventsByDay.containsKey(day) || day == now) {
               return InfiniteListItem(
+                padding: EdgeInsets.only(top: isLatestDate ? 20 : 0),
                 positionAxis: HeaderPositionAxis.mainAxis,
                 headerBuilder: (context) => CalendarHeaderWidget(
                   day: day,
@@ -66,29 +69,20 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
                 contentBuilder: (context) {
                   if (state is PredictionSuccess) {
                     final prediction = state.operations[day];
-                    if (prediction == null) {
-                      return SizedBox();
-                    } else {
-                      return Container(
-                        padding: const EdgeInsets.only(bottom: 30),
-                        child: Column(
-                          children: [
-                            if (_isDateExpanded[day] ?? true)
-                              CalendarItem(
-                                operations: state.operations[day] ?? [],
-                              ),
-                            if (day == now)
-                              CreateOperationItem(
-                                onPressed: () async {
-                                  await OperationWidget.showEdit(
-                                    context: context,
-                                  );
-                                },
-                              ),
-                          ],
-                        ),
-                      );
-                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 30),
+                      child: Column(
+                        children: [
+                          if (prediction != null &&
+                              (_isDateExpanded[day] ?? true))
+                            CalendarItem(
+                              key: ObjectKey(state),
+                              operations: state.operations[day] ?? [],
+                            ),
+                          if (isDayNow) _buildCreateOperation()
+                        ],
+                      ),
+                    );
                   } else if (state is PredictionInProgress) {
                     return CircularProgressIndicator();
                   } else {
@@ -102,6 +96,16 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
               );
             }
           },
+        );
+      },
+    );
+  }
+
+  Widget _buildCreateOperation() {
+    return CreateOperationItem(
+      onPressed: () async {
+        await OperationWidget.showEdit(
+          context: context,
         );
       },
     );

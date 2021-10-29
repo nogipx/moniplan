@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:moniplan/app/theme.dart';
+import 'package:moniplan/common/export.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/module/operation/export.dart';
 import 'package:moniplan/common/util/export.dart';
@@ -23,7 +25,6 @@ class CalendarHeaderWidget extends StatelessWidget {
     return ExpandWidthLayout.builder(
       builder: (context, width) {
         final color = Theme.of(context).scaffoldBackgroundColor;
-        final accentColor = Theme.of(context).accentColor;
         return Material(
           elevation: 0,
           color: color,
@@ -42,10 +43,12 @@ class CalendarHeaderWidget extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      DateFormat(DateFormat.MONTH_DAY, 'ru').format(day),
+                      dateFormat.format(day),
                       style: Theme.of(context).textTheme.subtitle1?.apply(
                             color: color.luminance(
-                              dark: today == day ? accentColor : Colors.black,
+                              dark: today == day
+                                  ? AppTheme.blueColor
+                                  : AppTheme.primaryTextColor.withOpacity(.8),
                             ),
                           ),
                     ),
