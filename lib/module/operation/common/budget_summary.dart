@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/sdk/domain.dart';
-import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/module/operation/export.dart';
 
 class BudgetSummaryWidget extends StatelessWidget {
@@ -16,17 +15,17 @@ class BudgetSummaryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final eventTotal = data.operations.total;
-    final hintStyle =
-        Theme.of(context).textTheme.caption!.copyWith(fontSize: 11);
+    // final hintStyle =
+    //     Theme.of(context).textTheme.caption!.copyWith(fontSize: 11);
 
     return Row(
       children: [
-        Text(
-          "Общий итог",
-          style: hintStyle,
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(width: 8),
+        // Text(
+        //   "Общий итог",
+        //   style: hintStyle,
+        //   textAlign: TextAlign.center,
+        // ),
+        // SizedBox(width: 8),
         CurrencyColorWidget(
           value: summaryValue,
           currency: currency,

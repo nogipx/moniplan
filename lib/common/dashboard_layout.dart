@@ -49,7 +49,6 @@ class DashboardLayout extends StatelessWidget {
             child: drawer,
           ),
         );
-        return SizedBox();
       },
     );
   }

@@ -17,9 +17,8 @@ class PrimaryActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(16);
     return Material(
-      color: onTap != null
-          ? AppTheme.inactiveBackgroundColor
-          : AppTheme.lightBlueColor,
+      color:
+          onTap != null ? AppTheme.inactiveTextColor : AppTheme.lightBlueColor,
       borderRadius: borderRadius,
       child: InkWell(
         borderRadius: borderRadius,
@@ -65,7 +64,7 @@ class SecondaryActionButton extends StatelessWidget {
 
     return Material(
       borderRadius: borderRadius,
-      color: secondaryColor,
+      color: AppTheme.inactiveBackgroundColor,
       child: InkWell(
         onTap: onTap,
         // splashFactory: NoSplash.splashFactory,

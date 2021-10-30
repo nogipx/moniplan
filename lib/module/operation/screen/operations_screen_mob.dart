@@ -4,8 +4,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/module/operation/widget/calendar_widget.dart';
 import 'package:moniplan/sdk/domain.dart';
-import 'package:moniplan/common/dashboard_layout.dart';
-import 'package:moniplan/module/operation/export.dart';
 import 'package:provider/provider.dart';
 
 class OperationsScreenMob extends StatefulWidget {
@@ -33,8 +31,10 @@ class _OperationsScreenMobState extends State<OperationsScreenMob> {
 
   @override
   Widget build(BuildContext context) {
-    return DashboardLayout(
-      content: SafeArea(
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
+      body: SafeArea(
         child: ValueListenableBuilder(
           valueListenable:
               Hive.box<Operation>(OperationService.key).listenable(),

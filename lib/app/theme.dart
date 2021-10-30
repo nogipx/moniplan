@@ -32,7 +32,7 @@ const inactiveColor = Color(0xffC1C1C1);
 const navigationBarColor = Color(0xffF6F7F8);
 
 const lightSystemUIOverlay = SystemUiOverlayStyle(
-  systemNavigationBarColor: navigationBarColor,
+  systemNavigationBarColor: Colors.white,
   systemNavigationBarDividerColor: navigationBarColor,
   statusBarColor: Color(0x00FFFFFF),
   statusBarBrightness: Brightness.light,
@@ -94,6 +94,7 @@ const baseTextTheme = TextTheme(
 final lightTheme = ThemeData(
   fontFamily: 'SfProText',
   textTheme: baseTextTheme,
+  backgroundColor: Colors.white,
   scaffoldBackgroundColor: Colors.white,
   inputDecorationTheme: InputDecorationTheme(
     contentPadding: const EdgeInsets.only(

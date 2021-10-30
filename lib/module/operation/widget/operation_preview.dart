@@ -5,6 +5,7 @@ import 'package:moniplan/common/bottom_sheet.dart';
 import 'package:moniplan/common/buttons.dart';
 import 'package:moniplan/module/operation/common/currency_colored.dart';
 import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
+import 'package:moniplan/module/operation/widget/operation_list_item.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -104,7 +105,12 @@ class OperationPreview extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SecondaryActionButton(
               text: 'Редактировать',
-              onTap: () {},
+              onTap: () {
+                OperationWidget.showEdit(
+                  context: context,
+                  initialData: operation,
+                );
+              },
             ),
           ),
           SizedBox(height: 24),

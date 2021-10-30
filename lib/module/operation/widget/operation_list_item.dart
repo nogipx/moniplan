@@ -9,7 +9,6 @@ import 'package:moniplan/module/operation/widget/operation_preview.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/common/util/export.dart';
-import 'package:moniplan/module/operation/cubit/operation_edit_cubit.dart';
 import 'package:moniplan/module/operation/export.dart';
 
 class OperationWidget extends StatelessWidget {
@@ -120,28 +119,17 @@ class OperationWidget extends StatelessWidget {
     required BuildContext context,
     Operation? initialData,
   }) async {
-    final result = await showDialog<Operation?>(
-      barrierColor: Colors.black38,
-      context: context,
-      builder: (context) {
-        return SizedBox(
-          width: 330,
-          child: AlertDialog(
-            content: OperationEditWidget(
-              operationEditCubit: OperationEditCubit(
-                initial: initialData,
-              ),
-            ),
-          ),
-        );
-      },
+    return Navigator.of(context).push(
+      MaterialPageRoute<Operation>(
+        builder: (BuildContext context) {
+          return SizedBox();
+        },
+      ),
     ).then((value) {
       if (value != null) {
         context.read<BudgetPredictionCubit>().saveOperation(value);
       }
       return value;
     });
-
-    return result;
   }
 }

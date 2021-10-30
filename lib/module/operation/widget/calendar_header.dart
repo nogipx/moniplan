@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/common/export.dart';
 import 'package:moniplan/sdk/domain.dart';
@@ -48,7 +47,7 @@ class CalendarHeaderWidget extends StatelessWidget {
                             color: color.luminance(
                               dark: today == day
                                   ? AppTheme.blueColor
-                                  : AppTheme.primaryTextColor.withOpacity(.8),
+                                  : AppTheme.primaryTextColor.withOpacity(.85),
                             ),
                           ),
                     ),
