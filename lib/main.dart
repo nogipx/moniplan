@@ -14,6 +14,7 @@ import 'app/theme.dart';
 Future<void> main() async {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
 
     // Hive.registerAdapter(OperationTypeAdapter());

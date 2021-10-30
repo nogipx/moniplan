@@ -21,36 +21,25 @@ class OperationsListWidget extends StatefulWidget {
 
 class _OperationsListWidgetState extends State<OperationsListWidget>
     with TickerProviderStateMixin {
-  late Map<DateTime, bool> _isDateExpanded;
-
-  @override
-  void initState() {
-    _isDateExpanded = {};
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _isDateExpanded.clear();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now().date;
     return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
       builder: (context, state) {
+        final latestPredictionDate =
+            state is PredictionSuccess && state.operations.keys.isNotEmpty
+                ? state.predictions.keys.last.date
+                : now;
         final latestDate =
-            state is PredictionSuccess && state.predictions.keys.isNotEmpty
-                ? state.predictions.keys.last
-                : null;
+            latestPredictionDate.isBefore(now) ? now : latestPredictionDate;
 
         return ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(overscroll: false),
           child: InfiniteList(
+            key: ValueKey(state),
             posChildCount: 730,
             negChildCount: 730,
-            anchor: (latestDate?.isAfter(now) ?? false) ? .2 : 0,
+            anchor: latestDate.isAfter(now) ? .2 : 0,
             direction: InfiniteListDirection.multi,
             builder: (BuildContext context, int index) {
               final day = now.subtract(Duration(days: index)).date;
@@ -62,6 +51,7 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
                   padding: EdgeInsets.only(top: isLatestDate ? 20 : 0),
                   positionAxis: HeaderPositionAxis.mainAxis,
                   headerBuilder: (context) => CalendarHeaderWidget(
+                    key: ValueKey(state),
                     day: day,
                     today: now,
                     predictionValue: state is PredictionSuccess
@@ -72,11 +62,10 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
                     if (state is PredictionSuccess) {
                       final prediction = state.operations[day];
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 30),
+                        padding: const EdgeInsets.only(bottom: 24),
                         child: Column(
                           children: [
-                            if (prediction != null &&
-                                (_isDateExpanded[day] ?? true))
+                            if (prediction != null)
                               CalendarItem(
                                 key: ObjectKey(state),
                                 operations: state.operations[day] ?? [],

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/common/bottom_sheet.dart';
 import 'package:moniplan/common/buttons.dart';
+import 'package:moniplan/common/confirm_dialog_builder.dart';
 import 'package:moniplan/module/operation/common/currency_colored.dart';
 import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/module/operation/widget/operation_list_item.dart';
@@ -47,6 +48,7 @@ class OperationPreview extends StatelessWidget {
                   context,
                   title: 'Планируемая сумма',
                   value: operation.expectedValue,
+                  enabled: operation.enabled && operation.actualValue == null,
                 ),
                 SizedBox(height: 8),
                 if (operation.actualValue != null)
@@ -54,6 +56,7 @@ class OperationPreview extends StatelessWidget {
                     context,
                     title: 'Фактическая сумма',
                     value: operation.actualValue!,
+                    enabled: operation.enabled && operation.actualValue != null,
                   ),
               ],
             ),
@@ -61,36 +64,55 @@ class OperationPreview extends StatelessWidget {
           SizedBox(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: _buildAction(
                   context,
-                  icon: Icon(Icons.merge_type_outlined,
-                      color: AppTheme.blueColor),
-                  title: 'Объединить',
-                  action: () {},
-                ),
-              ),
-              Expanded(
-                child: _buildAction(
-                  context,
-                  icon: Icon(Icons.edit_outlined, color: AppTheme.blueColor),
-                  title: 'Изменить сумму',
-                  action: () {},
-                ),
-              ),
-              Expanded(
-                child: _buildAction(
-                  context,
                   icon: Icon(
-                    Icons.power_settings_new_rounded,
-                    color:
-                        operation.enabled ? Colors.white : AppTheme.blueColor,
+                    Icons.delete_outline_rounded,
+                    color: closeColor,
                   ),
+                  title: 'Удалить',
+                  action: () async {
+                    await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ConfirmDialog(
+                          title: 'Удаление операции',
+                          approveText: 'Удалить',
+                        );
+                      },
+                    ).then((confirm) async {
+                      if (confirm ?? false) {
+                        await context
+                            .read<BudgetPredictionCubit>()
+                            .deleteOperation(operation);
+                        Navigator.of(context).pop();
+                      }
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: _buildAction(
+                  context,
+                  icon: Icon(Icons.check_rounded, color: AppTheme.blueColor),
+                  title: 'Завершить',
+                  action: () {},
+                ),
+              ),
+              Expanded(
+                child: _buildAction(
+                  context,
+                  icon: Icon(Icons.power_settings_new_rounded,
+                      color: operation.enabled
+                          ? Colors.white
+                          : AppTheme.blueColor),
                   title: operation.enabled ? 'Не учитывать' : 'Учитывать',
                   enabled: operation.enabled,
-                  action: () {
-                    context
+                  action: () async {
+                    await context
                         .read<BudgetPredictionCubit>()
                         .saveOperation(operation.copyWith(
                           enabled: !operation.enabled,
@@ -119,8 +141,12 @@ class OperationPreview extends StatelessWidget {
     );
   }
 
-  Widget _buildMoneyRow(BuildContext context,
-      {required String title, required double value}) {
+  Widget _buildMoneyRow(
+    BuildContext context, {
+    required String title,
+    required double value,
+    bool enabled = true,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -133,6 +159,7 @@ class OperationPreview extends StatelessWidget {
           currency: CommonCurrencies().rub,
           value: value,
           showPlusSign: false,
+          overrideColor: enabled ? null : AppTheme.inactiveTextColor,
         )
       ],
     );
@@ -165,6 +192,7 @@ class OperationPreview extends StatelessWidget {
         SizedBox(height: 8),
         Text(
           title,
+          textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyText1?.copyWith(fontSize: 14),
         )
       ],

@@ -46,20 +46,14 @@ class BudgetPredictionCubit extends Cubit<BudgetPredictionState> {
   Future<void> saveOperation(Operation data) async {
     await _operationService.save(data);
     _operations.replaceOperation(data);
-    final dayOperations = _operationsByDay[data.date.date];
-    if (dayOperations != null) {
-      dayOperations.replaceOperation(data);
-    }
+    _prepareOperations(_operations);
     predictBudgetByDays();
   }
 
   Future<void> deleteOperation(Operation data) async {
     await _operationService.delete(data);
     _operations.deleteOperation(data);
-    final dayOperations = _operationsByDay[data.date.date];
-    if (dayOperations != null) {
-      dayOperations.deleteOperation(data);
-    }
+    _prepareOperations(_operations);
     predictBudgetByDays();
   }
 }

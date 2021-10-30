@@ -5,32 +5,38 @@ class PrimaryActionButton extends StatelessWidget {
   final String text;
   final VoidCallback? onTap;
   final bool isLoading;
+  final double height;
 
   const PrimaryActionButton({
     Key? key,
     required this.text,
     this.onTap,
+    this.height = 56,
     this.isLoading = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(16);
+    final textColor = onTap == null ? AppTheme.inactiveTextColor : Colors.white;
+
     return Material(
-      color:
-          onTap != null ? AppTheme.inactiveTextColor : AppTheme.lightBlueColor,
+      color: onTap == null
+          ? AppTheme.inactiveBackgroundColor
+          : AppTheme.lightBlueColor,
       borderRadius: borderRadius,
       child: InkWell(
         borderRadius: borderRadius,
         // splashFactory: NoSplash.splashFactory,
         onTap: onTap,
         child: Container(
-          height: 56,
+          height: height,
           alignment: Alignment.center,
           child: Text(
             text,
-            style: Theme.of(context).textTheme.bodyText1?.apply(
-                  color: onTap == null ? inactiveTextColor : null,
+            style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                  color: textColor,
+                  fontWeight: FontWeight.bold,
                 ),
           ),
         ),
@@ -44,10 +50,12 @@ class SecondaryActionButton extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isDestructive;
   final bool isLoading;
+  final double height;
 
   const SecondaryActionButton({
     Key? key,
     required this.text,
+    this.height = 56,
     this.onTap,
     this.isDestructive = false,
     this.isLoading = false,
@@ -70,7 +78,7 @@ class SecondaryActionButton extends StatelessWidget {
         // splashFactory: NoSplash.splashFactory,
         borderRadius: borderRadius,
         child: Container(
-          height: 56,
+          height: height,
           alignment: Alignment.center,
           child: Text(
             text,
@@ -121,38 +129,6 @@ class TextActionButton extends StatelessWidget {
             style:
                 Theme.of(context).textTheme.bodyText1?.apply(color: textColor),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class TinkoffIconButton extends StatelessWidget {
-  final VoidCallback? onTap;
-  final Widget icon;
-  const TinkoffIconButton({
-    Key? key,
-    required this.icon,
-    this.onTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 30,
-      width: 30,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xffF6F7F8),
-      ),
-      child: InkWell(
-        splashFactory: NoSplash.splashFactory,
-        onTap: onTap,
-        child: SizedBox(
-          height: 18,
-          width: 18,
-          child: icon,
         ),
       ),
     );

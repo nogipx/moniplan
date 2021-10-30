@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:moniplan/common/export.dart';
 import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
+import 'package:moniplan/module/operation/screen/operation_edit_screen.dart';
 import 'package:moniplan/module/operation/widget/operation_preview.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/app/theme.dart';
@@ -37,7 +38,7 @@ class OperationWidget extends StatelessWidget {
         color: operation.enabled
             ? AppTheme.lightBlueColor
             : AppTheme.disabledColor,
-        size: 26,
+        size: operation.actualValue == null ? 26 : 24,
       ),
       onPressed: operation.actualValue == null ? onToggleEnable : null,
     );
@@ -93,8 +94,8 @@ class OperationWidget extends StatelessWidget {
     final result = await showCupertinoModalBottomSheet<Operation?>(
       barrierColor: Colors.black38,
       context: context,
-      previousRouteAnimationCurve: Curves.easeInCubic,
-      duration: Duration(milliseconds: 300),
+      animationCurve: Curves.fastLinearToSlowEaseIn,
+      duration: Duration(milliseconds: 250),
       builder: (context) {
         return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
           builder: (context, state) {
@@ -120,16 +121,15 @@ class OperationWidget extends StatelessWidget {
     Operation? initialData,
   }) async {
     return Navigator.of(context).push(
-      MaterialPageRoute<Operation>(
+      CupertinoPageRoute<Operation>(
         builder: (BuildContext context) {
-          return SizedBox();
+          return OperationEditScreen(
+            operationEditCubit: OperationEditCubit(
+              initial: initialData,
+            ),
+          );
         },
       ),
-    ).then((value) {
-      if (value != null) {
-        context.read<BudgetPredictionCubit>().saveOperation(value);
-      }
-      return value;
-    });
+    );
   }
 }

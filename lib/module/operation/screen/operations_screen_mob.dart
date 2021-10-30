@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/module/operation/widget/calendar_widget.dart';
+import 'package:moniplan/module/operation/widget/operation_list_item.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:provider/provider.dart';
 
@@ -35,19 +36,24 @@ class _OperationsScreenMobState extends State<OperationsScreenMob> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: ValueListenableBuilder(
-          valueListenable:
-              Hive.box<Operation>(OperationService.key).listenable(),
-          builder: (context, box, widget) {
-            final predictionState = predictionBloc.state;
-            if (predictionState is PredictionSuccess) {
-              return OperationsListWidget(
-                eventsByDay: predictionState.operations,
-              );
-            } else {
-              return CircularProgressIndicator();
-            }
+        child: GestureDetector(
+          onDoubleTap: () {
+            OperationWidget.showEdit(context: context);
           },
+          child: ValueListenableBuilder(
+            valueListenable:
+                Hive.box<Operation>(OperationService.key).listenable(),
+            builder: (context, box, widget) {
+              final predictionState = predictionBloc.state;
+              if (predictionState is PredictionSuccess) {
+                return OperationsListWidget(
+                  eventsByDay: predictionState.operations,
+                );
+              } else {
+                return CircularProgressIndicator();
+              }
+            },
+          ),
         ),
       ),
     );

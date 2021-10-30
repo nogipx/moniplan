@@ -39,24 +39,10 @@ class _CalendarItemState extends State<CalendarItem> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (_doneOperations.isNotEmpty)
-          OperationWidget(
-            operation: Operation.create(
-              expectedValue: 0,
-              actualValue: _doneOperations
-                  .where((e) => e.enabled && e.actualValue != null)
-                  .fold(0, (acc, e) => acc! + e.actualValue!),
-              reason: 'Совершённые\nоперации',
-              date: widget.operations.first.date,
-              currency: CommonCurrencies().rub,
-            ),
-            onPressed: () => _showDoneOperations(context),
-          ),
-        ListView.separated(
+        ListView.builder(
           shrinkWrap: true,
           primary: false,
           itemCount: _planOperations.length,
-          separatorBuilder: (context, index) => SizedBox(height: 4),
           itemBuilder: (context, index) {
             final operation = _planOperations[index];
             return OperationWidget(
@@ -75,6 +61,19 @@ class _CalendarItemState extends State<CalendarItem> {
             );
           },
         ),
+        if (_doneOperations.isNotEmpty)
+          OperationWidget(
+            operation: Operation.create(
+              expectedValue: 0,
+              actualValue: _doneOperations
+                  .where((e) => e.enabled && e.actualValue != null)
+                  .fold(0, (acc, e) => acc! + e.actualValue!),
+              reason: 'Завершённые\nоперации',
+              date: widget.operations.first.date,
+              currency: CommonCurrencies().rub,
+            ),
+            onPressed: () => _showDoneOperations(context),
+          ),
       ],
     );
   }
@@ -83,7 +82,8 @@ class _CalendarItemState extends State<CalendarItem> {
     final day = widget.operations.firstOrNull?.date ?? DateTime.now().date;
     return showCupertinoModalBottomSheet<dynamic>(
       context: context,
-      elevation: 16,
+      animationCurve: Curves.fastLinearToSlowEaseIn,
+      duration: const Duration(milliseconds: 250),
       backgroundColor: Colors.black87,
       builder: (context) {
         return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
@@ -103,7 +103,7 @@ class _CalendarItemState extends State<CalendarItem> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Совершённые операции',
+                          'Завершённые операции',
                           style: Theme.of(context).textTheme.subtitle1,
                         ),
                         SizedBox(height: 8),
