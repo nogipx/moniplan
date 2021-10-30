@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/sdk/domain/currency.dart';
 
-class CurrencyColorWidget extends StatelessWidget {
+class MoneyColoredWidget extends StatelessWidget {
   final double? value;
   final TextStyle? textStyle;
   final Currency currency;
   final Color? overrideColor;
   final bool showPlusSign;
 
-  const CurrencyColorWidget({
+  const MoneyColoredWidget({
     Key? key,
     required this.value,
     required this.currency,

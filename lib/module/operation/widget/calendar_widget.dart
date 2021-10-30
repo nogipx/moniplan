@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
-import 'package:moniplan/module/operation/widget/calendar_header.dart';
-import 'package:moniplan/module/operation/widget/calendar_item.dart';
-import 'package:moniplan/module/operation/widget/create_operation_list_item.dart';
-import 'package:moniplan/module/operation/widget/operation_list_item.dart';
+import 'package:moniplan/module/operation/export.dart';
 import 'package:sticky_infinite_list/sticky_infinite_list.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
@@ -22,23 +18,16 @@ class OperationsListWidget extends StatefulWidget {
 class _OperationsListWidgetState extends State<OperationsListWidget>
     with TickerProviderStateMixin {
   late final ScrollController _scrollController;
-  static final _scrollPosition = ValueNotifier<double?>(null);
 
   @override
   void initState() {
-    _scrollController = ScrollController(
-        // initialScrollOffset: _scrollPosition.value ?? 0,
-        );
-    // _scrollController.addListener(() {
-    //   _scrollPosition.value = _scrollController.offset;
-    // });
+    _scrollController = ScrollController();
     super.initState();
   }
 
   @override
   void dispose() {
-    // _scrollController.dispose();
-    // _scrollPosition.value = null;
+    _scrollController.dispose();
     super.dispose();
   }
 

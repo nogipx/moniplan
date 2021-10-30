@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/app/theme.dart';
-import 'package:moniplan/common/export.dart';
 import 'package:moniplan/sdk/domain.dart';
-import 'package:moniplan/module/operation/export.dart';
-import 'package:moniplan/common/util/export.dart';
+import 'package:moniplan/common/export.dart';
 
 class CalendarHeaderWidget extends StatelessWidget {
   final DateTime today;
@@ -53,9 +51,14 @@ class CalendarHeaderWidget extends StatelessWidget {
                     ),
                   ),
                   if (predictionValue != null)
-                    BudgetSummaryWidget(
-                      summaryValue: predictionValue!,
+                    MoneyColoredWidget(
+                      value: predictionValue!,
                       currency: CommonCurrencies().rub,
+                      showPlusSign: false,
+                      textStyle:
+                          Theme.of(context).textTheme.bodyText1?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                     )
                 ],
               ),

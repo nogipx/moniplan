@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan/app/theme.dart';
-import 'package:moniplan/common/bottom_sheet.dart';
-import 'package:moniplan/common/buttons.dart';
-import 'package:moniplan/common/confirm_dialog_builder.dart';
-import 'package:moniplan/module/operation/common/currency_colored.dart';
-import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
-import 'package:moniplan/module/operation/widget/operation_list_item.dart';
+import 'package:moniplan/common/widget/export.dart';
+import 'package:moniplan/module/operation/export.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartx/dartx.dart';
@@ -158,7 +154,7 @@ class _OperationPreviewState extends State<OperationPreview> {
                   onTap: () {
                     OperationWidget.showEdit(
                       context: context,
-                      initialData: widget.operation,
+                      initialData: _operation,
                     );
                   },
                 ),
@@ -185,7 +181,7 @@ class _OperationPreviewState extends State<OperationPreview> {
           style: Theme.of(context).textTheme.bodyText1,
         ),
         SizedBox(width: 12),
-        CurrencyColorWidget(
+        MoneyColoredWidget(
           currency: CommonCurrencies().rub,
           value: value,
           showPlusSign: false,

@@ -4,13 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:moniplan/common/export.dart';
-import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
-import 'package:moniplan/module/operation/screen/operation_edit_screen.dart';
-import 'package:moniplan/module/operation/widget/operation_preview.dart';
+import 'package:moniplan/module/operation/export.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/app/theme.dart';
-import 'package:moniplan/common/util/export.dart';
-import 'package:moniplan/module/operation/export.dart';
 
 class OperationWidget extends StatelessWidget {
   final Operation operation;
@@ -28,7 +24,7 @@ class OperationWidget extends StatelessWidget {
     return IconButton(
       constraints: BoxConstraints.tightFor(width: 26, height: 26),
       padding: const EdgeInsets.all(0),
-      splashRadius: 24,
+      splashRadius: 30,
       icon: Icon(
         operation.actualValue == null
             ? operation.enabled
@@ -72,7 +68,7 @@ class OperationWidget extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 4),
-                CurrencyColorWidget(
+                MoneyColoredWidget(
                   value: operation.actualValue ?? operation.expectedValue,
                   overrideColor:
                       !operation.enabled ? AppTheme.disabledColor : null,

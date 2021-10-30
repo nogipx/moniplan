@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:moniplan/common/buttons.dart';
+import 'package:moniplan/common/widget/buttons.dart';
 
 class ConfirmDialog extends StatelessWidget {
   const ConfirmDialog({

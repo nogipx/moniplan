@@ -96,6 +96,7 @@ final lightTheme = ThemeData(
   textTheme: baseTextTheme,
   backgroundColor: Colors.white,
   scaffoldBackgroundColor: Colors.white,
+  splashFactory: NoSplash.splashFactory,
   inputDecorationTheme: InputDecorationTheme(
     contentPadding: const EdgeInsets.only(
       bottom: 12,
