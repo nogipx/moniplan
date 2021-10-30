@@ -21,6 +21,27 @@ class OperationsListWidget extends StatefulWidget {
 
 class _OperationsListWidgetState extends State<OperationsListWidget>
     with TickerProviderStateMixin {
+  late final ScrollController _scrollController;
+  static final _scrollPosition = ValueNotifier<double?>(null);
+
+  @override
+  void initState() {
+    _scrollController = ScrollController(
+        // initialScrollOffset: _scrollPosition.value ?? 0,
+        );
+    // _scrollController.addListener(() {
+    //   _scrollPosition.value = _scrollController.offset;
+    // });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // _scrollController.dispose();
+    // _scrollPosition.value = null;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now().date;
@@ -36,7 +57,7 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
         return ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(overscroll: false),
           child: InfiniteList(
-            key: ValueKey(state),
+            controller: _scrollController,
             posChildCount: 730,
             negChildCount: 730,
             anchor: latestDate.isAfter(now) ? .2 : 0,

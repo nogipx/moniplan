@@ -40,10 +40,8 @@ class _OperationsScreenMobState extends State<OperationsScreenMob> {
           onDoubleTap: () {
             OperationWidget.showEdit(context: context);
           },
-          child: ValueListenableBuilder(
-            valueListenable:
-                Hive.box<Operation>(OperationService.key).listenable(),
-            builder: (context, box, widget) {
+          child: Builder(
+            builder: (context) {
               final predictionState = predictionBloc.state;
               if (predictionState is PredictionSuccess) {
                 return OperationsListWidget(

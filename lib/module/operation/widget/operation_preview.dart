@@ -9,135 +9,165 @@ import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/module/operation/widget/operation_list_item.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dartx/dartx.dart';
 
-class OperationPreview extends StatelessWidget {
+class OperationPreview extends StatefulWidget {
   final Operation operation;
 
   const OperationPreview({Key? key, required this.operation}) : super(key: key);
 
   @override
+  _OperationPreviewState createState() => _OperationPreviewState();
+}
+
+class _OperationPreviewState extends State<OperationPreview> {
+  late Operation _operation = widget.operation;
+
+  @override
   Widget build(BuildContext context) {
-    return BaseBottomSheet(
-      expand: false,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  operation.reason.isNotEmpty ? operation.reason : 'Название',
-                  style: Theme.of(context).textTheme.subtitle1?.copyWith(
-                        color: operation.reason.isNotEmpty
-                            ? AppTheme.primaryTextColor
-                            : AppTheme.inactiveTextColor,
-                      ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  DateFormat(DateFormat.MONTH_DAY, 'ru').format(operation.date),
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText1
-                      ?.apply(color: AppTheme.lightBlueColor),
-                ),
-                SizedBox(height: 32),
-                _buildMoneyRow(
-                  context,
-                  title: 'Планируемая сумма',
-                  value: operation.expectedValue,
-                  enabled: operation.enabled && operation.actualValue == null,
-                ),
-                SizedBox(height: 8),
-                if (operation.actualValue != null)
-                  _buildMoneyRow(
-                    context,
-                    title: 'Фактическая сумма',
-                    value: operation.actualValue!,
-                    enabled: operation.enabled && operation.actualValue != null,
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return BlocConsumer<BudgetPredictionCubit, BudgetPredictionState>(
+      listener: (context, state) {
+        if (state is PredictionSuccess) {
+          _operation =
+              state.operations[widget.operation.date.date]?.singleWhere(
+                    (e) => e.id == widget.operation.id,
+                    orElse: () => widget.operation,
+                  ) ??
+                  widget.operation;
+        } else {
+          _operation = widget.operation;
+        }
+      },
+      builder: (context, state) {
+        return BaseBottomSheet(
+          expand: false,
+          child: Column(
             children: [
-              Expanded(
-                child: _buildAction(
-                  context,
-                  icon: Icon(
-                    Icons.delete_outline_rounded,
-                    color: closeColor,
-                  ),
-                  title: 'Удалить',
-                  action: () async {
-                    await showDialog<bool>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return ConfirmDialog(
-                          title: 'Удаление операции',
-                          approveText: 'Удалить',
-                        );
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _operation.reason.isNotEmpty
+                          ? _operation.reason
+                          : 'Название',
+                      style: Theme.of(context).textTheme.subtitle1?.copyWith(
+                            color: _operation.reason.isNotEmpty
+                                ? AppTheme.primaryTextColor
+                                : AppTheme.inactiveTextColor,
+                          ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      DateFormat(DateFormat.MONTH_DAY, 'ru')
+                          .format(_operation.date),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1
+                          ?.apply(color: AppTheme.lightBlueColor),
+                    ),
+                    SizedBox(height: 32),
+                    _buildMoneyRow(
+                      context,
+                      title: 'Планируемая сумма',
+                      value: _operation.expectedValue,
+                      enabled:
+                          _operation.enabled && _operation.actualValue == null,
+                    ),
+                    SizedBox(height: 8),
+                    if (_operation.actualValue != null)
+                      _buildMoneyRow(
+                        context,
+                        title: 'Фактическая сумма',
+                        value: _operation.actualValue!,
+                        enabled: _operation.enabled &&
+                            _operation.actualValue != null,
+                      ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildAction(
+                      context,
+                      icon: Icon(
+                        Icons.delete_outline_rounded,
+                        color: closeColor,
+                      ),
+                      title: 'Удалить',
+                      action: () async {
+                        await showDialog<bool>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return ConfirmDialog(
+                              title: 'Удаление операции',
+                              approveText: 'Удалить',
+                            );
+                          },
+                        ).then((confirm) async {
+                          if (confirm ?? false) {
+                            await context
+                                .read<BudgetPredictionCubit>()
+                                .deleteOperation(widget.operation);
+                            Navigator.of(context).pop();
+                          }
+                        });
                       },
-                    ).then((confirm) async {
-                      if (confirm ?? false) {
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildAction(
+                      context,
+                      icon:
+                          Icon(Icons.check_rounded, color: AppTheme.blueColor),
+                      title: 'Завершить',
+                      action: () {},
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildAction(
+                      context,
+                      icon: Icon(Icons.power_settings_new_rounded,
+                          color: _operation.enabled
+                              ? Colors.white
+                              : AppTheme.blueColor),
+                      title: _operation.enabled ? 'Не учитывать' : 'Учитывать',
+                      enabled: _operation.enabled,
+                      action: () async {
                         await context
                             .read<BudgetPredictionCubit>()
-                            .deleteOperation(operation);
-                        Navigator.of(context).pop();
-                      }
-                    });
+                            .saveOperation(_operation.copyWith(
+                              enabled: !_operation.enabled,
+                            ));
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 30),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SecondaryActionButton(
+                  text: 'Редактировать',
+                  onTap: () {
+                    OperationWidget.showEdit(
+                      context: context,
+                      initialData: widget.operation,
+                    );
                   },
                 ),
               ),
-              Expanded(
-                child: _buildAction(
-                  context,
-                  icon: Icon(Icons.check_rounded, color: AppTheme.blueColor),
-                  title: 'Завершить',
-                  action: () {},
-                ),
-              ),
-              Expanded(
-                child: _buildAction(
-                  context,
-                  icon: Icon(Icons.power_settings_new_rounded,
-                      color: operation.enabled
-                          ? Colors.white
-                          : AppTheme.blueColor),
-                  title: operation.enabled ? 'Не учитывать' : 'Учитывать',
-                  enabled: operation.enabled,
-                  action: () async {
-                    await context
-                        .read<BudgetPredictionCubit>()
-                        .saveOperation(operation.copyWith(
-                          enabled: !operation.enabled,
-                        ));
-                  },
-                ),
-              ),
+              SizedBox(height: 24),
             ],
           ),
-          SizedBox(height: 30),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SecondaryActionButton(
-              text: 'Редактировать',
-              onTap: () {
-                OperationWidget.showEdit(
-                  context: context,
-                  initialData: operation,
-                );
-              },
-            ),
-          ),
-          SizedBox(height: 24),
-        ],
-      ),
+        );
+      },
     );
   }
 
