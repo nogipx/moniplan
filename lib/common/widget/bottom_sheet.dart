@@ -17,14 +17,14 @@ class BottomSheetDismissRectangle extends StatelessWidget {
 }
 
 class BaseBottomSheet extends StatelessWidget {
-  final Widget child;
-  final bool expand;
-
   const BaseBottomSheet({
     Key? key,
     required this.child,
     this.expand = false,
   }) : super(key: key);
+
+  final Widget child;
+  final bool expand;
 
   @override
   Widget build(BuildContext context) {

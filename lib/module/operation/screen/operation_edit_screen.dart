@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:moniplan/common/export.dart';
+import 'package:moniplan/common/widget/inputs.dart';
 import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/module/operation/cubit/operation_edit_cubit.dart';
+import 'package:moniplan/sdk/domain.dart';
 import 'package:provider/provider.dart';
 
 class OperationEditScreen extends StatefulWidget {
@@ -42,174 +45,81 @@ class _OperationEditScreenState extends State<OperationEditScreen> {
           child: BlocBuilder<OperationEditCubit, OperationEditState>(
             bloc: _edit,
             builder: (context, state) {
-              return Material(
-                child: SingleChildScrollView(
-                    child: AnimatedPadding(
-                  padding: MediaQuery.of(context).viewInsets,
-                  duration: Duration(milliseconds: 200),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Builder(
-                        builder: (context) {
-                          final textStyle = Theme.of(context)
-                              .textTheme
-                              .subtitle1!
-                              .copyWith(fontWeight: FontWeight.normal);
-                          return TextFormField(
-                            controller: _edit.title,
-                            style: textStyle,
-                            maxLines: 3,
-                            minLines: 1,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Operation title",
-                              hintStyle: textStyle.apply(color: Colors.black38),
-                              hintMaxLines: 2,
-                              suffix: Padding(
-                                padding: const EdgeInsets.only(left: 8),
-                                child: InkWell(
-                                  child:
-                                      Icon(Icons.clear, color: Colors.black45),
-                                  onTap: () {
-                                    _edit.title.clear();
-                                  },
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
-                              ),
-                            ),
-                          );
-                        },
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    AppTextField(
+                      controller: _edit.title,
+                      hintText: 'Название',
+                      onClear: () => _edit.title.clear(),
+                    ),
+                    SizedBox(height: 8),
+                    AppTextField(
+                      controller: _edit.expectedMoney,
+                      onClear: () => _edit.expectedMoney.clear(),
+                      currency: CommonCurrencies().rub,
+                      hintText: 'Ожидаемая сумма',
+                      keyboardType: TextInputType.numberWithOptions(
+                        signed: true,
+                        decimal: true,
                       ),
-                      Divider(height: 0),
-                      Builder(
-                        builder: (context) {
-                          final textStyle = Theme.of(context)
-                              .textTheme
-                              .subtitle1!
-                              .copyWith(fontWeight: FontWeight.normal);
-                          return TextFormField(
-                            controller: _edit.money,
-                            keyboardType: TextInputType.number,
-                            style: textStyle,
-                            autofocus: true,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r"[\d. -]*"))
-                            ],
-                            textAlignVertical: TextAlignVertical.top,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Money value",
-                              hintStyle: textStyle.apply(color: Colors.black38),
-                              prefix: Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: Text(
-                                  _edit.currencySymbol,
-                                  style: textStyle.apply(color: Colors.black87),
-                                ),
-                              ),
-                              suffix: InkWell(
-                                child: Icon(Icons.clear, color: Colors.black45),
-                                onTap: () {
-                                  _edit.money.clear();
-                                },
-                              ),
-                              labelStyle:
-                                  textStyle.apply(color: Colors.black87),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                            ),
-                          );
-                        },
+                      inputFormatters: [moneyInputFormatter],
+                    ),
+                    SizedBox(height: 8),
+                    AppTextField(
+                      controller: _edit.actualMoney,
+                      onClear: () => _edit.actualMoney.clear(),
+                      currency: CommonCurrencies().rub,
+                      hintText: 'Фактическая сумма',
+                      keyboardType: TextInputType.numberWithOptions(
+                        signed: true,
+                        decimal: true,
                       ),
-                      Divider(height: 0),
-                      Builder(
-                        builder: (context) {
-                          final textStyle = Theme.of(context)
-                              .textTheme
-                              .subtitle1!
-                              .copyWith(fontWeight: FontWeight.normal);
-                          return TextFormField(
-                            controller: _edit.actualMoney,
-                            keyboardType: TextInputType.number,
-                            style: textStyle,
-                            autofocus: true,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r"[\d. -]*"))
-                            ],
-                            textAlignVertical: TextAlignVertical.top,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Actual money value",
-                              hintStyle: textStyle.apply(color: Colors.black38),
-                              prefix: Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: Text(
-                                  _edit.currencySymbol,
-                                  style: textStyle.apply(color: Colors.black87),
-                                ),
-                              ),
-                              suffix: InkWell(
-                                child: Icon(Icons.clear, color: Colors.black45),
-                                onTap: () {
-                                  _edit.actualMoney.clear();
-                                },
-                              ),
-                              labelStyle:
-                                  textStyle.apply(color: Colors.black87),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                            ),
-                          );
-                        },
-                      ),
-                      Divider(height: 0),
-                      TextButton(
-                        child: Text(
-                            DateFormat.yMMMMd().format(_edit.operation.date)),
-                        onPressed: () async {
-                          await showDatePicker(
-                            context: context,
-                            initialDate: _edit.operation.date,
-                            firstDate:
-                                DateTime.now().subtract(Duration(days: 3650)),
-                            lastDate: DateTime.now().add(Duration(days: 3650)),
-                          ).then((value) {
-                            if (value != null) {
-                              _edit.setOperationExpectedDate(value);
-                            }
-                          });
-                        },
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton(
-                            child: Text("Discard"),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          TextButton(
-                            child: Text("Save"),
-                            onPressed: () {
-                              context
-                                  .read<BudgetPredictionCubit>()
-                                  .saveOperation(_edit.operation);
-                              Navigator.of(context).pop(_edit.operation);
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                )),
+                      inputFormatters: [moneyInputFormatter],
+                    ),
+                    SizedBox(height: 8),
+                    TextButton(
+                      child: Text(
+                          DateFormat.yMMMMd().format(_edit.operation.date)),
+                      onPressed: () async {
+                        await showDatePicker(
+                          context: context,
+                          initialDate: _edit.operation.date,
+                          firstDate:
+                              DateTime.now().subtract(Duration(days: 3650)),
+                          lastDate: DateTime.now().add(Duration(days: 3650)),
+                        ).then((value) {
+                          if (value != null) {
+                            _edit.setOperationExpectedDate(value);
+                          }
+                        });
+                      },
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextButton(
+                          child: Text("Discard"),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        TextButton(
+                          child: Text("Save"),
+                          onPressed: () {
+                            context
+                                .read<BudgetPredictionCubit>()
+                                .saveOperation(_edit.operation);
+                            Navigator.of(context).pop(_edit.operation);
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               );
             },
           ),

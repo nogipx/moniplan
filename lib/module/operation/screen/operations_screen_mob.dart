@@ -38,7 +38,11 @@ class _OperationsScreenMobState extends State<OperationsScreenMob> {
       body: SafeArea(
         child: GestureDetector(
           onDoubleTap: () {
-            OperationWidget.showEdit(context: context);
+            OperationWidget.showEdit(context: context).then((value) {
+              if (value != null) {
+                predictionBloc.saveOperation(value);
+              }
+            });
           },
           child: Builder(
             builder: (context) {

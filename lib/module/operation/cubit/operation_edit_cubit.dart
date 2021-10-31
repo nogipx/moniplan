@@ -19,7 +19,7 @@ class OperationEditCubit extends Cubit<OperationEditState> {
   final Operation? initial;
 
   late final AdvancedTextEditingController title;
-  late final AdvancedTextEditingController money;
+  late final AdvancedTextEditingController expectedMoney;
   late final AdvancedTextEditingController actualMoney;
 
   late Operation _operation;
@@ -36,17 +36,18 @@ class OperationEditCubit extends Cubit<OperationEditState> {
           currency: CommonCurrencies().rub,
         );
 
-    money = AdvancedTextEditingController(
+    expectedMoney = AdvancedTextEditingController(
       name: '$runtimeType-money',
       text: _operation.expectedValue == 0
           ? null
           : _operation.expectedValue.isWhole
               ? _operation.expectedValue.toInt().toString()
-              : _operation.expectedValue.toString(),
+              : _operation.expectedValue.toString().replaceFirst('.', ','),
     )..addListener(() {
-        money.createDebounce(() {
+        expectedMoney.createDebounce(() {
           _operation = _operation.copyWith(
-            expectedValue: double.tryParse(money.text.trim()),
+            expectedValue: double.tryParse(
+                expectedMoney.text.replaceFirst(',', '.').trim()),
           );
           _emitSave;
         });
@@ -58,13 +59,13 @@ class OperationEditCubit extends Cubit<OperationEditState> {
           ? null
           : _operation.actualValue!.isWhole
               ? _operation.actualValue!.toInt().toString()
-              : _operation.actualValue.toString(),
+              : _operation.actualValue.toString().replaceFirst('.', ','),
     )..addListener(() {
         actualMoney.createDebounce(() {
-          final newOperation = _operation.copyWith(
-            actualValue: double.tryParse(actualMoney.text.trim()),
+          _operation = _operation.copyWith(
+            actualValue:
+                double.tryParse(actualMoney.text.replaceFirst(',', '.').trim()),
           );
-          _operation = newOperation;
           _emitSave;
         });
       });
@@ -97,7 +98,7 @@ class OperationEditCubit extends Cubit<OperationEditState> {
 
   void dispose() {
     title.dispose();
-    money.dispose();
+    expectedMoney.dispose();
     actualMoney.dispose();
   }
 }

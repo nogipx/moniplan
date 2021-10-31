@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 class DashboardLayout extends StatelessWidget {
-  final Widget? content;
-  final Widget? drawer;
-  final PreferredSizeWidget? appBar;
-  final FloatingActionButton? floatingActionButton;
-
   const DashboardLayout({
     Key? key,
     this.content,
@@ -14,6 +9,11 @@ class DashboardLayout extends StatelessWidget {
     this.appBar,
     this.floatingActionButton,
   }) : super(key: key);
+
+  final Widget? content;
+  final Widget? drawer;
+  final PreferredSizeWidget? appBar;
+  final FloatingActionButton? floatingActionButton;
 
   @override
   Widget build(BuildContext context) {
