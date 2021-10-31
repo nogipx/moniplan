@@ -77,7 +77,7 @@ class _CalendarItemState extends State<CalendarItem> {
   }
 
   Future<void> _showDoneOperations(BuildContext context) async {
-    final day = widget.operations.firstOrNull?.date ?? DateTime.now().date;
+    final day = widget.operations.firstOrNull?.date.date ?? DateTime.now().date;
     return showCupertinoModalBottomSheet<dynamic>(
       context: context,
       animationCurve: Curves.fastLinearToSlowEaseIn,

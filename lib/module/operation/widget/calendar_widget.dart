@@ -77,7 +77,7 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
                           children: [
                             if (prediction != null)
                               CalendarItem(
-                                key: ObjectKey(state),
+                                key: ValueKey(state),
                                 operations: state.operations[day] ?? [],
                               ),
                             if (isDayNow) _buildCreateOperation()

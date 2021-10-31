@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:moniplan/app/theme.dart';
-import 'package:moniplan/sdk/domain/currency.dart';
+import 'package:moniplan/sdk/domain/currency/currency.dart';
 
 class AppTextField extends StatelessWidget {
   const AppTextField({

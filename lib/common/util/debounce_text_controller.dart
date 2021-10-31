@@ -33,3 +33,8 @@ class AdvancedTextEditingController extends TextEditingController {
 
   void cancelDebounce() => EasyDebounce.cancel(name);
 }
+
+extension AdvancedTextEditingList on List<AdvancedTextEditingController> {
+  bool get everyValid =>
+      map((e) => e.validator?.call(e.text) ?? true).every((e) => e);
+}

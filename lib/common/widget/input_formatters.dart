@@ -22,7 +22,7 @@ class CurrencyTextInputFormatter extends TextInputFormatter {
       _format(newValue: TextEditingValue(text: value), override: true).text;
 
   RegExp get forbiddenCharacters =>
-      RegExp(allowNegative ? r'[^0-9,-]' : r'[^0-9,]');
+      RegExp(allowNegative ? r'[^0-9,.-]' : r'[^0-9,.]');
 
   TextEditingValue _format({
     TextEditingValue oldValue = const TextEditingValue(text: ''),
@@ -38,6 +38,9 @@ class CurrencyTextInputFormatter extends TextInputFormatter {
 
     if (forbiddenCharacters.hasMatch(newValue.text)) {
       return oldValue;
+    }
+    if (newValue.text.endsWith('.')) {
+      newValue = newValue.copyWith(text: newValue.text.replaceFirst('.', ','));
     }
 
     final bool isNegative = newValue.text.startsWith('-');

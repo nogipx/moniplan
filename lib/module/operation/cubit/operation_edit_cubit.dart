@@ -25,19 +25,16 @@ class OperationEditCubit extends Cubit<OperationEditState> {
   late Operation _operation;
   Operation get operation => _operation;
 
+  bool get isValid => [title, expectedMoney, actualMoney].everyValid;
+
   OperationEditCubit({
     this.initial,
   }) : super(OperationEditInitial()) {
-    _operation = initial?.copyWith() ??
-        Operation.create(
-          expectedValue: 0,
-          reason: "",
-          date: DateTime.now(),
-          currency: CommonCurrencies().rub,
-        );
+    _operation = initial?.copyWith() ?? Operation.stub;
 
     expectedMoney = AdvancedTextEditingController(
-      name: '$runtimeType-money',
+      name: '$runtimeType-expectedMoney',
+      validator: (v) => v.isNotEmpty,
       text: _operation.expectedValue == 0
           ? null
           : _operation.expectedValue.isWhole
@@ -49,7 +46,7 @@ class OperationEditCubit extends Cubit<OperationEditState> {
             expectedValue: double.tryParse(
                 expectedMoney.text.replaceFirst(',', '.').trim()),
           );
-          _emitSave;
+          _emitSave();
         });
       });
 
@@ -62,37 +59,45 @@ class OperationEditCubit extends Cubit<OperationEditState> {
               : _operation.actualValue.toString().replaceFirst('.', ','),
     )..addListener(() {
         actualMoney.createDebounce(() {
-          _operation = _operation.copyWith(
-            actualValue:
-                double.tryParse(actualMoney.text.replaceFirst(',', '.').trim()),
-          );
-          _emitSave;
+          final value = actualMoney.text;
+          if (value.isNotEmpty) {
+            _operation = _operation.copyWith(
+              actualValue: double.tryParse(
+                  actualMoney.text.replaceFirst(',', '.').trim()),
+            );
+          } else {
+            _operation = _operation.copyWithNull(actualValue: true);
+          }
+          _emitSave();
         });
       });
 
-    title = AdvancedTextEditingController(name: '$runtimeType-title')
+    title = AdvancedTextEditingController(
+      name: '$runtimeType-title',
+      validator: (v) => v.isNotEmpty,
+    )
       ..text = _operation.reason
       ..addListener(() {
         title.createDebounce(() {
           _operation = _operation.copyWith(reason: title.text);
-          _emitSave;
+          _emitSave();
         });
       });
   }
 
   void setOperationExpectedDate(DateTime value) {
     _operation = _operation.copyWith(date: value.date);
-    _emitSave;
+    _emitSave();
   }
 
   void setOperationActualDate() {}
 
   void resetActualMoney() {
     _operation = _operation.copyWithNull(actualValue: true);
-    _emitSave;
+    _emitSave();
   }
 
-  void get _emitSave => emit(OperationEditSuccess(operation));
+  void _emitSave() => emit(OperationEditSuccess(operation));
 
   String get currencySymbol => _operation.currency.intlSymbol;
 

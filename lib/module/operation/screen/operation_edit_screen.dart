@@ -109,12 +109,16 @@ class _OperationEditScreenState extends State<OperationEditScreen> {
                         ),
                         TextButton(
                           child: Text("Save"),
-                          onPressed: () {
-                            context
-                                .read<BudgetPredictionCubit>()
-                                .saveOperation(_edit.operation);
-                            Navigator.of(context).pop(_edit.operation);
-                          },
+                          onPressed: _edit.isValid
+                              ? () {
+                                  if (_edit.isValid) {
+                                    context
+                                        .read<BudgetPredictionCubit>()
+                                        .saveOperation(_edit.operation);
+                                    Navigator.of(context).pop(_edit.operation);
+                                  }
+                                }
+                              : null,
                         ),
                       ],
                     ),

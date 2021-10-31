@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/app/theme.dart';
-import 'package:moniplan/sdk/domain/currency.dart';
+import 'package:moniplan/sdk/domain/currency/currency.dart';
 
 class MoneyColoredWidget extends StatelessWidget {
   final double? value;

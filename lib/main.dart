@@ -17,12 +17,9 @@ Future<void> main() async {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
 
-    // Hive.registerAdapter(OperationTypeAdapter());
-    Hive.registerAdapter(OperationAdapter());
-    // Hive.registerAdapter<Prediction>(PredictionAdapter());
-    await Hive.initFlutter();
-
+    await initHive();
     await initializeDateFormatting('ru');
+
     runApp(
       Injector(
         operationHive: await Hive.openBox<Operation>(OperationService.key),
@@ -33,4 +30,10 @@ Future<void> main() async {
     print(exception);
     print(stackTrace);
   });
+}
+
+Future<void> initHive() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(OperationAdapter());
+  Hive.registerAdapter(CurrencyAdapter());
 }

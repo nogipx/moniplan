@@ -16,11 +16,13 @@ extension OperationPredictionList on List<Operation> {
     });
 
     // Compute predictions
-    dailyResult.entries.reduce((prev, curr) {
-      final newValue = curr.value + prev.value;
-      dailyResult.update(curr.key, (_) => newValue);
-      return MapEntry(curr.key, newValue);
-    });
+    if (dailyResult.isNotEmpty) {
+      dailyResult.entries.reduce((prev, curr) {
+        final newValue = curr.value + prev.value;
+        dailyResult.update(curr.key, (_) => newValue);
+        return MapEntry(curr.key, newValue);
+      });
+    }
 
     return dailyResult;
   }
