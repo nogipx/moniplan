@@ -11,18 +11,17 @@ class CreateOperationItem extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
-            Icon(
-              Icons.add_rounded,
-              color: AppTheme.lightBlueColor,
-              size: 26,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Icon(
+                Icons.add_rounded,
+                color: AppTheme.lightBlueColor,
+                size: 26,
+              ),
             ),
-            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

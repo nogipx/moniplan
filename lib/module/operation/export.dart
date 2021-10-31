@@ -10,3 +10,4 @@ export 'widget/calendar_widget.dart';
 export 'widget/create_operation_list_item.dart';
 export 'widget/operation_list_item.dart';
 export 'widget/operation_preview.dart';
+export 'widget/edit_money.dart';

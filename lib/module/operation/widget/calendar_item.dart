@@ -102,7 +102,7 @@ class _CalendarItemState extends State<CalendarItem> {
                       children: [
                         Text(
                           'Завершённые операции',
-                          style: Theme.of(context).textTheme.subtitle1,
+                          style: Theme.of(context).textTheme.subtitle2,
                         ),
                         SizedBox(height: 8),
                         Text(

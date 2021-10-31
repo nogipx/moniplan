@@ -13,6 +13,7 @@ class AppTextField extends StatelessWidget {
     this.keyboardType,
     this.hintText,
     this.inputFormatters,
+    this.autofocus = false,
   }) : super(key: key);
 
   final TextEditingController controller;
@@ -22,6 +23,7 @@ class AppTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final String? hintText;
   final List<TextInputFormatter>? inputFormatters;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +42,7 @@ class AppTextField extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .bodyText1
-                    ?.copyWith(color: AppTheme.blueColor),
+                    ?.copyWith(color: AppTheme.primaryTextColor),
               ),
             if (currency != null) SizedBox(width: 12),
             Expanded(
@@ -50,6 +52,7 @@ class AppTextField extends StatelessWidget {
                 maxLines: 3,
                 minLines: 1,
                 keyboardType: keyboardType,
+                autofocus: autofocus,
                 inputFormatters: inputFormatters,
                 decoration: InputDecoration(
                   hintStyle: textStyle.apply(color: AppTheme.inactiveTextColor),

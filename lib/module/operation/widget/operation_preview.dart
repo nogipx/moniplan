@@ -6,6 +6,7 @@ import 'package:moniplan/module/operation/export.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartx/dartx.dart';
+import 'package:moniplan/common/export.dart';
 
 class OperationPreview extends StatefulWidget {
   final Operation operation;
@@ -49,7 +50,7 @@ class _OperationPreviewState extends State<OperationPreview> {
                       _operation.reason.isNotEmpty
                           ? _operation.reason
                           : 'Название',
-                      style: Theme.of(context).textTheme.subtitle1?.copyWith(
+                      style: Theme.of(context).textTheme.subtitle2?.copyWith(
                             color: _operation.reason.isNotEmpty
                                 ? AppTheme.primaryTextColor
                                 : AppTheme.inactiveTextColor,
@@ -139,7 +140,7 @@ class _OperationPreviewState extends State<OperationPreview> {
                       title: _operation.actualValue == null
                           ? 'Завершить'
                           : 'Изменить',
-                      action: () {},
+                      action: () => _actionChangeMoney(context),
                     ),
                   ),
                   Expanded(
@@ -240,5 +241,38 @@ class _OperationPreviewState extends State<OperationPreview> {
         )
       ],
     );
+  }
+
+  Future<void> _actionChangeMoney(BuildContext context) async {
+    final editCubit = OperationEditCubit(initial: _operation);
+    await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return BlocBuilder<OperationEditCubit, OperationEditState>(
+          bloc: editCubit,
+          builder: (context, state) {
+            return ConfirmDialog(
+              title: 'Изменение суммы',
+              approveText: 'Готово',
+              approveValidator: () => editCubit.isValid,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: EditMoneyWidget(
+                  editCubit: editCubit,
+                  initialTab: EditMoneyTab.Actual,
+                  autofocus: true,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).then((confirm) {
+      if (confirm ?? false) {
+        context
+            .read<BudgetPredictionCubit>()
+            .saveOperation(editCubit.operation);
+      }
+    });
   }
 }

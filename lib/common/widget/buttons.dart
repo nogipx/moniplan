@@ -17,7 +17,7 @@ class PrimaryActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(16);
+    final borderRadius = BorderRadius.circular(12);
     final textColor = onTap == null ? AppTheme.inactiveTextColor : Colors.white;
 
     return Material(
@@ -63,7 +63,7 @@ class SecondaryActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(16);
+    final borderRadius = BorderRadius.circular(12);
     final textColor = onTap == null
         ? AppTheme.inactiveTextColor
         : isDestructive

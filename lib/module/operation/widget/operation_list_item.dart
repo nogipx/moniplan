@@ -21,22 +21,27 @@ class OperationWidget extends StatelessWidget {
   }) : super(key: key);
 
   Widget _buildToggleEnable() {
-    return IconButton(
-      constraints: BoxConstraints.tightFor(width: 26, height: 26),
-      padding: const EdgeInsets.all(0),
-      splashRadius: 30,
-      icon: Icon(
-        operation.actualValue == null
-            ? operation.enabled
-                ? Icons.check_box_outlined
-                : Icons.check_box_outline_blank_outlined
-            : Icons.check,
-        color: operation.enabled
-            ? AppTheme.lightBlueColor
-            : AppTheme.disabledColor,
-        size: operation.actualValue == null ? 26 : 24,
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: operation.actualValue == null ? onToggleEnable : null,
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(16),
+        child: SizedBox(
+          width: 26,
+          child: Icon(
+            operation.actualValue == null
+                ? operation.enabled
+                    ? Icons.check_box_outlined
+                    : Icons.check_box_outline_blank_outlined
+                : Icons.check,
+            color: operation.enabled
+                ? AppTheme.lightBlueColor
+                : AppTheme.disabledColor,
+            size: operation.actualValue == null ? 26 : 24,
+          ),
+        ),
       ),
-      onPressed: operation.actualValue == null ? onToggleEnable : null,
     );
   }
 
@@ -46,37 +51,34 @@ class OperationWidget extends StatelessWidget {
       grayscale: !operation.enabled,
       child: InkWell(
         onTap: onPressed,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: _buildToggleEnable(),
-                ),
-                SizedBox(width: 16),
-                Expanded(
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildToggleEnable(),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Text(
                     operation.reason,
-                    maxLines: 3,
+                    maxLines: 5,
                     style: Theme.of(context).textTheme.bodyText1?.apply(
                           color:
                               operation.enabled ? null : AppTheme.disabledColor,
                         ),
                   ),
                 ),
-                SizedBox(width: 4),
-                MoneyColoredWidget(
-                  value: operation.actualValue ?? operation.expectedValue,
-                  overrideColor:
-                      !operation.enabled ? AppTheme.disabledColor : null,
-                  currency: operation.currency,
-                  textStyle: Theme.of(context).textTheme.bodyText1,
-                )
-              ],
-            ),
+              ),
+              SizedBox(width: 4),
+              MoneyColoredWidget(
+                value: operation.actualValue ?? operation.expectedValue,
+                overrideColor:
+                    !operation.enabled ? AppTheme.disabledColor : null,
+                currency: operation.currency,
+                textStyle: Theme.of(context).textTheme.bodyText1,
+              ),
+              SizedBox(width: 16)
+            ],
           ),
         ),
       ),

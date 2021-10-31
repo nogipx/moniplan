@@ -43,11 +43,11 @@ class CalendarHeaderWidget extends StatelessWidget {
                   Expanded(
                     child: Text(
                       dateFormat.format(day),
-                      style: Theme.of(context).textTheme.subtitle1?.apply(
+                      style: Theme.of(context).textTheme.subtitle2?.apply(
                             color: color.luminance(
                               dark: today == day
                                   ? AppTheme.blueColor
-                                  : AppTheme.primaryTextColor.withOpacity(.85),
+                                  : AppTheme.primaryTextColor,
                             ),
                           ),
                     ),

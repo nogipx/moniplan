@@ -5,15 +5,19 @@ import 'package:moniplan/common/widget/buttons.dart';
 class ConfirmDialog extends StatelessWidget {
   const ConfirmDialog({
     this.title,
-    this.content,
+    this.contentText,
     this.cancelText,
     this.approveText,
+    this.child,
+    this.approveValidator,
   });
 
   final String? title;
-  final String? content;
+  final Widget? child;
+  final String? contentText;
   final String? cancelText;
   final String? approveText;
+  final bool Function()? approveValidator;
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +27,10 @@ class ConfirmDialog extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20.0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(12),
             color: Colors.white,
           ),
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -36,17 +40,20 @@ class ConfirmDialog extends StatelessWidget {
                 Text(
                   title!,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.subtitle1,
+                  style: Theme.of(context).textTheme.subtitle2,
                 ),
-              if (title != null)
-                const SizedBox(
-                  height: 16,
+              if (title != null) const SizedBox(height: 16),
+              if (child == null)
+                Text(
+                  contentText ?? 'Вы уверены?',
+                  style: Theme.of(context).textTheme.bodyText1,
+                  textAlign: TextAlign.center,
                 ),
-              Text(
-                content ?? 'Вы уверены?',
-                style: const TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
+              if (child != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: child,
+                ),
               const SizedBox(height: 24),
               Row(
                 children: [
@@ -71,7 +78,9 @@ class ConfirmDialog extends StatelessWidget {
                     Expanded(
                       child: PrimaryActionButton(
                         height: 40,
-                        onTap: () => Navigator.pop(context, true),
+                        onTap: (approveValidator?.call() ?? true)
+                            ? () => Navigator.pop(context, true)
+                            : null,
                         text: approveText!,
                       ),
                     ),

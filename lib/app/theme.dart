@@ -11,7 +11,7 @@ abstract class AppTheme {
   static const positiveMoneyColor = Color(0xff3C8900);
   static const negativeMoneyColor = Color(0xffDF0000);
 
-  static const primaryTextColor = Color(0xff333333);
+  static const primaryTextColor = Color(0xff454545);
   static const secondaryTextColor = Color(0xff9299A2);
   static const inactiveBackgroundColor = Color(0xffF4F4F4);
   static const inactiveTextColor = Color(0xffC7C9CC);
@@ -22,7 +22,6 @@ const secondaryColor = Color(0xfff7f7f7);
 const closeColor = Color(0xffF52222);
 const darkBlueColor = Color(0xff1B79F2);
 const lightBlueColor = Color(0xff428BF9);
-const primaryTextColor = Color(0xff333333);
 const secondaryTextColor = Color(0xff9299A2);
 const inactiveTextColor = Color(0xffC7C9CC);
 const lightInactiveColor = Color(0xffDBDBDB);
@@ -46,42 +45,42 @@ const baseTextTheme = TextTheme(
     // letterSpacing: 0.38,
     fontFamily: 'SfProDisplay',
     fontSize: 30,
-    color: primaryTextColor,
+    color: AppTheme.primaryTextColor,
   ),
   headline6: TextStyle(
     fontWeight: FontWeight.bold,
     // letterSpacing: 0.38,
     fontFamily: 'SfProDisplay',
     fontSize: 22,
-    color: primaryTextColor,
+    color: AppTheme.primaryTextColor,
   ),
   subtitle1: TextStyle(
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.normal,
     // letterSpacing: 0.38,
     fontFamily: 'SfProDisplay',
     fontSize: 20,
-    color: primaryTextColor,
+    color: AppTheme.primaryTextColor,
   ),
   subtitle2: TextStyle(
     fontWeight: FontWeight.bold,
     // letterSpacing: 0.38,
     fontFamily: 'SfProDisplay',
     fontSize: 20,
-    color: primaryTextColor,
+    color: AppTheme.primaryTextColor,
   ),
   bodyText1: TextStyle(
     // letterSpacing: -0.41,
     fontFamily: 'SfProText',
     fontSize: 17,
-    color: primaryTextColor,
+    color: AppTheme.primaryTextColor,
     fontWeight: FontWeight.normal,
   ),
   bodyText2: TextStyle(
     // letterSpacing: -0.41,
     fontFamily: 'SfProText',
     fontSize: 17,
-    color: primaryTextColor,
-    fontWeight: FontWeight.normal,
+    color: AppTheme.primaryTextColor,
+    fontWeight: FontWeight.bold,
   ),
   caption: TextStyle(
     // letterSpacing: -0.24,
