@@ -9,16 +9,18 @@ import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/app/theme.dart';
 
 class OperationWidget extends StatelessWidget {
-  final Operation operation;
-  final VoidCallback? onPressed;
-  final VoidCallback? onToggleEnable;
-
   const OperationWidget({
     Key? key,
     required this.operation,
     this.onPressed,
     this.onToggleEnable,
+    this.textColor,
   }) : super(key: key);
+
+  final Operation operation;
+  final VoidCallback? onPressed;
+  final VoidCallback? onToggleEnable;
+  final Color? textColor;
 
   Widget _buildToggleEnable() {
     return InkWell(
@@ -63,8 +65,9 @@ class OperationWidget extends StatelessWidget {
                     operation.reason,
                     maxLines: 5,
                     style: Theme.of(context).textTheme.bodyText1?.apply(
-                          color:
-                              operation.enabled ? null : AppTheme.disabledColor,
+                          color: operation.enabled
+                              ? textColor
+                              : AppTheme.disabledColor,
                         ),
                   ),
                 ),

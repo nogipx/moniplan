@@ -80,8 +80,8 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
                               CalendarItem(
                                 key: ValueKey(state),
                                 operations: state.operations[day] ?? [],
+                                showCreateOperation: isDayNow,
                               ),
-                            if (isDayNow) _buildCreateOperation()
                           ],
                         ),
                       );
@@ -99,16 +99,6 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
               }
             },
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCreateOperation() {
-    return CreateOperationItem(
-      onPressed: () async {
-        await OperationWidget.showEdit(
-          context: context,
         );
       },
     );

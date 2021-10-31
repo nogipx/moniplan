@@ -9,9 +9,14 @@ import 'package:provider/provider.dart';
 import 'package:dartx/dartx.dart';
 
 class CalendarItem extends StatefulWidget {
-  final List<Operation> operations;
+  const CalendarItem({
+    Key? key,
+    required this.operations,
+    this.showCreateOperation = false,
+  }) : super(key: key);
 
-  const CalendarItem({Key? key, required this.operations}) : super(key: key);
+  final List<Operation> operations;
+  final bool showCreateOperation;
 
   @override
   _CalendarItemState createState() => _CalendarItemState();
@@ -59,6 +64,7 @@ class _CalendarItemState extends State<CalendarItem> {
             );
           },
         ),
+        if (widget.showCreateOperation) _buildCreateOperation(),
         if (_doneOperations.isNotEmpty)
           OperationWidget(
             operation: Operation.create(
@@ -147,6 +153,16 @@ class _CalendarItemState extends State<CalendarItem> {
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  Widget _buildCreateOperation() {
+    return CreateOperationItem(
+      onPressed: () async {
+        await OperationWidget.showEdit(
+          context: context,
         );
       },
     );

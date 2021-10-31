@@ -109,6 +109,7 @@ class _OperationEditScreenState extends State<OperationEditScreen> {
               AppTextField(
                 controller: _edit.title,
                 hintText: 'Название',
+                autofocus: _edit.title.text.isEmpty,
                 onClear: () => _edit.title.clear(),
               ),
               SizedBox(height: 4),
