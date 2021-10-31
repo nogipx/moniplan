@@ -9,7 +9,7 @@ class AdvancedTextEditingController extends TextEditingController {
   AdvancedTextEditingController({
     required this.name,
     String? text,
-    this.debounceTimeout = const Duration(milliseconds: 500),
+    this.debounceTimeout = const Duration(milliseconds: 250),
     this.validator,
   }) : super(text: text);
 

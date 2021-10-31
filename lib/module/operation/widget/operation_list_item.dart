@@ -72,7 +72,7 @@ class OperationWidget extends StatelessWidget {
                   value: operation.actualValue ?? operation.expectedValue,
                   overrideColor:
                       !operation.enabled ? AppTheme.disabledColor : null,
-                  currency: CommonCurrencies().rub,
+                  currency: operation.currency,
                   textStyle: Theme.of(context).textTheme.bodyText1,
                 )
               ],
@@ -88,7 +88,6 @@ class OperationWidget extends StatelessWidget {
     required Operation initialData,
   }) async {
     final result = await showCupertinoModalBottomSheet<Operation?>(
-      barrierColor: Colors.black38,
       context: context,
       animationCurve: Curves.fastLinearToSlowEaseIn,
       duration: Duration(milliseconds: 250),
@@ -116,16 +115,21 @@ class OperationWidget extends StatelessWidget {
     required BuildContext context,
     Operation? initialData,
   }) async {
-    return Navigator.of(context).push(
-      CupertinoPageRoute<Operation>(
-        builder: (BuildContext context) {
-          return OperationEditScreen(
+    final result = await showCupertinoModalBottomSheet<Operation?>(
+      context: context,
+      animationCurve: Curves.easeInOut,
+      duration: Duration(milliseconds: 350),
+      builder: (context) {
+        return BaseBottomSheet(
+          expand: true,
+          child: OperationEditScreen(
             operationEditCubit: OperationEditCubit(
               initial: initialData,
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
+    return result;
   }
 }

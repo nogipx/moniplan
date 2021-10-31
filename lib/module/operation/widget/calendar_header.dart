@@ -7,6 +7,7 @@ class CalendarHeaderWidget extends StatelessWidget {
   final DateTime today;
   final DateTime day;
   final double? predictionValue;
+  final Currency? currency;
   final VoidCallback? onPressed;
 
   const CalendarHeaderWidget({
@@ -15,6 +16,7 @@ class CalendarHeaderWidget extends StatelessWidget {
     required this.today,
     this.predictionValue,
     this.onPressed,
+    this.currency,
   }) : super(key: key);
 
   @override
@@ -53,7 +55,7 @@ class CalendarHeaderWidget extends StatelessWidget {
                   if (predictionValue != null)
                     MoneyColoredWidget(
                       value: predictionValue!,
-                      currency: CommonCurrencies().rub,
+                      currency: currency ?? CommonCurrencies().rub,
                       showPlusSign: false,
                       textStyle:
                           Theme.of(context).textTheme.bodyText1?.copyWith(

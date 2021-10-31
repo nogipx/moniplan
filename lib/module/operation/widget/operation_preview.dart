@@ -120,9 +120,25 @@ class _OperationPreviewState extends State<OperationPreview> {
                   Expanded(
                     child: _buildAction(
                       context,
-                      icon:
-                          Icon(Icons.check_rounded, color: AppTheme.blueColor),
-                      title: 'Завершить',
+                      icon: _operation.actualValue == null
+                          ? Icon(
+                              Icons.check_rounded,
+                              color: AppTheme.blueColor,
+                            )
+                          : Text(
+                              _operation.currency.symbol,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                    color: AppTheme.blueColor,
+                                  ),
+                            ),
+                      title: _operation.actualValue == null
+                          ? 'Завершить'
+                          : 'Изменить',
                       action: () {},
                     ),
                   ),
@@ -211,6 +227,7 @@ class _OperationPreviewState extends State<OperationPreview> {
             child: Container(
               height: 70,
               width: 70,
+              alignment: Alignment.center,
               child: icon,
             ),
           ),

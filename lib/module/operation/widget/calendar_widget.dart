@@ -64,6 +64,7 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
                     key: ValueKey(state),
                     day: day,
                     today: now,
+                    currency: CommonCurrencies().rub,
                     predictionValue: state is PredictionSuccess
                         ? state.predictions[day]
                         : null,
