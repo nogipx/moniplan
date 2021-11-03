@@ -48,7 +48,7 @@ class _OperationEditScreenState extends State<OperationEditScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'Редактирование',
+                  _edit.initial != null ? 'Редактирование' : 'Создание',
                   style: Theme.of(context).textTheme.headline6,
                 ),
               ),
