@@ -29,7 +29,7 @@ class CurrencyAdapter extends TypeAdapter<Currency> {
       ..writeByte(1)
       ..write(obj.symbol)
       ..writeByte(2)
-      ..write(obj.precision)
+      ..write(obj.scale)
       ..writeByte(3)
       ..write(obj.pattern)
       ..writeByte(4)
@@ -37,6 +37,6 @@ class CurrencyAdapter extends TypeAdapter<Currency> {
       ..writeByte(5)
       ..write(obj.decimalSeparator)
       ..writeByte(6)
-      ..write(obj.thousandSeparator);
+      ..write(obj.groupSeparator);
   }
 }

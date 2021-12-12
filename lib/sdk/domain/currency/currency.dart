@@ -7,7 +7,7 @@ import 'package:intl/number_symbols_data.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:money2/money2.dart';
 
-export "package:money2/money2.dart";
+export 'package:money2/money2.dart';
 
 class CurrencyConverter
     implements JsonConverter<Currency, Map<dynamic, dynamic>?> {
@@ -29,7 +29,7 @@ class CurrencyConverter
   Map<String, dynamic> toJson(Currency object) {
     return <String, dynamic>{
       'code': object.code,
-      'precision': object.precision,
+      'precision': object.scale,
     };
   }
 }
@@ -41,13 +41,13 @@ extension CurrencyDouble on double {
     final localeTag = locale?.toLanguageTag();
     final value = NumberFormat.currency(
       symbol: currency.intlSymbol,
-      decimalDigits: this % 1 == 0 ? 0 : currency.precision,
+      decimalDigits: this % 1 == 0 ? 0 : currency.scale,
       locale: localeTag ?? currency.getLocale()?.toLanguageTag(),
     ).format(abs());
     if (this >= 0) {
       return value;
     } else {
-      return "- $value";
+      return '- $value';
     }
   }
 }

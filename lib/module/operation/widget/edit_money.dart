@@ -25,6 +25,7 @@ class _EditMoneyWidgetState extends State<EditMoneyWidget> {
 
   @override
   void initState() {
+    const t = "";
     _tab = ValueNotifier(widget.initialTab ??
         (widget.editCubit.operation.actualValue != null
             ? EditMoneyTab.Actual
