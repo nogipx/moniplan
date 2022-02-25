@@ -3,18 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/common/export.dart';
 import 'package:moniplan/common/widget/inputs.dart';
-import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
-import 'package:moniplan/module/operation/cubit/operation_edit_cubit.dart';
-import 'package:moniplan/module/operation/widget/edit_money.dart';
+import 'package:moniplan/cubit/budget_prediction_cubit.dart';
+import 'package:moniplan/cubit/operation_edit_cubit.dart';
+import 'package:moniplan/widget/edit_money.dart';
 import 'package:provider/provider.dart';
 
 class OperationEditScreen extends StatefulWidget {
-  final OperationEditCubit operationEditCubit;
-
   const OperationEditScreen({
     Key? key,
     required this.operationEditCubit,
   }) : super(key: key);
+
+  final OperationEditCubit operationEditCubit;
 
   @override
   _OperationEditScreenState createState() => _OperationEditScreenState();
@@ -52,9 +52,9 @@ class _OperationEditScreenState extends State<OperationEditScreen> {
                   style: Theme.of(context).textTheme.headline6,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildNameData(context),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
@@ -62,12 +62,12 @@ class _OperationEditScreenState extends State<OperationEditScreen> {
                   style: Theme.of(context).textTheme.bodyText2,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: EditMoneyWidget(editCubit: _edit),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 alignment: Alignment.bottomCenter,

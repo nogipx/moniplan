@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/common/export.dart';
-import 'package:moniplan/module/operation/cubit/operation_edit_cubit.dart';
+import 'package:moniplan/cubit/operation_edit_cubit.dart';
 
 enum EditMoneyTab { Expected, Actual }
 

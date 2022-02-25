@@ -1,2 +1,2 @@
 export 'currency.dart';
-export 'currency_adapter.dart';
+export '../../../hive/currency_adapter.dart';

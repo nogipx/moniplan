@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
-import 'package:moniplan/module/operation/widget/calendar_widget.dart';
-import 'package:moniplan/module/operation/widget/operation_list_item.dart';
+import 'package:moniplan/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/widget/calendar_widget.dart';
+import 'package:moniplan/widget/operation_list_item.dart';
 import 'package:provider/provider.dart';
 
 class OperationsScreenMob extends StatefulWidget {
@@ -26,7 +24,7 @@ class _OperationsScreenMobState extends State<OperationsScreenMob> {
 
   @override
   void dispose() {
-    predictionBloc.close();
+    predictionBloc.dispose();
     super.dispose();
   }
 

@@ -1,1 +1,2 @@
-export 'responsive_app.dart';
+export 'app.dart';
+export 'theme.dart';

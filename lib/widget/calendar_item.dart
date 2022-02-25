@@ -1,14 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:moniplan/app/theme.dart';
 import 'package:moniplan/common/export.dart';
-import 'package:moniplan/module/operation/export.dart';
+import 'package:moniplan/cubit/budget_prediction_cubit.dart';
+import 'package:moniplan/providers.dart';
 import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/widget/operation_list_item.dart';
 import 'package:provider/provider.dart';
 import 'package:dartx/dartx.dart';
 
-class CalendarItem extends StatefulWidget {
+class CalendarItem extends ConsumerStatefulWidget {
   const CalendarItem({
     Key? key,
     required this.operations,
@@ -22,7 +27,7 @@ class CalendarItem extends StatefulWidget {
   _CalendarItemState createState() => _CalendarItemState();
 }
 
-class _CalendarItemState extends State<CalendarItem> {
+class _CalendarItemState extends ConsumerState<CalendarItem> {
   late final List<Operation> _doneOperations;
   late final List<Operation> _planOperations;
   late final BudgetPredictionCubit _predictionCubit;
@@ -90,6 +95,8 @@ class _CalendarItemState extends State<CalendarItem> {
       duration: const Duration(milliseconds: 250),
       backgroundColor: Colors.black87,
       builder: (context) {
+        final cubit = ref.watch(Providers.predictionCubit);
+
         return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
           builder: (context, state) {
             final _doneOperations = _predictionCubit.operationsByDay[day]

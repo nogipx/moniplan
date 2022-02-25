@@ -1,12 +1,12 @@
 import 'dart:collection';
 
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
 import 'package:uuid/uuid.dart';
+import 'package:riverpod/riverpod.dart';
 
-class BudgetPredictionCubit extends Cubit<BudgetPredictionState> {
+class BudgetPredictionCubit extends StateNotifier<BudgetPredictionState> {
   BudgetPredictionCubit({
     required OperationService operationService,
   })  : _operationService = operationService,
@@ -37,10 +37,10 @@ class BudgetPredictionCubit extends Cubit<BudgetPredictionState> {
 
   void predictBudgetByDays() {
     _currentPrediction = _operations.predict();
-    emit(PredictionSuccess(
+    state = PredictionSuccess(
       operations: _operationsByDay,
       predictions: _currentPrediction,
-    ));
+    );
   }
 
   Future<void> saveOperation(Operation data) async {
@@ -63,16 +63,16 @@ abstract class BudgetPredictionState {}
 class PredictionInitial extends BudgetPredictionState {}
 
 class PredictionSuccess extends BudgetPredictionState with EquatableMixin {
-  final Map<DateTime, List<Operation>> operations;
-  final SplayTreeMap<DateTime, double> predictions;
-
   PredictionSuccess({
     required this.operations,
     required this.predictions,
   });
 
+  final Map<DateTime, List<Operation>> operations;
+  final SplayTreeMap<DateTime, double> predictions;
+
   @override
-  List<Object?> get props => [Uuid().v4()];
+  List<Object?> get props => [const Uuid().v4()];
 }
 
 class PredictionInProgress extends BudgetPredictionState {}

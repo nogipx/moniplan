@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:moniplan/module/operation/export.dart';
 import 'package:sticky_infinite_list/sticky_infinite_list.dart';
 import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
 
-class OperationsListWidget extends StatefulWidget {
-  final Map<DateTime, List<Operation>> eventsByDay;
-
+class OperationsListWidget extends ConsumerStatefulWidget {
   const OperationsListWidget({Key? key, required this.eventsByDay})
       : super(key: key);
+
+  final Map<DateTime, List<Operation>> eventsByDay;
 
   @override
   _OperationsListWidgetState createState() => _OperationsListWidgetState();
 }
 
-class _OperationsListWidgetState extends State<OperationsListWidget>
+class _OperationsListWidgetState extends ConsumerState<OperationsListWidget>
     with TickerProviderStateMixin {
   late final ScrollController _scrollController;
 
@@ -32,8 +33,9 @@ class _OperationsListWidgetState extends State<OperationsListWidget>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final now = DateTime.now().date;
+    final predictionCubit = ref.watch(provider)
     return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
       builder: (context, state) {
         final latestPredictionDate =

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/module/operation/screen/operations_screen_mob.dart';
+import 'package:moniplan/screen/operations_screen_mob.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'theme.dart';
 
-class MoniplanResponsiveApp extends StatelessWidget {
-  const MoniplanResponsiveApp({Key? key}) : super(key: key);
+class Moniplan extends StatelessWidget {
+  const Moniplan({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

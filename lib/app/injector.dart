@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
-import 'package:moniplan/module/operation/cubit/budget_prediction_cubit.dart';
-import 'package:moniplan/module/operation/service/budget_event_service_hive.dart';
+import 'package:moniplan/cubit/budget_prediction_cubit.dart';
 import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/service/budget_event_service_hive.dart';
 
 class Injector extends StatefulWidget {
   final Widget child;
@@ -30,21 +30,6 @@ class _InjectorState extends State<Injector> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<OperationService>.value(value: operationService)
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider<BudgetPredictionCubit>(
-            create: (BuildContext context) {
-              return BudgetPredictionCubit(operationService: operationService)
-                ..predictBudgetByDays();
-            },
-          )
-        ],
-        child: widget.child,
-      ),
-    );
+    return widget.child;
   }
 }

@@ -11,22 +11,11 @@ abstract class OperationEditState {}
 class OperationEditInitial extends OperationEditState {}
 
 class OperationEditSuccess extends OperationEditState {
-  final Operation value;
   OperationEditSuccess(this.value);
+  final Operation value;
 }
 
 class OperationEditCubit extends Cubit<OperationEditState> {
-  final Operation? initial;
-
-  late final AdvancedTextEditingController title;
-  late final AdvancedTextEditingController expectedMoney;
-  late final AdvancedTextEditingController actualMoney;
-
-  late Operation _operation;
-  Operation get operation => _operation;
-
-  bool get isValid => [title, expectedMoney, actualMoney].everyValid;
-
   OperationEditCubit({
     this.initial,
   }) : super(OperationEditInitial()) {
@@ -84,6 +73,17 @@ class OperationEditCubit extends Cubit<OperationEditState> {
         });
       });
   }
+
+  final Operation? initial;
+
+  late final AdvancedTextEditingController title;
+  late final AdvancedTextEditingController expectedMoney;
+  late final AdvancedTextEditingController actualMoney;
+
+  late Operation _operation;
+  Operation get operation => _operation;
+
+  bool get isValid => [title, expectedMoney, actualMoney].everyValid;
 
   void setOperationExpectedDate(DateTime value) {
     _operation = _operation.copyWith(date: value.date);
