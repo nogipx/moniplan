@@ -1,9 +1,10 @@
-include: package:flutter_lints/flutter.yaml
+include: package:surf_lint_rules/analysis_options.yaml
 
 analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
+    - "trash/**"
   strong-mode:
     implicit-dynamic: false
   errors:
@@ -13,24 +14,24 @@ analyzer:
     sdk_version_async_exported_from_core: ignore
     omit_local_variable_types: ignore
 
-
-linter:
-  rules:
-    - avoid_print
-    - sort_constructors_first
-    - always_put_control_body_on_new_line
-    - always_require_non_null_named_parameters
-    - annotate_overrides
-    - prefer_const_declarations
-    - prefer_const_constructors
-    - prefer_const_constructors_in_immutables
-    - prefer_const_literals_to_create_immutables
-    - camel_case_types
-    - avoid_unused_constructor_parameters
-    - avoid_void_async
-    - non_constant_identifier_names
-    - iterable_contains_unrelated_type
-    - avoid_renaming_method_parameters
-    - prefer_final_locals
-    - prefer_single_quotes
-
+#
+#linter:
+#  rules:
+#    - avoid_print
+#    - sort_constructors_first
+#    - always_put_control_body_on_new_line
+#    - always_require_non_null_named_parameters
+#    - annotate_overrides
+#    - prefer_const_declarations
+#    - prefer_const_constructors
+#    - prefer_const_constructors_in_immutables
+#    - prefer_const_literals_to_create_immutables
+#    - camel_case_types
+#    - avoid_unused_constructor_parameters
+#    - avoid_void_async
+#    - non_constant_identifier_names
+#    - iterable_contains_unrelated_type
+#    - avoid_renaming_method_parameters
+#    - prefer_final_locals
+#    - prefer_single_quotes
+#

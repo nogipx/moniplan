@@ -1,23 +1,23 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:moniplan/common/widget/buttons.dart';
 
 class ConfirmDialog extends StatelessWidget {
-  const ConfirmDialog({
-    this.title,
-    this.contentText,
-    this.cancelText,
-    this.approveText,
-    this.child,
-    this.approveValidator,
-  });
-
   final String? title;
   final Widget? child;
   final String? contentText;
   final String? cancelText;
   final String? approveText;
   final bool Function()? approveValidator;
+
+  const ConfirmDialog({
+    Key? key,
+    this.title,
+    this.contentText,
+    this.cancelText,
+    this.approveText,
+    this.child,
+    this.approveValidator,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +85,7 @@ class ConfirmDialog extends StatelessWidget {
                       ),
                     ),
                 ],
-              )
+              ),
             ],
           ),
         ),

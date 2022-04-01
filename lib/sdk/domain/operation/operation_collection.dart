@@ -1,7 +1,7 @@
 import 'dart:collection';
 
-import 'package:moniplan/sdk/domain.dart';
 import 'package:dartx/dartx.dart';
+import 'package:moniplan/sdk/domain.dart';
 
 extension OperationPredictionList on List<Operation> {
   SplayTreeMap<DateTime, double> predict() {

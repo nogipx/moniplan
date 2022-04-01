@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 abstract class AppTheme {
-  AppTheme._();
-
   static const blueColor = Color(0xff0C82D8);
   static const lightBlueColor = Color(0xff58A9E4);
 
@@ -15,6 +13,8 @@ abstract class AppTheme {
   static const secondaryTextColor = Color(0xff9299A2);
   static const inactiveBackgroundColor = Color(0xffF4F4F4);
   static const inactiveTextColor = Color(0xffC7C9CC);
+
+  AppTheme._();
 }
 
 const tinkoffColor = Color(0xffFFDD2D);
@@ -109,7 +109,7 @@ final lightTheme = ThemeData(
       color: lightInactiveColor,
       fontWeight: FontWeight.normal,
     ),
-    enabledBorder: UnderlineInputBorder(
+    enabledBorder: const UnderlineInputBorder(
       borderSide: BorderSide(
         color: lightInactiveColor,
       ),
@@ -120,14 +120,14 @@ final lightTheme = ThemeData(
 final tinkoffCardShadow = BoxDecoration(
   boxShadow: [
     BoxShadow(
-      offset: Offset(0, 5),
+      offset: const Offset(0, 5),
       color: Colors.black.withOpacity(.1),
       blurRadius: 20,
-    )
+    ),
   ],
 );
 
-final bottomSheetRadius = BorderRadius.only(
+const bottomSheetRadius = BorderRadius.only(
   topLeft: Radius.circular(20),
   topRight: Radius.circular(20),
 );

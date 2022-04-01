@@ -56,20 +56,26 @@ extension CurrencyExt on Currency {
   static final _format = NumberFormat();
 
   static const _overrideSimpleCurrency = <String, String>{
-    "RUB": r"₽",
+    'RUB': '₽',
   };
 
-  static final currencies = numberFormatSymbols.map<String, NumberSymbols>(
-      (dynamic key, dynamic value) =>
-          MapEntry((value as NumberSymbols).DEF_CURRENCY_CODE, value));
+  static final currencies = (numberFormatSymbols as Map<String, NumberSymbols>)
+      .map<String, NumberSymbols>(
+    (key, value) => MapEntry<String, NumberSymbols>(
+      value.DEF_CURRENCY_CODE,
+      value,
+    ),
+  );
 
   NumberSymbols? get numberSymbols => currencies[code];
 
   Locale? getLocale() {
-    final locale = Locale.tryParse(numberSymbols?.NAME ?? "");
+    final locale = Locale.tryParse(numberSymbols?.NAME ?? '');
     if (locale == null) {
-      log("No found locale for Currency($code, $symbol)",
-          name: "CurrencyDouble");
+      log(
+        'No found locale for Currency($code, $symbol)',
+        name: 'CurrencyDouble',
+      );
     }
     return locale;
   }
@@ -77,5 +83,5 @@ extension CurrencyExt on Currency {
   String get intlSymbol =>
       _overrideSimpleCurrency[code] ?? _format.simpleCurrencySymbol(code);
 
-  String get intlPattern => numberSymbols?.CURRENCY_PATTERN ?? "";
+  String get intlPattern => numberSymbols?.CURRENCY_PATTERN ?? '';
 }

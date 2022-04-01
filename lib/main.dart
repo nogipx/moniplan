@@ -1,39 +1,43 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:moniplan/app/injector.dart';
-import 'package:moniplan/sdk/domain.dart';
 import 'package:moniplan/app/export.dart';
-
-import 'app/theme.dart';
+import 'package:moniplan/sdk/domain.dart';
 
 Future<void> main() async {
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
+  unawaited(
+    runZonedGuarded(
+      () async {
+        WidgetsFlutterBinding.ensureInitialized();
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+        ]);
+        SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
 
-    await initHive();
-    await initializeDateFormatting('ru');
+        await initHive();
+        await initializeDateFormatting('ru');
 
-    runApp(
-      Injector(
-        operationHive: await Hive.openBox<Operation>(OperationService.key),
-        child: MoniplanResponsiveApp(),
-      ),
-    );
-  }, (exception, stackTrace) {
-    print(exception);
-    print(stackTrace);
-  });
+        runApp(const MoniplanResponsiveApp());
+      },
+      (exception, stackTrace) {
+        if (kDebugMode) {
+          print(exception);
+        }
+        if (kDebugMode) {
+          print(stackTrace);
+        }
+      },
+    ),
+  );
 }
 
 Future<void> initHive() async {
   await Hive.initFlutter();
-  Hive.registerAdapter(OperationAdapter());
-  Hive.registerAdapter(CurrencyAdapter());
+  Hive
+    ..registerAdapter(OperationAdapter())
+    ..registerAdapter(CurrencyAdapter());
 }

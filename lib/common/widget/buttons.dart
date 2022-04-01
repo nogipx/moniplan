@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/app/theme.dart';
+import 'package:moniplan/app/app_theme.dart';
 
 class PrimaryActionButton extends StatelessWidget {
-  const PrimaryActionButton({
-    Key? key,
-    required this.text,
-    this.onTap,
-    this.height = 56,
-    this.isLoading = false,
-  }) : super(key: key);
-
   final String text;
   final VoidCallback? onTap;
   final bool isLoading;
   final double height;
+
+  const PrimaryActionButton({
+    required this.text,
+    this.onTap,
+    this.height = 56,
+    this.isLoading = false,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
-
-import 'input_formatters.dart';
+import 'package:moniplan/common/export.dart';
 
 export 'badge.dart';
 export 'bottom_sheet.dart';
@@ -16,5 +15,4 @@ final dateFormatYear = DateFormat(DateFormat.YEAR_MONTH_DAY, 'ru');
 
 final moneyInputFormatter = CurrencyTextInputFormatter(
   decimalDigits: 2,
-  allowNegative: true,
 );

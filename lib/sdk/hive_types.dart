@@ -1,6 +1,6 @@
 abstract class HiveTypes {
-  const HiveTypes._();
+  static const operation = 0;
+  static const currency = 1;
 
-  static const Operation = 0;
-  static const Currency = 1;
+  const HiveTypes._();
 }

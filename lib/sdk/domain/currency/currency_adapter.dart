@@ -3,7 +3,7 @@ import 'package:moniplan/sdk/domain.dart';
 
 class CurrencyAdapter extends TypeAdapter<Currency> {
   @override
-  final int typeId = HiveTypes.Currency;
+  final int typeId = HiveTypes.currency;
 
   @override
   Currency read(BinaryReader reader) {

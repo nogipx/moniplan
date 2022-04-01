@@ -1,21 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:moniplan/app/theme.dart';
+import 'package:moniplan/app/app_theme.dart';
 import 'package:moniplan/sdk/domain/currency/currency.dart';
 
 class AppTextField extends StatelessWidget {
-  const AppTextField({
-    Key? key,
-    required this.controller,
-    this.onClear,
-    this.decoration,
-    this.currency,
-    this.keyboardType,
-    this.hintText,
-    this.inputFormatters,
-    this.autofocus = false,
-  }) : super(key: key);
-
   final TextEditingController controller;
   final VoidCallback? onClear;
   final InputDecoration? decoration;
@@ -24,6 +12,18 @@ class AppTextField extends StatelessWidget {
   final String? hintText;
   final List<TextInputFormatter>? inputFormatters;
   final bool autofocus;
+
+  const AppTextField({
+    required this.controller,
+    this.onClear,
+    this.decoration,
+    this.currency,
+    this.keyboardType,
+    this.hintText,
+    this.inputFormatters,
+    this.autofocus = false,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

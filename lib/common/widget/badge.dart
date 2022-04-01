@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/app/theme.dart';
+import 'package:moniplan/app/app_theme.dart';
 
 class BadgeWidget extends StatelessWidget {
-  const BadgeWidget({
-    Key? key,
-    required this.text,
-    this.enabled = false,
-    this.onTap,
-    this.prefix,
-    this.fontSize,
-  }) : super(key: key);
-
   final String text;
   final bool enabled;
   final VoidCallback? onTap;
   final Widget? prefix;
   final double? fontSize;
+
+  const BadgeWidget({
+    required this.text,
+    this.enabled = false,
+    this.onTap,
+    this.prefix,
+    this.fontSize,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
