@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/app/theme.dart';
+import 'package:moniplan/app/app_theme.dart';
 
-class CreateOperationItem extends StatelessWidget {
+class CreateOperationListItem extends StatelessWidget {
   final VoidCallback? onPressed;
 
-  const CreateOperationItem({Key? key, this.onPressed}) : super(key: key);
+  const CreateOperationListItem({Key? key, this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class CreateOperationItem extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Icon(
+              child: const Icon(
                 Icons.add_rounded,
                 color: AppTheme.lightBlueColor,
                 size: 26,
@@ -32,7 +32,7 @@ class CreateOperationItem extends StatelessWidget {
                           color: AppTheme.blueColor,
                         ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     '(или двойное нажатие в любом месте)',
                     style: Theme.of(context)

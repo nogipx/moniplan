@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/app/theme.dart';
-import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/app/app_theme.dart';
 import 'package:moniplan/common/export.dart';
+import 'package:moniplan/sdk/domain.dart';
 
 class CalendarHeaderWidget extends StatelessWidget {
   final DateTime today;
@@ -11,12 +11,12 @@ class CalendarHeaderWidget extends StatelessWidget {
   final VoidCallback? onPressed;
 
   const CalendarHeaderWidget({
-    Key? key,
     required this.day,
     required this.today,
     this.predictionValue,
     this.onPressed,
     this.currency,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -37,7 +37,6 @@ class CalendarHeaderWidget extends StatelessWidget {
                 vertical: 12,
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
@@ -54,14 +53,14 @@ class CalendarHeaderWidget extends StatelessWidget {
                   ),
                   if (predictionValue != null)
                     MoneyColoredWidget(
-                      value: predictionValue!,
+                      value: predictionValue,
                       currency: currency ?? CommonCurrencies().rub,
                       showPlusSign: false,
                       textStyle:
                           Theme.of(context).textTheme.bodyText1?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
-                    )
+                    ),
                 ],
               ),
             ),

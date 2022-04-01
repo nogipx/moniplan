@@ -1,22 +1,25 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:moniplan/app/theme.dart';
-import 'package:moniplan/common/export.dart';
-import 'package:moniplan/module/operation/export.dart';
-import 'package:moniplan/sdk/domain.dart';
-import 'package:provider/provider.dart';
 import 'package:dartx/dartx.dart';
+import 'package:elementary/elementary.dart';
+import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:moniplan/app/app_theme.dart';
+import 'package:moniplan/common/export.dart';
+import 'package:moniplan/module/operation_list/operations_list_screen_wm.dart';
+import 'package:moniplan/module/operation_list/widgets/create_operation_list_item.dart';
+import 'package:moniplan/module/operation_list/widgets/operation_list_item.dart';
+import 'package:moniplan/sdk/domain.dart';
 
 class CalendarItem extends StatefulWidget {
-  const CalendarItem({
-    Key? key,
-    required this.operations,
-    this.showCreateOperation = false,
-  }) : super(key: key);
-
   final List<Operation> operations;
   final bool showCreateOperation;
+  final OperationsListScreenWM operationsListScreenWM;
+
+  const CalendarItem({
+    required this.operations,
+    required this.operationsListScreenWM,
+    this.showCreateOperation = false,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _CalendarItemState createState() => _CalendarItemState();
@@ -25,15 +28,13 @@ class CalendarItem extends StatefulWidget {
 class _CalendarItemState extends State<CalendarItem> {
   late final List<Operation> _doneOperations;
   late final List<Operation> _planOperations;
-  late final BudgetPredictionCubit _predictionCubit;
 
   @override
   void initState() {
+    super.initState();
     final parts = widget.operations.partition((e) => e.actualValue != null);
     _doneOperations = parts[0];
     _planOperations = parts[1];
-    _predictionCubit = context.read<BudgetPredictionCubit>();
-    super.initState();
   }
 
   @override
@@ -54,10 +55,11 @@ class _CalendarItemState extends State<CalendarItem> {
                 await OperationWidget.showPreviewSheet(
                   context: context,
                   initialData: operation,
+                  operationsListScreenWM: widget.operationsListScreenWM,
                 );
               },
               onToggleEnable: () {
-                _predictionCubit.saveOperation(operation.copyWith(
+                widget.operationsListScreenWM.saveOperation(operation.copyWith(
                   enabled: !operation.enabled,
                 ));
               },
@@ -90,9 +92,10 @@ class _CalendarItemState extends State<CalendarItem> {
       duration: const Duration(milliseconds: 250),
       backgroundColor: Colors.black87,
       builder: (context) {
-        return BlocBuilder<BudgetPredictionCubit, BudgetPredictionState>(
-          builder: (context, state) {
-            final _doneOperations = _predictionCubit.operationsByDay[day]
+        return EntityStateNotifierBuilder<OperationsComputeResult>(
+          listenableEntityState: widget.operationsListScreenWM.result,
+          builder: (context, data) {
+            final doneOperations = data?.operationsByDay[day]
                     ?.where((e) => e.actualValue != null)
                     .toList() ??
                 [];
@@ -110,7 +113,7 @@ class _CalendarItemState extends State<CalendarItem> {
                           'Завершённые операции',
                           style: Theme.of(context).textTheme.subtitle2,
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           dateFormat.format(day),
                           style: Theme.of(context).textTheme.bodyText1?.apply(
@@ -120,31 +123,34 @@ class _CalendarItemState extends State<CalendarItem> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ListView.separated(
                     shrinkWrap: true,
                     primary: false,
-                    itemCount: _doneOperations.length,
-                    separatorBuilder: (context, index) => SizedBox(height: 4),
+                    itemCount: doneOperations.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 4),
                     itemBuilder: (context, index) {
-                      final operation = _doneOperations[index];
+                      final operation = doneOperations[index];
                       return OperationWidget(
                         operation: operation,
                         onPressed: () async {
                           await OperationWidget.showPreviewSheet(
                             context: context,
                             initialData: operation,
+                            operationsListScreenWM:
+                                widget.operationsListScreenWM,
                           ).then((value) {
                             if (value != null) {
-                              context
-                                  .read<BudgetPredictionCubit>()
+                              widget.operationsListScreenWM
                                   .saveOperation(value);
                             }
                           });
                         },
                         onToggleEnable: () {
-                          context.read<BudgetPredictionCubit>().saveOperation(
-                              operation.copyWith(enabled: !operation.enabled));
+                          widget.operationsListScreenWM.saveOperation(
+                            operation.copyWith(enabled: !operation.enabled),
+                          );
                         },
                       );
                     },
@@ -159,7 +165,7 @@ class _CalendarItemState extends State<CalendarItem> {
   }
 
   Widget _buildCreateOperation() {
-    return CreateOperationItem(
+    return CreateOperationListItem(
       onPressed: () async {
         await OperationWidget.showEdit(
           context: context,
