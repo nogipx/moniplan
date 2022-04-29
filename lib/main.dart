@@ -3,12 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:moniplan/app/export.dart';
-import 'package:moniplan/module/operation_list/service/budget_event_service_hive.dart';
-import 'package:moniplan/sdk/domain.dart';
+import 'package:moniplan/app/app_widget.dart';
+
+import 'app/app_theme.dart';
 
 Future<void> main() async {
   unawaited(
@@ -20,16 +17,7 @@ Future<void> main() async {
         ]);
         SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
 
-        await initHive();
-        await initializeDateFormatting('ru');
-
-        GetIt.I.registerSingleton<OperationService>(
-          OperationServiceHive(
-            hive: await Hive.openBox<Operation>(OperationService.key),
-          ),
-        );
-
-        runApp(const MoniplanResponsiveApp());
+        runApp(MoniplanApp());
       },
       (exception, stackTrace) {
         if (kDebugMode) {
@@ -41,11 +29,4 @@ Future<void> main() async {
       },
     ),
   );
-}
-
-Future<void> initHive() async {
-  await Hive.initFlutter();
-  Hive
-    ..registerAdapter(OperationAdapter())
-    ..registerAdapter(CurrencyAdapter());
 }

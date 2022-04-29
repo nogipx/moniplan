@@ -9,7 +9,7 @@ class BottomSheetDismissRectangle extends StatelessWidget {
       height: 6,
       width: 36,
       decoration: BoxDecoration(
-        color: Color(0xffC4C4C4),
+        color: const Color(0xffC4C4C4),
         borderRadius: BorderRadius.circular(6),
       ),
     );
@@ -35,8 +35,8 @@ class BaseBottomSheet extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            BottomSheetDismissRectangle(),
-            SizedBox(height: 16),
+            const BottomSheetDismissRectangle(),
+            const SizedBox(height: 16),
             child,
           ],
         ),

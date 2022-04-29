@@ -15,6 +15,3 @@ extension TextColor on Color {
   }) =>
       TextColor.luminanceDyer(light: light, dark: dark).call(this);
 }
-
-final textDyer =
-    TextColor.luminanceDyer(light: Colors.white, dark: Colors.black87);

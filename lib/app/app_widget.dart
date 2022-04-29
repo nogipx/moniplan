@@ -1,34 +1,33 @@
-import 'package:elementary/elementary.dart';
 import 'package:flutter/material.dart';
-import 'package:moniplan/app/export.dart';
-import 'package:responsive_framework/responsive_framework.dart';
+import 'package:moniplan/app/app_route.dart';
+import 'package:moniplan/app/app_theme.dart';
+import 'package:navigation_manager/navigation_manager.dart';
 
-class MoniplanResponsiveApp extends ElementaryWidget<AppWM> {
-  const MoniplanResponsiveApp({
+class MoniplanApp extends StatelessWidget {
+  MoniplanApp({
     Key? key,
-    WidgetModelFactory<AppWM> factory = appFactory,
-  }) : super(factory, key: key);
+  }) : super(key: key);
+
+  late final manager = RouteManager(
+    initialRoute: Routes.main,
+  );
+
+  late final informationParser = AppRouteInformationParser(
+    routes: Routes.deeplink,
+    unknownRoute: Routes.main,
+  );
+
+  late final delegate = AppRouteDelegate(routeManager: manager);
 
   @override
-  Widget build(AppWM wm) {
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
-      routeInformationParser: wm.informationParser,
-      routerDelegate: wm.delegate,
+      routeInformationParser: informationParser,
+      routerDelegate: delegate,
       builder: (context, child) {
-        return ResponsiveWrapper.builder(
-          child,
-          defaultScale: true,
-          breakpoints: [
-            const ResponsiveBreakpoint.resize(360, name: MOBILE),
-            const ResponsiveBreakpoint.autoScale(800, name: TABLET),
-            const ResponsiveBreakpoint.resize(1200, name: DESKTOP),
-          ],
-          background: Container(
-            color: const Color(0xFFF5F5F5),
-          ),
-        );
+        return child!;
       },
     );
   }
