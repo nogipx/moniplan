@@ -4,15 +4,13 @@ publish_to: 'none'
 version: 1.0.6+6
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.17.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   intl: ^0.17.0
-  sticky_infinite_list: ^4.0.0
   money2: ^3.0.0
-  navigation_manager: ^1.2.0
   bloc: ^8.0.3
   flutter_bloc: ^8.0.0
   uuid: ^3.0.4
