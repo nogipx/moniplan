@@ -4,7 +4,37 @@ import 'package:intl/intl.dart';
 import 'package:intl/locale.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:money2/money2.dart';
+
+abstract class AppCurrencies {
+  static final ru = Currency.create('RU', 2);
+}
+
+class CurrencyConverter
+    implements JsonConverter<Currency, Map<dynamic, dynamic>?> {
+  const CurrencyConverter();
+
+  @override
+  Currency fromJson(Map<dynamic, dynamic>? json) {
+    if (json != null) {
+      return Currency.create(
+        json['code'] as String,
+        json['precision'] as int,
+      );
+    } else {
+      return CommonCurrencies().usd;
+    }
+  }
+
+  @override
+  Map<String, dynamic> toJson(Currency object) {
+    return <String, dynamic>{
+      'code': object.code,
+      'precision': object.scale,
+    };
+  }
+}
 
 extension CurrencyDouble on double {
   bool get isWhole => this % 1 == 0;
