@@ -1,15 +1,16 @@
+// ignore_for_file: invalid_annotation_target
+
+import 'package:equatable/equatable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:moniplan/data/operation_repeat.dart';
-import 'package:moniplan/data/operation_type.dart';
 import 'package:money2/money2.dart';
-import 'package:moniplan/useful/currency_extension.dart';
+import 'package:moniplan_core/moniplan_core.dart';
 
 part 'operation_virtual.freezed.dart';
 part 'operation_virtual.g.dart';
 
 @freezed
-class Operation with _$Operation {
+class Operation with _$Operation, EquatableMixin {
   static const virtualOperationId = 'virtual_operation_id';
 
   const Operation._();
@@ -20,13 +21,21 @@ class Operation with _$Operation {
     required String id,
     required OperationType type,
     required Currency currency,
+    String? originalOperationId,
     @Default(0) double money,
     @Default(OperationRepeat.noRepeat) OperationRepeat repeat,
     required DateTime date,
   }) = _Operation;
 
+  bool get isNotOriginal => !isOriginal;
+  bool get isOriginal =>
+      id != virtualOperationId && originalOperationId == null;
+
+  @override
+  List<Object?> get props => [id, date, originalOperationId];
+
   IList<Operation> getPeriodOperationsToDate(DateTime end) {
-    if (repeat == OperationRepeat.noRepeat) {
+    if (repeat == OperationRepeat.noRepeat || id == virtualOperationId) {
       return IList();
     }
 
@@ -46,6 +55,7 @@ class Operation with _$Operation {
       forward.add(copyWith(
         id: virtualOperationId,
         date: repeat.next(forward.last.date),
+        originalOperationId: id,
       ));
     }
 
@@ -57,7 +67,7 @@ class Operation with _$Operation {
   }
 
   IList<Operation> getPeriodOperationsFromDate(DateTime start) {
-    if (repeat == OperationRepeat.noRepeat) {
+    if (repeat == OperationRepeat.noRepeat || id == virtualOperationId) {
       return IList();
     }
 
@@ -70,6 +80,7 @@ class Operation with _$Operation {
       copyWith(
         id: virtualOperationId,
         date: firstPrevious,
+        originalOperationId: id,
       )
     ]).unlock;
 

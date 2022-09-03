@@ -15,10 +15,9 @@ dependencies:
   flutter_bloc: ^8.0.0
 
   fast_immutable_collections: ^7.4.1
-  uuid: ^3.0.4
-  equatable: ^2.0.0
-  json_annotation: ^4.0.0
-  freezed_annotation: ^2.1.0
+
+  moniplan_core:
+    path: packages/moniplan_core
 
 dev_dependencies:
   flutter_test:
