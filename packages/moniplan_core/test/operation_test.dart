@@ -1,8 +1,9 @@
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:moniplan_core/src/usecases/generate_repeat_operations.dart';
 import 'package:test/test.dart';
 
-import 'test_data.dart';
+import '../lib/src/test/test_data.dart';
 
 void main() {
   test(
@@ -14,10 +15,11 @@ void main() {
       final end = now.addTime(month: 2);
       print('Start: $start, End: $end');
 
-      final expanded = operation.getPeriodOperations(start, end);
-      // for (final e in expanded) {
-      //   print(e);
-      // }
+      final expanded = GenerateRepeatOperations(
+        operation: operation,
+        startPeriod: start,
+        endPeriod: end,
+      ).run();
     },
   );
 
@@ -27,36 +29,11 @@ void main() {
     act: (bloc) => bloc.computeBudget(OperationsManagerEvent.computeBudget(
       operations: [
         ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
-        ...TestData.testRepeatOperations,
       ],
     )),
     verify: (bloc) {
       bloc.state.whenOrNull(
-        budgetComputed: (orig, generated, budget) {
+        budgetComputed: (original, generated, budget) {
           budget.entries.forEach(print);
         },
       );

@@ -8,7 +8,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:money2/money2.dart';
 
 abstract class AppCurrencies {
-  static final ru = Currency.create('RU', 2);
+  static final ru = CommonCurrencies().rub;
 }
 
 class CurrencyConverter

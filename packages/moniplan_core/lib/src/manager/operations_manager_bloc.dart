@@ -7,6 +7,7 @@ import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_core/src/usecases/compute_budget_usecase.dart';
 
 class OperationsManagerBloc
     extends Bloc<OperationsManagerEvent, OperationsManagerState> {
@@ -24,49 +25,22 @@ class OperationsManagerBloc
       transformer: restartable(),
       (event, emit) {
         Timeline.startSync('generate_budget');
-        final startOperationDay = event.operations.fold(
-          event.operations.first.date,
-          (date, next) {
-            return next.date.isBefore(date) ? next.date : date;
-          },
-        );
-        final lastOperationDay = event.operations.fold(
-          DateTime(-1),
-          (date, next) {
-            return next.date.isAfter(date) ? next.date : date;
-          },
+
+        final computeBudgetUseCase = ComputeBudgetUseCase(
+          args: ComputeBudgetUseCaseArgs(
+            operations: event.operations,
+            startPeriod: event.startPeriod,
+            endPeriod: event.endPeriod,
+          ),
         );
 
-        final originalOperations = event.operations.toIList();
-
-        final allOperations = originalOperations
-            .map(
-              (e) => e
-                  .getPeriodOperations(
-                    event.startPeriod ?? startOperationDay,
-                    event.endPeriod ?? lastOperationDay,
-                  )
-                  .unlock
-                ..add(e),
-            )
-            .expand((e) => e)
-            .toIList()
-            .unlock;
-
-        allOperations.sortOrdered((a, b) => a.date.compareTo(b.date));
-
-        final budget = LinkedHashMap<Operation, double>();
-        var tempBudget = 0.0;
-        for (final item in allOperations) {
-          tempBudget += item.money * item.type.modifier;
-          budget[item] = tempBudget;
-        }
-
+        final result = computeBudgetUseCase.run();
         Timeline.finishSync();
+
         final newState = OperationsManagerState.budgetComputed(
-          operationsOriginal: originalOperations,
-          operationsGenerated: allOperations.lock,
-          budget: budget,
+          operationsOriginal: result.operationsOriginal.toIList(),
+          operationsGenerated: result.operationsGenerated.toIList(),
+          budget: IMap.fromEntries(result.mediateBudget.entries),
         );
         emit(newState);
       },

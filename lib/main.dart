@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:moniplan/app.dart';
 
 Future<void> main() async {
   unawaited(
@@ -14,7 +15,7 @@ Future<void> main() async {
         ]);
         // SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
 
-        runApp(const SizedBox());
+        runApp(const MoniplanApp());
       },
       (exception, stackTrace) {
         if (kDebugMode) {

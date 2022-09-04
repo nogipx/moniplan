@@ -10,7 +10,7 @@ abstract class TestData {
       currency: AppCurrencies.ru,
       date: DateTime.now(),
       money: 300,
-      repeat: OperationRepeat.everyDay,
+      repeat: OperationRepeat.everyWeek,
     ),
     Operation(
       id: const Uuid().v4(),
@@ -18,7 +18,7 @@ abstract class TestData {
       currency: AppCurrencies.ru,
       money: 1300,
       date: DateTime.now().subtract(const Duration(days: 8)),
-      repeat: OperationRepeat.everyWeek,
+      repeat: OperationRepeat.everyMonth,
     ),
     Operation(
       id: const Uuid().v4(),

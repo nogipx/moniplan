@@ -14,7 +14,7 @@ class OperationsManagerState with _$OperationsManagerState {
   const factory OperationsManagerState.budgetComputed({
     @Default(IListConst([])) IList<Operation> operationsOriginal,
     @Default(IListConst([])) IList<Operation> operationsGenerated,
-    @Default({}) Map<Operation, double> budget,
+    @Default(IMapConst({})) IMap<Operation, double> budget,
   }) = OperationsManagerBudgetComputedState;
 
   const factory OperationsManagerState.error({
