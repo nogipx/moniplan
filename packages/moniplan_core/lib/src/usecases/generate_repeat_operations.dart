@@ -8,14 +8,37 @@ enum GenerateRepeatOperationsMode {
   beforeAndAfter,
 }
 
-class GenerateRepeatOperations extends UseCase<IList<Operation>> {
+class GenerateRepeatOperationsUseCaseResult {
+  final DateTime? dateStart;
+  final DateTime? dateEnd;
+  final IList<Operation> beforeOperations;
+  final IList<Operation> afterOperations;
+  final Operation baseOperation;
+
+  GenerateRepeatOperationsUseCaseResult({
+    required this.baseOperation,
+    this.dateStart,
+    this.dateEnd,
+    this.beforeOperations = const IListConst([]),
+    this.afterOperations = const IListConst([]),
+  });
+
+  IList<Operation> get combined => [
+        ...beforeOperations,
+        baseOperation,
+        ...afterOperations,
+      ].lock;
+}
+
+class GenerateRepeatOperationsUseCase
+    extends UseCase<GenerateRepeatOperationsUseCaseResult> {
   final Operation operation;
   final DateTime? startPeriod;
   final DateTime? endPeriod;
 
   final GenerateRepeatOperationsMode mode;
 
-  const GenerateRepeatOperations({
+  const GenerateRepeatOperationsUseCase({
     required this.operation,
     this.startPeriod,
     this.endPeriod,
@@ -23,24 +46,33 @@ class GenerateRepeatOperations extends UseCase<IList<Operation>> {
   });
 
   @override
-  IList<Operation> run() {
+  GenerateRepeatOperationsUseCaseResult run() {
     final start = startPeriod;
     final end = endPeriod;
 
-    final result = IList<Operation>().unlock;
-
     if (operation.repeat == OperationRepeat.noRepeat) {
-      return result.lock;
+      return GenerateRepeatOperationsUseCaseResult(
+        baseOperation: operation,
+        dateStart: start,
+        dateEnd: end,
+      );
     }
 
-    if (start != null && mode != GenerateRepeatOperationsMode.afterOnly) {
-      result.addAll(_getPeriodOperationsFromDate(start));
-    }
-    if (end != null && mode != GenerateRepeatOperationsMode.beforeOnly) {
-      result.addAll(_getPeriodOperationsToDate(end));
-    }
+    final result = GenerateRepeatOperationsUseCaseResult(
+      baseOperation: operation,
+      dateStart: start,
+      dateEnd: end,
+      beforeOperations:
+          start != null && mode != GenerateRepeatOperationsMode.afterOnly
+              ? _getPeriodOperationsFromDate(start)
+              : const IListConst([]),
+      afterOperations:
+          end != null && mode != GenerateRepeatOperationsMode.beforeOnly
+              ? _getPeriodOperationsToDate(end)
+              : const IListConst([]),
+    );
 
-    return result.lock;
+    return result;
   }
 
   IList<Operation> _getPeriodOperationsToDate(DateTime end) {

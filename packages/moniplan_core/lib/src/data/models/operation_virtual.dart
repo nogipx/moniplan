@@ -24,22 +24,23 @@ class Operation with _$Operation, EquatableMixin {
     required String id,
     required OperationType type,
     required Currency currency,
+    @Default(true) bool enabled,
     String? originalOperationId,
     String? operationCategoryId,
     @Default(0) double money,
     @Default(OperationRepeat.noRepeat) OperationRepeat repeat,
     required DateTime date,
+    @Default('') String note,
   }) = _Operation;
 
-  bool get isNotOriginal => !isOriginal;
-  bool get isOriginal =>
-      id != virtualOperationId && originalOperationId == null;
+  bool get isNotParent => !isParent;
+  bool get isParent => id != virtualOperationId && originalOperationId == null;
 
   bool get isRepeat => repeat != OperationRepeat.noRepeat;
 
-  bool get isRepeatParent => isRepeat && isOriginal;
+  bool get isRepeatParent => isRepeat && isParent;
 
-  double get normalizedValue => money * type.modifier;
+  double get normalizedValue => money.abs() * type.modifier;
 
   @override
   List<Object?> get props => [id, date, originalOperationId];
@@ -134,7 +135,7 @@ class Operation with _$Operation, EquatableMixin {
 
   @override
   String toString() => 'Operation('
-      '\n  id: $id, type: $type, '
-      '\n  money: $money, date: $date, repeat: $repeat'
+      '\n  date: $date, money: $normalizedValue, note: $note,'
+      '\n  repeat: $repeat, type: $type, '
       '\n)';
 }

@@ -1,13 +1,17 @@
 enum OperationRepeat {
-  noRepeat,
-  everyDay,
-  everyWeek,
-  everyTwoWeek,
-  everyFourWeek,
-  everyMonth,
-  everyThreeMonth,
-  everySixMonth,
-  everyYear;
+  noRepeat(''),
+  everyDay('1d'),
+  everyWeek('1w'),
+  everyTwoWeek('2w'),
+  everyFourWeek('4w'),
+  everyMonth('1m'),
+  everyThreeMonth('3m'),
+  everySixMonth('6m'),
+  everyYear('1y');
+
+  final String shortName;
+
+  const OperationRepeat(this.shortName);
 
   DateTime previous(DateTime base) {
     switch (this) {
@@ -61,6 +65,8 @@ enum OperationRepeat {
 }
 
 extension PeriodDateTime on DateTime {
+  DateTime get onlyDate => DateTime(year, month, day);
+
   DateTime addTime({int year = 0, int month = 0, int day = 0}) {
     return DateTime(this.year + year, this.month + month, this.day + day, hour,
         minute, 0, 0, 0);

@@ -12,6 +12,8 @@ class OperationsManagerState with _$OperationsManagerState {
       OperationsManagerInitialState;
 
   const factory OperationsManagerState.budgetComputed({
+    DateTime? dateStart,
+    DateTime? dateEnd,
     @Default(IListConst([])) IList<Operation> operationsOriginal,
     @Default(IListConst([])) IList<Operation> operationsGenerated,
     @Default(IMapConst({})) IMap<Operation, double> budget,

@@ -29,8 +29,8 @@ class OperationsManagerBloc
         final computeBudgetUseCase = ComputeBudgetUseCase(
           args: ComputeBudgetUseCaseArgs(
             operations: event.operations,
-            startPeriod: event.startPeriod,
-            endPeriod: event.endPeriod,
+            dateStart: event.startPeriod,
+            dateEnd: event.endPeriod,
           ),
         );
 
@@ -41,6 +41,8 @@ class OperationsManagerBloc
           operationsOriginal: result.operationsOriginal.toIList(),
           operationsGenerated: result.operationsGenerated.toIList(),
           budget: IMap.fromEntries(result.mediateBudget.entries),
+          dateStart: result.dateStart,
+          dateEnd: result.dateEnd,
         );
         emit(newState);
       },

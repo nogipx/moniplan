@@ -15,7 +15,7 @@ void main() {
       final end = now.addTime(month: 2);
       print('Start: $start, End: $end');
 
-      final expanded = GenerateRepeatOperations(
+      final expanded = GenerateRepeatOperationsUseCase(
         operation: operation,
         startPeriod: start,
         endPeriod: end,
@@ -33,10 +33,10 @@ void main() {
     )),
     verify: (bloc) {
       bloc.state.whenOrNull(
-        budgetComputed: (original, generated, budget) {
-          budget.entries.forEach(print);
-        },
-      );
+          // budgetComputed: (original, generated, budget) {
+          //   budget.entries.forEach(print);
+          // },
+          );
     },
   );
 }
