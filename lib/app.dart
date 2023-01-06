@@ -1,11 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan/operation_list.dart';
+import 'package:moniplan/widgets/operation/money_flow_widget.dart';
+import 'package:moniplan/widgets/operation/operation_list.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'our_budget/_index.dart';
+import 'our_budget/budget_requests.dart';
 
 class MoniplanApp extends StatefulWidget {
   const MoniplanApp({Key? key}) : super(key: key);
@@ -16,22 +19,22 @@ class MoniplanApp extends StatefulWidget {
 
 class _MoniplanAppState extends State<MoniplanApp> {
   @override
+  void initState() {
+    super.initState();
+    // final json = jsonEncode(onlyRequiredSpendsToYearEnd.toJson());
+    // final t = json.toString();
+    // final fromJson = OperationsManagerEvent.fromJson(jsonDecode(json));
+
+    // print(onlyRequiredSpendsToYearEnd == fromJson);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (_) => OperationsManagerBloc()
-            ..computeBudget(
-              OperationsManagerEvent.computeBudget(
-                operations: [
-                  ...KarimDaryaPeriodicOperations.all,
-                  ...KarimDaryaOperationalBudget.all,
-                ],
-                // startPeriod: DateTime.now(),
-                startPeriod: DateTime(2022, 9, 12),
-                endPeriod: DateTime(2022, 12, 31),
-              ),
-            ),
+            ..computeBudget(BudgetsRequests.currentSpends),
         ),
       ],
       child: MaterialApp(
@@ -68,7 +71,34 @@ class _MoniplanAppState extends State<MoniplanApp> {
                 title: titleWidget,
               ),
               backgroundColor: Colors.grey.shade200,
-              body: const OperationsList(),
+              body: StreamBuilder<OperationsManagerState>(
+                stream: context.read<OperationsManagerBloc>().stream,
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    return CustomScrollView(
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: snapshot.data!.maybeMap(
+                            budgetComputed: (s) => MoneyFlowWidget(
+                              state: s.moneyFlow,
+                            ),
+                            orElse: () => const SizedBox(),
+                          ),
+                        ),
+                        SliverList(
+                          delegate: OperationsListSliver(
+                            operations: snapshot.data!.operationsGenerated,
+                            budget: snapshot.data!.budget,
+                          ),
+                        )
+                      ],
+                    );
+                  }
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+              ),
             );
           },
         ),

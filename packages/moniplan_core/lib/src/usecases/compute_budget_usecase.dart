@@ -8,14 +8,16 @@ import 'package:moniplan_core/src/usecases/generate_repeat_operations.dart';
 import '_usecase.dart';
 
 class ComputeBudgetUseCaseArgs {
+  final double initialBudget;
   final Iterable<Operation> operations;
-  final DateTime? dateStart;
-  final DateTime? dateEnd;
+  final DateTime dateStart;
+  final DateTime dateEnd;
 
   const ComputeBudgetUseCaseArgs({
+    this.initialBudget = 0,
     required this.operations,
-    this.dateStart,
-    this.dateEnd,
+    required this.dateStart,
+    required this.dateEnd,
   });
 }
 
@@ -46,21 +48,13 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
   ComputeBudgetUseCaseResult run() {
     final operations = args.operations;
 
-    final startOperationDay = operations.fold(
-      operations.first.date,
-      (date, next) {
-        return next.date.isBefore(date) ? next.date : date;
-      },
-    );
-    final lastOperationDay = operations.fold(
-      operations.first.date,
-      (date, next) {
-        return next.date.isAfter(date) ? next.date : date;
-      },
-    );
+    if (operations.isEmpty) {
+      throw Exception('Operations list is empty');
+    }
 
-    final dateStart = args.dateStart ?? startOperationDay;
-    final dateEnd = args.dateEnd ?? lastOperationDay;
+    final dateStart = args.dateStart;
+
+    final dateEnd = args.dateEnd;
 
     final allOperations = operations
         .map(
@@ -77,22 +71,21 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
 
     final budget = LinkedHashMap<Operation, double>();
 
-    var tempBudget = 0.0;
+    var tempBudget = args.initialBudget;
     for (final item in allOperations) {
-      tempBudget += item.enabled ? item.normalizedValue : 0;
+      tempBudget += item.enabled ? item.normalizedMoney : 0;
       budget[item] = tempBudget;
     }
-
-    budget.removeWhere(
-      (key, value) => key.date.isAfter(dateEnd) || key.date.isBefore(dateStart),
-    );
+    // budget.removeWhere(
+    //   (key, value) => key.date.isAfter(dateEnd) || key.date.isBefore(dateStart),
+    // );
 
     final result = ComputeBudgetUseCaseResult(
       operationsOriginal: operations,
       operationsGenerated: budget.keys,
       mediateBudget: budget,
-      dateStart: args.dateStart ?? startOperationDay,
-      dateEnd: args.dateEnd ?? lastOperationDay,
+      dateStart: dateStart,
+      dateEnd: dateEnd,
     );
 
     return result;

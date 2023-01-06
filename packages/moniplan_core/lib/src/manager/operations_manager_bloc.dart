@@ -31,11 +31,18 @@ class OperationsManagerBloc
             operations: event.operations,
             dateStart: event.startPeriod,
             dateEnd: event.endPeriod,
+            initialBudget: event.initialBudget ?? 0,
           ),
         );
 
         final result = computeBudgetUseCase.run();
         Timeline.finishSync();
+
+        final moneyFlow = MoneyFlowUseCase(
+          args: MoneyFlowUseCaseArgs(
+            operations: result.operationsGenerated,
+          ),
+        ).run();
 
         final newState = OperationsManagerState.budgetComputed(
           operationsOriginal: result.operationsOriginal.toIList(),
@@ -43,6 +50,7 @@ class OperationsManagerBloc
           budget: IMap.fromEntries(result.mediateBudget.entries),
           dateStart: result.dateStart,
           dateEnd: result.dateEnd,
+          moneyFlow: moneyFlow,
         );
         emit(newState);
       },

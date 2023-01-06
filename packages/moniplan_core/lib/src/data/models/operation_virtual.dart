@@ -1,13 +1,9 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:equatable/equatable.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:money2/money2.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-
-import 'dart:developer' as dev;
-import 'package:logging/logging.dart';
 
 part 'operation_virtual.freezed.dart';
 part 'operation_virtual.g.dart';
@@ -33,6 +29,9 @@ class Operation with _$Operation, EquatableMixin {
     @Default('') String note,
   }) = _Operation;
 
+  factory Operation.fromJson(Map<String, dynamic> json) =>
+      _$OperationFromJson(json);
+
   bool get isNotParent => !isParent;
   bool get isParent => id != virtualOperationId && originalOperationId == null;
 
@@ -40,102 +39,14 @@ class Operation with _$Operation, EquatableMixin {
 
   bool get isRepeatParent => isRepeat && isParent;
 
-  double get normalizedValue => money.abs() * type.modifier;
+  double get normalizedMoney => money.abs() * type.modifier;
 
   @override
   List<Object?> get props => [id, date, originalOperationId];
 
-  // IList<Operation> getPeriodOperationsToDate(DateTime end) {
-  //   if (repeat == OperationRepeat.noRepeat || id == virtualOperationId) {
-  //     return IList();
-  //   }
-  //
-  //   final firstNext = repeat.next(date);
-  //   if (firstNext.isAfter(end)) {
-  //     return IList();
-  //   }
-  //
-  //   final forward = IList([
-  //     copyWith(
-  //       id: virtualOperationId,
-  //       date: repeat.next(date),
-  //     )
-  //   ]).unlock;
-  //
-  //   while (forward.last.date.isBefore(end)) {
-  //     forward.add(copyWith(
-  //       id: virtualOperationId,
-  //       date: repeat.next(forward.last.date),
-  //       originalOperationId: id,
-  //     ));
-  //   }
-  //
-  //   if (forward.last.date.isAfter(end)) {
-  //     forward.removeLast();
-  //   }
-  //
-  //   return forward.lock;
-  // }
-  //
-  // IList<Operation> getPeriodOperationsFromDate(DateTime start) {
-  //   if (repeat == OperationRepeat.noRepeat || id == virtualOperationId) {
-  //     return IList();
-  //   }
-  //
-  //   final firstPrevious = repeat.previous(date);
-  //   if (firstPrevious.isBefore(start)) {
-  //     return IList();
-  //   }
-  //
-  //   final backward = IList([
-  //     copyWith(
-  //       id: virtualOperationId,
-  //       date: firstPrevious,
-  //       originalOperationId: id,
-  //     )
-  //   ]).unlock;
-  //
-  //   while (backward.last.date.isAfter(start)) {
-  //     backward.add(copyWith(
-  //       id: virtualOperationId,
-  //       date: repeat.previous(backward.last.date),
-  //     ));
-  //   }
-  //
-  //   if (backward.last.date.isBefore(start)) {
-  //     backward.removeLast();
-  //   }
-  //
-  //   return backward.reversedView.lock;
-  // }
-  //
-  // IList<Operation> getPeriodOperations(DateTime start, DateTime end) {
-  //   if (!start.isBefore(end)) {
-  //     dev.log(
-  //       'Start day of report should be before end date.',
-  //       level: Level.SEVERE.value,
-  //       name: 'getPeriodOperations',
-  //       stackTrace: StackTrace.current,
-  //     );
-  //     return IList();
-  //   }
-  //
-  //   if (repeat == OperationRepeat.noRepeat) {
-  //     return IList();
-  //   } else {
-  //     final backward = getPeriodOperationsFromDate(start);
-  //     final forward = getPeriodOperationsToDate(end);
-  //
-  //     return IList([
-  //       ...backward,
-  //       ...forward,
-  //     ]);
-  //   }
-  // }
-
   @override
   String toString() => 'Operation('
-      '\n  date: $date, money: $normalizedValue, note: $note,'
+      '\n  date: $date, money: $normalizedMoney, note: $note,'
       '\n  repeat: $repeat, type: $type, '
       '\n)';
 }

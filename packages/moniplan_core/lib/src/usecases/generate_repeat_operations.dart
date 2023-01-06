@@ -33,15 +33,15 @@ class GenerateRepeatOperationsUseCaseResult {
 class GenerateRepeatOperationsUseCase
     extends UseCase<GenerateRepeatOperationsUseCaseResult> {
   final Operation operation;
-  final DateTime? startPeriod;
-  final DateTime? endPeriod;
+  final DateTime startPeriod;
+  final DateTime endPeriod;
 
   final GenerateRepeatOperationsMode mode;
 
   const GenerateRepeatOperationsUseCase({
     required this.operation,
-    this.startPeriod,
-    this.endPeriod,
+    required this.startPeriod,
+    required this.endPeriod,
     this.mode = GenerateRepeatOperationsMode.beforeAndAfter,
   });
 
@@ -62,17 +62,22 @@ class GenerateRepeatOperationsUseCase
       baseOperation: operation,
       dateStart: start,
       dateEnd: end,
-      beforeOperations:
-          start != null && mode != GenerateRepeatOperationsMode.afterOnly
-              ? _getPeriodOperationsFromDate(start)
-              : const IListConst([]),
-      afterOperations:
-          end != null && mode != GenerateRepeatOperationsMode.beforeOnly
-              ? _getPeriodOperationsToDate(end)
-              : const IListConst([]),
+      beforeOperations: mode != GenerateRepeatOperationsMode.afterOnly
+          ? _filterOperationsInRange(_getPeriodOperationsFromDate(start))
+          : const IListConst([]),
+      afterOperations: mode != GenerateRepeatOperationsMode.beforeOnly
+          ? _filterOperationsInRange(_getPeriodOperationsToDate(end))
+          : const IListConst([]),
     );
 
     return result;
+  }
+
+  IList<Operation> _filterOperationsInRange(IList<Operation> data) {
+    return data.where((e) {
+      return e.date.compareTo(startPeriod) >= 0 &&
+          e.date.compareTo(endPeriod) <= 0;
+    }).toIList();
   }
 
   IList<Operation> _getPeriodOperationsToDate(DateTime end) {
