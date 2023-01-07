@@ -1,6 +1,6 @@
 import 'package:moniplan_core/moniplan_core.dart';
 
-enum OperationRepeat {
+enum DateTimeRepeat {
   noRepeat(''),
   everyDay('1d'),
   everyWeek('1w'),
@@ -13,27 +13,27 @@ enum OperationRepeat {
 
   final String shortName;
 
-  const OperationRepeat(this.shortName);
+  const DateTimeRepeat(this.shortName);
 
   DateTime previous(DateTime base) {
     switch (this) {
-      case OperationRepeat.noRepeat:
+      case DateTimeRepeat.noRepeat:
         return base;
-      case OperationRepeat.everyDay:
+      case DateTimeRepeat.everyDay:
         return base.subtractTime(day: 1);
-      case OperationRepeat.everyWeek:
+      case DateTimeRepeat.everyWeek:
         return base.subtractTime(day: 7);
-      case OperationRepeat.everyTwoWeek:
+      case DateTimeRepeat.everyTwoWeek:
         return base.subtractTime(day: 14);
-      case OperationRepeat.everyFourWeek:
+      case DateTimeRepeat.everyFourWeek:
         return base.subtractTime(day: 28);
-      case OperationRepeat.everyMonth:
+      case DateTimeRepeat.everyMonth:
         return base.subtractTime(month: 1);
-      case OperationRepeat.everyThreeMonth:
+      case DateTimeRepeat.everyThreeMonth:
         return base.subtractTime(month: 3);
-      case OperationRepeat.everySixMonth:
+      case DateTimeRepeat.everySixMonth:
         return base.subtractTime(month: 6);
-      case OperationRepeat.everyYear:
+      case DateTimeRepeat.everyYear:
         return base.subtractTime(year: 1);
       default:
         return base;
@@ -42,23 +42,23 @@ enum OperationRepeat {
 
   DateTime next(DateTime base) {
     switch (this) {
-      case OperationRepeat.noRepeat:
+      case DateTimeRepeat.noRepeat:
         return base;
-      case OperationRepeat.everyDay:
+      case DateTimeRepeat.everyDay:
         return base.addTime(day: 1);
-      case OperationRepeat.everyWeek:
+      case DateTimeRepeat.everyWeek:
         return base.addTime(day: 7);
-      case OperationRepeat.everyTwoWeek:
+      case DateTimeRepeat.everyTwoWeek:
         return base.addTime(day: 14);
-      case OperationRepeat.everyFourWeek:
+      case DateTimeRepeat.everyFourWeek:
         return base.addTime(day: 28);
-      case OperationRepeat.everyMonth:
+      case DateTimeRepeat.everyMonth:
         return base.addTime(month: 1);
-      case OperationRepeat.everyThreeMonth:
+      case DateTimeRepeat.everyThreeMonth:
         return base.addTime(month: 3);
-      case OperationRepeat.everySixMonth:
+      case DateTimeRepeat.everySixMonth:
         return base.addTime(month: 6);
-      case OperationRepeat.everyYear:
+      case DateTimeRepeat.everyYear:
         return base.addTime(year: 1);
       default:
         return base;

@@ -2,11 +2,10 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:money2/money2.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
-part 'operation_virtual.freezed.dart';
-part 'operation_virtual.g.dart';
+part 'operation.freezed.dart';
+part 'operation.g.dart';
 
 @freezed
 class Operation with _$Operation, EquatableMixin {
@@ -18,35 +17,33 @@ class Operation with _$Operation, EquatableMixin {
   @JsonSerializable()
   const factory Operation({
     required String id,
-    required OperationType type,
-    required Currency currency,
     @Default(true) bool enabled,
     String? originalOperationId,
-    String? operationCategoryId,
-    @Default(0) double money,
-    @Default(OperationRepeat.noRepeat) OperationRepeat repeat,
+    required OperationReceipt receipt,
     required DateTime date,
-    @Default('') String note,
+    @Default(DateTimeRepeat.noRepeat) DateTimeRepeat repeat,
   }) = _Operation;
 
   factory Operation.fromJson(Map<String, dynamic> json) =>
       _$OperationFromJson(json);
 
+  ReceiptType get type => receipt.type;
+
   bool get isNotParent => !isParent;
   bool get isParent => id != virtualOperationId && originalOperationId == null;
 
-  bool get isRepeat => repeat != OperationRepeat.noRepeat;
+  bool get isRepeat => repeat != DateTimeRepeat.noRepeat;
 
   bool get isRepeatParent => isRepeat && isParent;
 
-  double get normalizedMoney => money.abs() * type.modifier;
+  double get normalizedMoney => receipt.normalizedMoney;
 
   @override
   List<Object?> get props => [id, date, originalOperationId];
 
-  @override
-  String toString() => 'Operation('
-      '\n  date: $date, money: $normalizedMoney, note: $note,'
-      '\n  repeat: $repeat, type: $type, '
-      '\n)';
+  // @override
+  // String toString() => 'Operation('
+  //     '\n  date: $date, money: $normalizedMoney, note: $note,'
+  //     '\n  repeat: $repeat, type: $type, '
+  //     '\n)';
 }

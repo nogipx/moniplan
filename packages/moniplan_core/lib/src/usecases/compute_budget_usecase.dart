@@ -3,7 +3,6 @@
 import 'dart:collection';
 
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_core/src/usecases/generate_repeat_operations.dart';
 
 import '_usecase.dart';
 
@@ -60,8 +59,8 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
         .map(
           (e) => GenerateRepeatOperationsUseCase(
             operation: e,
-            startPeriod: dateStart,
-            endPeriod: dateEnd,
+            dateStart: dateStart,
+            dateEnd: dateEnd,
           ).run().combined,
         )
         .expand((e) => e)

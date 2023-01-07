@@ -38,9 +38,9 @@ class MoneyFlowUseCase extends UseCase<MoneyFlowUseCaseResult> {
       if (!e.enabled) {
         continue;
       }
-      if (e.type == OperationType.income) {
+      if (e.type == ReceiptType.income) {
         totalIncome += e.normalizedMoney;
-      } else if (e.type == OperationType.outcome) {
+      } else if (e.type == ReceiptType.outcome) {
         totalOutcome += e.normalizedMoney;
       }
       balance += e.normalizedMoney;

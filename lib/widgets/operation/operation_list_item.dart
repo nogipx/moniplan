@@ -20,7 +20,7 @@ class OperationListItem extends StatelessWidget {
     final budgetPredictWidget = mediateSummary != null
         ? MoneyColoredWidget(
             value: mediateSummary,
-            currency: operation.currency,
+            currency: operation.receipt.currency,
             showPlusSign: false,
           )
         : const SizedBox();
@@ -51,7 +51,7 @@ class OperationListItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              operation.note,
+              operation.receipt.name,
               style: Theme.of(context).textTheme.subtitle2,
             ),
             const SizedBox(height: 8),
@@ -73,7 +73,7 @@ class OperationListItem extends StatelessWidget {
               children: [
                 MoneyColoredWidget(
                   value: operation.normalizedMoney,
-                  currency: operation.currency,
+                  currency: operation.receipt.currency,
                 ),
                 const SizedBox(width: 4),
                 const Icon(
