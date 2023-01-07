@@ -1,6 +1,5 @@
 import 'package:moniplan_core/moniplan_core.dart';
 
-import 'operational.dart';
 import 'periodic.dart';
 
 abstract class BudgetsRequests {
@@ -18,7 +17,7 @@ abstract class BudgetsRequests {
       // ...KarimDaryaOperationalBudget.all,
     ],
     initialBudget: 135000,
-    startPeriod: DateTime.now().monthStart,
-    endPeriod: DateTime.now().addTime(month: 1).monthEnd,
+    startPeriod: DateTime(2023, 1, 7),
+    endPeriod: DateTime.now().addTime(month: 2).monthEnd,
   );
 }

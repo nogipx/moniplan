@@ -21,6 +21,8 @@ class Operation with _$Operation, EquatableMixin {
     String? originalOperationId,
     required OperationReceipt receipt,
     required DateTime date,
+    DateTime? dateStart,
+    DateTime? dateEnd,
     @Default(DateTimeRepeat.noRepeat) DateTimeRepeat repeat,
   }) = _Operation;
 

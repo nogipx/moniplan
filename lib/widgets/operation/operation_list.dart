@@ -42,8 +42,8 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
               widget =
                   _itemBuilder(operations, budget).call(context, itemIndex);
             } else {
-              widget = const SizedBox(height: 8);
-              // widget = _separatorBuilder(operations).call(context, itemIndex);
+              // widget = const SizedBox(height: 8);
+              widget = _separatorBuilder(operations).call(context, itemIndex);
             }
             return widget;
           },
@@ -77,6 +77,7 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
       final isMonthEdge = next.date.month != curr.date.month;
       final isHalfMonth =
           !isMonthEdge && next.date.day > 15 && curr.date.day <= 15;
+      final isNextDay = next.date.day != curr.date.day;
 
       if (isMonthEdge) {
         return Container(
@@ -94,6 +95,28 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
           child: Text(
             '${DateFormat(DateFormat.MONTH, 'ru').format(next.date)}: медиана',
             style: Theme.of(context).textTheme.subtitle2,
+          ),
+        );
+      } else if (isNextDay) {
+        return Material(
+          elevation: 20,
+          child: Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.blueGrey.withOpacity(.3),
+                  Colors.blueGrey.withOpacity(.1),
+                ],
+              ),
+            ),
+            child: Text(
+              DateFormat.MMMd('ru').format(next.date),
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
           ),
         );
       }

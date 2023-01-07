@@ -31,7 +31,11 @@ class GenerateRepeatDatesUseCase extends UseCase<List<DateTime>> {
       while (true) {
         final next = repeat.previous(pastDates.last);
         if (next.compareTo(dateStart) >= 0) {
-          pastDates.add(next);
+          if (next.isAfter(dateEnd)) {
+            pastDates[0] = next;
+          } else {
+            pastDates.add(next);
+          }
         } else {
           break;
         }
@@ -43,7 +47,11 @@ class GenerateRepeatDatesUseCase extends UseCase<List<DateTime>> {
       while (true) {
         final next = repeat.next(futureDates.last);
         if (next.compareTo(dateEnd) <= 0) {
-          futureDates.add(next);
+          if (next.isBefore(dateStart)) {
+            futureDates[0] = next;
+          } else {
+            futureDates.add(next);
+          }
         } else {
           break;
         }

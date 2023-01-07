@@ -51,8 +51,11 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
       throw Exception('Operations list is empty');
     }
 
-    final dateStart = args.dateStart;
+    // if (operations.any((e) => e.receipt.name.contains('OhSofia'))) {
+    //   print('');
+    // }
 
+    final dateStart = args.dateStart;
     final dateEnd = args.dateEnd;
 
     final allOperations = operations
@@ -75,9 +78,6 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
       tempBudget += item.enabled ? item.normalizedMoney : 0;
       budget[item] = tempBudget;
     }
-    // budget.removeWhere(
-    //   (key, value) => key.date.isAfter(dateEnd) || key.date.isBefore(dateStart),
-    // );
 
     final result = ComputeBudgetUseCaseResult(
       operationsOriginal: operations,

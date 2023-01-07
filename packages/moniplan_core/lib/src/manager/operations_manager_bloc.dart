@@ -1,13 +1,11 @@
 // ignore_for_file: prefer_collection_literals
 
-import 'dart:collection';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_core/src/usecases/compute_budget_usecase.dart';
 
 class OperationsManagerBloc
     extends Bloc<OperationsManagerEvent, OperationsManagerState> {
@@ -35,12 +33,17 @@ class OperationsManagerBloc
           ),
         );
 
+        // if (event.operations.any((e) => e.receipt.name.contains('OhSofia'))) {
+        //   print('');
+        // }
+
         final result = computeBudgetUseCase.run();
         Timeline.finishSync();
 
         final moneyFlow = MoneyFlowUseCase(
           args: MoneyFlowUseCaseArgs(
             operations: result.operationsGenerated,
+            initialBudget: event.initialBudget ?? 0,
           ),
         ).run();
 

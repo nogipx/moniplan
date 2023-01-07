@@ -15,7 +15,7 @@ abstract class KarimDaryaPeriodicOperations {
       date: DateTime(2022, 9, 15),
       repeat: DateTimeRepeat.everyMonth,
       receipt: OperationReceipt(
-        name: '💰 Зп Карим ',
+        name: '💰 Зп Карим',
         money: 89000,
         type: ReceiptType.income,
         currency: AppCurrencies.ru,
@@ -60,22 +60,15 @@ abstract class KarimDaryaPeriodicOperations {
       id: const Uuid().v4(),
       date: DateTime(2023, 1, 25),
       enabled: true,
+      dateEnd: DateTime(2023, 2, 1),
+      repeat: DateTimeRepeat.everyMonth,
       receipt: OperationReceipt(
-        name: '💰 OhSofia',
+        name: '📈 OhSofia',
         money: 150000,
         type: ReceiptType.income,
         currency: AppCurrencies.ru,
       ),
     ),
-    // Operation(
-    //   id: const Uuid().v4(),
-    //   type: OperationType.income,
-    //   currency: AppCurrencies.ru,
-    //   date: DateTime(2023, 2, 25),
-    //   note: '💰 OhSofia',
-    //   enabled: true,
-    //   money: 150000,
-    // ),
   ];
 
   static final homeSpends = [
@@ -83,10 +76,9 @@ abstract class KarimDaryaPeriodicOperations {
       id: const Uuid().v4(),
       date: DateTime(2021, 9, 22),
       repeat: DateTimeRepeat.everyDay,
-      enabled: false,
       receipt: OperationReceipt(
-        name: '! ЕДА !',
-        money: -2000,
+        name: '🥑 ! ЕДА !',
+        money: -3000,
         type: ReceiptType.outcome,
         currency: AppCurrencies.ru,
       ),
@@ -96,7 +88,7 @@ abstract class KarimDaryaPeriodicOperations {
       date: DateTime(2022, 9, 22),
       repeat: DateTimeRepeat.everyMonth,
       receipt: OperationReceipt(
-        name: 'Аренда квартиры',
+        name: '🏠 Аренда квартиры',
         money: -43000,
         type: ReceiptType.outcome,
         currency: AppCurrencies.ru,
@@ -107,7 +99,7 @@ abstract class KarimDaryaPeriodicOperations {
       date: DateTime(2022, 1, 10),
       repeat: DateTimeRepeat.everyTwoWeek,
       receipt: OperationReceipt(
-        name: 'Клининг',
+        name: '🏠 Клининг',
         money: -2000,
         type: ReceiptType.outcome,
         currency: AppCurrencies.ru,
@@ -118,7 +110,7 @@ abstract class KarimDaryaPeriodicOperations {
       date: DateTime(2022, 10, 8),
       repeat: DateTimeRepeat.everyMonth,
       receipt: OperationReceipt(
-        name: 'Коммуналка',
+        name: '🏠 Коммуналка',
         money: -4000,
         type: ReceiptType.outcome,
         currency: AppCurrencies.ru,
@@ -142,7 +134,7 @@ abstract class KarimDaryaPeriodicOperations {
       date: DateTime(2022, 9, 19),
       repeat: DateTimeRepeat.everyMonth,
       receipt: OperationReceipt(
-        name: 'Кредит iPad',
+        name: '👹 Кредит iPad',
         money: 7500,
         type: ReceiptType.outcome,
         currency: AppCurrencies.ru,
@@ -153,7 +145,18 @@ abstract class KarimDaryaPeriodicOperations {
       date: DateTime(2022, 9, 22),
       repeat: DateTimeRepeat.everyMonth,
       receipt: OperationReceipt(
-        name: 'Ипотека Даша',
+        name: '🏢 Ипотека Даша пораньше',
+        money: 22000,
+        type: ReceiptType.outcome,
+        currency: AppCurrencies.ru,
+      ),
+    ),
+    Operation(
+      id: const Uuid().v4(),
+      date: DateTime(2022, 9, 22),
+      repeat: DateTimeRepeat.everyMonth,
+      receipt: OperationReceipt(
+        name: '🏢 Ипотека Даша пораньше',
         money: 22000,
         type: ReceiptType.outcome,
         currency: AppCurrencies.ru,
@@ -164,7 +167,7 @@ abstract class KarimDaryaPeriodicOperations {
       date: DateTime(2022, 9, 30),
       repeat: DateTimeRepeat.everyMonth,
       receipt: OperationReceipt(
-        name: 'Кредит Google Pixel',
+        name: '👹 Кредит Google Pixel',
         money: 5020,
         type: ReceiptType.outcome,
         currency: AppCurrencies.ru,
@@ -173,6 +176,28 @@ abstract class KarimDaryaPeriodicOperations {
   ];
 
   static final creditCards = [
+    Operation(
+      id: const Uuid().v4(),
+      date: DateTime(2022, 2, 1),
+      repeat: DateTimeRepeat.everyTwoWeek,
+      receipt: OperationReceipt(
+        name: '🤡 Кредитка Карим Альфа побольше',
+        money: 10000,
+        type: ReceiptType.outcome,
+        currency: AppCurrencies.ru,
+      ),
+    ),
+    Operation(
+      id: const Uuid().v4(),
+      date: DateTime(2022, 2, 1),
+      repeat: DateTimeRepeat.everyTwoWeek,
+      receipt: OperationReceipt(
+        name: '🤡 Кредитка Даша Тинькоф',
+        money: 10000,
+        type: ReceiptType.outcome,
+        currency: AppCurrencies.ru,
+      ),
+    ),
     // Operation(
     //   id: const Uuid().v4(),
     //   type: OperationType.outcome,
@@ -182,28 +207,6 @@ abstract class KarimDaryaPeriodicOperations {
     //   note: 'Кредитка Карим Альфа поменьше',
     //   money: 4000,
     // ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2022, 2, 1),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: OperationReceipt(
-        name: 'Кредитка Карим Альфа побольше',
-        money: 10000,
-        type: ReceiptType.outcome,
-        currency: AppCurrencies.ru,
-      ),
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2022, 2, 1),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: OperationReceipt(
-        name: 'Кредитка Даша Тинькоф',
-        money: 10000,
-        type: ReceiptType.outcome,
-        currency: AppCurrencies.ru,
-      ),
-    ),
     // Operation(
     //   id: const Uuid().v4(),
     //   type: OperationType.outcome,

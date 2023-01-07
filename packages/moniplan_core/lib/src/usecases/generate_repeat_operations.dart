@@ -35,6 +35,10 @@ class GenerateRepeatOperationsUseCase
     final start = dateStart;
     final end = dateEnd;
 
+    if (operation.receipt.name.contains('OhSofia')) {
+      print('');
+    }
+
     if (!operation.isRepeat) {
       return GenerateRepeatOperationsUseCaseResult(
         baseOperation: operation,
@@ -46,8 +50,8 @@ class GenerateRepeatOperationsUseCase
     final generatedDates = GenerateRepeatDatesUseCase(
       repeat: operation.repeat,
       base: operation.date,
-      dateStart: dateStart,
-      dateEnd: dateEnd,
+      dateStart: operation.dateStart ?? dateStart,
+      dateEnd: operation.dateEnd ?? dateEnd,
     ).run();
 
     final operations =
@@ -59,6 +63,11 @@ class GenerateRepeatOperationsUseCase
       dateEnd: end,
       operations: operations,
     );
+
+    if (operation.receipt.name.contains('OhSofia') ||
+        operation.dateEnd != null) {
+      print('');
+    }
 
     return result;
   }
