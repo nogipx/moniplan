@@ -15,8 +15,10 @@ dependencies:
   money2: ^3.0.0
   bloc: ^8.0.3
   flutter_bloc: ^8.0.0
+  draggable_scrollbar: ^0.1.0
 
   fast_immutable_collections: ^7.4.1
+  syncfusion_flutter_charts: ^20.4.42
 
   moniplan_core:
     path: packages/moniplan_core

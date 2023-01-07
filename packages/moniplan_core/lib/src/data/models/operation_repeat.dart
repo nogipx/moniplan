@@ -3,6 +3,11 @@ import 'package:moniplan_core/moniplan_core.dart';
 enum DateTimeRepeat {
   noRepeat(''),
   everyDay('1d'),
+  everyTwoDay('2d'),
+  everyThreeDay('3d'),
+  everyFourDay('4d'),
+  everyFiveDay('5d'),
+  everySixDay('6d'),
   everyWeek('1w'),
   everyTwoWeek('2w'),
   everyFourWeek('4w'),
@@ -21,6 +26,16 @@ enum DateTimeRepeat {
         return base;
       case DateTimeRepeat.everyDay:
         return base.subtractTime(day: 1);
+      case DateTimeRepeat.everyTwoDay:
+        return base.subtractTime(day: 2);
+      case DateTimeRepeat.everyThreeDay:
+        return base.subtractTime(day: 3);
+      case DateTimeRepeat.everyFourDay:
+        return base.subtractTime(day: 4);
+      case DateTimeRepeat.everyFiveDay:
+        return base.subtractTime(day: 5);
+      case DateTimeRepeat.everySixDay:
+        return base.subtractTime(day: 6);
       case DateTimeRepeat.everyWeek:
         return base.subtractTime(day: 7);
       case DateTimeRepeat.everyTwoWeek:
@@ -46,6 +61,16 @@ enum DateTimeRepeat {
         return base;
       case DateTimeRepeat.everyDay:
         return base.addTime(day: 1);
+      case DateTimeRepeat.everyTwoDay:
+        return base.addTime(day: 2);
+      case DateTimeRepeat.everyThreeDay:
+        return base.addTime(day: 3);
+      case DateTimeRepeat.everyFourDay:
+        return base.addTime(day: 4);
+      case DateTimeRepeat.everyFiveDay:
+        return base.addTime(day: 5);
+      case DateTimeRepeat.everySixDay:
+        return base.addTime(day: 6);
       case DateTimeRepeat.everyWeek:
         return base.addTime(day: 7);
       case DateTimeRepeat.everyTwoWeek:

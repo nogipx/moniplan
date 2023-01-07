@@ -16,8 +16,9 @@ abstract class BudgetsRequests {
       ...KarimDaryaPeriodicOperations.all,
       // ...KarimDaryaOperationalBudget.all,
     ],
-    initialBudget: 135000,
+    // initialBudget: 135000,
     startPeriod: DateTime(2023, 1, 7),
-    endPeriod: DateTime.now().addTime(month: 2).monthEnd,
+    endPeriod: DateTime(2023, 1, 28).monthEnd,
+    // endPeriod: DateTime(2023, 3, 31),
   );
 }

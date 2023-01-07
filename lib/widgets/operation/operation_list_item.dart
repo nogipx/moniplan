@@ -55,20 +55,20 @@ class OperationListItem extends StatelessWidget {
               style: Theme.of(context).textTheme.subtitle2,
             ),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Text(
-                  DateFormat(DateFormat.YEAR_ABBR_MONTH_WEEKDAY_DAY, 'RU')
-                      .format(operation.date),
-                  style: Theme.of(context).textTheme.caption?.copyWith(
-                        fontSize: 14,
-                      ),
-                ),
-                // const SizedBox(width: 8),
-                // repeatWidget
-              ],
-            ),
-            const SizedBox(height: 8),
+            // Row(
+            //   children: [
+            //     Text(
+            //       DateFormat(DateFormat.YEAR_ABBR_MONTH_WEEKDAY_DAY, 'RU')
+            //           .format(operation.date),
+            //       style: Theme.of(context).textTheme.caption?.copyWith(
+            //             fontSize: 14,
+            //           ),
+            //     ),
+            //     // const SizedBox(width: 8),
+            //     // repeatWidget
+            //   ],
+            // ),
+            // const SizedBox(height: 8),
             Row(
               children: [
                 MoneyColoredWidget(
@@ -77,7 +77,7 @@ class OperationListItem extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 const Icon(
-                  Icons.keyboard_arrow_right,
+                  Icons.arrow_right_alt_rounded,
                   size: 20,
                   color: MoniplanColors.disabledColor,
                 ),

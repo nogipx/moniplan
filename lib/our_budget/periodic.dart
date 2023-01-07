@@ -75,10 +75,21 @@ abstract class KarimDaryaPeriodicOperations {
     Operation(
       id: const Uuid().v4(),
       date: DateTime(2021, 9, 22),
+      repeat: DateTimeRepeat.everyThreeDay,
+      receipt: OperationReceipt(
+        name: '🥑 Яндекс.Еда / Delivery',
+        money: -3000,
+        type: ReceiptType.outcome,
+        currency: AppCurrencies.ru,
+      ),
+    ),
+    Operation(
+      id: const Uuid().v4(),
+      date: DateTime(2021, 9, 22),
       repeat: DateTimeRepeat.everyDay,
       receipt: OperationReceipt(
-        name: '🥑 ! ЕДА !',
-        money: -3000,
+        name: '🥑 Самокат',
+        money: -1000,
         type: ReceiptType.outcome,
         currency: AppCurrencies.ru,
       ),
@@ -96,7 +107,7 @@ abstract class KarimDaryaPeriodicOperations {
     ),
     Operation(
       id: const Uuid().v4(),
-      date: DateTime(2022, 1, 10),
+      date: DateTime(2023, 1, 10),
       repeat: DateTimeRepeat.everyTwoWeek,
       receipt: OperationReceipt(
         name: '🏠 Клининг',
@@ -145,19 +156,8 @@ abstract class KarimDaryaPeriodicOperations {
       date: DateTime(2022, 9, 22),
       repeat: DateTimeRepeat.everyMonth,
       receipt: OperationReceipt(
-        name: '🏢 Ипотека Даша пораньше',
-        money: 22000,
-        type: ReceiptType.outcome,
-        currency: AppCurrencies.ru,
-      ),
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2022, 9, 22),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: OperationReceipt(
-        name: '🏢 Ипотека Даша пораньше',
-        money: 22000,
+        name: '🏢 Ипотека, самолет 4кв 2023',
+        money: 22500,
         type: ReceiptType.outcome,
         currency: AppCurrencies.ru,
       ),

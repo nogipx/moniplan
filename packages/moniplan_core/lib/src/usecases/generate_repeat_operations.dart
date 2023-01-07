@@ -35,10 +35,6 @@ class GenerateRepeatOperationsUseCase
     final start = dateStart;
     final end = dateEnd;
 
-    if (operation.receipt.name.contains('OhSofia')) {
-      print('');
-    }
-
     if (!operation.isRepeat) {
       return GenerateRepeatOperationsUseCaseResult(
         baseOperation: operation,

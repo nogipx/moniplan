@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan/widgets/operation/money_flow_widget.dart';
 import 'package:moniplan/widgets/operation/operation_list.dart';
+import 'package:moniplan/widgets/statistics/statisctic_chart.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -69,6 +70,34 @@ class _MoniplanAppState extends State<MoniplanApp> {
             return Scaffold(
               appBar: AppBar(
                 title: titleWidget,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.ssid_chart),
+                    onPressed: () {
+                      Navigator.of(context).push<void>(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return Scaffold(
+                              body: SafeArea(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 24,
+                                  ),
+                                  child: Center(
+                                    child: StatisticChart(
+                                      budget: state.budget.unlock,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
               backgroundColor: Colors.grey.shade200,
               body: StreamBuilder<OperationsManagerState>(

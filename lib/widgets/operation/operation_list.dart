@@ -1,4 +1,5 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan/widgets/operation/operation_list_item.dart';
@@ -82,19 +83,43 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
       if (isMonthEdge) {
         return Container(
           alignment: Alignment.center,
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.blueGrey.withOpacity(.7),
+                Colors.blueGrey.withOpacity(.5),
+              ],
+            ),
+          ),
           child: Text(
             DateFormat(DateFormat.MONTH, 'ru').format(next.date),
-            style: Theme.of(context).textTheme.subtitle2,
+            style: Theme.of(context).textTheme.subtitle2?.copyWith(
+                  color: Colors.white,
+                ),
           ),
         );
       } else if (isHalfMonth) {
         return Container(
           alignment: Alignment.center,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.blueGrey.withOpacity(.7),
+                Colors.blueGrey.withOpacity(.5),
+              ],
+            ),
+          ),
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: Text(
             '${DateFormat(DateFormat.MONTH, 'ru').format(next.date)}: медиана',
-            style: Theme.of(context).textTheme.subtitle2,
+            style: Theme.of(context).textTheme.subtitle2?.copyWith(
+                  color: Colors.white,
+                ),
           ),
         );
       } else if (isNextDay) {
@@ -120,7 +145,7 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
           ),
         );
       }
-      return const SizedBox(height: 8);
+      return const SizedBox(height: 2);
     };
   }
   //

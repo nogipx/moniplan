@@ -15,11 +15,13 @@ class MoneyFlowUseCaseResult {
   final double totalIncome;
   final double totalOutcome;
   final double balance;
+  final double initialBalance;
 
   const MoneyFlowUseCaseResult({
     this.totalIncome = 0,
     this.totalOutcome = 0,
     this.balance = 0,
+    this.initialBalance = 0,
   });
 }
 
@@ -52,6 +54,7 @@ class MoneyFlowUseCase extends UseCase<MoneyFlowUseCaseResult> {
       totalIncome: totalIncome,
       totalOutcome: totalOutcome,
       balance: balance,
+      initialBalance: args.initialBudget,
     );
   }
 }
