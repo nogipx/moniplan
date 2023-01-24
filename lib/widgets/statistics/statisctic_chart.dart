@@ -32,33 +32,37 @@ class _StatisticChartState extends State<StatisticChart> {
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           clipBehavior: Clip.hardEdge,
           borderOnForeground: true,
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
-              // color: Colors.white,
-              color: data.seriesIndex == 0 ? Colors.white : Colors.black12,
-              border: Border.all(
-                width: 3,
-                color: item.key.normalizedMoney == 0
-                    ? Colors.grey.shade200
-                    : item.key.normalizedMoney > 0
-                        ? Colors.green.shade300
-                        : Colors.red.shade200,
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(DateFormat('d MMMM', 'ru').format(item.key.date)),
-                Text(item.key.receipt.name),
-                MoneyColoredWidget(
-                  value: item.key.receipt.normalizedMoney,
-                  currency: item.key.receipt.currency,
-                ),
-              ],
-            ),
-          ),
+          child: data.seriesIndex == 0
+              ? Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    // color: Colors.white,
+                    color:
+                        data.seriesIndex == 0 ? Colors.white : Colors.black12,
+                    border: Border.all(
+                      width: 3,
+                      color: item.key.normalizedMoney == 0
+                          ? Colors.grey.shade200
+                          : item.key.normalizedMoney > 0
+                              ? Colors.green.shade300
+                              : Colors.red.shade200,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(DateFormat('d MMMM', 'ru').format(item.key.date)),
+                      Text(item.key.receipt.name),
+                      MoneyColoredWidget(
+                        value: item.key.receipt.normalizedMoney,
+                        currency: item.key.receipt.currency,
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox(),
         );
       }
 
@@ -98,7 +102,8 @@ class _StatisticChartState extends State<StatisticChart> {
           LineSeries<MapEntry<Operation, double>, DateTime>(
             name: 'Бюджет',
             color: Colors.blue.shade900,
-            dataSource: widget.budget.entries.toList(),
+            dataSource:
+                widget.budget.entries.where((e) => e.key.enabled).toList(),
             xValueMapper: (MapEntry<Operation, double> data, _) =>
                 data.key.date,
             yValueMapper: (MapEntry<Operation, double> data, _) => data.value,
@@ -108,7 +113,7 @@ class _StatisticChartState extends State<StatisticChart> {
             name: 'Расход',
             color: Colors.red.shade100,
             dataSource: widget.budget.entries
-                .where((e) => e.key.type.modifier < 0)
+                .where((e) => e.key.type.modifier < 0 && e.key.enabled)
                 .toList(),
             xValueMapper: (MapEntry<Operation, double> data, _) =>
                 data.key.date,
@@ -120,7 +125,7 @@ class _StatisticChartState extends State<StatisticChart> {
             name: 'Доход',
             color: Colors.green.shade100,
             dataSource: widget.budget.entries
-                .where((e) => e.key.type.modifier > 0)
+                .where((e) => e.key.type.modifier > 0 && e.key.enabled)
                 .toList(),
             xValueMapper: (MapEntry<Operation, double> data, _) =>
                 data.key.date,

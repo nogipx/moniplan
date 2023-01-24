@@ -52,7 +52,10 @@ class OperationListItem extends StatelessWidget {
           children: [
             Text(
               operation.receipt.name,
-              style: Theme.of(context).textTheme.subtitle2,
+              style: Theme.of(context).textTheme.subtitle1?.copyWith(
+                    color: const Color(0xff1f1f1f),
+                    fontWeight: FontWeight.w400,
+                  ),
             ),
             const SizedBox(height: 8),
             // Row(

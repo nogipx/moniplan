@@ -59,7 +59,7 @@ abstract class KarimDaryaPeriodicOperations {
     Operation(
       id: const Uuid().v4(),
       date: DateTime(2023, 1, 25),
-      enabled: true,
+      // enabled: false,
       dateEnd: DateTime(2023, 2, 1),
       repeat: DateTimeRepeat.everyMonth,
       receipt: OperationReceipt(
@@ -127,16 +127,17 @@ abstract class KarimDaryaPeriodicOperations {
         currency: AppCurrencies.ru,
       ),
     ),
-    // Operation(
-    //   id: const Uuid().v4(),
-    //   type: OperationType.outcome,
-    //   currency: AppCurrencies.ru,
-    //   date: DateTime(2022, 9, 16),
-    //   repeat: OperationRepeat.everyMonth,
-    //   note: 'Еда и веселье в месяц',
-    //   enabled: false,
-    //   money: 50000,
-    // ),
+    Operation(
+      id: const Uuid().v4(),
+      date: DateTime(2022, 10, 10),
+      repeat: DateTimeRepeat.everyWeek,
+      receipt: OperationReceipt(
+        name: '🏠 Все для котов',
+        money: -5000,
+        type: ReceiptType.outcome,
+        currency: AppCurrencies.ru,
+      ),
+    ),
   ];
 
   static final monthlyCredits = [
