@@ -38,10 +38,18 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
   }) : super(
           (context, index) {
             final int itemIndex = index ~/ 2;
-            final Widget widget;
+            Widget widget;
             if (index.isEven) {
               widget =
                   _itemBuilder(operations, budget).call(context, itemIndex);
+              if (index == 0) {
+                widget = Column(
+                  children: [
+                    regularSeparator(operations[itemIndex].date),
+                    widget,
+                  ],
+                );
+              }
             } else {
               // widget = const SizedBox(height: 8);
               widget = _separatorBuilder(operations).call(context, itemIndex);
@@ -81,27 +89,80 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
       final isNextDay = next.date.day != curr.date.day;
 
       if (isMonthEdge) {
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+        return Column(
+          children: [
+            monthSeparator(next.date),
+            regularSeparator(next.date),
+          ],
+        );
+      } else if (isHalfMonth) {
+        return Column(
+          children: [
+            medianSeparator(next.date),
+            regularSeparator(next.date),
+          ],
+        );
+      } else if (isNextDay) {
+        return regularSeparator(next.date);
+      }
+      return const SizedBox(height: 2);
+    };
+  }
+
+  static Widget regularSeparator(DateTime date) {
+    return Builder(builder: (context) {
+      return Material(
+        elevation: 20,
+        child: Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.blueGrey.withOpacity(.7),
-                Colors.blueGrey.withOpacity(.5),
+                Colors.blueGrey.withOpacity(.3),
+                Colors.blueGrey.withOpacity(.1),
               ],
             ),
           ),
           child: Text(
-            DateFormat(DateFormat.MONTH, 'ru').format(next.date),
-            style: Theme.of(context).textTheme.subtitle2?.copyWith(
-                  color: Colors.white,
-                ),
+            DateFormat.MMMd('ru').format(date),
+            style: Theme.of(context).textTheme.subtitle1,
           ),
-        );
-      } else if (isHalfMonth) {
+        ),
+      );
+    });
+  }
+
+  static Widget monthSeparator(DateTime date) {
+    return Builder(builder: (context) {
+      return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.blueGrey.withOpacity(.7),
+              Colors.blueGrey.withOpacity(.5),
+            ],
+          ),
+        ),
+        child: Text(
+          DateFormat(DateFormat.MONTH, 'ru').format(date),
+          style: Theme.of(context).textTheme.subtitle2?.copyWith(
+                color: Colors.white,
+              ),
+        ),
+      );
+    });
+  }
+
+  static Widget medianSeparator(DateTime date) {
+    return Builder(
+      builder: (context) {
         return Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(
@@ -116,46 +177,13 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
           ),
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: Text(
-            '${DateFormat(DateFormat.MONTH, 'ru').format(next.date)}: медиана',
+            '${DateFormat(DateFormat.MONTH, 'ru').format(date)}: медиана',
             style: Theme.of(context).textTheme.subtitle2?.copyWith(
                   color: Colors.white,
                 ),
           ),
         );
-      } else if (isNextDay) {
-        return Material(
-          elevation: 20,
-          child: Container(
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.blueGrey.withOpacity(.3),
-                  Colors.blueGrey.withOpacity(.1),
-                ],
-              ),
-            ),
-            child: Text(
-              DateFormat.MMMd('ru').format(next.date),
-              style: Theme.of(context).textTheme.subtitle1,
-            ),
-          ),
-        );
-      }
-      return const SizedBox(height: 2);
-    };
+      },
+    );
   }
-  //
-  // @override
-  // Widget build(BuildContext context) {
-  //   return ListView.separated(
-  //     reverse: true,
-  //     itemCount: operations.length,
-  //     separatorBuilder: (context, index) {},
-  //     itemBuilder: (context, index) {},
-  //   );
-  // }
 }

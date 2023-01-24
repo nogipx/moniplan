@@ -1,0 +1,108 @@
+import 'package:moniplan_core/moniplan_core.dart';
+
+abstract class VredniReceipt {
+  static final rentHome = OperationReceipt(
+    name: '🏠 Аренда квартиры',
+    money: -43000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final cleaning = OperationReceipt(
+    name: '🏠 Клининг',
+    money: -2000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final communalPayment = OperationReceipt(
+    name: '🏠 Коммуналка',
+    money: -4000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final yandexEat = OperationReceipt(
+    name: '🥑 Яндекс.Еда / Delivery',
+    money: -3000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final samokat = OperationReceipt(
+    name: '🥑 Самокат',
+    money: -1000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final catsSummary = OperationReceipt(
+    name: '🏠 Все для котов',
+    money: -7000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final salaryKarim = OperationReceipt(
+    name: '💰 Аванс Карим',
+    money: 105000,
+    type: ReceiptType.income,
+    currency: AppCurrencies.ru,
+  );
+
+  static final salaryDarya = OperationReceipt(
+    name: '💰 Аванс Дарья',
+    money: 40000,
+    type: ReceiptType.income,
+    currency: AppCurrencies.ru,
+  );
+
+  static final ohSofia = OperationReceipt(
+    name: '📈 OhSofia',
+    money: 150000,
+    type: ReceiptType.income,
+    currency: AppCurrencies.ru,
+  );
+
+  static final creditIpad = OperationReceipt(
+    name: '👹 Кредит iPad',
+    money: 10000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final creditMacbook = OperationReceipt(
+    name: '👹 Кредит MacBook',
+    money: 10000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final ipotekaDarya = OperationReceipt(
+    name: '🏢 Ипотека, самолет Дарья',
+    money: 22500,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final ipotekaKarim = OperationReceipt(
+    name: '🏢 Ипотека, самолет Карим',
+    money: 37000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final creditCardAlfaKarim = OperationReceipt(
+    name: '🤡 Кредитка Карим Альфа побольше',
+    money: 15000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+
+  static final creditCardTinkoffDarya = OperationReceipt(
+    name: '🤡 Кредитка Даша Тинькоф',
+    money: 15000,
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+  );
+}

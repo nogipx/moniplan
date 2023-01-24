@@ -35,7 +35,8 @@ class _MoniplanAppState extends State<MoniplanApp> {
       providers: [
         BlocProvider(
           create: (_) => OperationsManagerBloc()
-            ..computeBudget(BudgetsRequests.currentSpends),
+            // ..computeBudget(BudgetsRequests.currentSpends),
+            ..computeBudget(BudgetsRequests.monthlyCycle),
         ),
       ],
       child: MaterialApp(
