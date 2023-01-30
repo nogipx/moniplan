@@ -1,15 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:moniplan/our_budget/_index.dart';
 import 'package:moniplan/widgets/operation/money_flow_widget.dart';
 import 'package:moniplan/widgets/operation/operation_list.dart';
 import 'package:moniplan/widgets/statistics/statisctic_chart.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
-import 'our_budget/budget_requests.dart';
 
 class MoniplanApp extends StatefulWidget {
   const MoniplanApp({Key? key}) : super(key: key);
@@ -36,7 +33,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
         BlocProvider(
           create: (_) => OperationsManagerBloc()
             // ..computeBudget(BudgetsRequests.currentSpends),
-            ..computeBudget(BudgetsRequests.monthlyCycle),
+            ..computeBudget(february2023),
         ),
       ],
       child: MaterialApp(

@@ -44,21 +44,21 @@ abstract class VredniReceipt {
   );
 
   static final salaryKarim = OperationReceipt(
-    name: '💰 Аванс Карим',
+    name: '💰 ЗП Карим',
     money: 105000,
     type: ReceiptType.income,
     currency: AppCurrencies.ru,
   );
 
   static final salaryDarya = OperationReceipt(
-    name: '💰 Аванс Дарья',
+    name: '💰 ЗП Дарья',
     money: 40000,
     type: ReceiptType.income,
     currency: AppCurrencies.ru,
   );
 
   static final ohSofia = OperationReceipt(
-    name: '📈 OhSofia',
+    name: '💰 OhSofia',
     money: 150000,
     type: ReceiptType.income,
     currency: AppCurrencies.ru,
@@ -104,5 +104,24 @@ abstract class VredniReceipt {
     money: 15000,
     type: ReceiptType.outcome,
     currency: AppCurrencies.ru,
+  );
+
+  static final daryaManicure = OperationReceipt(
+    name: 'Маникюр, Дарья',
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+    money: 2000,
+  );
+  static final daryaHairSupport = OperationReceipt(
+    name: 'Коррекция наращивания, Дарья',
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+    money: 15000,
+  );
+  static final daryaPsychiatrist = OperationReceipt(
+    name: 'Психиатр, Даша',
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+    money: 5000,
   );
 }
