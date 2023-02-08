@@ -81,27 +81,9 @@ final monthlyCycle = OperationsManagerEvent.computeBudget(
     ),
     Operation(
       id: const Uuid().v4(),
-      date: DateTime(0, 1, 19),
+      date: DateTime(0, 1, 6),
       repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.creditIpad,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(0, 1, 9),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.creditMacbook,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(0, 1, 1),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.creditCardAlfaKarim,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(0, 1, 1),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.creditCardTinkoffDarya,
+      receipt: VredniReceipt.refinanceCredit,
     ),
   ],
 );

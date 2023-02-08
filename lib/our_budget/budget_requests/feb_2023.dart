@@ -3,83 +3,64 @@ import 'package:moniplan_core/moniplan_core.dart';
 import '../_index.dart';
 
 final february2023 = OperationsManagerComputeBudgetEvent(
-  startPeriod: DateTime(2023, 1, 31),
-  endPeriod: DateTime(2023, 2, 1).monthEnd,
-  initialBudget: 80000,
+  startPeriod: DateTime(2023, 2, 8),
+  endPeriod: DateTime(2023, 3, 1).monthEnd,
+  // initialBudget: 80000,
   operations: [
     ..._salary,
     ..._daryaHealth,
-    Operation(
-      id: const Uuid().v4(),
-      enabled: false,
-      date: DateTime(2023, 2, 3),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.ohSofia,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2023, 2, 22),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.rentHome,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2023, 31, 1),
-      repeat: DateTimeRepeat.everyTwoWeek,
-      receipt: VredniReceipt.cleaning,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2023, 2, 8),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.communalPayment.copyWith(
-        money: 8000,
-      ),
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2023, 2, 2),
-      repeat: DateTimeRepeat.everyTwoWeek,
-      receipt: VredniReceipt.catsSummary,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2023, 2, 19),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.creditIpad,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2023, 2, 9),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.creditMacbook,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2023, 2, 22),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.ipotekaDarya,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2023, 2, 24),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.ipotekaKarim,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2023, 2, 1),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.creditCardAlfaKarim,
-    ),
-    Operation(
-      id: const Uuid().v4(),
-      date: DateTime(2023, 2, 1),
-      repeat: DateTimeRepeat.everyMonth,
-      receipt: VredniReceipt.creditCardTinkoffDarya,
-    ),
+    ..._credits,
+    ..._home,
   ],
 );
+
+final _home = [
+  Operation(
+    id: const Uuid().v4(),
+    date: DateTime(2023, 2, 22),
+    repeat: DateTimeRepeat.everyMonth,
+    receipt: VredniReceipt.rentHome,
+  ),
+  Operation(
+    id: const Uuid().v4(),
+    date: DateTime(2023, 2, 14),
+    repeat: DateTimeRepeat.everyTwoWeek,
+    receipt: VredniReceipt.cleaning,
+  ),
+  Operation(
+    id: const Uuid().v4(),
+    date: DateTime(2023, 3, 8),
+    repeat: DateTimeRepeat.everyMonth,
+    receipt: VredniReceipt.communalPayment,
+  ),
+  Operation(
+    id: const Uuid().v4(),
+    date: DateTime(2023, 2, 14),
+    repeat: DateTimeRepeat.everyTwoWeek,
+    receipt: VredniReceipt.catsSummary,
+  ),
+];
+
+final _credits = [
+  Operation(
+    id: const Uuid().v4(),
+    date: DateTime(2023, 3, 6),
+    repeat: DateTimeRepeat.everyMonth,
+    receipt: VredniReceipt.refinanceCredit,
+  ),
+  Operation(
+    id: const Uuid().v4(),
+    date: DateTime(2023, 2, 22),
+    repeat: DateTimeRepeat.everyMonth,
+    receipt: VredniReceipt.ipotekaDarya,
+  ),
+  Operation(
+    id: const Uuid().v4(),
+    date: DateTime(2023, 3, 24),
+    repeat: DateTimeRepeat.everyMonth,
+    receipt: VredniReceipt.ipotekaKarim,
+  ),
+];
 
 final _salary = [
   Operation(
@@ -90,7 +71,7 @@ final _salary = [
   ),
   Operation(
     id: const Uuid().v4(),
-    date: DateTime(2023, 2, 28),
+    date: DateTime(2023, 2, 30),
     repeat: DateTimeRepeat.everyMonth,
     receipt: VredniReceipt.salaryKarim,
   ),
@@ -112,7 +93,6 @@ final _daryaHealth = [
   Operation(
     id: const Uuid().v4(),
     date: DateTime(2023, 2, 10),
-    repeat: DateTimeRepeat.everyMonth,
     receipt: OperationReceipt(
       type: ReceiptType.outcome,
       name: 'Коронка',
@@ -128,19 +108,13 @@ final _daryaHealth = [
   ),
   Operation(
     id: const Uuid().v4(),
-    date: DateTime(2023, 2, 5),
+    date: DateTime(2023, 2, 11),
     repeat: DateTimeRepeat.everyMonth,
     receipt: VredniReceipt.daryaHairSupport,
   ),
   Operation(
     id: const Uuid().v4(),
-    date: DateTime(2023, 2, 1),
-    // repeat: DateTimeRepeat.everyMonth,
-    receipt: VredniReceipt.daryaPsychiatrist,
-  ),
-  Operation(
-    id: const Uuid().v4(),
-    date: DateTime(2023, 2, 15),
+    date: DateTime(2023, 3, 1),
     // repeat: DateTimeRepeat.everyMonth,
     receipt: VredniReceipt.daryaPsychiatrist,
   ),

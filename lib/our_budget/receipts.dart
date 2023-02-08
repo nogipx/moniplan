@@ -57,27 +57,6 @@ abstract class VredniReceipt {
     currency: AppCurrencies.ru,
   );
 
-  static final ohSofia = OperationReceipt(
-    name: '💰 OhSofia',
-    money: 150000,
-    type: ReceiptType.income,
-    currency: AppCurrencies.ru,
-  );
-
-  static final creditIpad = OperationReceipt(
-    name: '👹 Кредит iPad',
-    money: 10000,
-    type: ReceiptType.outcome,
-    currency: AppCurrencies.ru,
-  );
-
-  static final creditMacbook = OperationReceipt(
-    name: '👹 Кредит MacBook',
-    money: 10000,
-    type: ReceiptType.outcome,
-    currency: AppCurrencies.ru,
-  );
-
   static final ipotekaDarya = OperationReceipt(
     name: '🏢 Ипотека, самолет Дарья',
     money: 22500,
@@ -92,34 +71,27 @@ abstract class VredniReceipt {
     currency: AppCurrencies.ru,
   );
 
-  static final creditCardAlfaKarim = OperationReceipt(
-    name: '🤡 Кредитка Карим Альфа побольше',
-    money: 15000,
-    type: ReceiptType.outcome,
-    currency: AppCurrencies.ru,
-  );
-
-  static final creditCardTinkoffDarya = OperationReceipt(
-    name: '🤡 Кредитка Даша Тинькоф',
-    money: 15000,
+  static final refinanceCredit = OperationReceipt(
+    name: '💳 Кредит, рефинансирование',
+    money: 26000,
     type: ReceiptType.outcome,
     currency: AppCurrencies.ru,
   );
 
   static final daryaManicure = OperationReceipt(
-    name: 'Маникюр, Дарья',
+    name: '💅 Маникюр, Дарья',
     type: ReceiptType.outcome,
     currency: AppCurrencies.ru,
     money: 2000,
   );
   static final daryaHairSupport = OperationReceipt(
-    name: 'Коррекция наращивания, Дарья',
+    name: '💅 Коррекция наращивания, Дарья',
     type: ReceiptType.outcome,
     currency: AppCurrencies.ru,
     money: 15000,
   );
   static final daryaPsychiatrist = OperationReceipt(
-    name: 'Психиатр, Даша',
+    name: '💅 Психиатр, Даша',
     type: ReceiptType.outcome,
     currency: AppCurrencies.ru,
     money: 5000,
