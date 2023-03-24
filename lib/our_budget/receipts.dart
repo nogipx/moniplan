@@ -96,4 +96,17 @@ abstract class VredniReceipt {
     currency: AppCurrencies.ru,
     money: 5000,
   );
+
+  static final daryaHeadphones = OperationReceipt(
+    name: 'Наушники',
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+    money: 5000,
+  );
+  static final daryaCarSchool = OperationReceipt(
+    name: 'Автошкола',
+    type: ReceiptType.outcome,
+    currency: AppCurrencies.ru,
+    money: 9000,
+  );
 }

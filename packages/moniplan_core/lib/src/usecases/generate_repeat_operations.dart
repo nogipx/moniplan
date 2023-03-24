@@ -60,11 +60,6 @@ class GenerateRepeatOperationsUseCase
       operations: operations,
     );
 
-    if (operation.receipt.name.contains('OhSofia') ||
-        operation.dateEnd != null) {
-      print('');
-    }
-
     return result;
   }
 }

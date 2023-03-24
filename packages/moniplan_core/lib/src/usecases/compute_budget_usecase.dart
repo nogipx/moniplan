@@ -51,10 +51,6 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
       throw Exception('Operations list is empty');
     }
 
-    // if (operations.any((e) => e.receipt.name.contains('OhSofia'))) {
-    //   print('');
-    // }
-
     final dateStart = args.dateStart;
     final dateEnd = args.dateEnd;
 
