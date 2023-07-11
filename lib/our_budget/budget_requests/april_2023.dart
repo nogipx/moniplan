@@ -3,9 +3,9 @@ import 'package:moniplan_core/moniplan_core.dart';
 import '../_index.dart';
 
 final april2023 = OperationsManagerComputeBudgetEvent(
-  startPeriod: DateTime(2023, 3, 24),
+  startPeriod: DateTime(2023, 3, 25),
   endPeriod: DateTime(2023, 4, 1).monthEnd,
-  initialBudget: 35000 + 15000,
+  initialBudget: 15000,
   operations: [
     ..._salary,
     ..._daryaHealth,
