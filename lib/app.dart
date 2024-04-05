@@ -6,7 +6,6 @@ import 'package:moniplan/widgets/operation/money_flow_widget.dart';
 import 'package:moniplan/widgets/operation/operation_list.dart';
 import 'package:moniplan/widgets/statistics/statisctic_chart.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 class MoniplanApp extends StatefulWidget {
   const MoniplanApp({Key? key}) : super(key: key);
@@ -38,9 +37,9 @@ class _MoniplanAppState extends State<MoniplanApp> {
       ],
       child: MaterialApp(
         localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
+          // GlobalMaterialLocalizations.delegate,
+          // GlobalWidgetsLocalizations.delegate,
+          // GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: const [
           Locale('ru', ''),

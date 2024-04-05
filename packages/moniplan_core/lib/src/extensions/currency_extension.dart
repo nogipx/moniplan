@@ -17,7 +17,9 @@ class CurrencyConverter
 
   @override
   Currency fromJson(Map<dynamic, dynamic>? json) {
-    if (json != null) {
+    final code = json?['code'];
+    final precision = json?['precision'];
+    if (json != null && code is String && precision is int) {
       return Currency.create(
         json['code'] as String,
         json['precision'] as int,
@@ -30,8 +32,8 @@ class CurrencyConverter
   @override
   Map<String, dynamic> toJson(Currency object) {
     return <String, dynamic>{
-      'code': object.code,
-      'precision': object.scale,
+      'code': object.isoCode,
+      'precision': object.decimalDigits,
     };
   }
 }
@@ -43,7 +45,7 @@ extension CurrencyDouble on double {
     final localeTag = locale?.toLanguageTag();
     final value = NumberFormat.currency(
       symbol: currency.intlSymbol,
-      decimalDigits: this % 1 == 0 ? 0 : currency.scale,
+      decimalDigits: this % 1 == 0 ? 0 : currency.decimalDigits,
       locale: localeTag ?? currency.getLocale()?.toLanguageTag(),
     ).format(abs());
     if (this >= 0) {
@@ -69,13 +71,13 @@ extension CurrencyExt on Currency {
     ),
   );
 
-  NumberSymbols? get numberSymbols => currencies[code];
+  NumberSymbols? get numberSymbols => currencies[isoCode];
 
   Locale? getLocale() {
     final locale = Locale.tryParse(numberSymbols?.NAME ?? '');
     if (locale == null) {
       log(
-        'No found locale for Currency($code, $symbol)',
+        'No found locale for Currency($isoCode, $symbol)',
         name: 'CurrencyDouble',
       );
     }
@@ -83,7 +85,7 @@ extension CurrencyExt on Currency {
   }
 
   String get intlSymbol =>
-      _overrideSimpleCurrency[code] ?? _format.simpleCurrencySymbol(code);
+      _overrideSimpleCurrency[isoCode] ?? _format.simpleCurrencySymbol(isoCode);
 
   String get intlPattern => numberSymbols?.CURRENCY_PATTERN ?? '';
 }
