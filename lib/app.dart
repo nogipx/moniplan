@@ -18,11 +18,6 @@ class _MoniplanAppState extends State<MoniplanApp> {
   @override
   void initState() {
     super.initState();
-    // final json = jsonEncode(onlyRequiredSpendsToYearEnd.toJson());
-    // final t = json.toString();
-    // final fromJson = OperationsManagerEvent.fromJson(jsonDecode(json));
-
-    // print(onlyRequiredSpendsToYearEnd == fromJson);
   }
 
   @override
@@ -30,20 +25,10 @@ class _MoniplanAppState extends State<MoniplanApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => OperationsManagerBloc()
-            // ..computeBudget(BudgetsRequests.currentSpends),
-            ..computeBudget(currentRequest),
+          create: (_) => OperationsManagerBloc()..computeBudget(currentRequest),
         ),
       ],
       child: MaterialApp(
-        localizationsDelegates: const [
-          // GlobalMaterialLocalizations.delegate,
-          // GlobalWidgetsLocalizations.delegate,
-          // GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('ru', ''),
-        ],
         home: BlocBuilder<OperationsManagerBloc, OperationsManagerState>(
           builder: (context, state) {
             final dateStartRaw = state.mapOrNull(

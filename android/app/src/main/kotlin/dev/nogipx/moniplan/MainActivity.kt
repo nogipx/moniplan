@@ -1,4 +1,4 @@
-package com.example.moniplan
+package dev.nogipx.moniplan
 
 import io.flutter.embedding.android.FlutterActivity
 

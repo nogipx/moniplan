@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:moniplan/app.dart';
 
 Future<void> main() async {
@@ -10,6 +11,8 @@ Future<void> main() async {
     runZonedGuarded(
       () async {
         WidgetsFlutterBinding.ensureInitialized();
+
+        initializeDateFormatting('ru');
         await SystemChrome.setPreferredOrientations([
           DeviceOrientation.portraitUp,
         ]);
