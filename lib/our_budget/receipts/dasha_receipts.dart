@@ -35,7 +35,7 @@ class DashaReceipts implements OperationsProvider {
 
   // Даша
   static final daryaLifeMonth = OperationReceipt(
-    name: 'Даше на жизнь',
+    name: '💅 Даше на жизнь',
     money: 50000,
     type: ReceiptType.outcome,
     currency: AppCurrencies.ru,

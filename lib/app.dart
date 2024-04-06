@@ -3,12 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan/our_budget/_index.dart';
 import 'package:moniplan/widgets/operation/money_flow_widget.dart';
-import 'package:moniplan/widgets/operation/operation_list.dart';
-import 'package:moniplan/widgets/statistics/statisctic_chart.dart';
+import 'package:moniplan/widgets/operation/_index.dart';
+import 'package:moniplan/widgets/statistics/statistic_chart.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 class MoniplanApp extends StatefulWidget {
-  const MoniplanApp({Key? key}) : super(key: key);
+  const MoniplanApp({super.key});
 
   @override
   State<MoniplanApp> createState() => _MoniplanAppState();

@@ -10,7 +10,7 @@ class SurvivalReceipts implements OperationsProvider {
     currency: AppCurrencies.ru,
   );
   static final rentHomeSamolet = OperationReceipt(
-    name: 'Аренда Самолет',
+    name: '💅 Аренда Самолет',
     money: 24000,
     type: ReceiptType.outcome,
     currency: AppCurrencies.ru,
@@ -36,7 +36,7 @@ class SurvivalReceipts implements OperationsProvider {
     currency: AppCurrencies.ru,
   );
   static final communalSamolet = OperationReceipt(
-    name: 'Коммуналка Самолет Даша',
+    name: '💅 Коммуналка Самолет Даша',
     money: -4000,
     type: ReceiptType.outcome,
     currency: AppCurrencies.ru,

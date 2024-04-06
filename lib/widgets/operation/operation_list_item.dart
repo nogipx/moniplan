@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:moniplan/money_colored_widget.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan/useful/grayscale.dart';
@@ -10,10 +9,10 @@ class OperationListItem extends StatelessWidget {
   final double? mediateSummary;
 
   const OperationListItem({
-    Key? key,
+    super.key,
     required this.operation,
     this.mediateSummary,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,69 +24,87 @@ class OperationListItem extends StatelessWidget {
           )
         : const SizedBox();
 
-    final repeatWidget = operation.isRepeat
-        ? Row(
-            children: [
-              Transform.scale(
-                scaleX: -1,
-                child: const Icon(
+    final repeatWidget = SizedBox(
+      width: 40,
+      child: operation.isRepeat
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  operation.repeat.shortName,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: MoniplanColors.secondaryTextColor,
+                      ),
+                ),
+                const SizedBox(width: 2),
+                const Icon(
                   Icons.refresh_rounded,
                   size: 18,
-                  color: MoniplanColors.disabledColor,
+                  color: MoniplanColors.secondaryTextColor,
                 ),
-              ),
-              // const SizedBox(width: 2),
-              Text(operation.repeat.shortName)
-            ],
-          )
-        : const SizedBox();
+              ],
+            )
+          : const SizedBox(),
+    );
 
     return Grayscale(
       grayscale: !operation.enabled,
       child: Container(
         padding: const EdgeInsets.all(12),
         color: Colors.white,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SelectableText(
-              operation.receipt.name,
-              style: Theme.of(context).textTheme.subtitle1?.copyWith(
-                    color: const Color(0xff1f1f1f),
-                    fontWeight: FontWeight.w400,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SelectableText(
+                    operation.receipt.name,
+                    style: Theme.of(context).textTheme.subtitle1?.copyWith(
+                          color: const Color(0xff1f1f1f),
+                          fontWeight: FontWeight.w400,
+                        ),
                   ),
+                  const SizedBox(height: 8),
+                  // Row(
+                  //   children: [
+                  //     Text(
+                  //       DateFormat(DateFormat.YEAR_ABBR_MONTH_WEEKDAY_DAY, 'RU')
+                  //           .format(operation.date),
+                  //       style: Theme.of(context).textTheme.caption?.copyWith(
+                  //             fontSize: 14,
+                  //           ),
+                  //     ),
+                  //     // const SizedBox(width: 8),
+                  //     // repeatWidget
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      MoneyColoredWidget(
+                        value: operation.normalizedMoney,
+                        currency: operation.receipt.currency,
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.arrow_right_alt_rounded,
+                        size: 20,
+                        color: MoniplanColors.disabledColor,
+                      ),
+                      const SizedBox(width: 4),
+                      budgetPredictWidget,
+                    ],
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            // Row(
-            //   children: [
-            //     Text(
-            //       DateFormat(DateFormat.YEAR_ABBR_MONTH_WEEKDAY_DAY, 'RU')
-            //           .format(operation.date),
-            //       style: Theme.of(context).textTheme.caption?.copyWith(
-            //             fontSize: 14,
-            //           ),
-            //     ),
-            //     // const SizedBox(width: 8),
-            //     // repeatWidget
-            //   ],
-            // ),
-            // const SizedBox(height: 8),
-            Row(
+            Column(
               children: [
-                MoneyColoredWidget(
-                  value: operation.normalizedMoney,
-                  currency: operation.receipt.currency,
-                ),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.arrow_right_alt_rounded,
-                  size: 20,
-                  color: MoniplanColors.disabledColor,
-                ),
-                const SizedBox(width: 4),
-                budgetPredictWidget,
+                repeatWidget,
               ],
-            ),
+            )
           ],
         ),
       ),

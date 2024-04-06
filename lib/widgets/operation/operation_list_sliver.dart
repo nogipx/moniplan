@@ -1,38 +1,16 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan/widgets/operation/operation_list_item.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'dart:math' as math;
-
-class OperationsList extends StatelessWidget {
-  final OperationsManagerState state;
-
-  const OperationsList({
-    Key? key,
-    required this.state,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: SliverList(
-        delegate: OperationsListSliver(
-          operations: state.operationsGenerated,
-          budget: state.budget,
-        ),
-      ),
-    );
-  }
-}
 
 class OperationsListSliver extends SliverChildBuilderDelegate {
   final IList<Operation> operations;
   final IMap<Operation, double> budget;
 
   OperationsListSliver({
-    Key? key,
     required this.operations,
     required this.budget,
   }) : super(
@@ -45,13 +23,12 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
               if (index == 0) {
                 widget = Column(
                   children: [
-                    regularSeparator(operations[itemIndex].date),
+                    daySeparator(operations[itemIndex].date),
                     widget,
                   ],
                 );
               }
             } else {
-              // widget = const SizedBox(height: 8);
               widget = _separatorBuilder(operations).call(context, itemIndex);
             }
             return widget;
@@ -92,43 +69,52 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
         return Column(
           children: [
             monthSeparator(next.date),
-            regularSeparator(next.date),
+            daySeparator(next.date),
           ],
         );
       } else if (isHalfMonth) {
         return Column(
           children: [
             medianSeparator(next.date),
-            regularSeparator(next.date),
+            daySeparator(next.date),
           ],
         );
       } else if (isNextDay) {
-        return regularSeparator(next.date);
+        return daySeparator(next.date);
       }
       return const SizedBox(height: 2);
     };
   }
 
-  static Widget regularSeparator(DateTime date) {
+  static Widget daySeparator(DateTime date) {
     return Builder(builder: (context) {
-      return Material(
-        elevation: 20,
-        child: Container(
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.blueGrey.withOpacity(.3),
-                Colors.blueGrey.withOpacity(.1),
-              ],
-            ),
-          ),
-          child: Text(
-            DateFormat.MMMd('ru').format(date),
-            style: Theme.of(context).textTheme.subtitle1,
+      return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+        decoration: const BoxDecoration(
+          color: MoniplanColors.white,
+        ),
+        child: Material(
+          elevation: 3,
+          shadowColor: MoniplanColors.inactiveBackgroundColor,
+          color: MoniplanColors.lightBlueColor,
+          borderRadius: MoniplanConst.borderRadius50,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 4,
+                  horizontal: 8,
+                ),
+                child: Text(
+                  DateFormat.MMMMd('ru').format(date),
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: MoniplanColors.white,
+                      ),
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -138,22 +124,14 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
   static Widget monthSeparator(DateTime date) {
     return Builder(builder: (context) {
       return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.blueGrey.withOpacity(.7),
-              Colors.blueGrey.withOpacity(.5),
-            ],
-          ),
-        ),
+        alignment: Alignment.bottomLeft,
+        color: MoniplanColors.white,
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
         child: Text(
-          DateFormat(DateFormat.MONTH, 'ru').format(date),
-          style: Theme.of(context).textTheme.subtitle2?.copyWith(
-                color: Colors.white,
+          DateFormat(DateFormat.MONTH, 'ru').format(date).capitalize(),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                color: MoniplanColors.primaryTextColor,
+                fontWeight: FontWeight.w700,
               ),
         ),
       );
@@ -164,22 +142,14 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
     return Builder(
       builder: (context) {
         return Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.blueGrey.withOpacity(.7),
-                Colors.blueGrey.withOpacity(.5),
-              ],
-            ),
-          ),
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          alignment: Alignment.bottomCenter,
+          color: MoniplanColors.white,
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Text(
-            '${DateFormat(DateFormat.MONTH, 'ru').format(date)}: медиана',
-            style: Theme.of(context).textTheme.subtitle2?.copyWith(
-                  color: Colors.white,
+            'Середина ${DateFormat(DateFormat.MONTH, 'ru').format(date)}',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: MoniplanColors.primaryTextColor,
+                  fontWeight: FontWeight.w600,
                 ),
           ),
         );

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class Grayscale extends StatelessWidget {
   const Grayscale({
-    Key? key,
+    super.key,
     required this.child,
     this.grayscale = false,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final bool grayscale;

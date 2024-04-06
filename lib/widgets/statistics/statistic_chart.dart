@@ -8,9 +8,9 @@ class StatisticChart extends StatefulWidget {
   final Map<Operation, double> budget;
 
   const StatisticChart({
-    Key? key,
+    super.key,
     required this.budget,
-  }) : super(key: key);
+  });
 
   @override
   State<StatisticChart> createState() => _StatisticChartState();

@@ -3,12 +3,15 @@ import 'dart:ui';
 abstract class MoniplanColors {
   MoniplanColors._();
 
+  static const white = Color(0xffffffff);
+
   static const blueColor = Color(0xff0C82D8);
   static const lightBlueColor = Color(0xff58A9E4);
 
   static const disabledColor = Color(0xff9299A2);
   static const positiveMoneyColor = Color(0xff3C8900);
   static const negativeMoneyColor = Color(0xffDF0000);
+  static const darkBackgroundColor = Color(0xff5b5a5a);
 
   static const primaryTextColor = Color(0xff454545);
   static const secondaryTextColor = Color(0xff9299A2);
