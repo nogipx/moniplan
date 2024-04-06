@@ -36,7 +36,7 @@ class DashaReceipts implements OperationsProvider {
   // Даша
   static final daryaLifeMonth = OperationReceipt(
     name: 'Даше на жизнь',
-    money: 30000,
+    money: 50000,
     type: ReceiptType.outcome,
     currency: AppCurrencies.ru,
   );
@@ -44,12 +44,12 @@ class DashaReceipts implements OperationsProvider {
   @override
   List<Operation> get operations {
     return [
-      Operation(
-        id: const Uuid().v4(),
-        date: PeriodDateTime.currentYear(day: 8),
-        repeat: DateTimeRepeat.twoWeek,
-        receipt: daryaManicure,
-      ),
+      // Operation(
+      //   id: const Uuid().v4(),
+      //   date: PeriodDateTime.currentYear(day: 8),
+      //   repeat: DateTimeRepeat.twoWeek,
+      //   receipt: daryaManicure,
+      // ),
       Operation(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 16),
@@ -57,27 +57,27 @@ class DashaReceipts implements OperationsProvider {
         repeat: DateTimeRepeat.threeMonths,
         receipt: daryaHairSupport,
       ),
-      Operation(
-        id: const Uuid().v4(),
-        date: PeriodDateTime.currentYear(day: 8),
-        dateStart: DateTime.now().monthStart,
-        repeat: DateTimeRepeat.month,
-        receipt: daryaPsychiatrist,
-      ),
-      Operation(
-        id: const Uuid().v4(),
-        date: PeriodDateTime.currentYear(day: 1),
-        dateStart: DateTime.now().monthStart,
-        repeat: DateTimeRepeat.twoWeek,
-        receipt: daryaPsycholog,
-      ),
-      Operation(
-        id: const Uuid().v4(),
-        date: PeriodDateTime.currentYear(day: 1),
-        dateStart: DateTime.now().monthStart,
-        repeat: DateTimeRepeat.threeWeek,
-        receipt: daryaTabletki,
-      ),
+      // Operation(
+      //   id: const Uuid().v4(),
+      //   date: PeriodDateTime.currentYear(day: 8),
+      //   dateStart: DateTime.now().monthStart,
+      //   repeat: DateTimeRepeat.month,
+      //   receipt: daryaPsychiatrist,
+      // ),
+      // Operation(
+      //   id: const Uuid().v4(),
+      //   date: PeriodDateTime.currentYear(day: 1),
+      //   dateStart: DateTime.now().monthStart,
+      //   repeat: DateTimeRepeat.twoWeek,
+      //   receipt: daryaPsycholog,
+      // ),
+      // Operation(
+      //   id: const Uuid().v4(),
+      //   date: PeriodDateTime.currentYear(day: 1),
+      //   dateStart: DateTime.now().monthStart,
+      //   repeat: DateTimeRepeat.threeWeek,
+      //   receipt: daryaTabletki,
+      // ),
       Operation(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 7),
