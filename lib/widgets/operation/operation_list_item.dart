@@ -50,7 +50,7 @@ class OperationListItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            SelectableText(
               operation.receipt.name,
               style: Theme.of(context).textTheme.subtitle1?.copyWith(
                     color: const Color(0xff1f1f1f),

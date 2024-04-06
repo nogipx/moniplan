@@ -9,14 +9,14 @@ import '_usecase.dart';
 class ComputeBudgetUseCaseArgs {
   final double initialBudget;
   final Iterable<Operation> operations;
-  final DateTime dateStart;
-  final DateTime dateEnd;
+  final DateTime startPeriod;
+  final DateTime endPeriod;
 
   const ComputeBudgetUseCaseArgs({
     this.initialBudget = 0,
     required this.operations,
-    required this.dateStart,
-    required this.dateEnd,
+    required this.startPeriod,
+    required this.endPeriod,
   });
 }
 
@@ -51,15 +51,15 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
       throw Exception('Operations list is empty');
     }
 
-    final dateStart = args.dateStart;
-    final dateEnd = args.dateEnd;
+    final dateStart = args.startPeriod;
+    final dateEnd = args.endPeriod;
 
     final allOperations = operations
         .map(
           (e) => GenerateRepeatOperationsUseCase(
             operation: e,
-            dateStart: dateStart,
-            dateEnd: dateEnd,
+            startPeriod: dateStart,
+            endPeriod: dateEnd,
           ).run().combined,
         )
         .expand((e) => e)

@@ -8,7 +8,7 @@ void main() {
   final end = now.addTime(month: 1).monthEnd;
 
   final list = GenerateRepeatDatesUseCase(
-    repeat: DateTimeRepeat.everyWeek,
+    repeat: DateTimeRepeat.week,
     base: base,
     dateStart: start,
     dateEnd: end,

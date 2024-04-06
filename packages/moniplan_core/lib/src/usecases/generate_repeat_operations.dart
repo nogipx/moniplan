@@ -21,19 +21,19 @@ class GenerateRepeatOperationsUseCaseResult {
 class GenerateRepeatOperationsUseCase
     extends UseCase<GenerateRepeatOperationsUseCaseResult> {
   final Operation operation;
-  final DateTime dateStart;
-  final DateTime dateEnd;
+  final DateTime startPeriod;
+  final DateTime endPeriod;
 
   const GenerateRepeatOperationsUseCase({
     required this.operation,
-    required this.dateStart,
-    required this.dateEnd,
+    required this.startPeriod,
+    required this.endPeriod,
   });
 
   @override
   GenerateRepeatOperationsUseCaseResult run() {
-    final start = dateStart;
-    final end = dateEnd;
+    final start = startPeriod;
+    final end = endPeriod;
 
     if (!operation.isRepeat) {
       return GenerateRepeatOperationsUseCaseResult(
@@ -42,12 +42,26 @@ class GenerateRepeatOperationsUseCase
         dateEnd: end,
       );
     }
+    final operationDateStart = operation.dateStart;
+    final operationDateEnd = operation.dateEnd;
+
+    final targetDateStart = operationDateStart != null
+        ? startPeriod.isAfter(operationDateStart)
+            ? startPeriod
+            : operationDateStart
+        : startPeriod;
+
+    final targetDateEnd = operationDateEnd != null
+        ? endPeriod.isBefore(operationDateEnd)
+            ? endPeriod
+            : operationDateEnd
+        : endPeriod;
 
     final generatedDates = GenerateRepeatDatesUseCase(
       repeat: operation.repeat,
       base: operation.date,
-      dateStart: operation.dateStart ?? dateStart,
-      dateEnd: operation.dateEnd ?? dateEnd,
+      dateStart: targetDateStart,
+      dateEnd: targetDateEnd,
     ).run();
 
     final operations =

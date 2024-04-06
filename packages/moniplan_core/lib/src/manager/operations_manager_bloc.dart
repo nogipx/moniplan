@@ -27,15 +27,11 @@ class OperationsManagerBloc
         final computeBudgetUseCase = ComputeBudgetUseCase(
           args: ComputeBudgetUseCaseArgs(
             operations: event.operations,
-            dateStart: event.startPeriod,
-            dateEnd: event.endPeriod,
+            startPeriod: event.startPeriod,
+            endPeriod: event.endPeriod,
             initialBudget: event.initialBudget ?? 0,
           ),
         );
-
-        // if (event.operations.any((e) => e.receipt.name.contains('OhSofia'))) {
-        //   print('');
-        // }
 
         final result = computeBudgetUseCase.run();
         Timeline.finishSync();

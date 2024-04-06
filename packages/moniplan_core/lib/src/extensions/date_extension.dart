@@ -14,4 +14,12 @@ extension PeriodDateTime on DateTime {
   DateTime get monthStart => DateTime(year, month, 1);
   DateTime get monthMedian => monthStart.add(const Duration(days: 14));
   DateTime get monthEnd => DateTime(year, month + 1, 0);
+
+  static DateTime currentYear({
+    required int day,
+    int month = 1,
+  }) {
+    final now = DateTime.now();
+    return DateTime(now.year, month, day);
+  }
 }
