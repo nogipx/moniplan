@@ -137,14 +137,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
-  charcode:
-    dependency: transitive
-    description:
-      name: charcode
-      sha256: fb98c0f6d12c920a02ee2d998da788bca066ca5f148492b7085ee23372b12306
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.1"
   checked_yaml:
     dependency: transitive
     description:
@@ -157,10 +149,10 @@ packages:
     dependency: transitive
     description:
       name: cli_util
-      sha256: "66f86e916d285c1a93d3b79587d94bd71984a66aac4ff74e524cfa7877f1395c"
+      sha256: c05b7406fdabc7a49a3929d4af76bcaccbbffcbcdcf185b082e1ae07da323d19
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.5"
+    version: "0.4.1"
   clock:
     dependency: transitive
     description:
@@ -209,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
+  darq:
+    dependency: transitive
+    description:
+      name: darq
+      sha256: eb58203f550d113df1984cf6550b94b6951e515bed98eb49d098fb35719c78b0
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   dart_style:
     dependency: transitive
     description:
@@ -233,14 +233,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.1"
+  directed_graph:
+    dependency: transitive
+    description:
+      name: directed_graph
+      sha256: fcb45029b4a5089d383b79056b6716d6bf5af79b8e7dbac4b61d26af46410548
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.3"
   dotenv:
     dependency: transitive
     description:
       name: dotenv
-      sha256: dc4c91d8d5e9e361803fc81e8ea7ba0f35be483b656837ea6b9a3c41df308c68
+      sha256: "379e64b6fc82d3df29461d349a1796ecd2c436c480d4653f3af6872eccbc90e1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "4.2.0"
   draggable_scrollbar:
     dependency: "direct main"
     description:
@@ -257,6 +265,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.5"
+  exception_templates:
+    dependency: transitive
+    description:
+      name: exception_templates
+      sha256: "517f7c770da690073663f867ee2057ae2f4ffb28edae9da9faa624aa29ac76eb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.1"
   expressions:
     dependency: transitive
     description:
@@ -427,6 +443,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.7.1"
+  lazy_memo:
+    dependency: transitive
+    description:
+      name: lazy_memo
+      sha256: dcb30b4184a6d767e1d779d74ce784d752d38313b8fb4bad6b659ae7af4bb34d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.3"
   leak_tracker:
     dependency: transitive
     description:
@@ -550,10 +574,10 @@ packages:
     dependency: "direct dev"
     description:
       name: packo
-      sha256: "75696e084640adc768f5f85bc58c6cdef6d8d2dca7166f4f03a1571b2675cfaf"
+      sha256: "503cf0969018754815e6f1395395a6264e941db8b75a6c1f73f124bf4c42e42f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.2"
+    version: "0.5.0"
   path:
     dependency: transitive
     description:
@@ -582,10 +606,10 @@ packages:
     dependency: transitive
     description:
       name: process_run
-      sha256: "4539b7c0a34a4a4979e7345d9f5c6358961d9f53901baf2930807159d08ee59b"
+      sha256: "8d9c6198b98fbbfb511edd42e7364e24d85c163e47398919871b952dc86a423e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.5+3"
+    version: "0.14.2"
   provider:
     dependency: transitive
     description:
@@ -618,6 +642,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.1"
+  quote_buffer:
+    dependency: transitive
+    description:
+      name: quote_buffer
+      sha256: c4cd07e55ed1b1645a1cc74278a03b2a642c9f6ea3c0528d51827fdd320acf87
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.6"
   rational:
     dependency: transitive
     description:

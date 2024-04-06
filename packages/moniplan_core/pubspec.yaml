@@ -10,19 +10,19 @@ dependencies:
   intl: ^0.19.0
   money2: ^5.0.1
 
-  bloc: ^8.0.3
-  bloc_concurrency: ^0.2.0
+  bloc: ^8.1.4
+  bloc_concurrency: ^0.2.5
 
   fast_immutable_collections: ^10.2.2
   uuid: ^4.3.3
   equatable: ^2.0.5
-  json_annotation: ^4.0.0
-  freezed_annotation: ^2.1.0
+  json_annotation: ^4.8.1
+  freezed_annotation: ^2.4.1
 
 dev_dependencies:
   lints: ^3.0.0
-  test: ^1.16.0
-  build_runner: ^2.2.0
-  freezed: ^2.1.0+1
-  json_serializable: ^6.3.2
-  bloc_test: ^9.0.1
+  test: ^1.25.2
+  build_runner: ^2.4.9
+  freezed: ^2.5.0
+  json_serializable: ^6.7.1
+  bloc_test: ^9.1.7

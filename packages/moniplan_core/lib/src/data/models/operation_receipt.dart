@@ -7,9 +7,9 @@ import 'package:moniplan_core/moniplan_core.dart';
 part 'operation_receipt.g.dart';
 part 'operation_receipt.freezed.dart';
 
-/// Чек операции
+/// Operation receipt
 ///
-/// Финансовые данные и описание операции.
+/// Financial data and description of the Operation.
 @Freezed()
 class OperationReceipt with _$OperationReceipt {
   const OperationReceipt._();

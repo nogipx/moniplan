@@ -16,13 +16,34 @@ class Operation with _$Operation, EquatableMixin {
   @CurrencyConverter()
   @JsonSerializable()
   const factory Operation({
+    /// UUID identifier.
     required String id,
+
+    /// It shows is this operation will be counted in process.
     @Default(true) bool enabled,
+
+    /// Field for repeated operations.
+    /// It shows which operation this operation was generated from.
     String? originalOperationId,
+
+    /// Info about operation.
     required OperationReceipt receipt,
+
+    /// Date of operation.
+    /// Indicates calendar day which operation proceed.
     required DateTime date,
+
+    /// Field for repeated operations.
+    /// It shows where need to stop generate repeated operations.
     DateTime? dateStart,
+
+    /// Field for repeated operations.
+    /// It shows where need to stop generate repeated operations.
     DateTime? dateEnd,
+
+    /// Field for repeated operations.
+    /// It shows which period operation will be repeated.
+    /// No repeat, by default.
     @Default(DateTimeRepeat.noRepeat) DateTimeRepeat repeat,
   }) = _Operation;
 
