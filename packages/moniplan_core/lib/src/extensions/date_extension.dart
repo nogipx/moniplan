@@ -15,6 +15,10 @@ extension PeriodDateTime on DateTime {
   DateTime get monthMedian => monthStart.add(const Duration(days: 14));
   DateTime get monthEnd => DateTime(year, month + 1, 0);
 
+  bool isSameDay(DateTime other) {
+    return year == other.year && month == other.month && day == other.day;
+  }
+
   static DateTime currentYear({
     required int day,
     int month = 1,

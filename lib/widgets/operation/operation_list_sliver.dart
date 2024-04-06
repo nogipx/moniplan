@@ -88,6 +88,9 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
 
   static Widget daySeparator(DateTime date) {
     return Builder(builder: (context) {
+      final now = DateTime.now();
+      final isSameDay = now.isSameDay(date);
+
       return Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
@@ -97,7 +100,9 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
         child: Material(
           elevation: 3,
           shadowColor: MoniplanColors.inactiveBackgroundColor,
-          color: MoniplanColors.lightBlueColor,
+          color: isSameDay
+              ? MoniplanColors.blueColor
+              : MoniplanColors.primaryTextColor,
           borderRadius: MoniplanConst.borderRadius50,
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -128,7 +133,7 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
         color: MoniplanColors.white,
         padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
         child: Text(
-          DateFormat(DateFormat.MONTH, 'ru').format(date).capitalize(),
+          '${DateFormat(DateFormat.MONTH, 'ru').format(date).capitalize()} ${date.year}',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 color: MoniplanColors.primaryTextColor,
                 fontWeight: FontWeight.w700,

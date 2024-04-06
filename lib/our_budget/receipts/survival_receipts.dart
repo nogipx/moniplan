@@ -43,7 +43,13 @@ class SurvivalReceipts implements OperationsProvider {
   );
   static final internet = OperationReceipt(
     name: 'Интернеты и серверы',
-    money: 900 + 800 + 600 + 600 + 800,
+    money:
+        // даша инет
+        (350 + 600) +
+            // карим инет
+            (900 + 800) +
+            // впн (россия и сербия)
+            (600 + 600),
     type: ReceiptType.outcome,
     currency: AppCurrencies.ru,
   );
