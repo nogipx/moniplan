@@ -3,30 +3,30 @@ import 'package:moniplan_core/moniplan_core.dart';
 import 'package:uuid/uuid.dart';
 
 abstract class TestData {
-  static final testRepeatOperations = IList<Operation>([
-    // Operation(
+  static final testRepeatPayments = IList<Payment>([
+    // Payment(
     //   id: const Uuid().v4(),
-    //   type: OperationType.income,
+    //   type: PaymentType.income,
     //   currency: AppCurrencies.ru,
-    //   date: OperationDateDateTime.now(),
+    //   date: PaymentDateDateTime.now(),
     //   money: 300,
-    //   repeat: OperationRepeat.everyWeek,
+    //   repeat: PaymentRepeat.everyWeek,
     // ),
-    // Operation(
+    // Payment(
     //   id: const Uuid().v4(),
-    //   type: OperationType.outcome,
+    //   type: PaymentType.outcome,
     //   currency: AppCurrencies.ru,
     //   money: 1300,
     //   date: DateTime.now().subtract(const Duration(days: 8)),
-    //   repeat: OperationRepeat.everyMonth,
+    //   repeat: PaymentRepeat.everyMonth,
     // ),
-    // Operation(
+    // Payment(
     //   id: const Uuid().v4(),
-    //   type: OperationType.transfer,
+    //   type: PaymentType.transfer,
     //   currency: AppCurrencies.ru,
     //   money: 20,
     //   date: DateTime.now().add(const Duration(days: 8)),
-    //   repeat: OperationRepeat.noRepeat,
+    //   repeat: PaymentRepeat.noRepeat,
     // ),
   ]);
 }

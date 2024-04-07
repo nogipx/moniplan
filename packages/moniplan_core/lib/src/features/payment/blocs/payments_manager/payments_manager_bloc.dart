@@ -7,26 +7,26 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
-class OperationsManagerBloc
-    extends Bloc<OperationsManagerEvent, OperationsManagerState> {
-  OperationsManagerBloc() : super(OperationsManagerInitialState()) {
+class PaymentsManagerBloc
+    extends Bloc<PaymentsManagerEvent, PaymentsManagerState> {
+  PaymentsManagerBloc() : super(PaymentsManagerInitialState()) {
     _onComputeBudget();
   }
 
-  void computeBudget(OperationsManagerEvent event) {
-    assert(event is OperationsManagerComputeBudgetEvent);
+  void computeBudget(PaymentsManagerEvent event) {
+    assert(event is PaymentsManagerComputeBudgetEvent);
     add(event);
   }
 
   void _onComputeBudget() {
-    on<OperationsManagerComputeBudgetEvent>(
+    on<PaymentsManagerComputeBudgetEvent>(
       transformer: restartable(),
       (event, emit) {
         Timeline.startSync('generate_budget');
 
         final computeBudgetUseCase = ComputeBudgetUseCase(
           args: ComputeBudgetUseCaseArgs(
-            operations: event.operations,
+            payments: event.payments,
             startPeriod: event.startPeriod,
             endPeriod: event.endPeriod,
             initialBudget: event.initialBudget ?? 0,
@@ -38,14 +38,14 @@ class OperationsManagerBloc
 
         final moneyFlow = MoneyFlowUseCase(
           args: MoneyFlowUseCaseArgs(
-            operations: result.operationsGenerated,
+            payments: result.paymentsGenerated,
             initialBudget: event.initialBudget ?? 0,
           ),
         ).run();
 
-        final newState = OperationsManagerState.budgetComputed(
-          operationsOriginal: result.operationsOriginal.toIList(),
-          operationsGenerated: result.operationsGenerated.toIList(),
+        final newState = PaymentsManagerState.budgetComputed(
+          paymentsOriginal: result.paymentsOriginal.toIList(),
+          paymentsGenerated: result.paymentsGenerated.toIList(),
           budget: IMap.fromEntries(result.mediateBudget.entries),
           dateStart: result.dateStart,
           dateEnd: result.dateEnd,

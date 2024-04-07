@@ -4,33 +4,33 @@ import 'dart:collection';
 
 import 'package:moniplan_core/moniplan_core.dart';
 
-import '_usecase.dart';
+import '../../_common/usecases/_usecase.dart';
 
 class ComputeBudgetUseCaseArgs {
   final double initialBudget;
-  final Iterable<Operation> operations;
+  final Iterable<Payment> payments;
   final DateTime startPeriod;
   final DateTime endPeriod;
 
   const ComputeBudgetUseCaseArgs({
     this.initialBudget = 0,
-    required this.operations,
+    required this.payments,
     required this.startPeriod,
     required this.endPeriod,
   });
 }
 
 class ComputeBudgetUseCaseResult {
-  final Iterable<Operation> operationsOriginal;
-  final Iterable<Operation> operationsGenerated;
-  final LinkedHashMap<Operation, double> mediateBudget;
+  final Iterable<Payment> paymentsOriginal;
+  final Iterable<Payment> paymentsGenerated;
+  final LinkedHashMap<Payment, double> mediateBudget;
   final DateTime? dateStart;
   final DateTime? dateEnd;
 
   const ComputeBudgetUseCaseResult({
     required this.mediateBudget,
-    this.operationsOriginal = const [],
-    this.operationsGenerated = const [],
+    this.paymentsOriginal = const [],
+    this.paymentsGenerated = const [],
     this.dateStart,
     this.dateEnd,
   });
@@ -45,19 +45,19 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
 
   @override
   ComputeBudgetUseCaseResult run() {
-    final operations = args.operations;
+    final payments = args.payments;
 
-    if (operations.isEmpty) {
-      throw Exception('Operations list is empty');
+    if (payments.isEmpty) {
+      throw Exception('Payments list is empty');
     }
 
     final dateStart = args.startPeriod;
     final dateEnd = args.endPeriod;
 
-    final allOperations = operations
+    final allPayments = payments
         .map(
-          (e) => GenerateRepeatOperationsUseCase(
-            operation: e,
+          (e) => GenerateRepeatPaymentsUseCase(
+            payment: e,
             startPeriod: dateStart,
             endPeriod: dateEnd,
           ).run().combined,
@@ -65,19 +65,19 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
         .expand((e) => e)
         .toList();
 
-    allOperations.sort((a, b) => a.date.compareTo(b.date));
+    allPayments.sort((a, b) => a.date.compareTo(b.date));
 
-    final budget = LinkedHashMap<Operation, double>();
+    final budget = LinkedHashMap<Payment, double>();
 
     var tempBudget = args.initialBudget;
-    for (final item in allOperations) {
+    for (final item in allPayments) {
       tempBudget += item.enabled ? item.normalizedMoney : 0;
       budget[item] = tempBudget;
     }
 
     final result = ComputeBudgetUseCaseResult(
-      operationsOriginal: operations,
-      operationsGenerated: budget.keys,
+      paymentsOriginal: payments,
+      paymentsGenerated: budget.keys,
       mediateBudget: budget,
       dateStart: dateStart,
       dateEnd: dateEnd,

@@ -1,0 +1,31 @@
+// ignore_for_file: invalid_annotation_target
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:money2/money2.dart';
+import 'package:moniplan_core/moniplan_core.dart';
+
+part 'payment_details.g.dart';
+part 'payment_details.freezed.dart';
+
+/// Payment details.
+///
+/// Financial data and description of the Payment.
+@freezed
+class PaymentDetails with _$PaymentDetails {
+  const PaymentDetails._();
+
+  @CurrencyConverter()
+  @JsonSerializable()
+  const factory PaymentDetails({
+    required String name,
+    @Default('') String note,
+    required PaymentType type,
+    required Currency currency,
+    @Default(0) double money,
+  }) = _PaymentDetails;
+
+  factory PaymentDetails.fromJson(Map<String, dynamic> json) =>
+      _$PaymentDetailsFromJson(json);
+
+  double get normalizedMoney => money.abs() * type.modifier;
+}

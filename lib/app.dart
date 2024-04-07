@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan/our_budget/_index.dart';
+import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan/widgets/operation/money_flow_widget.dart';
 import 'package:moniplan/widgets/operation/_index.dart';
 import 'package:moniplan/widgets/statistics/statistic_chart.dart';
@@ -25,11 +26,11 @@ class _MoniplanAppState extends State<MoniplanApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => OperationsManagerBloc()..computeBudget(currentRequest),
+          create: (_) => PaymentsManagerBloc()..computeBudget(currentRequest),
         ),
       ],
       child: MaterialApp(
-        home: BlocBuilder<OperationsManagerBloc, OperationsManagerState>(
+        home: BlocBuilder<PaymentsManagerBloc, PaymentsManagerState>(
           builder: (context, state) {
             final dateStartRaw = state.mapOrNull(
               budgetComputed: (s) => s.dateStart,
@@ -81,9 +82,9 @@ class _MoniplanAppState extends State<MoniplanApp> {
                   ),
                 ],
               ),
-              backgroundColor: Colors.grey.shade200,
-              body: StreamBuilder<OperationsManagerState>(
-                stream: context.read<OperationsManagerBloc>().stream,
+              backgroundColor: MoniplanColors.white,
+              body: StreamBuilder<PaymentsManagerState>(
+                stream: context.read<PaymentsManagerBloc>().stream,
                 builder: (context, snapshot) {
                   if (snapshot.data != null) {
                     return CustomScrollView(
@@ -97,8 +98,8 @@ class _MoniplanAppState extends State<MoniplanApp> {
                           ),
                         ),
                         SliverList(
-                          delegate: OperationsListSliver(
-                            operations: snapshot.data!.operationsGenerated,
+                          delegate: PaymentsListSliver(
+                            operations: snapshot.data!.paymentsGenerated,
                             budget: snapshot.data!.budget,
                           ),
                         )

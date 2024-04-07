@@ -6,11 +6,11 @@ import 'package:moniplan/widgets/operation/operation_list_item.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'dart:math' as math;
 
-class OperationsListSliver extends SliverChildBuilderDelegate {
-  final IList<Operation> operations;
-  final IMap<Operation, double> budget;
+class PaymentsListSliver extends SliverChildBuilderDelegate {
+  final IList<Payment> operations;
+  final IMap<Payment, double> budget;
 
-  OperationsListSliver({
+  PaymentsListSliver({
     required this.operations,
     required this.budget,
   }) : super(
@@ -43,19 +43,19 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
         );
 
   static IndexedWidgetBuilder _itemBuilder(
-    IList<Operation> operations,
-    IMap<Operation, double> budget,
+    IList<Payment> operations,
+    IMap<Payment, double> budget,
   ) {
     return (context, index) {
       final operation = operations[index];
-      return OperationListItem(
+      return PaymentListItem(
         operation: operation,
         mediateSummary: budget[operation],
       );
     };
   }
 
-  static IndexedWidgetBuilder _separatorBuilder(IList<Operation> operations) {
+  static IndexedWidgetBuilder _separatorBuilder(IList<Payment> operations) {
     return (context, index) {
       final curr = operations[index];
       final next = operations[index + 1];
@@ -99,7 +99,7 @@ class OperationsListSliver extends SliverChildBuilderDelegate {
         ),
         child: Material(
           elevation: 3,
-          shadowColor: MoniplanColors.inactiveBackgroundColor,
+          shadowColor: MoniplanColors.disabledColor,
           color: isSameDay
               ? MoniplanColors.blueColor
               : MoniplanColors.primaryTextColor,

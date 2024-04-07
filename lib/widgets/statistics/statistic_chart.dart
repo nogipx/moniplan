@@ -5,7 +5,7 @@ import 'package:moniplan_core/moniplan_core.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class StatisticChart extends StatefulWidget {
-  final Map<Operation, double> budget;
+  final Map<Payment, double> budget;
 
   const StatisticChart({
     super.key,
@@ -24,7 +24,7 @@ class _StatisticChartState extends State<StatisticChart> {
       if (data.series != null &&
           data.seriesIndex != null &&
           data.pointIndex != null) {
-        final MapEntry<Operation, double> item =
+        final MapEntry<Payment, double> item =
             data.series!.dataSource[data.pointIndex!];
 
         return Material(
@@ -54,10 +54,10 @@ class _StatisticChartState extends State<StatisticChart> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(DateFormat('d MMMM', 'ru').format(item.key.date)),
-                      Text(item.key.receipt.name),
+                      Text(item.key.details.name),
                       MoneyColoredWidget(
-                        value: item.key.receipt.normalizedMoney,
-                        currency: item.key.receipt.currency,
+                        value: item.key.details.normalizedMoney,
+                        currency: item.key.details.currency,
                       ),
                     ],
                   ),
@@ -99,45 +99,42 @@ class _StatisticChartState extends State<StatisticChart> {
         ),
         trackballBehavior: _trackballBehavior,
         series: [
-          LineSeries<MapEntry<Operation, double>, DateTime>(
+          LineSeries<MapEntry<Payment, double>, DateTime>(
             name: 'Бюджет',
             color: Colors.blue.shade900,
             dataSource:
                 widget.budget.entries.where((e) => e.key.enabled).toList(),
-            xValueMapper: (MapEntry<Operation, double> data, _) =>
-                data.key.date,
-            yValueMapper: (MapEntry<Operation, double> data, _) => data.value,
+            xValueMapper: (MapEntry<Payment, double> data, _) => data.key.date,
+            yValueMapper: (MapEntry<Payment, double> data, _) => data.value,
           ),
-          ColumnSeries<MapEntry<Operation, double>, DateTime>(
+          ColumnSeries<MapEntry<Payment, double>, DateTime>(
             width: 1,
             name: 'Расход',
             color: Colors.red.shade100,
             dataSource: widget.budget.entries
                 .where((e) => e.key.type.modifier < 0 && e.key.enabled)
                 .toList(),
-            xValueMapper: (MapEntry<Operation, double> data, _) =>
-                data.key.date,
-            yValueMapper: (MapEntry<Operation, double> data, _) =>
+            xValueMapper: (MapEntry<Payment, double> data, _) => data.key.date,
+            yValueMapper: (MapEntry<Payment, double> data, _) =>
                 data.key.normalizedMoney,
           ),
-          ColumnSeries<MapEntry<Operation, double>, DateTime>(
+          ColumnSeries<MapEntry<Payment, double>, DateTime>(
             width: 1,
             name: 'Доход',
             color: Colors.green.shade100,
             dataSource: widget.budget.entries
                 .where((e) => e.key.type.modifier > 0 && e.key.enabled)
                 .toList(),
-            xValueMapper: (MapEntry<Operation, double> data, _) =>
-                data.key.date,
-            yValueMapper: (MapEntry<Operation, double> data, _) =>
+            xValueMapper: (MapEntry<Payment, double> data, _) => data.key.date,
+            yValueMapper: (MapEntry<Payment, double> data, _) =>
                 data.key.normalizedMoney,
           ),
-          // LineSeries<MapEntry<Operation, double>, String>(
+          // LineSeries<MapEntry<Payment, double>, String>(
           //   color: Colors.red,
           //   dataSource: budget.entries.toList(),
-          //   xValueMapper: (MapEntry<Operation, double> data, _) =>
+          //   xValueMapper: (MapEntry<Payment, double> data, _) =>
           //       DateFormat('d.M').format(data.key.date),
-          //   yValueMapper: (MapEntry<Operation, double> data, _) => data.value,
+          //   yValueMapper: (MapEntry<Payment, double> data, _) => data.value,
           // ),
         ],
       );

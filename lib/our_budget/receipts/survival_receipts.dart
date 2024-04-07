@@ -1,47 +1,47 @@
 import 'package:moniplan/our_budget/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
-class SurvivalReceipts implements OperationsProvider {
+class SurvivalReceipts implements PaymentsProvider {
   // Аренда
-  static final rentHomeSuvorova = OperationReceipt(
+  static final rentHomeSuvorova = PaymentDetails(
     name: 'Аренда Суворова',
     money: 43000,
-    type: ReceiptType.outcome,
+    type: PaymentType.expense,
     currency: AppCurrencies.ru,
   );
-  static final rentHomeSamolet = OperationReceipt(
+  static final rentHomeSamolet = PaymentDetails(
     name: '💅 Аренда Самолет',
     money: 24000,
-    type: ReceiptType.outcome,
+    type: PaymentType.expense,
     currency: AppCurrencies.ru,
   );
 
   // Коммуналка
-  static final communalSuvorova = OperationReceipt(
+  static final communalSuvorova = PaymentDetails(
     name: 'Коммуналка Суворова',
     money: -5500,
-    type: ReceiptType.outcome,
+    type: PaymentType.expense,
     currency: AppCurrencies.ru,
   );
-  static final communalBelichenko = OperationReceipt(
+  static final communalBelichenko = PaymentDetails(
     name: 'Коммуналка Беличенко',
     money: -2600,
-    type: ReceiptType.outcome,
+    type: PaymentType.expense,
     currency: AppCurrencies.ru,
   );
-  static final communalGondarya = OperationReceipt(
+  static final communalGondarya = PaymentDetails(
     name: 'Коммуналка Гондаря',
     money: -2600,
-    type: ReceiptType.outcome,
+    type: PaymentType.expense,
     currency: AppCurrencies.ru,
   );
-  static final communalSamolet = OperationReceipt(
+  static final communalSamolet = PaymentDetails(
     name: '💅 Коммуналка Самолет Даша',
     money: -4000,
-    type: ReceiptType.outcome,
+    type: PaymentType.expense,
     currency: AppCurrencies.ru,
   );
-  static final internet = OperationReceipt(
+  static final internet = PaymentDetails(
     name: 'Интернеты и серверы',
     money:
         // даша инет
@@ -50,68 +50,68 @@ class SurvivalReceipts implements OperationsProvider {
             (900 + 800) +
             // впн (россия и сербия)
             (600 + 600),
-    type: ReceiptType.outcome,
+    type: PaymentType.expense,
     currency: AppCurrencies.ru,
   );
 
   // Коты
-  static final catsSummary = OperationReceipt(
+  static final catsSummary = PaymentDetails(
     name: 'Все для котов',
     money: -10000,
-    type: ReceiptType.outcome,
+    type: PaymentType.expense,
     currency: AppCurrencies.ru,
   );
 
   @override
-  List<Operation> get operations {
+  List<Payment> get payments {
     return [
-      Operation(
+      Payment(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 3),
         repeat: DateTimeRepeat.month,
-        receipt: rentHomeSamolet,
+        details: rentHomeSamolet,
       ),
-      Operation(
+      Payment(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 21),
         repeat: DateTimeRepeat.month,
-        receipt: rentHomeSuvorova,
+        details: rentHomeSuvorova,
       ),
-      Operation(
+      Payment(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 10),
         repeat: DateTimeRepeat.month,
-        receipt: communalBelichenko,
+        details: communalBelichenko,
       ),
-      Operation(
+      Payment(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 10),
         repeat: DateTimeRepeat.month,
-        receipt: communalGondarya,
+        details: communalGondarya,
       ),
-      Operation(
+      Payment(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 10),
         repeat: DateTimeRepeat.month,
-        receipt: communalSuvorova,
+        details: communalSuvorova,
       ),
-      Operation(
+      Payment(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 10),
         repeat: DateTimeRepeat.month,
-        receipt: communalSamolet,
+        details: communalSamolet,
       ),
-      Operation(
+      Payment(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 8),
         repeat: DateTimeRepeat.month,
-        receipt: catsSummary,
+        details: catsSummary,
       ),
-      Operation(
+      Payment(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 8),
         repeat: DateTimeRepeat.month,
-        receipt: internet,
+        details: internet,
       ),
     ];
   }

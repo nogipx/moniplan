@@ -1,36 +1,36 @@
 import 'package:moniplan/our_budget/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
-class SalaryReceipts implements OperationsProvider {
-  static final salaryBristol = OperationReceipt(
+class SalaryReceipts implements PaymentsProvider {
+  static final salaryBristol = PaymentDetails(
     name: 'ЗП Бристоль',
     money: 297000,
-    type: ReceiptType.income,
+    type: PaymentType.income,
     currency: AppCurrencies.ru,
   );
 
-  static final salaryUzumHalf = OperationReceipt(
+  static final salaryUzumHalf = PaymentDetails(
     name: 'ЗП Узум',
     money: 125000,
-    type: ReceiptType.income,
+    type: PaymentType.income,
     currency: AppCurrencies.ru,
   );
 
   @override
-  List<Operation> get operations {
+  List<Payment> get payments {
     return [
-      Operation(
+      Payment(
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 7),
         repeat: DateTimeRepeat.month,
-        receipt: salaryBristol,
+        details: salaryBristol,
       ),
-      Operation(
+      Payment(
         enabled: false,
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 8),
         repeat: DateTimeRepeat.twoWeek,
-        receipt: salaryUzumHalf,
+        details: salaryUzumHalf,
       ),
     ];
   }

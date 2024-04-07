@@ -4,11 +4,11 @@ import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan/useful/grayscale.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
-class OperationListItem extends StatelessWidget {
-  final Operation operation;
+class PaymentListItem extends StatelessWidget {
+  final Payment operation;
   final double? mediateSummary;
 
-  const OperationListItem({
+  const PaymentListItem({
     super.key,
     required this.operation,
     this.mediateSummary,
@@ -19,7 +19,7 @@ class OperationListItem extends StatelessWidget {
     final budgetPredictWidget = mediateSummary != null
         ? MoneyColoredWidget(
             value: mediateSummary,
-            currency: operation.receipt.currency,
+            currency: operation.details.currency,
             showPlusSign: false,
           )
         : const SizedBox();
@@ -60,7 +60,7 @@ class OperationListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SelectableText(
-                    operation.receipt.name,
+                    operation.details.name,
                     style: Theme.of(context).textTheme.subtitle1?.copyWith(
                           color: const Color(0xff1f1f1f),
                           fontWeight: FontWeight.w400,
@@ -85,7 +85,7 @@ class OperationListItem extends StatelessWidget {
                     children: [
                       MoneyColoredWidget(
                         value: operation.normalizedMoney,
-                        currency: operation.receipt.currency,
+                        currency: operation.details.currency,
                       ),
                       const SizedBox(width: 4),
                       const Icon(

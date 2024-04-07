@@ -1,5 +1,5 @@
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_core/src/usecases/_usecase.dart';
+import 'package:moniplan_core/src/features/_common/usecases/_usecase.dart';
 
 class GenerateRepeatDatesUseCase extends UseCase<List<DateTime>> {
   final DateTimeRepeat repeat;

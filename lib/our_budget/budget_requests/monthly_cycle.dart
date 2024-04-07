@@ -3,87 +3,87 @@
 // import '../_index.dart';
 // import '../receipts/_index.dart';
 //
-// final monthlyCycle = OperationsManagerEvent.computeBudget(
+// final monthlyCycle = PaymentsManagerEvent.computeBudget(
 //   startPeriod: DateTime(0, 1, 1),
 //   endPeriod: DateTime(0, 1, 20).monthEnd,
 //   operations: [
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 15),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.salaryBristol,
+//       details: DebtReceipts.salaryBristol,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 30),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.salaryBristol,
+//       details: DebtReceipts.salaryBristol,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 10),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.salaryDarya,
+//       details: DebtReceipts.salaryDarya,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 25),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.salaryDarya,
+//       details: DebtReceipts.salaryDarya,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 22),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.rentHomeSuvorova,
+//       details: DebtReceipts.rentHomeSuvorova,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 22),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.ipotekaLower,
+//       details: DebtReceipts.ipotekaLower,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 24),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.ipotekaGreater,
+//       details: DebtReceipts.ipotekaGreater,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 12),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.cleaning,
+//       details: DebtReceipts.cleaning,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 24),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.cleaning,
+//       details: DebtReceipts.cleaning,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 8),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.communalSuvorova,
+//       details: DebtReceipts.communalSuvorova,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 1),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.catsSummary,
+//       details: DebtReceipts.catsSummary,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 15),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.catsSummary,
+//       details: DebtReceipts.catsSummary,
 //     ),
-//     Operation(
+//     Payment(
 //       id: const Uuid().v4(),
 //       date: DateTime(0, 1, 6),
 //       repeat: DateTimeRepeat.month,
-//       receipt: DebtReceipts.refinanceCredit,
+//       details: DebtReceipts.refinanceCredit,
 //     ),
 //   ],
 // );
