@@ -26,7 +26,7 @@ class DebtReceipts implements PaymentsProvider {
 
   static final creditCardTinkoff = PaymentDetails(
     name: 'Платеж по кредитке',
-    money: 20000,
+    money: 17000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
   );
