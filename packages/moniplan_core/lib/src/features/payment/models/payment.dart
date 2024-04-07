@@ -28,6 +28,10 @@ class Payment with _$Payment, EquatableMixin {
     /// Indicates calendar day which payment proceed.
     required DateTime date,
 
+    /// Date of money reservation.
+    /// Indicates calendar day which amount of money reserved.
+    DateTime? dateMoneyReserved,
+
     /// Field for repeated payments.
     /// It shows which payment this payment was generated from.
     String? originalPaymentId,
@@ -59,5 +63,10 @@ class Payment with _$Payment, EquatableMixin {
   double get normalizedMoney => details.normalizedMoney;
 
   @override
-  List<Object?> get props => [id, date, originalPaymentId];
+  List<Object?> get props => [
+        id,
+        date,
+        dateMoneyReserved,
+        originalPaymentId,
+      ];
 }
