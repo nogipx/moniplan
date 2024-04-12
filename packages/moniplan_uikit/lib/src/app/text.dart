@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'colors.dart';
 
-const baseTextTheme = TextTheme(
+final baseTextTheme = TextTheme(
   headline5: TextStyle(
     fontWeight: FontWeight.bold,
     // letterSpacing: 0.38,

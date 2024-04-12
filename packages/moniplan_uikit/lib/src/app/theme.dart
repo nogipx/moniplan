@@ -20,7 +20,7 @@ final lightTheme = ThemeData(
       color: MoniplanColors.inactiveTextColor,
       fontWeight: FontWeight.normal,
     ),
-    enabledBorder: const UnderlineInputBorder(
+    enabledBorder: UnderlineInputBorder(
       borderSide: BorderSide(
         color: MoniplanColors.inactiveTextColor,
       ),

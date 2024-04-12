@@ -37,7 +37,7 @@ class PaymentListItem extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(width: 2),
-                const Icon(
+                Icon(
                   Icons.refresh_rounded,
                   size: 18,
                   color: MoniplanColors.secondaryTextColor,
@@ -51,7 +51,7 @@ class PaymentListItem extends StatelessWidget {
       grayscale: !operation.enabled,
       child: Container(
         padding: const EdgeInsets.all(12),
-        color: Colors.white,
+        color: MoniplanColors.white,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -62,7 +62,7 @@ class PaymentListItem extends StatelessWidget {
                   SelectableText(
                     operation.details.name,
                     style: Theme.of(context).textTheme.subtitle1?.copyWith(
-                          color: const Color(0xff1f1f1f),
+                          color: MoniplanColors.primaryTextColor,
                           fontWeight: FontWeight.w400,
                         ),
                   ),
@@ -88,7 +88,7 @@ class PaymentListItem extends StatelessWidget {
                         currency: operation.details.currency,
                       ),
                       const SizedBox(width: 4),
-                      const Icon(
+                      Icon(
                         Icons.arrow_right_alt_rounded,
                         size: 20,
                         color: MoniplanColors.disabledColor,

@@ -10,10 +10,10 @@ abstract class MoniplanConst {
     blurRadius: 20,
   );
 
-  static const lightSystemUIOverlay = SystemUiOverlayStyle(
+  static final lightSystemUIOverlay = SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.white,
     systemNavigationBarDividerColor: MoniplanColors.navigationBarColor,
-    statusBarColor: Color(0x00FFFFFF),
+    statusBarColor: const Color(0x00FFFFFF),
     statusBarBrightness: Brightness.light,
     statusBarIconBrightness: Brightness.dark,
     systemNavigationBarIconBrightness: Brightness.dark,

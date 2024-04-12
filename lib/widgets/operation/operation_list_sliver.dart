@@ -94,7 +94,7 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
       return Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: MoniplanColors.white,
         ),
         child: Material(

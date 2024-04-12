@@ -14,6 +14,7 @@ dependencies:
   bloc: ^8.0.3
   flutter_bloc: ^8.0.0
   draggable_scrollbar: ^0.1.0
+  shared_preferences: ^2.2.3
 
   fast_immutable_collections: ^10.2.2
   syncfusion_flutter_charts: ^25.1.38

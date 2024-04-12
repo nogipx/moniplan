@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:moniplan/app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   unawaited(
@@ -17,8 +18,11 @@ Future<void> main() async {
           DeviceOrientation.portraitUp,
         ]);
         // SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
+        final prefs = await SharedPreferences.getInstance();
 
-        runApp(const MoniplanApp());
+        runApp(MoniplanApp(
+          sharedPreferences: prefs,
+        ));
       },
       (exception, stackTrace) {
         if (kDebugMode) {

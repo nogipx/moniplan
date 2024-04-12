@@ -26,9 +26,9 @@ class ThemeChangerInherited extends InheritedWidget {
     }
   }
 
-  void toggleTheme() {
+  void toggleTheme(BuildContext context) {
     if (theme == ThemeBrightness.system) {
-      final brightness = theme.brightness;
+      final brightness = theme.brightness(context);
       brightness == Brightness.dark
           ? _toggleTheme(ThemeBrightness.dark)
           : _toggleTheme(ThemeBrightness.light);
