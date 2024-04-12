@@ -21,11 +21,8 @@ class _StatisticChartState extends State<StatisticChart> {
     enable: true,
     activationMode: ActivationMode.longPress,
     builder: (context, data) {
-      if (data.series != null &&
-          data.seriesIndex != null &&
-          data.pointIndex != null) {
-        final MapEntry<Payment, double> item =
-            data.series!.dataSource[data.pointIndex!];
+      if (data.series != null && data.seriesIndex != null && data.pointIndex != null) {
+        final MapEntry<Payment, double> item = data.series!.dataSource[data.pointIndex!];
 
         return Material(
           elevation: 4,
@@ -38,8 +35,7 @@ class _StatisticChartState extends State<StatisticChart> {
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(8)),
                     // color: Colors.white,
-                    color:
-                        data.seriesIndex == 0 ? Colors.white : Colors.black12,
+                    color: data.seriesIndex == 0 ? Colors.white : Colors.black12,
                     border: Border.all(
                       width: 3,
                       color: item.key.normalizedMoney == 0
@@ -89,11 +85,11 @@ class _StatisticChartState extends State<StatisticChart> {
           interval: 1,
           intervalType: DateTimeIntervalType.days,
           dateFormat: DateFormat('d MMM', 'ru'),
-          majorGridLines: MajorGridLines(width: 0),
-          majorTickLines: MajorTickLines(width: 0),
+          majorGridLines: const MajorGridLines(width: 0),
+          majorTickLines: const MajorTickLines(width: 0),
         ),
-        primaryYAxis: NumericAxis(
-          interactiveTooltip: const InteractiveTooltip(
+        primaryYAxis: const NumericAxis(
+          interactiveTooltip: InteractiveTooltip(
             enable: true,
           ),
         ),
@@ -102,8 +98,7 @@ class _StatisticChartState extends State<StatisticChart> {
           LineSeries<MapEntry<Payment, double>, DateTime>(
             name: 'Бюджет',
             color: Colors.blue.shade900,
-            dataSource:
-                widget.budget.entries.where((e) => e.key.enabled).toList(),
+            dataSource: widget.budget.entries.where((e) => e.key.enabled).toList(),
             xValueMapper: (MapEntry<Payment, double> data, _) => data.key.date,
             yValueMapper: (MapEntry<Payment, double> data, _) => data.value,
           ),
@@ -115,8 +110,7 @@ class _StatisticChartState extends State<StatisticChart> {
                 .where((e) => e.key.type.modifier < 0 && e.key.enabled)
                 .toList(),
             xValueMapper: (MapEntry<Payment, double> data, _) => data.key.date,
-            yValueMapper: (MapEntry<Payment, double> data, _) =>
-                data.key.normalizedMoney,
+            yValueMapper: (MapEntry<Payment, double> data, _) => data.key.normalizedMoney,
           ),
           ColumnSeries<MapEntry<Payment, double>, DateTime>(
             width: 1,
@@ -126,8 +120,7 @@ class _StatisticChartState extends State<StatisticChart> {
                 .where((e) => e.key.type.modifier > 0 && e.key.enabled)
                 .toList(),
             xValueMapper: (MapEntry<Payment, double> data, _) => data.key.date,
-            yValueMapper: (MapEntry<Payment, double> data, _) =>
-                data.key.normalizedMoney,
+            yValueMapper: (MapEntry<Payment, double> data, _) => data.key.normalizedMoney,
           ),
           // LineSeries<MapEntry<Payment, double>, String>(
           //   color: Colors.red,

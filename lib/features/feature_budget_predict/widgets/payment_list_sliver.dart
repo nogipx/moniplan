@@ -2,9 +2,10 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan/theme/_index.dart';
-import 'package:moniplan/widgets/operation/operation_list_item.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'dart:math' as math;
+
+import '_index.dart';
 
 class PaymentsListSliver extends SliverChildBuilderDelegate {
   final IList<Payment> operations;
@@ -18,8 +19,7 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
             final int itemIndex = index ~/ 2;
             Widget widget;
             if (index.isEven) {
-              widget =
-                  _itemBuilder(operations, budget).call(context, itemIndex);
+              widget = _itemBuilder(operations, budget).call(context, itemIndex);
               if (index == 0) {
                 widget = Column(
                   children: [
@@ -61,8 +61,7 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
       final next = operations[index + 1];
 
       final isMonthEdge = next.date.month != curr.date.month;
-      final isHalfMonth =
-          !isMonthEdge && next.date.day > 15 && curr.date.day <= 15;
+      final isHalfMonth = !isMonthEdge && next.date.day > 15 && curr.date.day <= 15;
       final isNextDay = next.date.day != curr.date.day;
 
       if (isMonthEdge) {
@@ -100,9 +99,7 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
         child: Material(
           elevation: 3,
           shadowColor: MoniplanColors.disabledColor,
-          color: isSameDay
-              ? MoniplanColors.blueColor
-              : MoniplanColors.primaryTextColor,
+          color: isSameDay ? MoniplanColors.blueColor : MoniplanColors.primaryTextColor,
           borderRadius: MoniplanConst.borderRadius50,
           child: Row(
             mainAxisSize: MainAxisSize.min,
