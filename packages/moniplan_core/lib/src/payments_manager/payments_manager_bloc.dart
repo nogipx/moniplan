@@ -4,7 +4,6 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 class PaymentsManagerBloc extends Bloc<PaymentsManagerEvent, PaymentsManagerState> {
@@ -68,8 +67,8 @@ class PaymentsManagerBloc extends Bloc<PaymentsManagerEvent, PaymentsManagerStat
         ).run();
 
         final newState = PaymentsManagerState.budgetComputed(
-          paymentsGenerated: payments.constrained.toIList(),
-          budget: IMap.fromEntries(budgetResult.budget.entries),
+          paymentsGenerated: payments.constrained.toList(),
+          budget: Map.from(budgetResult.budget),
           dateStart: targetPlanner.dateStart,
           dateEnd: targetPlanner.dateEnd,
           moneyFlow: moneyFlow,

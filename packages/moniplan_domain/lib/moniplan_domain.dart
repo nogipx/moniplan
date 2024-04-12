@@ -1,8 +1,6 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
-library;
+library moniplan_domain;
 
-export 'src/moniplan_domain_base.dart';
+export 'src/_index.dart';
 
-// TODO: Export any libraries intended for clients of this package.
+export 'package:money2/money2.dart';
+export 'package:uuid/uuid.dart';

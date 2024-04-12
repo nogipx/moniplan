@@ -1,4 +1,3 @@
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
@@ -13,22 +12,22 @@ class PaymentsManagerState with _$PaymentsManagerState {
   const factory PaymentsManagerState.budgetComputed({
     DateTime? dateStart,
     DateTime? dateEnd,
-    @Default(IListConst([])) IList<Payment> paymentsGenerated,
-    @Default(IMapConst({})) IMap<Payment, num> budget,
+    @Default([]) List<Payment> paymentsGenerated,
+    @Default({}) Map<Payment, num> budget,
     @Default(MoneyFlowUseCaseResult()) MoneyFlowUseCaseResult moneyFlow,
   }) = PaymentsManagerBudgetComputedState;
 
   const factory PaymentsManagerState.error({
-    @Default(IListConst([])) IList<Payment> payments,
+    @Default([]) List<Payment> payments,
   }) = PaymentsManagerErrorState;
 
-  IList<Payment> get paymentsGenerated => maybeMap<IList<Payment>>(
+  List<Payment> get paymentsGenerated => maybeMap<List<Payment>>(
         budgetComputed: (v) => v.paymentsGenerated,
-        orElse: () => const IListConst([]),
+        orElse: () => const [],
       );
 
-  IMap<Payment, num> get budget => maybeMap<IMap<Payment, num>>(
+  Map<Payment, num> get budget => maybeMap<Map<Payment, num>>(
         budgetComputed: (v) => v.budget,
-        orElse: () => const IMapConst({}),
+        orElse: () => const {},
       );
 }

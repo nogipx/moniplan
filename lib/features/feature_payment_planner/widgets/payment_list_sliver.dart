@@ -1,4 +1,3 @@
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan/theme/_index.dart';
@@ -8,8 +7,8 @@ import 'dart:math' as math;
 import '_index.dart';
 
 class PaymentsListSliver extends SliverChildBuilderDelegate {
-  final IList<Payment> operations;
-  final IMap<Payment, num> budget;
+  final List<Payment> operations;
+  final Map<Payment, num> budget;
 
   PaymentsListSliver({
     required this.operations,
@@ -43,8 +42,8 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
         );
 
   static IndexedWidgetBuilder _itemBuilder(
-    IList<Payment> operations,
-    IMap<Payment, num> budget,
+    List<Payment> operations,
+    Map<Payment, num> budget,
   ) {
     return (context, index) {
       final operation = operations[index];
@@ -55,7 +54,7 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
     };
   }
 
-  static IndexedWidgetBuilder _separatorBuilder(IList<Payment> operations) {
+  static IndexedWidgetBuilder _separatorBuilder(List<Payment> operations) {
     return (context, index) {
       final curr = operations[index];
       final next = operations[index + 1];

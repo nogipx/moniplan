@@ -1,8 +1,7 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:money2/money2.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 part 'payment_details.g.dart';
 part 'payment_details.freezed.dart';

@@ -27,9 +27,7 @@ dependencies:
 
   # Data
   intl: ^0.19.0
-  money2: ^5.0.1
   shared_preferences: ^2.2.3
-  fast_immutable_collections: ^10.2.2
 
   # Persistent
   objectbox: ^2.5.1

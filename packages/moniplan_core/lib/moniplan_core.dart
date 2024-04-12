@@ -1,3 +1,4 @@
 library moniplan_core;
 
-export 'src/moniplan_core_base.dart';
+export 'src/_index.dart';
+export 'package:moniplan_domain/moniplan_domain.dart';

@@ -1,4 +1,4 @@
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 class GeneratePlannerUseCaseArgs {
   final Iterable<Payment> payments;

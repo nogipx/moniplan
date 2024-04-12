@@ -49,7 +49,7 @@ class PlannerViewScreen extends StatelessWidget {
                                 ),
                                 child: Center(
                                   child: StatisticChart(
-                                    budget: state.budget.unlock,
+                                    budget: state.budget,
                                   ),
                                 ),
                               ),

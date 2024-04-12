@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_core/src/features/payment/models/payment_planner.dart';
 
 part 'payments_manager_event.freezed.dart';
 part 'payments_manager_event.g.dart';
