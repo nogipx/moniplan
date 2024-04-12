@@ -4,7 +4,7 @@ import 'package:moniplan_core/moniplan_core.dart';
 class SalaryReceipts implements PaymentsProvider {
   static final salaryBristol = PaymentDetails(
     name: 'ЗП Бристоль',
-    money: 297000,
+    money: 293000,
     type: PaymentType.income,
     currency: AppCurrencies.ru,
   );
