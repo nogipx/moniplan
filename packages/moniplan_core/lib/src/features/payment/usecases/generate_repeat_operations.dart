@@ -1,6 +1,6 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import '../../_common/usecases/_usecase.dart';
+import 'package:uuid/uuid.dart';
 
 class GenerateRepeatPaymentsUseCaseResult {
   final DateTime dateStart;
@@ -14,12 +14,9 @@ class GenerateRepeatPaymentsUseCaseResult {
     required this.dateEnd,
     this.payments = const IListConst([]),
   });
-
-  IList<Payment> get combined => payments;
 }
 
-class GenerateRepeatPaymentsUseCase
-    extends UseCase<GenerateRepeatPaymentsUseCaseResult> {
+class GenerateRepeatPaymentsUseCase extends UseCase<GenerateRepeatPaymentsUseCaseResult> {
   final Payment payment;
   final DateTime startPeriod;
   final DateTime endPeriod;
@@ -32,6 +29,7 @@ class GenerateRepeatPaymentsUseCase
 
   @override
   GenerateRepeatPaymentsUseCaseResult run() {
+    const uuid = Uuid();
     final start = startPeriod;
     final end = endPeriod;
 
@@ -64,8 +62,13 @@ class GenerateRepeatPaymentsUseCase
       dateEnd: targetDateEnd,
     ).run();
 
-    final payments =
-        generatedDates.map((e) => payment.copyWith(date: e)).toIList();
+    final payments = generatedDates
+        .map((e) => payment.copyWith(
+              date: e,
+              id: uuid.v4(),
+              originalPaymentId: payment.id,
+            ))
+        .toIList();
 
     final result = GenerateRepeatPaymentsUseCaseResult(
       basePayment: payment,

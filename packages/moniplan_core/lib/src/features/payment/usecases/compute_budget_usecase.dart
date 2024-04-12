@@ -60,10 +60,15 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
             payment: e,
             startPeriod: dateStart,
             endPeriod: dateEnd,
-          ).run().combined,
+          ).run().payments,
         )
         .expand((e) => e)
         .toList();
+
+    final paymentsId = allPayments.map((e) => e.id).toSet();
+    if (paymentsId.length != allPayments.length) {
+      throw Exception('There are duplicates payment ids');
+    }
 
     allPayments.sort((a, b) => a.date.compareTo(b.date));
 
