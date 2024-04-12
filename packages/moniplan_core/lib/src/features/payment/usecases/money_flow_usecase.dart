@@ -1,7 +1,7 @@
 import 'package:moniplan_core/moniplan_core.dart';
 
 class MoneyFlowUseCaseArgs {
-  final double initialBudget;
+  final num initialBudget;
   final Iterable<Payment> payments;
 
   const MoneyFlowUseCaseArgs({
@@ -11,10 +11,10 @@ class MoneyFlowUseCaseArgs {
 }
 
 class MoneyFlowUseCaseResult {
-  final double totalIncome;
-  final double totalOutcome;
-  final double balance;
-  final double initialBalance;
+  final num totalIncome;
+  final num totalOutcome;
+  final num balance;
+  final num initialBalance;
 
   const MoneyFlowUseCaseResult({
     this.totalIncome = 0,
@@ -33,9 +33,9 @@ class MoneyFlowUseCase extends UseCase<MoneyFlowUseCaseResult> {
 
   @override
   MoneyFlowUseCaseResult run() {
-    double totalIncome = 0;
-    double totalOutcome = 0;
-    double balance = args.initialBudget;
+    num totalIncome = 0;
+    num totalOutcome = 0;
+    num balance = args.initialBudget;
 
     for (var e in args.payments) {
       if (!e.enabled) {

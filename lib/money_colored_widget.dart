@@ -3,7 +3,7 @@ import 'package:money2/money2.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 class MoneyColoredWidget extends StatelessWidget {
-  final double? value;
+  final num? value;
   final TextStyle? textStyle;
   final Currency currency;
   final Color? overrideColor;
@@ -15,8 +15,8 @@ class MoneyColoredWidget extends StatelessWidget {
     this.textStyle,
     this.overrideColor,
     this.showPlusSign = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +26,8 @@ class MoneyColoredWidget extends StatelessWidget {
             ? Colors.green
             : Colors.red.shade400;
 
-    final text = value != null
-        ? (value! > 0 && showPlusSign ? '+ ' : '') + value!.currency(currency)
-        : '-';
+    final text =
+        value != null ? (value! > 0 && showPlusSign ? '+ ' : '') + value!.currency(currency) : '-';
 
     return Text(
       text,

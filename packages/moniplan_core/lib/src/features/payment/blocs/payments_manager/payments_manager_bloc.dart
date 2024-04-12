@@ -7,8 +7,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
-class PaymentsManagerBloc
-    extends Bloc<PaymentsManagerEvent, PaymentsManagerState> {
+class PaymentsManagerBloc extends Bloc<PaymentsManagerEvent, PaymentsManagerState> {
   PaymentsManagerBloc() : super(PaymentsManagerInitialState()) {
     _onComputeBudget();
   }
@@ -24,31 +23,55 @@ class PaymentsManagerBloc
       (event, emit) {
         Timeline.startSync('generate_budget');
 
-        final computeBudgetUseCase = ComputeBudgetUseCase(
-          args: ComputeBudgetUseCaseArgs(
-            payments: event.payments,
-            startPeriod: event.startPeriod,
-            endPeriod: event.endPeriod,
-            initialBudget: event.initialBudget ?? 0,
-          ),
-        );
+        var targetPlanner = event.planner.copyWith();
+        if (targetPlanner.shouldGenerate) {
+          final result = GeneratePlannerUseCase(
+            args: GeneratePlannerUseCaseArgs(
+              payments: targetPlanner.payments,
+              startPeriod: targetPlanner.dateStart,
+              endPeriod: targetPlanner.dateEnd,
+            ),
+          ).run();
+          targetPlanner = PaymentPlanner(
+            id: targetPlanner.id,
+            dateStart: result.startPeriod,
+            dateEnd: result.endPeriod,
+            payments: result.generatedPayments.toList(),
+            initialBudget: targetPlanner.initialBudget,
+            shouldGenerate: false,
+          );
+        }
 
-        final result = computeBudgetUseCase.run();
+        final payments = ConstrainItemsInPeriod(
+          args: ConstrainItemsInPeriodArgs(
+            items: targetPlanner.payments,
+            dateStart: targetPlanner.dateStart,
+            dateEnd: targetPlanner.dateEnd,
+            dateExtractor: (payment) => payment.date,
+          ),
+        ).run();
+
+        final budgetResult = ComputeBudgetUseCase(
+          args: ComputeBudgetUseCaseArgs(
+            payments: payments.constrained,
+            initialBudget: targetPlanner.initialBudget,
+          ),
+        ).run();
+
         Timeline.finishSync();
 
         final moneyFlow = MoneyFlowUseCase(
           args: MoneyFlowUseCaseArgs(
-            payments: result.paymentsGenerated,
-            initialBudget: event.initialBudget ?? 0,
+            payments: payments.constrained,
+            initialBudget: targetPlanner.initialBudget,
           ),
         ).run();
 
         final newState = PaymentsManagerState.budgetComputed(
-          paymentsOriginal: result.paymentsOriginal.toIList(),
-          paymentsGenerated: result.paymentsGenerated.toIList(),
-          budget: IMap.fromEntries(result.mediateBudget.entries),
-          dateStart: result.dateStart,
-          dateEnd: result.dateEnd,
+          paymentsGenerated: payments.constrained.toIList(),
+          budget: IMap.fromEntries(budgetResult.budget.entries),
+          dateStart: targetPlanner.dateStart,
+          dateEnd: targetPlanner.dateEnd,
           moneyFlow: moneyFlow,
         );
         emit(newState);

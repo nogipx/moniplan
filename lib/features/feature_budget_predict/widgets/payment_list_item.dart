@@ -6,7 +6,7 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PaymentListItem extends StatelessWidget {
   final Payment operation;
-  final double? mediateSummary;
+  final num? mediateSummary;
 
   const PaymentListItem({
     super.key,

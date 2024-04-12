@@ -1,5 +1,4 @@
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_core/src/features/_common/usecases/_usecase.dart';
 
 class GenerateRepeatDatesUseCase extends UseCase<List<DateTime>> {
   final DateTimeRepeat repeat;
@@ -62,8 +61,6 @@ class GenerateRepeatDatesUseCase extends UseCase<List<DateTime>> {
       ...pastDates.reversed,
       base,
       ...futureDates,
-    ]
-        .where((e) => e.compareTo(dateStart) >= 0 && e.compareTo(dateEnd) <= 0)
-        .toList();
+    ].where((e) => e.compareTo(dateStart) >= 0 && e.compareTo(dateEnd) <= 0).toList();
   }
 }

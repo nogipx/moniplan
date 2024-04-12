@@ -30,7 +30,12 @@ class _MoniplanAppState extends State<MoniplanApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => PaymentsManagerBloc()..computeBudget(currentRequest),
+          create: (_) => PaymentsManagerBloc()
+            ..computeBudget(
+              PaymentsManagerEvent.computeBudget(
+                planner: currentRequest,
+              ),
+            ),
         ),
       ],
       child: ThemeChanger(

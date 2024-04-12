@@ -11,8 +11,7 @@ abstract class AppCurrencies {
   static final ru = CommonCurrencies().rub;
 }
 
-class CurrencyConverter
-    implements JsonConverter<Currency, Map<dynamic, dynamic>?> {
+class CurrencyConverter implements JsonConverter<Currency, Map<dynamic, dynamic>?> {
   const CurrencyConverter();
 
   @override
@@ -38,7 +37,7 @@ class CurrencyConverter
   }
 }
 
-extension CurrencyDouble on double {
+extension CurrencyDouble on num {
   bool get isWhole => this % 1 == 0;
 
   String currency(Currency currency, {Locale? locale}) {
@@ -63,8 +62,8 @@ extension CurrencyExt on Currency {
     'RUB': '₽',
   };
 
-  static final currencies = (numberFormatSymbols as Map<String, NumberSymbols>)
-      .map<String, NumberSymbols>(
+  static final currencies =
+      (numberFormatSymbols as Map<String, NumberSymbols>).map<String, NumberSymbols>(
     (key, value) => MapEntry<String, NumberSymbols>(
       value.DEF_CURRENCY_CODE,
       value,

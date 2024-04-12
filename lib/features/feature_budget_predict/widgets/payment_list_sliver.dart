@@ -9,7 +9,7 @@ import '_index.dart';
 
 class PaymentsListSliver extends SliverChildBuilderDelegate {
   final IList<Payment> operations;
-  final IMap<Payment, double> budget;
+  final IMap<Payment, num> budget;
 
   PaymentsListSliver({
     required this.operations,
@@ -44,7 +44,7 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
 
   static IndexedWidgetBuilder _itemBuilder(
     IList<Payment> operations,
-    IMap<Payment, double> budget,
+    IMap<Payment, num> budget,
   ) {
     return (context, index) {
       final operation = operations[index];

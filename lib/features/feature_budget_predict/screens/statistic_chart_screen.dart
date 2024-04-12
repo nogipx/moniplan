@@ -5,7 +5,7 @@ import 'package:moniplan_core/moniplan_core.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class StatisticChart extends StatefulWidget {
-  final Map<Payment, double> budget;
+  final Map<Payment, num> budget;
 
   const StatisticChart({
     super.key,
@@ -22,7 +22,7 @@ class _StatisticChartState extends State<StatisticChart> {
     activationMode: ActivationMode.longPress,
     builder: (context, data) {
       if (data.series != null && data.seriesIndex != null && data.pointIndex != null) {
-        final MapEntry<Payment, double> item = data.series!.dataSource[data.pointIndex!];
+        final MapEntry<Payment, num> item = data.series!.dataSource[data.pointIndex!];
 
         return Material(
           elevation: 4,
@@ -95,32 +95,32 @@ class _StatisticChartState extends State<StatisticChart> {
         ),
         trackballBehavior: _trackballBehavior,
         series: [
-          LineSeries<MapEntry<Payment, double>, DateTime>(
+          LineSeries<MapEntry<Payment, num>, DateTime>(
             name: 'Бюджет',
             color: Colors.blue.shade900,
             dataSource: widget.budget.entries.where((e) => e.key.enabled).toList(),
-            xValueMapper: (MapEntry<Payment, double> data, _) => data.key.date,
-            yValueMapper: (MapEntry<Payment, double> data, _) => data.value,
+            xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
+            yValueMapper: (MapEntry<Payment, num> data, _) => data.value,
           ),
-          ColumnSeries<MapEntry<Payment, double>, DateTime>(
+          ColumnSeries<MapEntry<Payment, num>, DateTime>(
             width: 1,
             name: 'Расход',
             color: Colors.red.shade100,
             dataSource: widget.budget.entries
                 .where((e) => e.key.type.modifier < 0 && e.key.enabled)
                 .toList(),
-            xValueMapper: (MapEntry<Payment, double> data, _) => data.key.date,
-            yValueMapper: (MapEntry<Payment, double> data, _) => data.key.normalizedMoney,
+            xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
+            yValueMapper: (MapEntry<Payment, num> data, _) => data.key.normalizedMoney,
           ),
-          ColumnSeries<MapEntry<Payment, double>, DateTime>(
+          ColumnSeries<MapEntry<Payment, num>, DateTime>(
             width: 1,
             name: 'Доход',
             color: Colors.green.shade100,
             dataSource: widget.budget.entries
                 .where((e) => e.key.type.modifier > 0 && e.key.enabled)
                 .toList(),
-            xValueMapper: (MapEntry<Payment, double> data, _) => data.key.date,
-            yValueMapper: (MapEntry<Payment, double> data, _) => data.key.normalizedMoney,
+            xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
+            yValueMapper: (MapEntry<Payment, num> data, _) => data.key.normalizedMoney,
           ),
           // LineSeries<MapEntry<Payment, double>, String>(
           //   color: Colors.red,

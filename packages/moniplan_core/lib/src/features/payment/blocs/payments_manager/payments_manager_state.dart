@@ -13,9 +13,8 @@ class PaymentsManagerState with _$PaymentsManagerState {
   const factory PaymentsManagerState.budgetComputed({
     DateTime? dateStart,
     DateTime? dateEnd,
-    @Default(IListConst([])) IList<Payment> paymentsOriginal,
     @Default(IListConst([])) IList<Payment> paymentsGenerated,
-    @Default(IMapConst({})) IMap<Payment, double> budget,
+    @Default(IMapConst({})) IMap<Payment, num> budget,
     @Default(MoneyFlowUseCaseResult()) MoneyFlowUseCaseResult moneyFlow,
   }) = PaymentsManagerBudgetComputedState;
 
@@ -28,7 +27,7 @@ class PaymentsManagerState with _$PaymentsManagerState {
         orElse: () => const IListConst([]),
       );
 
-  IMap<Payment, double> get budget => maybeMap<IMap<Payment, double>>(
+  IMap<Payment, num> get budget => maybeMap<IMap<Payment, num>>(
         budgetComputed: (v) => v.budget,
         orElse: () => const IMapConst({}),
       );
