@@ -21,6 +21,9 @@ dependencies:
   moniplan_core:
     path: packages/moniplan_core
 
+  moniplan_uikit:
+    path: packages/moniplan_uikit
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
