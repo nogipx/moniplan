@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:money2/money2.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 class MoneyColoredWidget extends StatelessWidget {

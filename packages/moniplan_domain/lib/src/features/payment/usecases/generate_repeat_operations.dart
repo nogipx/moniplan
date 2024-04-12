@@ -1,5 +1,4 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
-import 'package:uuid/uuid.dart';
 
 class GenerateRepeatPaymentsUseCaseResult {
   final DateTime dateStart;

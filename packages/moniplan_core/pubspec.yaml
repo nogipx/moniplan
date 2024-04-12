@@ -10,6 +10,8 @@ dependencies:
   moniplan_domain:
     path: ../moniplan_domain
 
+  objectbox: ^2.5.1
+
   bloc: ^8.1.4
   bloc_concurrency: ^0.2.5
 
@@ -23,3 +25,5 @@ dev_dependencies:
   freezed: ^2.5.0
   json_serializable: ^6.7.1
   bloc_test: ^9.1.7
+  objectbox_generator: ^2.5.1
+

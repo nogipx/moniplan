@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:moniplan/money_colored_widget.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
