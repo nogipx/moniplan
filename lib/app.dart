@@ -5,7 +5,7 @@ import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'features/feature_budget_predict/_index.dart';
+import 'features/_index.dart';
 
 class MoniplanApp extends StatefulWidget {
   const MoniplanApp({
