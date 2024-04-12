@@ -21,11 +21,10 @@ class PaymentDetails with _$PaymentDetails {
     @Default('') String note,
     required PaymentType type,
     required Currency currency,
-    @Default(0) double money,
+    @Default(0) num money,
   }) = _PaymentDetails;
 
-  factory PaymentDetails.fromJson(Map<String, dynamic> json) =>
-      _$PaymentDetailsFromJson(json);
+  factory PaymentDetails.fromJson(Map<String, dynamic> json) => _$PaymentDetailsFromJson(json);
 
-  double get normalizedMoney => money.abs() * type.modifier;
+  num get normalizedMoney => money.abs() * type.modifier;
 }

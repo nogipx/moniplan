@@ -50,8 +50,7 @@ class Payment with _$Payment, EquatableMixin {
     @Default(DateTimeRepeat.noRepeat) DateTimeRepeat repeat,
   }) = _Payment;
 
-  factory Payment.fromJson(Map<String, dynamic> json) =>
-      _$PaymentFromJson(json);
+  factory Payment.fromJson(Map<String, dynamic> json) => _$PaymentFromJson(json);
 
   PaymentType get type => details.type;
 
@@ -60,7 +59,7 @@ class Payment with _$Payment, EquatableMixin {
   bool get isRepeat => repeat != DateTimeRepeat.noRepeat;
   bool get isRepeatParent => isRepeat && isParent;
 
-  double get normalizedMoney => details.normalizedMoney;
+  num get normalizedMoney => details.normalizedMoney;
 
   @override
   List<Object?> get props => [
