@@ -1,25 +1,26 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 enum DateTimeRepeat {
-  noRepeat(''),
-  day('1d'),
-  twoDays('2d'),
-  threeDays('3d'),
-  fourDays('4d'),
-  fiveDays('5d'),
-  sixDays('6d'),
-  week('1w'),
-  twoWeek('2w'),
-  threeWeek('1w'),
-  fourWeek('4w'),
-  month('1m'),
-  threeMonths('3m'),
-  sixMonths('6m'),
-  year('1y');
+  noRepeat('', 0),
+  day('1d', 1),
+  twoDays('2d', 2),
+  threeDays('3d', 3),
+  fourDays('4d', 4),
+  fiveDays('5d', 5),
+  sixDays('6d', 6),
+  week('1w', 7),
+  twoWeek('2w', 8),
+  threeWeek('3w', 9),
+  fourWeek('4w', 10),
+  month('1m', 11),
+  threeMonths('3m', 13),
+  sixMonths('6m', 16),
+  year('1y', 22);
 
   final String shortName;
+  final int id;
 
-  const DateTimeRepeat(this.shortName);
+  const DateTimeRepeat(this.shortName, this.id);
 
   DateTime previous(DateTime base) {
     final result = switch (this) {
@@ -61,5 +62,26 @@ enum DateTimeRepeat {
       DateTimeRepeat.year => base.addTime(year: 1),
     };
     return result;
+  }
+
+  static from(int? id) {
+    return switch (id) {
+      0 => DateTimeRepeat.noRepeat,
+      1 => DateTimeRepeat.day,
+      2 => DateTimeRepeat.twoDays,
+      3 => DateTimeRepeat.threeDays,
+      4 => DateTimeRepeat.fourDays,
+      5 => DateTimeRepeat.fiveDays,
+      6 => DateTimeRepeat.sixDays,
+      7 => DateTimeRepeat.week,
+      8 => DateTimeRepeat.twoWeek,
+      9 => DateTimeRepeat.threeWeek,
+      10 => DateTimeRepeat.fourWeek,
+      11 => DateTimeRepeat.month,
+      13 => DateTimeRepeat.threeMonths,
+      16 => DateTimeRepeat.sixMonths,
+      22 => DateTimeRepeat.year,
+      _ => DateTimeRepeat.noRepeat,
+    };
   }
 }

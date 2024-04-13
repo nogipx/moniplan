@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan/main.dart';
 import 'package:moniplan/our_budget/_index.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
@@ -23,6 +24,14 @@ class _MoniplanAppState extends State<MoniplanApp> {
   @override
   void initState() {
     super.initState();
+    final t = objectbox.store.box<PaymentComposedDaoOB>().getAll();
+
+    final mapper = PaymentMapper();
+    final dao = mapper.toDto(currentRequest.payments.first);
+    objectbox.store.box<PaymentComposedDaoOB>().put(dao);
+
+    final dtt = objectbox.store.box<PaymentComposedDaoOB>().getAll().map(mapper.toDomain).toList();
+    print(t);
   }
 
   @override

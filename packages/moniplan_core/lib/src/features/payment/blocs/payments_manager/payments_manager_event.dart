@@ -10,7 +10,7 @@ class PaymentsManagerEvent with _$PaymentsManagerEvent {
 
   @JsonSerializable()
   const factory PaymentsManagerEvent.computeBudget({
-    required final PaymentPlanner planner,
+    @JsonKey(name: 'planner') required final PaymentPlanner planner,
   }) = PaymentsManagerComputeBudgetEvent;
 
   factory PaymentsManagerEvent.fromJson(Map<String, dynamic> json) =>
