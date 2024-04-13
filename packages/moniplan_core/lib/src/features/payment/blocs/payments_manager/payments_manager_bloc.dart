@@ -27,16 +27,12 @@ class PaymentsManagerBloc extends Bloc<PaymentsManagerEvent, PaymentsManagerStat
           final result = GeneratePlannerUseCase(
             args: GeneratePlannerUseCaseArgs(
               payments: targetPlanner.payments,
-              startPeriod: targetPlanner.dateStart,
-              endPeriod: targetPlanner.dateEnd,
+              dateStart: targetPlanner.dateStart,
+              dateEnd: targetPlanner.dateEnd,
             ),
           ).run();
-          targetPlanner = PaymentPlanner(
+          targetPlanner = result.planner.copyWith(
             id: targetPlanner.id,
-            dateStart: result.startPeriod,
-            dateEnd: result.endPeriod,
-            payments: result.generatedPayments.toList(),
-            initialBudget: targetPlanner.initialBudget,
             shouldGenerate: false,
           );
         }

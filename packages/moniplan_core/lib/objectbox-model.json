@@ -4,106 +4,169 @@
   "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
   "entities": [
     {
-      "id": "1:7546095683951634779",
-      "lastPropertyId": "16:6014793293127425641",
-      "name": "PaymentComposedDaoOB",
+      "id": "2:5110848916238781232",
+      "lastPropertyId": "5:389915538243168818",
+      "name": "PaymentPlannerDaoOB",
       "properties": [
         {
-          "id": "1:6070829980176794002",
+          "id": "1:9091895741386153338",
           "name": "id",
           "type": 6,
           "flags": 1
         },
         {
-          "id": "2:6495703995964771562",
-          "name": "paymentId",
+          "id": "2:1437409318595770547",
+          "name": "plannerId",
           "type": 9,
           "flags": 2080,
-          "indexId": "1:8419948249282546999"
+          "indexId": "4:2995614660335876540"
         },
         {
-          "id": "3:4235376353386013408",
-          "name": "paymentName",
-          "type": 9
-        },
-        {
-          "id": "4:999258745851745573",
-          "name": "paymentNote",
-          "type": 9
-        },
-        {
-          "id": "5:5076089983696359755",
-          "name": "paymentTypeId",
-          "type": 6
-        },
-        {
-          "id": "6:6293874274482209024",
-          "name": "currencyCode",
-          "type": 9
-        },
-        {
-          "id": "7:8825412072603989730",
-          "name": "currencyPrecision",
-          "type": 6
-        },
-        {
-          "id": "8:4659072236160198582",
-          "name": "isEnabled",
-          "type": 1
-        },
-        {
-          "id": "9:8360725170126799666",
-          "name": "isDone",
-          "type": 1
-        },
-        {
-          "id": "10:3134323797173642385",
-          "name": "date",
-          "type": 10
-        },
-        {
-          "id": "11:935345081382776681",
-          "name": "dateMoneyReserved",
-          "type": 10
-        },
-        {
-          "id": "12:9064879608502451411",
-          "name": "dateTimeRepeatId",
-          "type": 6
-        },
-        {
-          "id": "13:8105195092904586616",
-          "name": "originalPaymentId",
-          "type": 9
-        },
-        {
-          "id": "14:7605285866791373365",
+          "id": "3:2113793196742301154",
           "name": "dateStart",
           "type": 10
         },
         {
-          "id": "15:8985715809017768304",
+          "id": "4:8738660706159406860",
           "name": "dateEnd",
           "type": 10
         },
         {
-          "id": "16:6014793293127425641",
+          "id": "5:389915538243168818",
+          "name": "initialBudget",
+          "type": 8
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:5034923932939502161",
+      "lastPropertyId": "17:6262216368781371276",
+      "name": "PaymentComposedDaoOB",
+      "properties": [
+        {
+          "id": "1:5889242645187945037",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6346431968784853",
+          "name": "paymentId",
+          "type": 9,
+          "flags": 2080,
+          "indexId": "2:3201550287989924087"
+        },
+        {
+          "id": "3:4531049250496797779",
+          "name": "paymentName",
+          "type": 9
+        },
+        {
+          "id": "4:6010103276664154498",
+          "name": "paymentNote",
+          "type": 9
+        },
+        {
+          "id": "5:8501845885711664785",
           "name": "paymentMoney",
           "type": 8
+        },
+        {
+          "id": "6:9099993917580960027",
+          "name": "paymentTypeId",
+          "type": 6
+        },
+        {
+          "id": "7:1446184525778082647",
+          "name": "currencyCode",
+          "type": 9
+        },
+        {
+          "id": "8:1566070825987948466",
+          "name": "currencyPrecision",
+          "type": 6
+        },
+        {
+          "id": "9:683236743455039292",
+          "name": "isEnabled",
+          "type": 1
+        },
+        {
+          "id": "10:1557545030579515668",
+          "name": "isDone",
+          "type": 1
+        },
+        {
+          "id": "11:235628924992704463",
+          "name": "date",
+          "type": 10
+        },
+        {
+          "id": "12:4797984677310892046",
+          "name": "dateMoneyReserved",
+          "type": 10
+        },
+        {
+          "id": "13:2686042012265278174",
+          "name": "dateTimeRepeatId",
+          "type": 6
+        },
+        {
+          "id": "14:6846863950167293970",
+          "name": "originalPaymentId",
+          "type": 9
+        },
+        {
+          "id": "15:4765327766268844042",
+          "name": "dateStart",
+          "type": 10
+        },
+        {
+          "id": "16:3815544825083252997",
+          "name": "dateEnd",
+          "type": 10
+        },
+        {
+          "id": "17:6262216368781371276",
+          "name": "plannerId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "3:8156791476185862097",
+          "relationTarget": "PaymentPlannerDaoOB"
         }
       ],
       "relations": []
     }
   ],
-  "lastEntityId": "1:7546095683951634779",
-  "lastIndexId": "1:8419948249282546999",
+  "lastEntityId": "3:5034923932939502161",
+  "lastIndexId": "4:2995614660335876540",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
-  "retiredEntityUids": [],
+  "retiredEntityUids": [
+    7546095683951634779
+  ],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    6070829980176794002,
+    6495703995964771562,
+    4235376353386013408,
+    999258745851745573,
+    5076089983696359755,
+    6293874274482209024,
+    8825412072603989730,
+    4659072236160198582,
+    8360725170126799666,
+    3134323797173642385,
+    935345081382776681,
+    9064879608502451411,
+    8105195092904586616,
+    7605285866791373365,
+    8985715809017768304,
+    6014793293127425641
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

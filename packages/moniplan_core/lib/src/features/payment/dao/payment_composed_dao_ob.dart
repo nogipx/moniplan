@@ -30,6 +30,8 @@ class PaymentComposedDaoOB {
   DateTime? dateStart;
   DateTime? dateEnd;
 
+  final planner = ToOne<PaymentPlannerDaoOB>();
+
   PaymentComposedDaoOB({
     this.id = 0,
     this.paymentId,

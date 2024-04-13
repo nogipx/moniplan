@@ -1,12 +1,12 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-class GenerateRepeatPaymentsUseCaseResult {
+class ExpandPaymentToPeriodUseCaseResult {
   final DateTime dateStart;
   final DateTime dateEnd;
   final Payment basePayment;
   final List<Payment> payments;
 
-  GenerateRepeatPaymentsUseCaseResult({
+  ExpandPaymentToPeriodUseCaseResult({
     required this.basePayment,
     required this.dateStart,
     required this.dateEnd,
@@ -14,25 +14,25 @@ class GenerateRepeatPaymentsUseCaseResult {
   });
 }
 
-class GenerateRepeatPaymentsUseCase extends UseCase<GenerateRepeatPaymentsUseCaseResult> {
+class ExpandPaymentToPeriodUseCase extends UseCase<ExpandPaymentToPeriodUseCaseResult> {
   final Payment payment;
   final DateTime startPeriod;
   final DateTime endPeriod;
 
-  const GenerateRepeatPaymentsUseCase({
+  const ExpandPaymentToPeriodUseCase({
     required this.payment,
     required this.startPeriod,
     required this.endPeriod,
   });
 
   @override
-  GenerateRepeatPaymentsUseCaseResult run() {
+  ExpandPaymentToPeriodUseCaseResult run() {
     const uuid = Uuid();
     final start = startPeriod;
     final end = endPeriod;
 
     if (!payment.isRepeat) {
-      return GenerateRepeatPaymentsUseCaseResult(
+      return ExpandPaymentToPeriodUseCaseResult(
         basePayment: payment,
         dateStart: start,
         dateEnd: end,
@@ -68,7 +68,7 @@ class GenerateRepeatPaymentsUseCase extends UseCase<GenerateRepeatPaymentsUseCas
             ))
         .toList();
 
-    final result = GenerateRepeatPaymentsUseCaseResult(
+    final result = ExpandPaymentToPeriodUseCaseResult(
       basePayment: payment,
       dateStart: start,
       dateEnd: end,

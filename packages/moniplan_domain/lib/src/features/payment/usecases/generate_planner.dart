@@ -2,27 +2,25 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 
 class GeneratePlannerUseCaseArgs {
   final Iterable<Payment> payments;
-  final DateTime startPeriod;
-  final DateTime endPeriod;
+  final DateTime dateStart;
+  final DateTime dateEnd;
+  final num initialBudget;
 
   const GeneratePlannerUseCaseArgs({
     required this.payments,
-    required this.startPeriod,
-    required this.endPeriod,
+    required this.dateStart,
+    required this.dateEnd,
+    this.initialBudget = 0,
   });
 }
 
 class GeneratePlannerUseCaseResult {
   final Iterable<Payment> originalPayments;
-  final Iterable<Payment> generatedPayments;
-  final DateTime startPeriod;
-  final DateTime endPeriod;
+  final PaymentPlanner planner;
 
   const GeneratePlannerUseCaseResult({
     required this.originalPayments,
-    required this.generatedPayments,
-    required this.startPeriod,
-    required this.endPeriod,
+    required this.planner,
   });
 }
 
@@ -33,23 +31,28 @@ class GeneratePlannerUseCase implements UseCase<GeneratePlannerUseCaseResult> {
 
   @override
   GeneratePlannerUseCaseResult run() {
+    const uuid = Uuid();
     final payments = args.payments;
 
     if (payments.isEmpty) {
       return GeneratePlannerUseCaseResult(
         originalPayments: const [],
-        generatedPayments: const [],
-        startPeriod: args.startPeriod,
-        endPeriod: args.endPeriod,
+        planner: PaymentPlanner(
+          id: uuid.v4(),
+          dateStart: args.dateStart,
+          dateEnd: args.dateEnd,
+          initialBudget: args.initialBudget,
+          shouldGenerate: false,
+        ),
       );
     }
 
-    final dateStart = args.startPeriod;
-    final dateEnd = args.endPeriod;
+    final dateStart = args.dateStart;
+    final dateEnd = args.dateEnd;
 
     final generated = payments
         .map(
-          (e) => GenerateRepeatPaymentsUseCase(
+          (e) => ExpandPaymentToPeriodUseCase(
             payment: e,
             startPeriod: dateStart,
             endPeriod: dateEnd,
@@ -67,9 +70,14 @@ class GeneratePlannerUseCase implements UseCase<GeneratePlannerUseCaseResult> {
 
     return GeneratePlannerUseCaseResult(
       originalPayments: payments,
-      generatedPayments: generated,
-      startPeriod: args.startPeriod,
-      endPeriod: args.endPeriod,
+      planner: PaymentPlanner(
+        id: uuid.v4(),
+        payments: generated,
+        dateStart: dateStart,
+        dateEnd: dateEnd,
+        initialBudget: args.initialBudget,
+        shouldGenerate: false,
+      ),
     );
   }
 }
