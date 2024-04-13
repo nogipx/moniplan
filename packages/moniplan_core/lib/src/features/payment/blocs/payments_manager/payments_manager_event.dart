@@ -8,6 +8,7 @@ part 'payments_manager_event.g.dart';
 class PaymentsManagerEvent with _$PaymentsManagerEvent {
   const PaymentsManagerEvent._();
 
+  @JsonSerializable()
   const factory PaymentsManagerEvent.computeBudget({
     required final PaymentPlanner planner,
   }) = PaymentsManagerComputeBudgetEvent;

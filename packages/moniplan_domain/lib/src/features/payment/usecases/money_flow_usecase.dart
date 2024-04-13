@@ -38,7 +38,7 @@ class MoneyFlowUseCase extends UseCase<MoneyFlowUseCaseResult> {
     num balance = args.initialBudget;
 
     for (var e in args.payments) {
-      if (!e.enabled) {
+      if (!e.isEnabled) {
         continue;
       }
       if (e.type == PaymentType.income) {

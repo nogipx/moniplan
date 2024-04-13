@@ -26,7 +26,7 @@ class SalaryReceipts implements PaymentsProvider {
         details: salaryBristol,
       ),
       Payment(
-        enabled: false,
+        isEnabled: false,
         id: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 8),
         repeat: DateTimeRepeat.twoWeek,

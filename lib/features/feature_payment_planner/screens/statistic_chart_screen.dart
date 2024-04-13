@@ -97,7 +97,7 @@ class _StatisticChartState extends State<StatisticChart> {
           LineSeries<MapEntry<Payment, num>, DateTime>(
             name: 'Бюджет',
             color: Colors.blue.shade900,
-            dataSource: widget.budget.entries.where((e) => e.key.enabled).toList(),
+            dataSource: widget.budget.entries.where((e) => e.key.isEnabled).toList(),
             xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
             yValueMapper: (MapEntry<Payment, num> data, _) => data.value,
           ),
@@ -106,7 +106,7 @@ class _StatisticChartState extends State<StatisticChart> {
             name: 'Расход',
             color: Colors.red.shade100,
             dataSource: widget.budget.entries
-                .where((e) => e.key.type.modifier < 0 && e.key.enabled)
+                .where((e) => e.key.type.modifier < 0 && e.key.isEnabled)
                 .toList(),
             xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
             yValueMapper: (MapEntry<Payment, num> data, _) => data.key.normalizedMoney,
@@ -116,7 +116,7 @@ class _StatisticChartState extends State<StatisticChart> {
             name: 'Доход',
             color: Colors.green.shade100,
             dataSource: widget.budget.entries
-                .where((e) => e.key.type.modifier > 0 && e.key.enabled)
+                .where((e) => e.key.type.modifier > 0 && e.key.isEnabled)
                 .toList(),
             xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
             yValueMapper: (MapEntry<Payment, num> data, _) => data.key.normalizedMoney,

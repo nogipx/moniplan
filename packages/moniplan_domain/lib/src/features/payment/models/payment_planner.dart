@@ -19,4 +19,21 @@ class PaymentPlanner with _$PaymentPlanner {
   }) = _PaymentPlanner;
 
   factory PaymentPlanner.fromJson(Map<String, dynamic> json) => _$PaymentPlannerFromJson(json);
+
+  num get needToPay {
+    if (shouldGenerate == true) {
+      return -1;
+    }
+
+    final futurePayments = payments
+        .where((e) => e.details.type == PaymentType.expense && !e.isDone)
+        .map((e) => e.details.money.abs())
+        .fold(0.0, (acc, e) => acc + e);
+
+    return futurePayments;
+  }
+
+  int get countDonePayments => payments.where((e) => e.isDone).length;
+  int get countWaitingPayments => payments.where((e) => !e.isDone).length;
+  int get countDisabledPayments => payments.where((e) => !e.isEnabled).length;
 }

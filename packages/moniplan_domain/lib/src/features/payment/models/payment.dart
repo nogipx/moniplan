@@ -19,7 +19,10 @@ class Payment with _$Payment, EquatableMixin {
     required String id,
 
     /// It shows is this payment will be counted in process.
-    @Default(true) bool enabled,
+    @Default(true) bool isEnabled,
+
+    /// It shows is this payment proceeded.
+    @Default(false) bool isDone,
 
     /// Info about payment.
     required PaymentDetails details,

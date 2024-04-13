@@ -48,7 +48,7 @@ class PaymentListItem extends StatelessWidget {
     );
 
     return Grayscale(
-      grayscale: !operation.enabled,
+      grayscale: !operation.isEnabled,
       child: Container(
         padding: const EdgeInsets.all(12),
         color: MoniplanColors.white,

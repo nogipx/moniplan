@@ -35,7 +35,7 @@ class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
 
     var tempBudget = args.initialBudget;
     for (final item in args.payments) {
-      tempBudget += item.enabled ? item.normalizedMoney : 0;
+      tempBudget += item.isEnabled ? item.normalizedMoney : 0;
       budget[item] = tempBudget;
     }
 
