@@ -21,12 +21,13 @@ class MoniplanApp extends StatefulWidget {
 }
 
 class _MoniplanAppState extends State<MoniplanApp> {
+  static const testPlannerId = 'aa4163da-cf5b-4ae9-8131-df8feaa4854b';
+
   @override
   void initState() {
     super.initState();
     // _clear();
     // _savePlanner(currentRequest);
-    // _getPlanner('ae40c540-7ce3-4754-a501-beb40bc89a9c');
   }
 
   _clear() {
@@ -72,7 +73,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
       providers: [
         BlocProvider(
           create: (_) {
-            final planner = _getPlanner('ae40c540-7ce3-4754-a501-beb40bc89a9c');
+            final planner = _getPlanner(testPlannerId);
             final bloc = PaymentsManagerBloc();
             if (planner != null) {
               bloc.computeBudget(

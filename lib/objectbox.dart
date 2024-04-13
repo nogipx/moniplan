@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:moniplan_core/moniplan_core.dart'; // created by `flutter pub run build_runner build`
+import 'package:moniplan_core/moniplan_core.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ObjectBox {
   /// The Store of this app.
@@ -12,12 +15,41 @@ class ObjectBox {
 
   /// Create an instance of ObjectBox to use throughout the app.
   static Future<ObjectBox> create() async {
-    final docsDir = await getApplicationDocumentsDirectory();
-    // Future<Store> openStore() {...} is defined in the generated objectbox.g.dart
+    final status = await Permission.storage.request();
+    if (!status.isGranted) {
+      throw Exception('Cannot open database because of permission');
+    }
+
+    final extDir = await getExternalStorageDirectory();
+    if (extDir == null) {
+      throw Exception('Cannot access directory');
+    }
+    final dir = Directory("${extDir.path}/moniplan_db");
+
+    if (!dir.existsSync()) {
+      dir.createSync();
+    }
+
     final store = openStore(
-      directory: p.join(docsDir.path, "obx-example"),
+      directory: p.join(dir.path, "obx-example"),
     );
 
     return ObjectBox._create(store);
   }
 }
+//
+// Future<Directory> getExternalDocumentPath() async {
+//   final status = await Permission.storage.status;
+//   if (!status.isGranted) {
+//     await Permission.storage.request();
+//   }
+//   Directory directory = Directory("");
+//   if (Platform.isAndroid) {
+//     directory = Directory("/storage/emulated/0/Downloads");
+//   } else {
+//     directory = await getApplicationDocumentsDirectory();
+//   }
+//
+//   final exPath = directory.path;
+//   return Directory(exPath);
+// }
