@@ -11,9 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'objectbox.dart';
 import 'our_budget/_index.dart';
 
-late ObjectBox objectbox;
-late Admin admin;
-const testPlannerId = '5778fa84-2a3f-4c3d-b617-3ed5272e0ed2';
+late LocalDB localDB;
 
 Future<void> main() async {
   unawaited(
@@ -21,11 +19,7 @@ Future<void> main() async {
       () async {
         WidgetsFlutterBinding.ensureInitialized();
 
-        objectbox = await ObjectBox.create();
-        if (Admin.isAvailable()) {
-          // Keep a reference until no longer needed or manually closed.
-          admin = Admin(objectbox.store);
-        }
+        localDB = await LocalDB.create();
 
         initializeDateFormatting('ru');
         await SystemChrome.setPreferredOrientations([
@@ -33,6 +27,7 @@ Future<void> main() async {
         ]);
         // SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
         final prefs = await SharedPreferences.getInstance();
+
         // await _clear();
         // await _savePlanner(currentRequest);
 
@@ -58,16 +53,33 @@ _clear() {
 }
 
 _savePlanner(PaymentPlanner planner) {
-  final mapper = PlannerMapperOB();
+  final mapper = PlannerMapper();
   final generated = GeneratePlannerUseCase(
     args: GeneratePlannerUseCaseArgs(
-      payments: planner.payments,
-      dateStart: planner.dateStart,
-      dateEnd: planner.dateEnd,
-      initialBudget: planner.initialBudget,
+      payments: currentRequest.payments,
+      dateStart: currentRequest.dateStart,
+      dateEnd: currentRequest.dateEnd,
+      initialBudget: currentRequest.initialBudget,
     ),
   ).run();
 
   final dao = mapper.toDto(generated.planner);
   objectbox.store.box<PaymentPlannerDaoOB>().put(dao);
+}
+
+PaymentPlanner? getPlanner(String id) {
+  final mapper = PlannerMapper();
+  final dao = objectbox.store
+      .box<PaymentPlannerDaoOB>()
+      .query(
+        PaymentPlannerDaoOB_.plannerId.equals(id),
+      )
+      .build()
+      .findUnique();
+
+  if (dao != null) {
+    final planner = mapper.toDomain(dao);
+    return planner;
+  }
+  return null;
 }

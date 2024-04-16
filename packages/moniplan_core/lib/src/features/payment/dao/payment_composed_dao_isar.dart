@@ -2,14 +2,12 @@ import 'dart:core';
 
 import 'package:moniplan_core/moniplan_core.dart';
 
-@Entity()
-class PaymentComposedDaoOB {
-  @Id()
-  int id;
+part 'payment_composed_dao_isar.g.dart';
 
-  @Unique()
-  @Index()
-  String? paymentId;
+@Collection()
+class PaymentComposedDaoIsar {
+  String id;
+  Id get isarId => fastHash(id!);
 
   String? paymentName;
   String? paymentNote;
@@ -30,11 +28,10 @@ class PaymentComposedDaoOB {
   DateTime? dateStart;
   DateTime? dateEnd;
 
-  final planner = ToOne<PaymentPlannerDaoOB>();
+  final planner = IsarLink<PaymentPlannerDaoIsar>();
 
-  PaymentComposedDaoOB({
-    this.id = 0,
-    this.paymentId,
+  PaymentComposedDaoIsar({
+    required this.id,
     this.paymentName,
     this.paymentNote,
     this.paymentMoney,

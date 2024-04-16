@@ -6,11 +6,15 @@ publish_to: 'none'
 environment:
   sdk: '>=3.0.0 <4.0.0'
 
+isar_version: &isar_version 3.1.6
+
 dependencies:
   moniplan_domain:
     path: ../moniplan_domain
 
-  objectbox: ^2.5.1
+  isar:
+    version: *isar_version
+    hosted: https://pub.isar-community.dev/
 
   bloc: ^8.1.4
   bloc_concurrency: ^0.2.5
@@ -25,5 +29,7 @@ dev_dependencies:
   freezed: ^2.5.0
   json_serializable: ^6.7.1
   bloc_test: ^9.1.7
-  objectbox_generator: ^2.5.1
+  isar_generator:
+    version: *isar_version
+    hosted: https://pub.isar-community.dev/
 
