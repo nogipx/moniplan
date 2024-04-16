@@ -12,6 +12,7 @@ import 'objectbox.dart';
 
 late ObjectBox objectbox;
 late Admin admin;
+const testPlannerId = '5778fa84-2a3f-4c3d-b617-3ed5272e0ed2';
 
 Future<void> main() async {
   unawaited(
@@ -60,10 +61,10 @@ _savePlanner(PaymentPlanner planner) {
   final mapper = PlannerMapper();
   final generated = GeneratePlannerUseCase(
     args: GeneratePlannerUseCaseArgs(
-      payments: currentRequest.payments,
-      dateStart: currentRequest.dateStart,
-      dateEnd: currentRequest.dateEnd,
-      initialBudget: currentRequest.initialBudget,
+      payments: planner.payments,
+      dateStart: planner.dateStart,
+      dateEnd: planner.dateEnd,
+      initialBudget: planner.initialBudget,
     ),
   ).run();
 
@@ -71,7 +72,7 @@ _savePlanner(PaymentPlanner planner) {
   objectbox.store.box<PaymentPlannerDaoOB>().put(dao);
 }
 
-PaymentPlanner? getPlanner(String id) {
+Future<PaymentPlanner?> getPlanner(String id) async {
   final mapper = PlannerMapper();
   final dao = objectbox.store
       .box<PaymentPlannerDaoOB>()

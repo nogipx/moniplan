@@ -79,4 +79,5 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.multidex:multidex:2.0.1'
     debugImplementation("io.objectbox:objectbox-android-objectbrowser:3.8.0")
+    releaseImplementation("io.objectbox:objectbox-android:3.8.0")
 }
