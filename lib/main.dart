@@ -32,6 +32,9 @@ Future<void> main() async {
         // SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
         final prefs = await SharedPreferences.getInstance();
 
+        // await _clear();
+        // await _savePlanner(currentRequest);
+
         runApp(MoniplanApp(
           sharedPreferences: prefs,
         ));
@@ -46,4 +49,41 @@ Future<void> main() async {
       },
     ),
   );
+}
+
+_clear() {
+  objectbox.store.box<PaymentComposedDaoOB>().removeAll();
+  objectbox.store.box<PaymentPlannerDaoOB>().removeAll();
+}
+
+_savePlanner(PaymentPlanner planner) {
+  final mapper = PlannerMapper();
+  final generated = GeneratePlannerUseCase(
+    args: GeneratePlannerUseCaseArgs(
+      payments: currentRequest.payments,
+      dateStart: currentRequest.dateStart,
+      dateEnd: currentRequest.dateEnd,
+      initialBudget: currentRequest.initialBudget,
+    ),
+  ).run();
+
+  final dao = mapper.toDto(generated.planner);
+  objectbox.store.box<PaymentPlannerDaoOB>().put(dao);
+}
+
+PaymentPlanner? getPlanner(String id) {
+  final mapper = PlannerMapper();
+  final dao = objectbox.store
+      .box<PaymentPlannerDaoOB>()
+      .query(
+        PaymentPlannerDaoOB_.plannerId.equals(id),
+      )
+      .build()
+      .findUnique();
+
+  if (dao != null) {
+    final planner = mapper.toDomain(dao);
+    return planner;
+  }
+  return null;
 }

@@ -48,7 +48,7 @@ class PaymentListItem extends StatelessWidget {
     );
 
     return Grayscale(
-      grayscale: !operation.isEnabled,
+      grayscale: !operation.isEnabled || operation.isDone,
       child: Container(
         padding: const EdgeInsets.all(12),
         color: MoniplanColors.white,
@@ -61,9 +61,10 @@ class PaymentListItem extends StatelessWidget {
                 children: [
                   SelectableText(
                     operation.details.name,
-                    style: Theme.of(context).textTheme.subtitle1?.copyWith(
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: MoniplanColors.primaryTextColor,
                           fontWeight: FontWeight.w400,
+                          decoration: operation.isDone ? TextDecoration.lineThrough : null,
                         ),
                   ),
                   const SizedBox(height: 8),
