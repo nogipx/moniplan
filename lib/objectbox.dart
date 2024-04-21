@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class ObjectBox {
   /// The Store of this app.
@@ -15,12 +14,12 @@ class ObjectBox {
 
   /// Create an instance of ObjectBox to use throughout the app.
   static Future<ObjectBox> create() async {
-    final status = await Permission.storage.request();
-    if (!status.isGranted) {
-      throw Exception('Cannot open database because of permission');
-    }
+    // final status = await [Permission.storage, Permission.storage].request();
+    // if (!status.values.every((e) => e.isGranted)) {
+    //   throw Exception('Cannot open database because of permission');
+    // }
 
-    final extDir = await getExternalStorageDirectory();
+    final extDir = await getApplicationDocumentsDirectory();
     if (extDir == null) {
       throw Exception('Cannot access directory');
     }

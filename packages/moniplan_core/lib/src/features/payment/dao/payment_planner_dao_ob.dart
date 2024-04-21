@@ -13,6 +13,7 @@ class PaymentPlannerDaoOB {
   DateTime? dateEnd;
 
   double? initialBudget;
+  bool? isDraft;
 
   @Backlink('planner')
   final payments = ToMany<PaymentComposedDaoOB>();
@@ -23,5 +24,6 @@ class PaymentPlannerDaoOB {
     this.dateStart,
     this.dateEnd,
     this.initialBudget,
+    this.isDraft,
   });
 }

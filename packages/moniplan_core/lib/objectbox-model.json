@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "2:5110848916238781232",
-      "lastPropertyId": "5:389915538243168818",
+      "lastPropertyId": "7:1853553789805613929",
       "name": "PaymentPlannerDaoOB",
       "properties": [
         {
@@ -13,13 +13,6 @@
           "name": "id",
           "type": 6,
           "flags": 1
-        },
-        {
-          "id": "2:1437409318595770547",
-          "name": "plannerId",
-          "type": 9,
-          "flags": 2080,
-          "indexId": "4:2995614660335876540"
         },
         {
           "id": "3:2113793196742301154",
@@ -35,13 +28,25 @@
           "id": "5:389915538243168818",
           "name": "initialBudget",
           "type": 8
+        },
+        {
+          "id": "6:1721941643983842647",
+          "name": "isDraft",
+          "type": 1
+        },
+        {
+          "id": "7:1853553789805613929",
+          "name": "plannerId",
+          "type": 9,
+          "flags": 2080,
+          "indexId": "6:2657120636595376987"
         }
       ],
       "relations": []
     },
     {
       "id": "3:5034923932939502161",
-      "lastPropertyId": "17:6262216368781371276",
+      "lastPropertyId": "18:4482265693507200231",
       "name": "PaymentComposedDaoOB",
       "properties": [
         {
@@ -49,13 +54,6 @@
           "name": "id",
           "type": 6,
           "flags": 1
-        },
-        {
-          "id": "2:6346431968784853",
-          "name": "paymentId",
-          "type": 9,
-          "flags": 2080,
-          "indexId": "2:3201550287989924087"
         },
         {
           "id": "3:4531049250496797779",
@@ -134,13 +132,20 @@
           "flags": 520,
           "indexId": "3:8156791476185862097",
           "relationTarget": "PaymentPlannerDaoOB"
+        },
+        {
+          "id": "18:4482265693507200231",
+          "name": "paymentId",
+          "type": 9,
+          "flags": 2080,
+          "indexId": "5:6769256789499282397"
         }
       ],
       "relations": []
     }
   ],
   "lastEntityId": "3:5034923932939502161",
-  "lastIndexId": "4:2995614660335876540",
+  "lastIndexId": "6:2657120636595376987",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
@@ -148,7 +153,10 @@
   "retiredEntityUids": [
     7546095683951634779
   ],
-  "retiredIndexUids": [],
+  "retiredIndexUids": [
+    3201550287989924087,
+    2995614660335876540
+  ],
   "retiredPropertyUids": [
     6070829980176794002,
     6495703995964771562,
@@ -165,7 +173,9 @@
     8105195092904586616,
     7605285866791373365,
     8985715809017768304,
-    6014793293127425641
+    6014793293127425641,
+    6346431968784853,
+    1437409318595770547
   ],
   "retiredRelationUids": [],
   "version": 1

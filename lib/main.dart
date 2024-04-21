@@ -9,6 +9,7 @@ import 'package:moniplan_core/moniplan_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'objectbox.dart';
+import 'our_budget/_index.dart';
 
 late ObjectBox objectbox;
 late Admin admin;
@@ -32,7 +33,6 @@ Future<void> main() async {
         ]);
         // SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
         final prefs = await SharedPreferences.getInstance();
-
         // await _clear();
         // await _savePlanner(currentRequest);
 
@@ -58,7 +58,7 @@ _clear() {
 }
 
 _savePlanner(PaymentPlanner planner) {
-  final mapper = PlannerMapper();
+  final mapper = PlannerMapperOB();
   final generated = GeneratePlannerUseCase(
     args: GeneratePlannerUseCaseArgs(
       payments: planner.payments,
@@ -70,21 +70,4 @@ _savePlanner(PaymentPlanner planner) {
 
   final dao = mapper.toDto(generated.planner);
   objectbox.store.box<PaymentPlannerDaoOB>().put(dao);
-}
-
-Future<PaymentPlanner?> getPlanner(String id) async {
-  final mapper = PlannerMapper();
-  final dao = objectbox.store
-      .box<PaymentPlannerDaoOB>()
-      .query(
-        PaymentPlannerDaoOB_.plannerId.equals(id),
-      )
-      .build()
-      .findUnique();
-
-  if (dao != null) {
-    final planner = mapper.toDomain(dao);
-    return planner;
-  }
-  return null;
 }

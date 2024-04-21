@@ -5,19 +5,23 @@ import 'dart:math' as math;
 
 import '_index.dart';
 
+typedef OnPaymentPressed = void Function(Payment payment);
+
 class PaymentsListSliver extends SliverChildBuilderDelegate {
   final List<Payment> operations;
   final Map<Payment, num> budget;
+  final OnPaymentPressed? onPaymentPressed;
 
   PaymentsListSliver({
     required this.operations,
     required this.budget,
+    this.onPaymentPressed,
   }) : super(
           (context, index) {
             final int itemIndex = index ~/ 2;
             Widget widget;
             if (index.isEven) {
-              widget = _itemBuilder(operations, budget).call(context, itemIndex);
+              widget = _itemBuilder(operations, budget, onPaymentPressed).call(context, itemIndex);
               if (index == 0) {
                 widget = Column(
                   children: [
@@ -43,12 +47,14 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
   static IndexedWidgetBuilder _itemBuilder(
     List<Payment> operations,
     Map<Payment, num> budget,
+    OnPaymentPressed? onPressed,
   ) {
     return (context, index) {
       final operation = operations[index];
       return PaymentListItem(
         operation: operation,
         mediateSummary: budget[operation],
+        onPressed: () => onPressed?.call(operation),
       );
     };
   }

@@ -1,37 +1,42 @@
 import 'package:moniplan_core/moniplan_core.dart';
 
-class PlannerMapper implements IMapper<PaymentPlanner, PaymentPlannerDaoOB> {
+class PlannerMapperOB implements IMapper<PaymentPlanner, PaymentPlannerDaoOB> {
+  const PlannerMapperOB();
+
   @override
   PaymentPlanner toDomain(PaymentPlannerDaoOB data) {
-    final id = data.plannerId;
+    final paymentId = data.plannerId;
     final start = data.dateStart;
     final end = data.dateEnd;
 
-    if (id == null || start == null || end == null) {
+    if (paymentId == null || start == null || end == null) {
       throw Exception('Cannot compose Planner');
     }
 
-    final paymentMapper = PaymentMapper();
+    final paymentMapper = PaymentMapperOB();
 
     return PaymentPlanner(
-      id: id,
+      intId: data.id,
+      id: paymentId,
       dateStart: start,
       dateEnd: end,
       payments: data.payments.map(paymentMapper.toDomain).toList(),
       initialBudget: data.initialBudget ?? 0.0,
-      shouldGenerate: false,
+      isDraft: data.isDraft ?? true,
     );
   }
 
   @override
   PaymentPlannerDaoOB toDto(PaymentPlanner data) {
-    final paymentMapper = PaymentMapper();
+    final paymentMapper = PaymentMapperOB();
 
     final dto = PaymentPlannerDaoOB(
+      id: data.intId,
       plannerId: data.id,
       dateStart: data.dateStart,
       dateEnd: data.dateEnd,
       initialBudget: data.initialBudget.toDouble(),
+      isDraft: data.isDraft,
     );
     dto.payments.addAll(data.payments.map(paymentMapper.toDto));
     return dto;

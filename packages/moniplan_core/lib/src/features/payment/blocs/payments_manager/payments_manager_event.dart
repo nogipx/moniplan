@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
@@ -8,11 +10,10 @@ part 'payments_manager_event.g.dart';
 class PaymentsManagerEvent with _$PaymentsManagerEvent {
   const PaymentsManagerEvent._();
 
-  @JsonSerializable()
   const factory PaymentsManagerEvent.computeBudget({
-    @JsonKey(name: 'planner') required final PaymentPlanner planner,
+    required final String plannerId,
   }) = PaymentsManagerComputeBudgetEvent;
 
-  factory PaymentsManagerEvent.fromJson(Map<String, dynamic> json) =>
-      _$PaymentsManagerEventFromJson(json);
+  @JsonSerializable()
+  const factory PaymentsManagerEvent.reload() = PaymentsManagerReloadEvent;
 }

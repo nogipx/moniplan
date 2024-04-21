@@ -7,7 +7,7 @@ final april2024 = PaymentPlanner(
   dateStart: DateTime(2024, 4, 6),
   dateEnd: DateTime(2024, 5, 6),
   initialBudget: 26000,
-  shouldGenerate: true,
+  isDraft: true,
   payments: [
     ...DebtReceipts().payments,
     ...SalaryReceipts().payments,

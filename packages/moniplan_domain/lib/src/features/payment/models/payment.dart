@@ -15,6 +15,8 @@ class Payment with _$Payment, EquatableMixin {
   @CurrencyConverter()
   @JsonSerializable()
   const factory Payment({
+    @Default(0) int intId,
+
     /// UUID identifier.
     required String id,
 

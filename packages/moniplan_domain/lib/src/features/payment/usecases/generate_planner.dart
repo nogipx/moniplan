@@ -38,11 +38,12 @@ class GeneratePlannerUseCase implements UseCase<GeneratePlannerUseCaseResult> {
       return GeneratePlannerUseCaseResult(
         originalPayments: const [],
         planner: PaymentPlanner(
+          intId: 0,
           id: uuid.v4(),
           dateStart: args.dateStart,
           dateEnd: args.dateEnd,
           initialBudget: args.initialBudget,
-          shouldGenerate: false,
+          isDraft: false,
         ),
       );
     }
@@ -71,12 +72,13 @@ class GeneratePlannerUseCase implements UseCase<GeneratePlannerUseCaseResult> {
     return GeneratePlannerUseCaseResult(
       originalPayments: payments,
       planner: PaymentPlanner(
+        intId: 0,
         id: uuid.v4(),
         payments: generated,
         dateStart: dateStart,
         dateEnd: dateEnd,
         initialBudget: args.initialBudget,
-        shouldGenerate: false,
+        isDraft: false,
       ),
     );
   }

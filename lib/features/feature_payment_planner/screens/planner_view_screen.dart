@@ -1,12 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan/main.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 import '../_index.dart';
 
-class PlannerViewScreen extends StatelessWidget {
+class PlannerViewScreen extends StatefulWidget {
   const PlannerViewScreen({super.key});
+
+  @override
+  State<PlannerViewScreen> createState() => _PlannerViewScreenState();
+}
+
+class _PlannerViewScreenState extends State<PlannerViewScreen> {
+  late final ScrollController _controller;
+
+  @override
+  void initState() {
+    _controller = ScrollController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +85,7 @@ class PlannerViewScreen extends StatelessWidget {
             body: BlocBuilder<PaymentsManagerBloc, PaymentsManagerState>(
               builder: (context, state) {
                 return CustomScrollView(
+                  controller: _controller,
                   slivers: [
                     SliverToBoxAdapter(
                       child: state.maybeMap(
@@ -78,6 +99,11 @@ class PlannerViewScreen extends StatelessWidget {
                       delegate: PaymentsListSliver(
                         operations: state.paymentsGenerated,
                         budget: state.budget,
+                        onPaymentPressed: (payment) async {
+                          final repo = PaymentsRepo(store: objectbox.store);
+                          await repo.setDoneState(id: payment.id, isDone: !payment.isDone);
+                          context.read<PaymentsManagerBloc>().reload();
+                        },
                       ),
                     )
                   ],

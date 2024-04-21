@@ -2,15 +2,17 @@ import 'package:moniplan_core/moniplan_core.dart';
 
 import '../dao/payment_composed_dao_ob.dart';
 
-class PaymentMapper implements IMapper<Payment, PaymentComposedDaoOB> {
+class PaymentMapperOB implements IMapper<Payment, PaymentComposedDaoOB> {
+  const PaymentMapperOB();
+
   @override
   Payment toDomain(PaymentComposedDaoOB data) {
-    final id = data.paymentId;
+    final paymentId = data.paymentId;
     final currencyCode = data.currencyCode;
     final currencyPrecision = data.currencyPrecision;
     final date = data.date;
 
-    if (id == null || currencyCode == null || currencyPrecision == null || date == null) {
+    if (paymentId == null || currencyCode == null || currencyPrecision == null || date == null) {
       throw Exception('Cannot compose Payment');
     }
 
@@ -23,7 +25,8 @@ class PaymentMapper implements IMapper<Payment, PaymentComposedDaoOB> {
     );
 
     return Payment(
-      id: id,
+      id: paymentId,
+      intId: data.id,
       isEnabled: data.isEnabled ?? true,
       isDone: data.isDone ?? false,
       details: details,
@@ -39,6 +42,7 @@ class PaymentMapper implements IMapper<Payment, PaymentComposedDaoOB> {
   @override
   PaymentComposedDaoOB toDto(Payment data) {
     return PaymentComposedDaoOB(
+      id: data.intId,
       paymentId: data.id,
       paymentName: data.details.name,
       paymentNote: data.details.note,
