@@ -24,7 +24,7 @@ class GeneratePlannerUseCaseResult {
   });
 }
 
-class GeneratePlannerUseCase implements UseCase<GeneratePlannerUseCaseResult> {
+class GeneratePlannerUseCase implements IUseCase<GeneratePlannerUseCaseResult> {
   final GeneratePlannerUseCaseArgs args;
 
   const GeneratePlannerUseCase({required this.args});
@@ -38,7 +38,6 @@ class GeneratePlannerUseCase implements UseCase<GeneratePlannerUseCaseResult> {
       return GeneratePlannerUseCaseResult(
         originalPayments: const [],
         planner: PaymentPlanner(
-          intId: 0,
           id: uuid.v4(),
           dateStart: args.dateStart,
           dateEnd: args.dateEnd,
@@ -50,6 +49,7 @@ class GeneratePlannerUseCase implements UseCase<GeneratePlannerUseCaseResult> {
 
     final dateStart = args.dateStart;
     final dateEnd = args.dateEnd;
+    final plannerId = uuid.v4();
 
     final generated = payments
         .map(
@@ -57,12 +57,13 @@ class GeneratePlannerUseCase implements UseCase<GeneratePlannerUseCaseResult> {
             payment: e,
             startPeriod: dateStart,
             endPeriod: dateEnd,
+            plannerId: plannerId,
           ).run().payments,
         )
         .expand((e) => e)
         .toList();
 
-    final paymentsId = generated.map((e) => e.id).toSet();
+    final paymentsId = generated.map((e) => e.paymentId).toSet();
     if (paymentsId.length != generated.length) {
       throw Exception('There are duplicates payment ids');
     }
@@ -72,8 +73,7 @@ class GeneratePlannerUseCase implements UseCase<GeneratePlannerUseCaseResult> {
     return GeneratePlannerUseCaseResult(
       originalPayments: payments,
       planner: PaymentPlanner(
-        intId: 0,
-        id: uuid.v4(),
+        id: plannerId,
         payments: generated,
         dateStart: dateStart,
         dateEnd: dateEnd,

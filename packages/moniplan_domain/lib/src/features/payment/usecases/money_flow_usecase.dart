@@ -24,7 +24,7 @@ class MoneyFlowUseCaseResult {
   });
 }
 
-class MoneyFlowUseCase extends UseCase<MoneyFlowUseCaseResult> {
+class MoneyFlowUseCase implements IUseCase<MoneyFlowUseCaseResult> {
   final MoneyFlowUseCaseArgs args;
 
   const MoneyFlowUseCase({

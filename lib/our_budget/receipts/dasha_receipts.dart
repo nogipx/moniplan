@@ -45,41 +45,41 @@ class DashaReceipts implements PaymentsProvider {
   List<Payment> get payments {
     return [
       // Payment(
-      //   id: const Uuid().v4(),
+      //   paymentId: const Uuid().v4(),
       //   date: PeriodDateTime.currentYear(day: 8),
       //   repeat: DateTimeRepeat.twoWeek,
       //   details: daryaManicure,
       // ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 16),
         dateStart: DateTime.now().monthStart,
         repeat: DateTimeRepeat.threeMonths,
         details: daryaHairSupport,
       ),
       // Payment(
-      //   id: const Uuid().v4(),
+      //   paymentId: const Uuid().v4(),
       //   date: PeriodDateTime.currentYear(day: 8),
       //   dateStart: DateTime.now().monthStart,
       //   repeat: DateTimeRepeat.month,
       //   details: daryaPsychiatrist,
       // ),
       // Payment(
-      //   id: const Uuid().v4(),
+      //   paymentId: const Uuid().v4(),
       //   date: PeriodDateTime.currentYear(day: 1),
       //   dateStart: DateTime.now().monthStart,
       //   repeat: DateTimeRepeat.twoWeek,
       //   details: daryaPsycholog,
       // ),
       // Payment(
-      //   id: const Uuid().v4(),
+      //   paymentId: const Uuid().v4(),
       //   date: PeriodDateTime.currentYear(day: 1),
       //   dateStart: DateTime.now().monthStart,
       //   repeat: DateTimeRepeat.threeWeek,
       //   details: daryaTabletki,
       // ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 7),
         repeat: DateTimeRepeat.month,
         details: daryaLifeMonth,

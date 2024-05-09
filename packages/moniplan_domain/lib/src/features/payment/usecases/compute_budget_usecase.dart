@@ -22,7 +22,7 @@ class ComputeBudgetUseCaseResult {
   });
 }
 
-class ComputeBudgetUseCase extends UseCase<ComputeBudgetUseCaseResult> {
+class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
   final ComputeBudgetUseCaseArgs args;
 
   const ComputeBudgetUseCase({

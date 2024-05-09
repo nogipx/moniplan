@@ -20,14 +20,14 @@ class SalaryReceipts implements PaymentsProvider {
   List<Payment> get payments {
     return [
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 7),
         repeat: DateTimeRepeat.month,
         details: salaryBristol,
       ),
       Payment(
         isEnabled: false,
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 8),
         repeat: DateTimeRepeat.twoWeek,
         details: salaryUzumHalf,

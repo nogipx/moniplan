@@ -1,6 +1,10 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-class GenerateRepeatDatesUseCase extends UseCase<List<DateTime>> {
+/// Based on the repetition setting, dates are generated
+/// that are limited by the specified date boundaries.
+/// This requires some starting date from which the rest will be generated.
+/// Both future and past dates from the specified date are generated.
+class GenerateRepeatDatesUseCase implements IUseCase<List<DateTime>> {
   final DateTimeRepeat repeat;
   final DateTime base;
   final DateTime dateStart;

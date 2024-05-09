@@ -22,7 +22,9 @@ class ConstrainItemsInPeriodResult<T> {
   });
 }
 
-class ConstrainItemsInPeriod<T> implements UseCase<ConstrainItemsInPeriodResult<T>> {
+/// Based on given dates boundaries, filters the items
+/// that are limited by these boundaries.
+class ConstrainItemsInPeriod<T> implements IUseCase<ConstrainItemsInPeriodResult<T>> {
   final ConstrainItemsInPeriodArgs<T> args;
 
   const ConstrainItemsInPeriod({

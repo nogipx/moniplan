@@ -14,12 +14,14 @@ class ExpandPaymentToPeriodUseCaseResult {
   });
 }
 
-class ExpandPaymentToPeriodUseCase extends UseCase<ExpandPaymentToPeriodUseCaseResult> {
+class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseCaseResult> {
+  final String plannerId;
   final Payment payment;
   final DateTime startPeriod;
   final DateTime endPeriod;
 
   const ExpandPaymentToPeriodUseCase({
+    required this.plannerId,
     required this.payment,
     required this.startPeriod,
     required this.endPeriod,
@@ -33,7 +35,9 @@ class ExpandPaymentToPeriodUseCase extends UseCase<ExpandPaymentToPeriodUseCaseR
 
     if (!payment.isRepeat) {
       return ExpandPaymentToPeriodUseCaseResult(
-        basePayment: payment,
+        basePayment: payment.copyWith(
+          plannerId: plannerId,
+        ),
         dateStart: start,
         dateEnd: end,
       );
@@ -61,11 +65,14 @@ class ExpandPaymentToPeriodUseCase extends UseCase<ExpandPaymentToPeriodUseCaseR
     ).run();
 
     final payments = generatedDates
-        .map((e) => payment.copyWith(
-              date: e,
-              id: uuid.v4(),
-              originalPaymentId: payment.id,
-            ))
+        .map(
+          (e) => payment.copyWith(
+            date: e,
+            paymentId: uuid.v4(),
+            originalPaymentId: payment.paymentId,
+            plannerId: plannerId,
+          ),
+        )
         .toList();
 
     final result = ExpandPaymentToPeriodUseCaseResult(

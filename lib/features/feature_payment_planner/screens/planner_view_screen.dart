@@ -101,7 +101,11 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                         budget: state.budget,
                         onPaymentPressed: (payment) async {
                           final repo = PaymentsRepo(store: objectbox.store);
-                          await repo.setDoneState(id: payment.id, isDone: !payment.isDone);
+                          await repo.setDoneState(
+                            plannerId: '',
+                            paymentId: payment.paymentId,
+                            isDone: !payment.isDone,
+                          );
                           context.read<PaymentsManagerBloc>().reload();
                         },
                       ),

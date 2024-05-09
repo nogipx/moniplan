@@ -13,7 +13,6 @@ class PaymentPlanner with _$PaymentPlanner {
     required final String id,
     required final DateTime dateStart,
     required final DateTime dateEnd,
-    @Default(0) final int intId,
     @Default([]) final List<Payment> payments,
     @Default(0) final num initialBudget,
     @Default(false) final bool isDraft,

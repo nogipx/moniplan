@@ -1,8 +1,8 @@
 import 'dart:async';
 
-abstract class UseCase<T> {
-  const UseCase();
+abstract interface class IUseCase<T> {
+  const IUseCase();
   T run();
 }
 
-abstract class UseCaseAsync<T> extends UseCase<FutureOr<T>> {}
+abstract interface class IUseCaseAsync<T> extends IUseCase<FutureOr<T>> {}

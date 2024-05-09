@@ -15,10 +15,11 @@ class Payment with _$Payment, EquatableMixin {
   @CurrencyConverter()
   @JsonSerializable()
   const factory Payment({
-    @Default(0) int intId,
-
     /// UUID identifier.
-    required String id,
+    required String paymentId,
+
+    /// Related planner id.
+    @Default('') String plannerId,
 
     /// It shows is this payment will be counted in process.
     @Default(true) bool isEnabled,
@@ -60,7 +61,7 @@ class Payment with _$Payment, EquatableMixin {
   PaymentType get type => details.type;
 
   bool get isNotParent => !isParent;
-  bool get isParent => id != virtualPaymentId && originalPaymentId == null;
+  bool get isParent => paymentId != virtualPaymentId && originalPaymentId == null;
   bool get isRepeat => repeat != DateTimeRepeat.noRepeat;
   bool get isRepeatParent => isRepeat && isParent;
 
@@ -68,7 +69,7 @@ class Payment with _$Payment, EquatableMixin {
 
   @override
   List<Object?> get props => [
-        id,
+        paymentId,
         date,
         dateMoneyReserved,
         originalPaymentId,

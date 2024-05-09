@@ -66,49 +66,49 @@ class SurvivalReceipts implements PaymentsProvider {
   List<Payment> get payments {
     return [
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 3),
         repeat: DateTimeRepeat.month,
         details: rentHomeSamolet,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 21),
         repeat: DateTimeRepeat.month,
         details: rentHomeSuvorova,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 10),
         repeat: DateTimeRepeat.month,
         details: communalBelichenko,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 10),
         repeat: DateTimeRepeat.month,
         details: communalGondarya,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 10),
         repeat: DateTimeRepeat.month,
         details: communalSuvorova,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 10),
         repeat: DateTimeRepeat.month,
         details: communalSamolet,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 8),
         repeat: DateTimeRepeat.month,
         details: catsSummary,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 8),
         repeat: DateTimeRepeat.month,
         details: internet,

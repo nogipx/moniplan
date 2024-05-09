@@ -42,31 +42,31 @@ class DebtReceipts implements PaymentsProvider {
   List<Payment> get payments {
     return [
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 16),
         repeat: DateTimeRepeat.month,
         details: ipotekaLower,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 21),
         repeat: DateTimeRepeat.month,
         details: ipotekaGreater,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 6),
         repeat: DateTimeRepeat.month,
         details: refinanceCredit,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 14),
         repeat: DateTimeRepeat.month,
         details: creditCardTinkoff,
       ),
       Payment(
-        id: const Uuid().v4(),
+        paymentId: const Uuid().v4(),
         date: PeriodDateTime.currentYear(day: 26),
         dateStart: DateTime(2024, 4, 12),
         dateEnd: DateTime(2024, 7, 26),
