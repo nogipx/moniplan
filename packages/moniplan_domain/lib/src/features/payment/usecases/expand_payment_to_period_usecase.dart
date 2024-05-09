@@ -57,23 +57,30 @@ class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseC
             : paymentDateEnd
         : endPeriod;
 
+    final baseDate = payment.date;
     final generatedDates = GenerateRepeatDatesUseCase(
       repeat: payment.repeat,
-      base: payment.date,
+      base: baseDate,
       dateStart: targetDateStart,
       dateEnd: targetDateEnd,
     ).run();
 
-    final payments = generatedDates
-        .map(
-          (e) => payment.copyWith(
-            date: e,
-            paymentId: uuid.v4(),
-            originalPaymentId: payment.paymentId,
-            plannerId: plannerId,
-          ),
-        )
-        .toList();
+    final payments = generatedDates.map((e) {
+      final date = e;
+      if (date.isSameDay(baseDate)) {
+        return payment.copyWith(
+          date: date,
+          plannerId: plannerId,
+        );
+      } else {
+        return payment.copyWith(
+          date: date,
+          paymentId: uuid.v4(),
+          originalPaymentId: payment.paymentId,
+          plannerId: plannerId,
+        );
+      }
+    }).toList();
 
     final result = ExpandPaymentToPeriodUseCaseResult(
       basePayment: payment,
