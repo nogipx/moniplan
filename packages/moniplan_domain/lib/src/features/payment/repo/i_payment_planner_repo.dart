@@ -6,4 +6,6 @@ abstract interface class IPaymentPlannerRepo {
   Future<PaymentPlanner?> getLastPlanner();
 
   Future<PaymentPlanner?> getPlannerById(String id);
+
+  Future<PaymentPlanner?> persistPlanner(PaymentPlanner planner);
 }

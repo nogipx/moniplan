@@ -1,11 +1,15 @@
 import 'package:drift/drift.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
+@TableIndex(name: 'index_planner_id_at_payment', columns: {#plannerId})
+@TableIndex(name: 'index_payment_id', columns: {#paymentId})
 class PaymentsComposedDriftTable extends Table {
+  @override
+  Set<Column> get primaryKey => {paymentId};
+
   /// Id section
   ///
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get paymentId => text().unique()();
+  TextColumn get paymentId => text()();
   TextColumn get plannerId => text().nullable()();
   TextColumn get originalPaymentId => text().nullable()();
 

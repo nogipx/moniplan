@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan/features/_common/db_view_floating_button.dart';
 import 'package:moniplan/features/_index.dart';
 import 'package:moniplan/features/feature_planners_management/widgets/planner_item_widget.dart';
 import 'package:moniplan/main.dart';
@@ -17,7 +18,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
 
   @override
   void initState() {
-    _plannerRepo = PaymentPlannerRepoDrift();
+    _plannerRepo = PaymentPlannerRepoDrift(db: db);
     super.initState();
   }
 
@@ -28,6 +29,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: dbInspectorFloatingActionButton,
       body: SafeArea(
         child: FutureBuilder(
           future: _getPlanners(),

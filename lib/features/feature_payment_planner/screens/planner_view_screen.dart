@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan/features/_common/db_view_floating_button.dart';
 import 'package:moniplan/main.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
@@ -50,6 +51,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
           final titleWidget = Text('$dateStartString - $dateEndString');
 
           return Scaffold(
+            floatingActionButton: dbInspectorFloatingActionButton,
             appBar: AppBar(
               title: titleWidget,
               actions: [

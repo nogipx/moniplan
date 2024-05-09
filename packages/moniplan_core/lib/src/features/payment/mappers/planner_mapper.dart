@@ -1,8 +1,8 @@
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_core/src/features/payment/dao/drift/_drift_database.dart';
 
-class PlannerMapperOB implements IMapper<PaymentPlanner, PaymentPlannersDriftTableData> {
-  const PlannerMapperOB();
+class PlannerMapperDrift implements IMapper<PaymentPlanner, PaymentPlannersDriftTableData> {
+  const PlannerMapperDrift();
 
   @override
   PaymentPlanner toDomain(PaymentPlannersDriftTableData data) {
@@ -14,7 +14,7 @@ class PlannerMapperOB implements IMapper<PaymentPlanner, PaymentPlannersDriftTab
       throw Exception('Cannot compose Planner');
     }
 
-    final paymentMapper = PaymentMapperOB();
+    final paymentMapper = PaymentMapperDrift();
 
     return PaymentPlanner(
       id: paymentId,
@@ -28,10 +28,9 @@ class PlannerMapperOB implements IMapper<PaymentPlanner, PaymentPlannersDriftTab
 
   @override
   PaymentPlannersDriftTableData toDto(PaymentPlanner data) {
-    final paymentMapper = PaymentMapperOB();
+    final paymentMapper = PaymentMapperDrift();
 
     final dto = PaymentPlannersDriftTableData(
-      id: 0,
       plannerId: data.id,
       dateStart: data.dateStart,
       dateEnd: data.dateEnd,

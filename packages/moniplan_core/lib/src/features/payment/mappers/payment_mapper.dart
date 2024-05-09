@@ -3,8 +3,8 @@ import 'package:moniplan_core/src/features/payment/dao/drift/_drift_database.dar
 
 import '../dao/ob/payment_composed_dao_ob.dart';
 
-class PaymentMapperOB implements IMapper<Payment, PaymentsComposedDriftTableData> {
-  const PaymentMapperOB();
+class PaymentMapperDrift implements IMapper<Payment, PaymentsComposedDriftTableData> {
+  const PaymentMapperDrift();
 
   @override
   Payment toDomain(PaymentsComposedDriftTableData data) {
@@ -27,7 +27,7 @@ class PaymentMapperOB implements IMapper<Payment, PaymentsComposedDriftTableData
 
     return Payment(
       paymentId: paymentId,
-      plannerId: '',
+      plannerId: data.plannerId ?? '',
       isEnabled: data.isEnabled ?? true,
       isDone: data.isDone ?? false,
       details: details,
@@ -43,8 +43,8 @@ class PaymentMapperOB implements IMapper<Payment, PaymentsComposedDriftTableData
   @override
   PaymentsComposedDriftTableData toDto(Payment data) {
     return PaymentsComposedDriftTableData(
-      id: 0,
       paymentId: data.paymentId,
+      plannerId: data.plannerId,
       paymentName: data.details.name,
       paymentNote: data.details.note,
       paymentMoney: data.details.money.toDouble(),
