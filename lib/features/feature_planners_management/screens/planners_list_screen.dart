@@ -13,8 +13,16 @@ class PlannersListScreen extends StatefulWidget {
 }
 
 class _PlannersListScreenState extends State<PlannersListScreen> {
+  late IPaymentPlannerRepo _plannerRepo;
+
+  @override
+  void initState() {
+    _plannerRepo = PaymentPlannerRepoDrift();
+    super.initState();
+  }
+
   Future<List<PaymentPlanner>> _getPlanners() {
-    return PaymentPlannerRepoOB(store: objectbox.store).getPlanners();
+    return _plannerRepo.getPlanners();
   }
 
   @override
@@ -59,7 +67,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
           return BlocProvider(
             create: (context) {
               final bloc = PaymentsManagerBloc(
-                paymentPlannerRepo: PaymentPlannerRepoOB(store: objectbox.store),
+                paymentPlannerRepo: _plannerRepo,
               );
               bloc.add(
                 PaymentsManagerEvent.computeBudget(plannerId: planner.id),

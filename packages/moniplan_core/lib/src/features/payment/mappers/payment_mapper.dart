@@ -1,12 +1,13 @@
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_core/src/features/payment/dao/drift/_drift_database.dart';
 
-import '../dao/payment_composed_dao_ob.dart';
+import '../dao/ob/payment_composed_dao_ob.dart';
 
-class PaymentMapperOB implements IMapper<Payment, PaymentComposedDaoOB> {
+class PaymentMapperOB implements IMapper<Payment, PaymentsComposedDriftTableData> {
   const PaymentMapperOB();
 
   @override
-  Payment toDomain(PaymentComposedDaoOB data) {
+  Payment toDomain(PaymentsComposedDriftTableData data) {
     final paymentId = data.paymentId;
     final currencyCode = data.currencyCode;
     final currencyPrecision = data.currencyPrecision;
@@ -25,8 +26,8 @@ class PaymentMapperOB implements IMapper<Payment, PaymentComposedDaoOB> {
     );
 
     return Payment(
-      id: paymentId,
-      intId: data.id,
+      paymentId: paymentId,
+      plannerId: '',
       isEnabled: data.isEnabled ?? true,
       isDone: data.isDone ?? false,
       details: details,
@@ -40,10 +41,10 @@ class PaymentMapperOB implements IMapper<Payment, PaymentComposedDaoOB> {
   }
 
   @override
-  PaymentComposedDaoOB toDto(Payment data) {
-    return PaymentComposedDaoOB(
-      id: data.intId,
-      paymentId: data.id,
+  PaymentsComposedDriftTableData toDto(Payment data) {
+    return PaymentsComposedDriftTableData(
+      id: 0,
+      paymentId: data.paymentId,
       paymentName: data.details.name,
       paymentNote: data.details.note,
       paymentMoney: data.details.money.toDouble(),

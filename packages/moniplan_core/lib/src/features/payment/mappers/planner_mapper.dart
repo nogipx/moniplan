@@ -1,10 +1,11 @@
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_core/src/features/payment/dao/drift/_drift_database.dart';
 
-class PlannerMapperOB implements IMapper<PaymentPlanner, PaymentPlannerDaoOB> {
+class PlannerMapperOB implements IMapper<PaymentPlanner, PaymentPlannersDriftTableData> {
   const PlannerMapperOB();
 
   @override
-  PaymentPlanner toDomain(PaymentPlannerDaoOB data) {
+  PaymentPlanner toDomain(PaymentPlannersDriftTableData data) {
     final paymentId = data.plannerId;
     final start = data.dateStart;
     final end = data.dateEnd;
@@ -16,29 +17,28 @@ class PlannerMapperOB implements IMapper<PaymentPlanner, PaymentPlannerDaoOB> {
     final paymentMapper = PaymentMapperOB();
 
     return PaymentPlanner(
-      intId: data.id,
       id: paymentId,
       dateStart: start,
       dateEnd: end,
-      payments: data.payments.map(paymentMapper.toDomain).toList(),
+      // payments: data.payments.map(paymentMapper.toDomain).toList(),
       initialBudget: data.initialBudget ?? 0.0,
       isDraft: data.isDraft ?? true,
     );
   }
 
   @override
-  PaymentPlannerDaoOB toDto(PaymentPlanner data) {
+  PaymentPlannersDriftTableData toDto(PaymentPlanner data) {
     final paymentMapper = PaymentMapperOB();
 
-    final dto = PaymentPlannerDaoOB(
-      id: data.intId,
+    final dto = PaymentPlannersDriftTableData(
+      id: 0,
       plannerId: data.id,
       dateStart: data.dateStart,
       dateEnd: data.dateEnd,
       initialBudget: data.initialBudget.toDouble(),
       isDraft: data.isDraft,
     );
-    dto.payments.addAll(data.payments.map(paymentMapper.toDto));
+    // dto.payments.addAll(data.payments.map(paymentMapper.toDto));
     return dto;
   }
 }
