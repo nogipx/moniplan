@@ -1,77 +1,75 @@
+import 'package:moniplan/our_budget/_details.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 import '../_index.dart';
 
 class DebtReceipts implements PaymentsProvider {
-  static final ipotekaLower = PaymentDetails(
-    name: 'Ипотека поменьше',
-    money: 23000,
-    type: PaymentType.expense,
-    currency: AppCurrencies.ru,
-  );
-
-  static final ipotekaGreater = PaymentDetails(
-    name: 'Ипотека побольше',
-    money: 37000,
-    type: PaymentType.expense,
-    currency: AppCurrencies.ru,
-  );
-
-  static final refinanceCredit = PaymentDetails(
-    name: 'Кредит Альфа',
-    money: 26000,
-    type: PaymentType.expense,
-    currency: AppCurrencies.ru,
-  );
-
-  static final creditCardTinkoff = PaymentDetails(
-    name: 'Платеж по кредитке',
-    money: 17000,
-    type: PaymentType.expense,
-    currency: AppCurrencies.ru,
-  );
-
-  static final splitGooglePixel = PaymentDetails(
-    name: 'Сплит пиксель',
-    money: 23000,
-    type: PaymentType.expense,
-    currency: AppCurrencies.ru,
-  );
-
   @override
   List<Payment> get payments {
     return [
       Payment(
-        paymentId: const Uuid().v4(),
+        paymentId: newUuid,
         date: PeriodDateTime.currentYear(day: 16),
         repeat: DateTimeRepeat.month,
-        details: ipotekaLower,
+        details: Details.ipotekaLower,
       ),
       Payment(
-        paymentId: const Uuid().v4(),
+        paymentId: newUuid,
         date: PeriodDateTime.currentYear(day: 21),
         repeat: DateTimeRepeat.month,
-        details: ipotekaGreater,
+        details: Details.ipotekaGreater,
       ),
       Payment(
-        paymentId: const Uuid().v4(),
+        isEnabled: false,
+        paymentId: newUuid,
         date: PeriodDateTime.currentYear(day: 6),
         repeat: DateTimeRepeat.month,
-        details: refinanceCredit,
+        details: Details.refinanceCredit,
       ),
       Payment(
-        paymentId: const Uuid().v4(),
+        isDone: true,
+        paymentId: newUuid,
         date: PeriodDateTime.currentYear(day: 14),
         repeat: DateTimeRepeat.month,
-        details: creditCardTinkoff,
+        details: Details.creditCardTinkoff,
       ),
       Payment(
-        paymentId: const Uuid().v4(),
+        isDone: true,
+        paymentId: newUuid,
+        date: PeriodDateTime.currentYear(day: 21),
+        repeat: DateTimeRepeat.month,
+        details: Details.creditCardAlfa,
+      ),
+      Payment(
+        isDone: true,
+        paymentId: newUuid,
         date: PeriodDateTime.currentYear(day: 26),
         dateStart: DateTime(2024, 4, 12),
-        dateEnd: DateTime(2024, 7, 26),
+        dateEnd: DateTime(2024, 8, 26),
         repeat: DateTimeRepeat.month,
-        details: splitGooglePixel,
+        details: Details.splitGooglePixel,
+      ),
+      Payment(
+        isDone: true,
+        paymentId: newUuid,
+        date: DateTime(2024, 5, 10),
+        details: PaymentDetails(
+          name: 'Погашение кубышки',
+          type: PaymentType.expense,
+          currency: AppCurrencies.ru,
+          money: 36500,
+        ),
+      ),
+      Payment(
+        isDone: true,
+        paymentId: newUuid,
+        date: DateTime(2024, 5, 10),
+        details: PaymentDetails(
+          name: 'Вывел в кошелек',
+          type: PaymentType.expense,
+          currency: AppCurrencies.ru,
+          money: 1500,
+        ),
       ),
     ];
   }
