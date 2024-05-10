@@ -2,13 +2,11 @@ extension PeriodDateTime on DateTime {
   DateTime get onlyDate => DateTime(year, month, day);
 
   DateTime addTime({int year = 0, int month = 0, int day = 0}) {
-    return DateTime(this.year + year, this.month + month, this.day + day, hour,
-        minute, 0, 0, 0);
+    return DateTime(this.year + year, this.month + month, this.day + day, hour, minute, 0, 0, 0);
   }
 
   DateTime subtractTime({int year = 0, int month = 0, int day = 0}) {
-    return DateTime(this.year - year, this.month - month, this.day - day, hour,
-        minute, 0, 0, 0);
+    return DateTime(this.year - year, this.month - month, this.day - day, hour, minute, 0, 0, 0);
   }
 
   DateTime get monthStart => DateTime(year, month, 1);
@@ -21,9 +19,9 @@ extension PeriodDateTime on DateTime {
 
   static DateTime currentYear({
     required int day,
-    int month = 1,
+    int? month,
   }) {
     final now = DateTime.now();
-    return DateTime(now.year, month, day);
+    return DateTime(now.year, month ?? now.month, day);
   }
 }

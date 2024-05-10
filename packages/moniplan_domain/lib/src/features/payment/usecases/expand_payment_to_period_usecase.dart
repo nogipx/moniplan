@@ -34,12 +34,14 @@ class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseC
     final end = endPeriod;
 
     if (!payment.isRepeat) {
+      final originalPayment = payment.copyWith(
+        plannerId: plannerId,
+      );
       return ExpandPaymentToPeriodUseCaseResult(
-        basePayment: payment.copyWith(
-          plannerId: plannerId,
-        ),
+        basePayment: originalPayment,
         dateStart: start,
         dateEnd: end,
+        payments: [originalPayment],
       );
     }
     final paymentDateStart = payment.dateStart;
