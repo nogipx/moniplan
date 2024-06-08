@@ -7,9 +7,12 @@ part 'payments_manager_state.freezed.dart';
 class PaymentsManagerState with _$PaymentsManagerState {
   const PaymentsManagerState._();
 
-  const factory PaymentsManagerState.initial() = PaymentsManagerInitialState;
+  const factory PaymentsManagerState.initial({
+    @Default('') String plannerId,
+  }) = PaymentsManagerInitialState;
 
   const factory PaymentsManagerState.budgetComputed({
+    @Default('') String plannerId,
     DateTime? dateStart,
     DateTime? dateEnd,
     @Default([]) List<Payment> paymentsGenerated,
@@ -18,6 +21,7 @@ class PaymentsManagerState with _$PaymentsManagerState {
   }) = PaymentsManagerBudgetComputedState;
 
   const factory PaymentsManagerState.error({
+    @Default('') String plannerId,
     @Default([]) List<Payment> payments,
   }) = PaymentsManagerErrorState;
 

@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'our_budget/_index.dart';
 
 late MoniplanDriftDb db;
-const testPlannerId = '5778fa84-2a3f-4c3d-b617-3ed5272e0ed2';
 
 Future<void> main() async {
   unawaited(

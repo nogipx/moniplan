@@ -127,4 +127,42 @@ final class PaymentPlannerRepoDrift implements IPaymentPlannerRepo {
 
     return null;
   }
+
+  @override
+  Future<Payment?> getPaymentById({
+    required String plannerId,
+    required String paymentId,
+  }) {
+    // TODO: implement getById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Payment?> savePayment({
+    required String plannerId,
+    required Payment payment,
+  }) {
+    // TODO: implement save
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setPaymentDone({
+    required String plannerId,
+    required String paymentId,
+    required bool isDone,
+  }) {
+    // TODO: implement setDoneState
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setPaymentEnabled({
+    required String plannerId,
+    required String paymentId,
+    required bool isEnabled,
+  }) {
+    // TODO: implement setEnabledState
+    throw UnimplementedError();
+  }
 }

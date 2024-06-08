@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_core/moniplan_db.dart';
 
 @TableIndex(name: 'index_planner_id_at_payment', columns: {#plannerId})

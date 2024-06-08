@@ -13,7 +13,7 @@ class PaymentsManagerBloc extends Bloc<PaymentsManagerEvent, PaymentsManagerStat
   }
 
   final IPaymentPlannerRepo paymentPlannerRepo;
-  PaymentPlanner? _lastPlanner;
+  // PaymentPlanner? _lastPlanner;
 
   void computeBudget(PaymentsManagerEvent event) {
     assert(event is PaymentsManagerComputeBudgetEvent);
@@ -28,8 +28,9 @@ class PaymentsManagerBloc extends Bloc<PaymentsManagerEvent, PaymentsManagerStat
     on<PaymentsManagerReloadEvent>(
       transformer: restartable(),
       (event, emit) async {
-        final id = _lastPlanner?.id;
-        if (id != null) {
+        final id = state.plannerId;
+
+        if (id.isNotEmpty) {
           add(PaymentsManagerEvent.computeBudget(plannerId: id));
         }
       },
@@ -40,10 +41,14 @@ class PaymentsManagerBloc extends Bloc<PaymentsManagerEvent, PaymentsManagerStat
     on<PaymentsManagerComputeBudgetEvent>(
       transformer: restartable(),
       (event, emit) async {
-        final planner = await paymentPlannerRepo.getPlannerById(event.plannerId);
+        final id = event.plannerId;
+        final planner = await paymentPlannerRepo.getPlannerById(id);
+
         if (planner != null) {
-          final newState = _computeStateFromPlanner(planner);
-          _lastPlanner = planner;
+          final newState = _computeStateFromPlanner(planner).copyWith(
+            plannerId: id,
+          );
+
           emit(newState);
         }
       },

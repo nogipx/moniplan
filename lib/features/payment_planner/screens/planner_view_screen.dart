@@ -102,9 +102,9 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                         operations: state.paymentsGenerated,
                         budget: state.budget,
                         onPaymentPressed: (payment) async {
-                          final repo = PaymentsRepoDrift();
-                          await repo.setDoneState(
-                            plannerId: '',
+                          final repo = PaymentPlannerRepoDrift(db: db);
+                          await repo.setPaymentDone(
+                            plannerId: state.plannerId,
                             paymentId: payment.paymentId,
                             isDone: !payment.isDone,
                           );
