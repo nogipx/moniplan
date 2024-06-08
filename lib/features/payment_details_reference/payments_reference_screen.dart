@@ -153,17 +153,42 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(payment.name),
                                   const SizedBox(width: 8),
-                                  MoneyColoredWidget(
-                                    value: payment.normalizedMoney,
-                                    currency: AppCurrencies.ru,
-                                    showPlusSign: true,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      MoneyColoredWidget(
+                                        value: payment.normalizedMoney,
+                                        currency: AppCurrencies.ru,
+                                        showPlusSign: true,
+                                      ),
+                                      if (payment.tax > 0)
+                                        Text(
+                                          'Налог ${(payment.tax * 100).toInt()}%',
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: MoniplanColors.secondaryTextColor,
+                                              ),
+                                        )
+                                    ],
                                   ),
                                 ],
                               ),
+                              if (payment.note.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 8,
+                                  ),
+                                  child: Text(
+                                    payment.note,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: MoniplanColors.primaryTextColor,
+                                        ),
+                                  ),
+                                ),
                               const SizedBox(height: 8),
                               Text(
                                 payment.tags.map((e) => '#$e').join('  '),

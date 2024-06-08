@@ -29,4 +29,6 @@ class PaymentDetails with _$PaymentDetails {
   factory PaymentDetails.fromJson(Map<String, dynamic> json) => _$PaymentDetailsFromJson(json);
 
   num get normalizedMoney => money.abs() * type.modifier * (1.0 - tax);
+
+  num get normalizedMoneyWithoutTax => money.abs() * type.modifier;
 }
