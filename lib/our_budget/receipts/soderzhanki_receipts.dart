@@ -11,14 +11,12 @@ class SoderzhankiReceipts implements PaymentsProvider {
         date: PeriodDateTime.currentYear(day: 7),
         repeat: DateTimeRepeat.month,
         details: Details.daryaLifeMonth,
-        isDone: true,
       ),
       Payment(
         paymentId: newUuid,
         date: PeriodDateTime.currentYear(day: 7),
         repeat: DateTimeRepeat.month,
         details: Details.natashaLifeMonth,
-        isDone: true,
       ),
     ];
   }

@@ -15,15 +15,18 @@ class PaymentDetails with _$PaymentDetails {
 
   @CurrencyConverter()
   @JsonSerializable()
+  @Assert('tax >= 0.0 && tax <= 1.0')
   const factory PaymentDetails({
     required String name,
     @Default('') String note,
     required PaymentType type,
     required Currency currency,
     @Default(0) num money,
+    @Default({}) Set<String> tags,
+    @Default(0.0) double tax,
   }) = _PaymentDetails;
 
   factory PaymentDetails.fromJson(Map<String, dynamic> json) => _$PaymentDetailsFromJson(json);
 
-  num get normalizedMoney => money.abs() * type.modifier;
+  num get normalizedMoney => money.abs() * type.modifier * (1.0 - tax);
 }

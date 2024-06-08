@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/_common/db_view_floating_button.dart';
-import 'package:moniplan/features/_index.dart';
-import 'package:moniplan/features/feature_planners_management/widgets/planner_item_widget.dart';
+import 'package:moniplan/features/payment_planner/_index.dart';
+import 'package:moniplan/features/planners_management/_index.dart';
 import 'package:moniplan/main.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 

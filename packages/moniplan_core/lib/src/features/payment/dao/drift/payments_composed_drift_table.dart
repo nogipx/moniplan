@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_core/moniplan_db.dart';
 
 @TableIndex(name: 'index_planner_id_at_payment', columns: {#plannerId})
 @TableIndex(name: 'index_payment_id', columns: {#paymentId})
@@ -17,10 +18,12 @@ class PaymentsComposedDriftTable extends Table {
   ///
   TextColumn get paymentName => text().withDefault(const Constant(''))();
   TextColumn get paymentNote => text().withDefault(const Constant(''))();
+  TextColumn get paymentTags => text().withDefault(const Constant(''))();
 
   /// Money section
   ///
   RealColumn get paymentMoney => real().withDefault(const Constant(0.0))();
+  RealColumn get paymentTax => real().withDefault(const Constant(0.0))();
   IntColumn get paymentTypeId => integer().withDefault(const Constant(0))();
   TextColumn get currencyCode => text().nullable()();
   IntColumn get currencyPrecision => integer().nullable()();

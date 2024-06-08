@@ -6,6 +6,8 @@ import '../dao/ob/payment_composed_dao_ob.dart';
 class PaymentMapperDrift implements IMapper<Payment, PaymentsComposedDriftTableData> {
   const PaymentMapperDrift();
 
+  static const _tagsSplitSeparator = '|';
+
   @override
   Payment toDomain(PaymentsComposedDriftTableData data) {
     final paymentId = data.paymentId;
@@ -13,23 +15,25 @@ class PaymentMapperDrift implements IMapper<Payment, PaymentsComposedDriftTableD
     final currencyPrecision = data.currencyPrecision;
     final date = data.date;
 
-    if (paymentId == null || currencyCode == null || currencyPrecision == null || date == null) {
+    if (currencyCode == null || currencyPrecision == null || date == null) {
       throw Exception('Cannot compose Payment');
     }
 
     final details = PaymentDetails(
-      name: data.paymentName ?? '',
-      note: data.paymentNote ?? '',
+      name: data.paymentName,
+      note: data.paymentNote,
       type: PaymentType.from(data.paymentTypeId),
       currency: Currency.create(currencyCode, currencyPrecision),
-      money: data.paymentMoney ?? 0.0,
+      money: data.paymentMoney,
+      tax: data.paymentTax,
+      tags: Set.from(data.paymentTags.split(_tagsSplitSeparator)),
     );
 
     return Payment(
       paymentId: paymentId,
       plannerId: data.plannerId ?? '',
-      isEnabled: data.isEnabled ?? true,
-      isDone: data.isDone ?? false,
+      isEnabled: data.isEnabled,
+      isDone: data.isDone,
       details: details,
       date: date,
       dateMoneyReserved: data.dateMoneyReserved,
@@ -47,7 +51,9 @@ class PaymentMapperDrift implements IMapper<Payment, PaymentsComposedDriftTableD
       plannerId: data.plannerId,
       paymentName: data.details.name,
       paymentNote: data.details.note,
+      paymentTags: data.details.tags.join(_tagsSplitSeparator),
       paymentMoney: data.details.money.toDouble(),
+      paymentTax: data.details.tax,
       paymentTypeId: data.details.type.id,
       currencyCode: data.details.currency.isoCode,
       currencyPrecision: data.details.currency.decimalDigits,
