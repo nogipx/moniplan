@@ -29,6 +29,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       floatingActionButton: dbInspectorFloatingActionButton,
       body: SafeArea(
         child: FutureBuilder(

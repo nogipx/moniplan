@@ -19,6 +19,7 @@ abstract class Details {
     natashaLifeMonth,
     salaryBristol,
     salaryUzumHalf,
+    salaryUzumHalf,
     salaryCopix,
     rentHomeSuvorova,
     communalSuvorova,
@@ -36,6 +37,7 @@ abstract class Details {
     tags: {
       Tags.longTimeDebt,
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
 
@@ -47,6 +49,7 @@ abstract class Details {
     tags: {
       Tags.longTimeDebt,
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
 
@@ -57,6 +60,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
 
@@ -78,6 +82,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
 
@@ -88,6 +93,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
 
@@ -113,11 +119,13 @@ abstract class Details {
 
   static final daryaLifeMonth = PaymentDetails(
     name: 'Содержанка Даша',
-    money: 80000,
+    money: 90000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {
+      Tags.dasya,
       Tags.soderzhanki,
+      Tags.everyMonth,
     },
   );
   static final creditCar = PaymentDetails(
@@ -127,15 +135,18 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.dasya,
+      Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
   static final natashaLifeMonth = PaymentDetails(
     name: 'Содержанка Наташа',
-    money: 50000,
+    money: 70000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {
       Tags.soderzhanki,
+      Tags.everyMonth,
     },
   );
 
@@ -147,6 +158,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.income,
+      Tags.everyMonth,
     },
   );
 
@@ -157,6 +169,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.income,
+      Tags.everyMonth,
     },
   );
   static final salaryCopix = PaymentDetails(
@@ -167,6 +180,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.income,
+      Tags.everyMonth,
     },
   );
 
@@ -178,6 +192,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
 
@@ -189,6 +204,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
   static final communalBelichenko = PaymentDetails(
@@ -198,6 +214,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
   static final communalGondarya = PaymentDetails(
@@ -207,6 +224,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
   static final internet = PaymentDetails(
@@ -220,6 +238,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
 
@@ -231,6 +250,7 @@ abstract class Details {
     currency: AppCurrencies.ru,
     tags: {
       Tags.requiredPayments,
+      Tags.everyMonth,
     },
   );
 }

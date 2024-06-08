@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/money_colored_widget.dart';
+import 'package:moniplan_uikit/src/widgets/money_colored_widget.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 

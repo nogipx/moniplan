@@ -7,7 +7,7 @@ class ThemeChanger extends StatefulWidget {
   final void Function(Brightness)? onChangeTheme;
   final IThemeChangerStorage storage;
 
-  final Widget Function(Brightness) builder;
+  final Widget Function(BuildContext, Brightness) builder;
 
   const ThemeChanger({
     super.key,
@@ -20,8 +20,7 @@ class ThemeChanger extends StatefulWidget {
   State<ThemeChanger> createState() => _ThemeChangerState();
 }
 
-class _ThemeChangerState extends State<ThemeChanger>
-    with WidgetsBindingObserver {
+class _ThemeChangerState extends State<ThemeChanger> with WidgetsBindingObserver {
   late final ValueNotifier<ThemeBrightness> _themeBrightness;
 
   @override
@@ -72,7 +71,7 @@ class _ThemeChangerState extends State<ThemeChanger>
         return ThemeChangerInherited(
           onChangeTheme: changeTheme,
           theme: _themeBrightness.value,
-          child: widget.builder(value.brightness(context)),
+          child: widget.builder(context, value.brightness(context)),
         );
       },
     );
