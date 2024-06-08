@@ -8,7 +8,7 @@ import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'our_budget/_index.dart';
+import '_budget_request.dart';
 
 late MoniplanDriftDb db;
 
