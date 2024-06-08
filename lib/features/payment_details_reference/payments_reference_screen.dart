@@ -15,7 +15,7 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
   @override
   void initState() {
     super.initState();
-    _paymentsReferenceRepo = PaymentsRepoDrift(db: db);
+    _paymentsReferenceRepo = PaymentsReferenceRepoDrift(db: db);
   }
 
   @override

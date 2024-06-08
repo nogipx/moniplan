@@ -1,4 +1,3 @@
-import 'package:moniplan/our_budget/_details.dart';
 import 'package:moniplan/our_budget/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 

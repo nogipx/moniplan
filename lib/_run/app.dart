@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/features/planners_management/_index.dart';
+import 'package:moniplan/features/planners_list//_index.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

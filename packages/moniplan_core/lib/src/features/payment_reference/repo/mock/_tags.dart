@@ -1,5 +1,3 @@
-import 'package:moniplan_core/moniplan_core.dart';
-
 abstract class Tags {
   static const requiredPayments = 'Обязательные платежи';
   static const soderzhanki = 'Содержанки';

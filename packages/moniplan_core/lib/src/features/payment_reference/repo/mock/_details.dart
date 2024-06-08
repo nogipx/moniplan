@@ -5,6 +5,29 @@ import '_tags.dart';
 String get newUuid => const Uuid().v4();
 
 abstract class Details {
+  static final list = <PaymentDetails>[
+    ipotekaLower,
+    ipotekaGreater,
+    refinanceCredit,
+    creditTashkent,
+    creditCardTinkoff,
+    creditCardAlfa,
+    splitGooglePixelForce,
+    kubishkaFullfill,
+    daryaLifeMonth,
+    creditCar,
+    natashaLifeMonth,
+    salaryBristol,
+    salaryUzumHalf,
+    salaryCopix,
+    rentHomeSuvorova,
+    communalSuvorova,
+    communalBelichenko,
+    communalGondarya,
+    internet,
+    catsSummary,
+  ];
+
   static final ipotekaLower = PaymentDetails(
     name: 'Ипотека поменьше',
     money: 23000,
