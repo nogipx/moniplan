@@ -571,21 +571,21 @@ packages:
   moniplan_core:
     dependency: "direct main"
     description:
-      path: "packages/moniplan_core"
+      path: moniplan_core
       relative: true
     source: path
     version: "1.0.0"
   moniplan_domain:
     dependency: transitive
     description:
-      path: "packages/moniplan_domain"
+      path: moniplan_domain
       relative: true
     source: path
     version: "1.0.0"
   moniplan_uikit:
     dependency: "direct main"
     description:
-      path: "packages/moniplan_uikit"
+      path: moniplan_uikit
       relative: true
     source: path
     version: "0.0.1"

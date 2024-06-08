@@ -11,10 +11,10 @@ dependencies:
     sdk: flutter
 
   moniplan_core:
-    path: packages/moniplan_core
+    path: moniplan_core
 
   moniplan_uikit:
-    path: packages/moniplan_uikit
+    path: moniplan_uikit
 
   # UI
   draggable_scrollbar: ^0.1.0
