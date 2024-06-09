@@ -31,26 +31,26 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MoniplanThemeListenable(
-      child: BlocBuilder<PaymentsManagerBloc, PaymentsManagerState>(
-        builder: (context, state) {
-          final dateStartRaw = state.mapOrNull(
-            budgetComputed: (s) => s.dateStart,
-          );
-          final dateStartString = dateStartRaw != null
-              ? DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY, 'ru').format(dateStartRaw)
-              : '';
+    return BlocBuilder<PaymentsManagerBloc, PaymentsManagerState>(
+      builder: (context, state) {
+        final dateStartRaw = state.mapOrNull(
+          budgetComputed: (s) => s.dateStart,
+        );
+        final dateStartString = dateStartRaw != null
+            ? DateFormat(DateFormat.ABBR_MONTH_DAY, 'ru').format(dateStartRaw)
+            : '';
 
-          final dateEndRaw = state.mapOrNull(
-            budgetComputed: (s) => s.dateEnd,
-          );
-          final dateEndString = dateEndRaw != null
-              ? DateFormat(DateFormat.YEAR_ABBR_MONTH_DAY, 'ru').format(dateEndRaw)
-              : '';
+        final dateEndRaw = state.mapOrNull(
+          budgetComputed: (s) => s.dateEnd,
+        );
+        final dateEndString = dateEndRaw != null
+            ? DateFormat(DateFormat.ABBR_MONTH_DAY, 'ru').format(dateEndRaw)
+            : '';
 
-          final titleWidget = Text('$dateStartString - $dateEndString');
+        final titleWidget = Text('$dateStartString - $dateEndString');
 
-          return Scaffold(
+        return MoniplanThemeListenable(
+          child: Scaffold(
             floatingActionButton: dbInspectorFloatingActionButton,
             appBar: AppBar(
               title: titleWidget,
@@ -86,39 +86,41 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
             backgroundColor: MoniplanColors.white,
             body: BlocBuilder<PaymentsManagerBloc, PaymentsManagerState>(
               builder: (context, state) {
-                return CustomScrollView(
-                  controller: _controller,
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: state.maybeMap(
-                        budgetComputed: (s) => MoneyFlowWidget(
-                          state: s.moneyFlow,
+                return MoniplanThemeListenable(
+                  child: CustomScrollView(
+                    controller: _controller,
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: state.maybeMap(
+                          budgetComputed: (s) => MoneyFlowWidget(
+                            state: s.moneyFlow,
+                          ),
+                          orElse: () => const SizedBox(),
                         ),
-                        orElse: () => const SizedBox(),
                       ),
-                    ),
-                    SliverList(
-                      delegate: PaymentsListSliver(
-                        operations: state.paymentsGenerated,
-                        budget: state.budget,
-                        onPaymentPressed: (payment) async {
-                          final repo = PaymentPlannerRepoDrift(db: db);
-                          await repo.setPaymentDone(
-                            plannerId: state.plannerId,
-                            paymentId: payment.paymentId,
-                            isDone: !payment.isDone,
-                          );
-                          context.read<PaymentsManagerBloc>().reload();
-                        },
-                      ),
-                    )
-                  ],
+                      SliverList(
+                        delegate: PaymentsListSliver(
+                          operations: state.paymentsGenerated,
+                          budget: state.budget,
+                          onPaymentPressed: (payment) async {
+                            final repo = PaymentPlannerRepoDrift(db: db);
+                            await repo.setPaymentDone(
+                              plannerId: state.plannerId,
+                              paymentId: payment.paymentId,
+                              isDone: !payment.isDone,
+                            );
+                            context.read<PaymentsManagerBloc>().reload();
+                          },
+                        ),
+                      )
+                    ],
+                  ),
                 );
               },
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

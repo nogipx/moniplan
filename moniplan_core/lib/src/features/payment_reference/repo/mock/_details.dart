@@ -307,7 +307,7 @@ abstract class D {
       note: 'Скинжестик важнее почки');
   static final gym = PaymentDetails(
     name: 'Абонемент качалка Даше',
-    money: 15000,
+    money: 25000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {
@@ -315,5 +315,23 @@ abstract class D {
       Tags.singleTime,
     },
     note: '50 посещений',
+  );
+  static final closeCreditCardAlfa = PaymentDetails(
+    name: 'Погасить кредитку Альфа',
+    money: 243000,
+    type: PaymentType.expense,
+    currency: AppCurrencies.ru,
+    tags: {
+      Tags.singleTime,
+    },
+  );
+  static final closeCreditCardTinkoff = PaymentDetails(
+    name: 'Погасить кредитку Тинькоф',
+    money: 249000,
+    type: PaymentType.expense,
+    currency: AppCurrencies.ru,
+    tags: {
+      Tags.singleTime,
+    },
   );
 }

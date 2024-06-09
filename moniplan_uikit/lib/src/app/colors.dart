@@ -6,7 +6,7 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 abstract class MoniplanColors {
   MoniplanColors._();
 
-  static final _brightness = ValueNotifier(Brightness.light);
+  static final _brightness = ValueNotifier<Brightness>(Brightness.light);
   static get brightnessListenable => _brightness;
   static set brightness(Brightness brightness) {
     _brightness.value = brightness;
@@ -15,7 +15,8 @@ abstract class MoniplanColors {
   static final white = ColorToken(
     brightness: _brightness,
     light: const Color(0xffffffff),
-    dark: const Color(0xff454545),
+    dark: const Color(0xffffffff),
+    // dark: const Color(0xff454545),
   );
 
   static final blueColor = ColorToken(

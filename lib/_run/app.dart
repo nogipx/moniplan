@@ -30,6 +30,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
   @override
   Widget build(BuildContext context) {
     return ThemeChanger(
+      initialBrightness: ThemeBrightness.light,
       storage: ThemeChangerStorageSharedPreferences(
         sharedPreferences: widget.sharedPreferences,
       ),

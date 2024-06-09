@@ -6,14 +6,16 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 class ThemeChanger extends StatefulWidget {
   final void Function(Brightness)? onChangeTheme;
   final IThemeChangerStorage storage;
+  final ThemeBrightness? initialBrightness;
 
   final Widget Function(BuildContext, Brightness) builder;
 
   const ThemeChanger({
-    super.key,
     required this.builder,
-    this.onChangeTheme,
     required this.storage,
+    this.onChangeTheme,
+    this.initialBrightness,
+    super.key,
   });
 
   @override
@@ -28,7 +30,7 @@ class _ThemeChangerState extends State<ThemeChanger> with WidgetsBindingObserver
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    _themeBrightness = ValueNotifier(ThemeBrightness.system);
+    _themeBrightness = ValueNotifier(widget.initialBrightness ?? ThemeBrightness.system);
   }
 
   @override

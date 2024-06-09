@@ -11,7 +11,7 @@ class MoniplanThemeListenable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
+    return ValueListenableBuilder<Brightness>(
       valueListenable: MoniplanColors.brightnessListenable,
       builder: (context, _, __) {
         return SizedBox(
