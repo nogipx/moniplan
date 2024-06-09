@@ -22,9 +22,17 @@ abstract class MoniplanColors {
     brightness: _brightness,
     light: const Color(0xff0C82D8),
   );
+  static final orangeColor = ColorToken(
+    brightness: _brightness,
+    light: const Color(0xffD9860D),
+  );
   static final lightBlueColor = ColorToken(
     brightness: _brightness,
     light: const Color(0xff58A9E4),
+  );
+  static final lightOrangeColor = ColorToken(
+    brightness: _brightness,
+    light: const Color(0xffE3AB59),
   );
 
   static final disabledColor = ColorToken(

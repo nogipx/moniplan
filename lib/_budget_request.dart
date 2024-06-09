@@ -5,31 +5,53 @@ import 'package:moniplan_core/src/features/payment_reference/repo/mock/_details.
 
 final currentRequest = PaymentPlanner(
   id: const Uuid().v4(),
-  dateStart: DateTime(2024, 6, 1),
-  dateEnd: DateTime(2024, 7, 0),
-  initialBudget: 0,
+  dateStart: '08.06'.date,
+  dateEnd: '00.08'.date,
+  initialBudget: 185000,
   isDraft: true,
   payments: [
-    '16.06'.p.info(Details.ipotekaLower).repeatMonth.build(),
-    '21.06'.p.info(Details.ipotekaGreater).repeatMonth.build(),
-    '06.09'.p.info(Details.refinanceCredit).repeatMonth.start('05.09'.date).build(),
-    '14.06'.p.info(Details.creditCardTinkoff).repeatMonth.build(),
-    '24.06'.p.info(Details.creditCardAlfa).repeatMonth.build(),
-    '09.06'.p.info(Details.splitGooglePixelForce).disabled.build(),
-    '09.06'.p.info(Details.creditTashkent).build(),
-    '18.07'.p.info(Details.creditCar).repeatMonth.start('17.07'.date).build(),
-    '09.06'.p.info(Details.kubishkaFullfill).build(),
-    '07.06'.p.info(Details.salaryBristol).repeatMonth.build(),
-    '05.06'.p.info(Details.salaryUzumHalf).repeatMonth.build(),
-    '20.06'.p.info(Details.salaryUzumHalf).repeatMonth.build(),
-    '15.06'.p.info(Details.salaryCopix).repeatMonth.build(),
-    '21.06'.p.info(Details.rentHomeSuvorova).repeatMonth.build(),
-    '10.06'.p.info(Details.communalBelichenko).repeatMonth.build(),
-    '10.06'.p.info(Details.communalGondarya).repeatMonth.build(),
-    '10.06'.p.info(Details.communalSuvorova).repeatMonth.build(),
-    '15.06'.p.info(Details.catsSummary).repeatMonth.build(),
-    '10.06'.p.info(Details.internet).repeatMonth.build(),
-    '08.06'.p.info(Details.daryaLifeMonth).repeatMonth.build(),
-    '08.06'.p.info(Details.natashaLifeMonth).repeatMonth.build(),
+    /// Одноразовые
+    ///
+    '16.06'.p.info(D.splitGooglePixelForce).build(),
+    '16.06'.p.info(D.creditTashkent).build(),
+    '16.06'.p.info(D.kubishkaFullfill).build(),
+    '16.06'.p.info(D.hairCorrection).build(),
+    '16.06'.p.info(D.implanon).build(),
+    '16.06'.p.info(D.cosmetic).build(),
+    '16.06'.p.info(D.gym).build(),
+
+    /// Регулярные зп
+    ///
+    '15.06'.p.info(D.salaryCopix).repeatMonth.start('14.06'.date).build(),
+    '20.06'.p.info(D.salaryUzumHalf).repeatMonth.start('19.06'.date).build(),
+    '05.07'.p.info(D.salaryUzumHalf).repeatMonth.start('04.07'.date).build(),
+    '07.07'.p.info(D.salaryBristol).repeatMonth.start('06.07'.date).build(),
+
+    /// Нерегулярные зп
+    ///
+    '05.07'.p.info(D.salaryUzumHalf.copyWith(money: 50000 + 250000)).build(),
+
+    /// Кредиты
+    ///
+    '18.07'.p.info(D.creditCar).start('17.07'.date).repeatMonth.build(),
+    '06.09'.p.info(D.refinanceCredit).start('05.09'.date).repeatMonth.build(),
+    '16.06'.p.info(D.ipotekaLower).repeatMonth.build(),
+    '21.06'.p.info(D.ipotekaGreater).repeatMonth.build(),
+
+    /// Регулярные платежи
+    ///
+    '10.06'.p.info(D.communalBelichenko).repeatMonth.build(),
+    '10.06'.p.info(D.communalGondarya).repeatMonth.build(),
+    '10.06'.p.info(D.communalSuvorova).repeatMonth.build(),
+    '14.06'.p.info(D.creditCardTinkoff).repeatMonth.build(),
+    '10.06'.p.info(D.internet).repeatMonth.build(),
+    '15.06'.p.info(D.catsSummary).repeatMonth.build(),
+    '24.06'.p.info(D.creditCardAlfa).repeatMonth.build(),
+
+    /// Регулярные переводы
+    ///
+    '21.06'.p.info(D.rentHomeSuvorova).repeatMonth.build(),
+    '08.07'.p.info(D.daryaLifeMonth).repeatMonth.start('07.07'.date).build(),
+    '08.07'.p.info(D.natashaLifeMonth).repeatMonth.start('07.07'.date).build(),
   ],
 );

@@ -6,7 +6,7 @@ import '_tags.dart';
 class MockPaymentsReferenceRepo implements IPaymentsReferenceRepo {
   @override
   Future<List<PaymentDetails>> getPaymentsDetailsReference() async {
-    return Details.list;
+    return D.list;
   }
 
   @override

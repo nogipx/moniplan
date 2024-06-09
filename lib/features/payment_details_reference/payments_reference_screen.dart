@@ -17,7 +17,9 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
 
   final ValueNotifier<num> _sumOfData = ValueNotifier(0.0);
   final ValueNotifier<String> _selectedTag = ValueNotifier('');
+
   final ValueNotifier<List<PaymentDetails>> _paymentsToShow = ValueNotifier([]);
+  final ValueNotifier<Set<PaymentDetails>> _selectedPayments = ValueNotifier({});
 
   @override
   void initState() {
@@ -69,6 +71,16 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
     _selectedTag.value = '';
     _paymentsToShow.value = _payments;
     _sumOfData.value = _computeSum(_paymentsToShow.value);
+  }
+
+  void _selectPayment(PaymentDetails payment) {
+    final data = Set.of(_selectedPayments.value)..add(payment);
+    _selectedPayments.value = data;
+  }
+
+  void _deselectPayment(PaymentDetails payment) {
+    final data = Set.of(_selectedPayments.value)..remove(payment);
+    _selectedPayments.value = data;
   }
 
   @override
@@ -131,9 +143,12 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
               },
             ),
             Expanded(
-              child: ValueListenableBuilder(
-                valueListenable: _paymentsToShow,
-                builder: (context, payments, _) {
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_paymentsToShow, _selectedPayments]),
+                builder: (context, child) {
+                  final payments = _paymentsToShow.value;
+                  final selected = _selectedPayments.value;
+
                   return ListView.separated(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -143,61 +158,80 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                     itemCount: payments.length,
                     itemBuilder: (context, index) {
                       final payment = payments[index];
-                      return Card(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      final isSelected = selected.contains(payment);
+
+                      return GestureDetector(
+                        onTap: () {
+                          if (isSelected) {
+                            _deselectPayment(payment);
+                          } else {
+                            _selectPayment(payment);
+                          }
+                        },
+                        child: Card(
+                          elevation: isSelected ? 3 : 1,
+                          shadowColor: isSelected
+                              ? MoniplanColors.positiveMoneyColor
+                              : MoniplanColors.inactiveBackgroundColor,
+                          child: Grayscale(
+                            grayscale: isSelected,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  Text(payment.name),
-                                  const SizedBox(width: 8),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      MoneyColoredWidget(
-                                        value: payment.normalizedMoney,
-                                        currency: AppCurrencies.ru,
-                                        showPlusSign: true,
+                                      Text(payment.name),
+                                      const SizedBox(width: 8),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          MoneyColoredWidget(
+                                            value: payment.normalizedMoney,
+                                            currency: AppCurrencies.ru,
+                                            showPlusSign: true,
+                                          ),
+                                          if (payment.tax > 0)
+                                            Text(
+                                              'Налог ${(payment.tax * 100).toInt()}%',
+                                              style:
+                                                  Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                        color: MoniplanColors.secondaryTextColor,
+                                                      ),
+                                            )
+                                        ],
                                       ),
-                                      if (payment.tax > 0)
-                                        Text(
-                                          'Налог ${(payment.tax * 100).toInt()}%',
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: MoniplanColors.secondaryTextColor,
-                                              ),
-                                        )
                                     ],
                                   ),
+                                  if (payment.note.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: 8,
+                                      ),
+                                      child: Text(
+                                        payment.note,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: MoniplanColors.primaryTextColor,
+                                            ),
+                                      ),
+                                    ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    payment.tags.map((e) => '#$e').join('  '),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(color: MoniplanColors.secondaryTextColor),
+                                  )
                                 ],
                               ),
-                              if (payment.note.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 8,
-                                  ),
-                                  child: Text(
-                                    payment.note,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: MoniplanColors.primaryTextColor,
-                                        ),
-                                  ),
-                                ),
-                              const SizedBox(height: 8),
-                              Text(
-                                payment.tags.map((e) => '#$e').join('  '),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(color: MoniplanColors.secondaryTextColor),
-                              )
-                            ],
+                            ),
                           ),
                         ),
                       );

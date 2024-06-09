@@ -4,7 +4,7 @@ import '_tags.dart';
 
 String get newUuid => const Uuid().v4();
 
-abstract class Details {
+abstract class D {
   static final list = <PaymentDetails>[
     ipotekaLower,
     ipotekaGreater,

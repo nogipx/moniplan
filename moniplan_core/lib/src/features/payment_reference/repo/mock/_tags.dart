@@ -3,6 +3,7 @@ abstract class Tags {
     required,
     everyMonth,
     irregular,
+    singleTime,
     income,
     longTimeDebt,
     soderzhanki,
