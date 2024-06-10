@@ -15,10 +15,11 @@ final currentRequest = PaymentPlanner(
     '16.06'.p.info(D.splitGooglePixelForce).build(),
     '16.06'.p.info(D.kubishkaFullfill).build(),
     '16.06'.p.info(D.hairCorrection).build(),
-    '16.06'.p.info(D.implanon).build(),
-    '16.06'.p.info(D.cosmetic).build(),
+    '16.06'.p.info(D.carFixing).build(),
     '21.06'.p.info(D.closeCreditCardTinkoff).build(),
     '06.07'.p.info(D.creditTashkent).build(),
+    '16.07'.p.info(D.cosmetic).build(),
+    '16.07'.p.info(D.implanon).build(),
     '08.07'.p.info(D.gym).build(),
     '08.07'.p.info(D.closeCreditCardAlfa).build(),
 
@@ -40,15 +41,15 @@ final currentRequest = PaymentPlanner(
     '16.06'.p.info(D.ipotekaLower).repeatMonth.build(),
     '21.06'.p.info(D.ipotekaGreater).repeatMonth.build(),
     '14.06'.p.info(D.creditCardTinkoff).repeatMonth.start('14.07'.date).end('21.06'.date).build(),
-    '24.06'.p.info(D.creditCardAlfa).repeatMonth.end('08.07'.date).build(),
+    // '24.06'.p.info(D.creditCardAlfa).repeatMonth.end('08.07'.date).build(),
 
     /// Регулярные платежи
     ///
-    '10.06'.p.info(D.communalBelichenko).repeatMonth.build(),
-    '10.06'.p.info(D.communalGondarya).repeatMonth.build(),
-    '10.06'.p.info(D.communalSuvorova).repeatMonth.build(),
-    '10.06'.p.info(D.internet).repeatMonth.build(),
-    '15.06'.p.info(D.catsSummary).repeatMonth.build(),
+    '10.06'.p.start('10.7'.date).info(D.communalBelichenko).repeatMonth.build(),
+    '10.06'.p.start('10.7'.date).info(D.communalGondarya).repeatMonth.build(),
+    '10.06'.p.start('10.7'.date).info(D.communalSuvorova).repeatMonth.build(),
+    '10.06'.p.start('10.7'.date).info(D.internet).repeatMonth.build(),
+    '10.06'.p.start('10.7'.date).info(D.catsSummary).repeatMonth.build(),
 
     /// Регулярные переводы
     ///
@@ -58,6 +59,11 @@ final currentRequest = PaymentPlanner(
 
     /// Done .06 Июнь
     ///
-    '09.06'.p.info(D.creditCardTinkoff).build(),
+    '09.06'.p.done.info(D.creditCardTinkoff).build(),
+    '10.06'.p.done.info(D.communalBelichenko).build(),
+    '10.06'.p.done.info(D.communalGondarya).build(),
+    '10.06'.p.done.info(D.communalSuvorova).build(),
+    '10.06'.p.done.info(D.internet).build(),
+    '10.06'.p.done.info(D.catsSummary).build(),
   ],
 );

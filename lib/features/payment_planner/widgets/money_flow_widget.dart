@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:moniplan_uikit/src/widgets/money_colored_widget.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
@@ -13,53 +14,93 @@ class MoneyFlowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.labelSmall;
+    final divider = SizedBox(
+      height: 30,
+      child: VerticalDivider(
+        thickness: 1,
+        width: 1,
+        color: MoniplanColors.inactiveTextColor,
+      ),
+    );
+
     return Material(
       color: MoniplanColors.white,
+      elevation: .5,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 12,
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
+        child: SizedBox(
+          height: 30,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.spaceBetween,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Поступления'),
-                  MoneyColoredWidget(
-                    value: state.totalIncome,
-                    currency: AppCurrencies.ru,
+                  Text(
+                    'Start',
+                    style: textStyle,
                   ),
-                  const SizedBox(height: 8),
-                  const Text('Траты'),
-                  MoneyColoredWidget(
-                    value: state.totalOutcome,
-                    currency: AppCurrencies.ru,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                children: [
-                  const Text('Стартовый баланс'),
                   MoneyColoredWidget(
                     value: state.initialBalance,
                     currency: AppCurrencies.ru,
                     showPlusSign: false,
+                    textStyle: textStyle,
                   ),
-                  const SizedBox(height: 8),
-                  const Text('Баланс'),
+                ],
+              ),
+              divider,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Income',
+                    style: textStyle,
+                  ),
+                  MoneyColoredWidget(
+                    value: state.totalIncome,
+                    currency: AppCurrencies.ru,
+                    textStyle: textStyle,
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Expense',
+                    style: textStyle,
+                  ),
+                  MoneyColoredWidget(
+                    value: state.totalOutcome,
+                    currency: AppCurrencies.ru,
+                    textStyle: textStyle,
+                  ),
+                ],
+              ),
+              divider,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Result',
+                    style: textStyle,
+                  ),
                   MoneyColoredWidget(
                     value: state.balance,
                     currency: AppCurrencies.ru,
                     showPlusSign: false,
+                    textStyle: textStyle,
                   ),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

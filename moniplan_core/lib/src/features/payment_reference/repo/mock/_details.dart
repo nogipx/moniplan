@@ -31,6 +31,9 @@ abstract class D {
     hairCorrection,
     cosmetic,
     gym,
+    closeCreditCardAlfa,
+    closeCreditCardTinkoff,
+    carFixing,
   ];
 
   static final ipotekaLower = PaymentDetails(
@@ -125,7 +128,7 @@ abstract class D {
     name: 'Погашение кубышки',
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
-    money: 42000,
+    money: 37000,
     tags: {
       Tags.singleTime,
       Tags.required,
@@ -327,7 +330,16 @@ abstract class D {
   );
   static final closeCreditCardTinkoff = PaymentDetails(
     name: 'Погасить кредитку Тинькоф',
-    money: 249000,
+    money: 237000,
+    type: PaymentType.expense,
+    currency: AppCurrencies.ru,
+    tags: {
+      Tags.singleTime,
+    },
+  );
+  static final carFixing = PaymentDetails(
+    name: 'Ремонт машины 16.06.2024',
+    money: 30000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {

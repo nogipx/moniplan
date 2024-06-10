@@ -4,7 +4,6 @@ import '_index.dart';
 final lightTheme = ThemeData(
   fontFamily: 'SfProText',
   textTheme: baseTextTheme,
-  backgroundColor: Colors.white,
   scaffoldBackgroundColor: Colors.white,
   splashFactory: NoSplash.splashFactory,
   inputDecorationTheme: InputDecorationTheme(
@@ -12,11 +11,11 @@ final lightTheme = ThemeData(
       bottom: 12,
       top: 30,
     ),
-    hintStyle: baseTextTheme.bodyText1?.copyWith(
+    hintStyle: baseTextTheme.bodyMedium?.copyWith(
       color: MoniplanColors.inactiveTextColor,
       fontWeight: FontWeight.normal,
     ),
-    labelStyle: baseTextTheme.bodyText1?.copyWith(
+    labelStyle: baseTextTheme.bodyMedium?.copyWith(
       color: MoniplanColors.inactiveTextColor,
       fontWeight: FontWeight.normal,
     ),

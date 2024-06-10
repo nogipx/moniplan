@@ -4,6 +4,7 @@ import 'package:moniplan/features/_common/db_view_floating_button.dart';
 import 'package:moniplan/main.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 import '../_index.dart';
 
@@ -90,7 +91,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                   child: CustomScrollView(
                     controller: _controller,
                     slivers: [
-                      SliverToBoxAdapter(
+                      SliverPinnedHeader(
                         child: state.maybeMap(
                           budgetComputed: (s) => MoneyFlowWidget(
                             state: s.moneyFlow,

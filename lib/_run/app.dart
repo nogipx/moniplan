@@ -43,31 +43,34 @@ class _MoniplanAppState extends State<MoniplanApp> {
             builder: (context) {
               return Scaffold(
                 body: SafeArea(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        child: const Text('Планеры'),
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) {
-                              return const PlannersListScreen();
-                            }),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        child: const Text('Справочник платежей'),
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) {
-                              return const PaymentsReferenceScreen();
-                            }),
-                          );
-                        },
-                      ),
-                    ],
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          child: const Text('Планеры'),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) {
+                                return const PlannersListScreen();
+                              }),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          child: const Text('Справочник платежей'),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) {
+                                return const PaymentsReferenceScreen();
+                              }),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
