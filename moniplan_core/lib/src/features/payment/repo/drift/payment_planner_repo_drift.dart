@@ -1,9 +1,5 @@
-import 'dart:math';
-
 import 'package:drift/drift.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_core/src/_index.dart';
-import 'package:moniplan_core/src/features/_index.dart';
 
 final class PaymentPlannerRepoDrift implements IPaymentPlannerRepo {
   final MoniplanDriftDb db;

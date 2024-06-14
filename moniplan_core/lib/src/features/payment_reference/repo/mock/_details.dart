@@ -33,7 +33,7 @@ abstract class D {
     gym,
     closeCreditCardAlfa,
     closeCreditCardTinkoff,
-    carFixing,
+    carInvestment,
   ];
 
   static final ipotekaLower = PaymentDetails(
@@ -328,6 +328,15 @@ abstract class D {
       Tags.singleTime,
     },
   );
+  static final macbookUpdate = PaymentDetails(
+    name: 'Новый макбук 2023 16 дюймов',
+    money: 360000,
+    type: PaymentType.expense,
+    currency: AppCurrencies.ru,
+    tags: {
+      Tags.singleTime,
+    },
+  );
   static final closeCreditCardTinkoff = PaymentDetails(
     name: 'Погасить кредитку Тинькоф',
     money: 237000,
@@ -337,9 +346,9 @@ abstract class D {
       Tags.singleTime,
     },
   );
-  static final carFixing = PaymentDetails(
-    name: 'Ремонт машины 16.06.2024',
-    money: 30000,
+  static final carInvestment = PaymentDetails(
+    name: 'Инвестирование в машину',
+    money: 0,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {

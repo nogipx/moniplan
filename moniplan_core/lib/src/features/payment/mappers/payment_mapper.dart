@@ -1,7 +1,4 @@
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_core/src/features/payment/dao/drift/_drift_database.dart';
-
-import '../dao/ob/payment_composed_dao_ob.dart';
 
 class PaymentMapperDrift implements IMapper<Payment, PaymentsComposedDriftTableData> {
   const PaymentMapperDrift();

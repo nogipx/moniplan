@@ -1,5 +1,4 @@
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_core/src/features/payment/dao/drift/_drift_database.dart';
 
 class PlannerMapperDrift implements IMapper<PaymentPlanner, PaymentPlannersDriftTableData> {
   const PlannerMapperDrift();
@@ -10,7 +9,7 @@ class PlannerMapperDrift implements IMapper<PaymentPlanner, PaymentPlannersDrift
     final start = data.dateStart;
     final end = data.dateEnd;
 
-    if (paymentId == null || start == null || end == null) {
+    if (start == null || end == null) {
       throw Exception('Cannot compose Planner');
     }
 
@@ -18,8 +17,8 @@ class PlannerMapperDrift implements IMapper<PaymentPlanner, PaymentPlannersDrift
       id: paymentId,
       dateStart: start,
       dateEnd: end,
-      initialBudget: data.initialBudget ?? 0.0,
-      isDraft: data.isDraft ?? true,
+      initialBudget: data.initialBudget,
+      isDraft: data.isDraft,
     );
   }
 

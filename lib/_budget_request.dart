@@ -6,28 +6,30 @@ import 'package:moniplan_core/src/features/payment_reference/repo/mock/_details.
 final currentRequest = PaymentPlanner(
   id: const Uuid().v4(),
   dateStart: '08.06'.date,
-  dateEnd: '00.8'.date,
+  dateEnd: '00.12'.date,
   initialBudget: 165000,
   isDraft: true,
   payments: [
     /// Одноразовые
     ///
+    '13.06'.p.done.info(D.carInvestment.copyWith(money: 20000)).build(),
     '16.06'.p.info(D.splitGooglePixelForce).build(),
     '16.06'.p.info(D.kubishkaFullfill).build(),
-    '16.06'.p.info(D.hairCorrection).build(),
-    '16.06'.p.info(D.carFixing).build(),
+    '16.06'.p.info(D.carInvestment.copyWith(money: 30000)).build(),
     '21.06'.p.info(D.closeCreditCardTinkoff).build(),
+    '03.07'.p.info(D.hairCorrection).build(),
     '06.07'.p.info(D.creditTashkent).build(),
     '16.07'.p.info(D.cosmetic).build(),
     '16.07'.p.info(D.implanon).build(),
     '08.07'.p.info(D.gym).build(),
     '08.07'.p.info(D.closeCreditCardAlfa).build(),
+    // '08.08'.p.info(D.macbookUpdate).build(),
 
     /// Регулярные зп
     ///
     '15.06'.p.info(D.salaryCopix).repeatMonth.start('15.06'.date).build(),
-    '20.06'.p.info(D.salaryUzumHalf).repeatMonth.start('20.06'.date).build(),
-    '05.07'.p.info(D.salaryUzumHalf).repeatMonth.start('05.07'.date).build(),
+    '20.06'.p.info(D.salaryUzumHalf).repeatMonth.start('20.06'.date).end('05.13'.date).build(),
+    '05.07'.p.info(D.salaryUzumHalf).repeatMonth.start('05.07'.date).end('05.13'.date).build(),
     '07.07'.p.info(D.salaryBristol).repeatMonth.start('07.07'.date).build(),
 
     /// Нерегулярные зп

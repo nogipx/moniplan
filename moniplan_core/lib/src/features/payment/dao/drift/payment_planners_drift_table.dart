@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:moniplan_core/moniplan_core.dart';
 
 @TableIndex(name: 'index_planner_id', columns: {#plannerId})
 class PaymentPlannersDriftTable extends Table {

@@ -18,7 +18,7 @@ Future<void> main() async {
       () async {
         WidgetsFlutterBinding.ensureInitialized();
 
-        db = await MoniplanDriftDb(
+        db = MoniplanDriftDb(
           lazyDatabase: driftOpenConnection(),
         );
 
