@@ -12,7 +12,7 @@ abstract class D {
     creditTashkent,
     creditCardTinkoff,
     creditCardAlfa,
-    splitGooglePixelForce,
+    splitGooglePixel,
     kubishkaFullfill,
     daryaLifeMonth,
     creditCar,
@@ -112,13 +112,12 @@ abstract class D {
     note: 'Тут все ок, платим как обычно',
   );
 
-  static final splitGooglePixelForce = PaymentDetails(
-    name: 'Сплит пиксель (досрок)',
-    money: 28000,
+  static final splitGooglePixel = PaymentDetails(
+    name: 'Сплит пиксель',
+    money: 14000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {
-      Tags.singleTime,
       Tags.required,
     },
     note: 'Хочу закрыть досрочно',

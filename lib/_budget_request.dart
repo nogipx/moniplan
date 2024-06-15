@@ -13,7 +13,6 @@ final currentRequest = PaymentPlanner(
     /// Одноразовые
     ///
     '13.06'.p.done.info(D.carInvestment.copyWith(money: 20000)).build(),
-    '16.06'.p.info(D.splitGooglePixelForce).build(),
     '16.06'.p.info(D.kubishkaFullfill).build(),
     '16.06'.p.info(D.carInvestment.copyWith(money: 30000)).build(),
     '21.06'.p.info(D.closeCreditCardTinkoff).build(),
@@ -52,6 +51,8 @@ final currentRequest = PaymentPlanner(
     '10.06'.p.start('10.7'.date).info(D.communalSuvorova).repeatMonth.build(),
     '10.06'.p.start('10.7'.date).info(D.internet).repeatMonth.build(),
     '10.06'.p.start('10.7'.date).info(D.catsSummary).repeatMonth.build(),
+    '26.06'.p.info(D.splitGooglePixel).build(),
+    '26.07'.p.info(D.splitGooglePixel).build(),
 
     /// Регулярные переводы
     ///

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "848767447335",
+    "project_id": "moniplan-nogipx",
+    "storage_bucket": "moniplan-nogipx.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:848767447335:android:89bbe076d4338d307cb902",
+        "android_client_info": {
+          "package_name": "dev.nogipx.moniplan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqgrJTuNIKdiKWvX_7qbhtw-zNxue4I3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
