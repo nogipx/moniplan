@@ -8,16 +8,16 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  money2: ^5.0.1
-  uuid: ^4.3.3
-  equatable: ^2.0.5
-  json_annotation: ^4.8.1
-  freezed_annotation: ^2.4.1
-  intl: ^0.19.0
+  money2: 5.0.1
+  uuid: 4.3.3
+  equatable: 2.0.5
+  json_annotation: 4.9.0
+  freezed_annotation: 2.4.1
+  intl: 0.19.0
 
 dev_dependencies:
-  lints: ^3.0.0
-  test: ^1.25.2
-  build_runner: ^2.4.9
-  freezed: ^2.5.0
-  json_serializable: ^6.7.1
+  lints: 3.0.0
+  test: 1.25.2
+  build_runner: 2.4.9
+  freezed: 2.5.0
+  json_serializable: 6.8.0
