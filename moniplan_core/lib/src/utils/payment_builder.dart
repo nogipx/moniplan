@@ -13,6 +13,16 @@ class PaymentBuilder {
 
   PaymentBuilder(this._date);
 
+  PaymentBuilder input(String name, [num money = 0]) {
+    _details = PaymentDetails(
+      name: name,
+      money: money,
+      type: money <= 0 ? PaymentType.expense : PaymentType.income,
+      currency: AppCurrencies.ru,
+    );
+    return this;
+  }
+
   PaymentBuilder info(PaymentDetails details) {
     _details = details;
     return this;

@@ -327,6 +327,15 @@ abstract class D {
       Tags.singleTime,
     },
   );
+  static final closeCreditCardMts = PaymentDetails(
+    name: 'Погасить кредитку Мтсбанк',
+    money: 20000,
+    type: PaymentType.expense,
+    currency: AppCurrencies.ru,
+    tags: {
+      Tags.singleTime,
+    },
+  );
   static final macbookUpdate = PaymentDetails(
     name: 'Новый макбук 2023 16 дюймов',
     money: 360000,
@@ -338,7 +347,7 @@ abstract class D {
   );
   static final closeCreditCardTinkoff = PaymentDetails(
     name: 'Погасить кредитку Тинькоф',
-    money: 237000,
+    money: 243000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {
