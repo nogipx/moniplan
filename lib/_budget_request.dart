@@ -10,19 +10,6 @@ final currentRequest = PaymentPlanner(
   initialBudget: 165000,
   isDraft: true,
   payments: [
-    /// Одноразовые
-    ///
-
-    '20.06'.p.info(D.implanon).build(),
-    '21.06'.p.info(D.closeCreditCardTinkoff).build(),
-    '03.07'.p.info(D.hairCorrection).build(),
-    '06.07'.p.info(D.creditTashkent).build(),
-    '16.07'.p.info(D.cosmetic).build(),
-    '08.07'.p.info(D.gym).build(),
-    '08.07'.p.info(D.closeCreditCardAlfa).build(),
-    '08.07'.p.info(D.closeCreditCardMts).build(),
-    // '08.08'.p.info(D.macbookUpdate).build(),
-
     /// Регулярные зп
     ///
     '15.06'.p.info(D.salaryCopix).repeatMonth.start('15.07'.date).build(),
@@ -59,6 +46,18 @@ final currentRequest = PaymentPlanner(
     '08.07'.p.info(D.daryaLifeMonth).repeatMonth.start('08.07'.date).build(),
     '08.07'.p.info(D.natashaLifeMonth).repeatMonth.start('08.07'.date).build(),
 
+    /// Одноразовые
+    ///
+    '20.06'.p.info(D.implanon).build(),
+    '17.06'.p.info(D.closeCreditCardTinkoff).build(),
+    '03.07'.p.info(D.hairCorrection).build(),
+    '06.07'.p.info(D.creditTashkent).build(),
+    '16.07'.p.info(D.cosmetic).build(),
+    '08.07'.p.info(D.gym).build(),
+    '08.07'.p.info(D.closeCreditCardAlfa).build(),
+    '08.07'.p.info(D.closeCreditCardMts).build(),
+    // '08.08'.p.info(D.macbookUpdate).build(),
+
     /// Done .06 Июнь
     ///
     '09.06'.p.done.info(D.creditCardTinkoff).build(),
@@ -73,6 +72,6 @@ final currentRequest = PaymentPlanner(
     '13.06'.p.done.info(D.carInvestment.copyWith(money: 20000)).build(),
     '16.06'.p.done.info(D.kubishkaFullfill).build(),
     '17.06'.p.info(D.salaryCopix).build(),
-    '17.06'.p.info(D.carInvestment.copyWith(money: 25000)).build(),
+    '20.06'.p.info(D.carInvestment.copyWith(money: 25000)).build(),
   ],
 );
