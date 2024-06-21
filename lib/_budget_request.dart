@@ -13,7 +13,7 @@ final currentRequest = PaymentPlanner(
     /// Регулярные зп
     ///
     '15.06'.p.info(D.salaryCopix).repeatMonth.start('15.07'.date).build(),
-    '20.06'.p.info(D.salaryUzumHalf).repeatMonth.start('20.06'.date).end('05.13'.date).build(),
+    '20.06'.p.info(D.salaryUzumHalf).repeatMonth.start('20.07'.date).end('05.13'.date).build(),
     '05.07'.p.info(D.salaryUzumHalf).repeatMonth.start('05.07'.date).end('05.13'.date).build(),
     '07.07'.p.info(D.salaryBristol).repeatMonth.start('07.07'.date).build(),
 
@@ -42,19 +42,20 @@ final currentRequest = PaymentPlanner(
 
     /// Регулярные переводы
     ///
-    '21.06'.p.info(D.rentHomeSuvorova).repeatMonth.build(),
+    '21.06'.p.info(D.rentHomeSuvorova).repeatMonth.start('21.07'.date).build(),
     '08.07'.p.info(D.daryaLifeMonth).repeatMonth.start('08.07'.date).build(),
-    '08.07'.p.info(D.natashaLifeMonth).repeatMonth.start('08.07'.date).build(),
+    '08.07'.p.info(D.natashaLifeMonth.copyWith(money: 60000)).build(),
 
     /// Одноразовые
     ///
-    '20.06'.p.info(D.implanon).build(),
-    '17.06'.p.info(D.closeCreditCardTinkoff).build(),
+    '25.06'.p.info(D.implanon).build(),
+    '07.07'.p.info(D.arsenyCarCompens).build(),
     '03.07'.p.info(D.hairCorrection).build(),
     '06.07'.p.info(D.creditTashkent).build(),
     '16.07'.p.info(D.cosmetic).build(),
     '08.07'.p.info(D.gym).build(),
-    '08.07'.p.info(D.closeCreditCardAlfa).build(),
+    '08.10'.p.info(D.closeCreditCardAlfa).build(),
+    '16.07'.p.info(D.closeCreditCardTinkoff).build(),
     '08.07'.p.info(D.closeCreditCardMts).build(),
     // '08.08'.p.info(D.macbookUpdate).build(),
 
@@ -71,7 +72,9 @@ final currentRequest = PaymentPlanner(
     '16.06'.p.done.info(D.ipotekaGreater).build(),
     '13.06'.p.done.info(D.carInvestment.copyWith(money: 20000)).build(),
     '16.06'.p.done.info(D.kubishkaFullfill).build(),
-    '17.06'.p.info(D.salaryCopix).build(),
-    '20.06'.p.info(D.carInvestment.copyWith(money: 25000)).build(),
+    '20.06'.p.done.info(D.salaryUzumHalf).build(),
+    '21.06'.p.done.info(D.rentHomeSuvorova).build(),
+    '21.06'.p.done.info(D.salaryCopix.copyWith(money: 220000, tax: 0)).build(),
+    // '20.06'.p.info(D.carInvestment.copyWith(money: 25000)).build(),
   ],
 );

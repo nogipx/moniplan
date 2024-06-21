@@ -163,7 +163,7 @@ abstract class D {
   );
   static final natashaLifeMonth = PaymentDetails(
     name: 'Содержанка Наташа',
-    money: 70000,
+    money: 60000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {
@@ -347,7 +347,7 @@ abstract class D {
   );
   static final closeCreditCardTinkoff = PaymentDetails(
     name: 'Погасить кредитку Тинькоф',
-    money: 243000,
+    money: 250000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {
@@ -357,6 +357,15 @@ abstract class D {
   static final carInvestment = PaymentDetails(
     name: 'Инвестирование в машину',
     money: 0,
+    type: PaymentType.expense,
+    currency: AppCurrencies.ru,
+    tags: {
+      Tags.singleTime,
+    },
+  );
+  static final arsenyCarCompens = PaymentDetails(
+    name: 'Отдать Арсению за тачку',
+    money: 450000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {
