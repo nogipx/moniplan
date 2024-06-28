@@ -63,5 +63,5 @@ _savePlanner(PaymentPlanner planner) async {
   ).run();
 
   final repo = PaymentPlannerRepoDrift(db: db);
-  await repo.persistPlanner(generated.planner);
+  await repo.savePlanner(generated.planner);
 }

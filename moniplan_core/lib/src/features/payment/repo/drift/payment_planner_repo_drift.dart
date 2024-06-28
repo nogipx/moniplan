@@ -37,7 +37,7 @@ final class PaymentPlannerRepoDrift implements IPaymentPlannerRepo {
   }
 
   @override
-  Future<PaymentPlanner?> persistPlanner(PaymentPlanner planner) async {
+  Future<PaymentPlanner?> savePlanner(PaymentPlanner planner) async {
     final plannerDao = _plannerMapper.toDto(planner);
     final paymentsDao = planner.payments.map(_paymentMapper.toDto).toList();
 
