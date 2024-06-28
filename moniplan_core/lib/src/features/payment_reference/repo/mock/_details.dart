@@ -78,7 +78,7 @@ abstract class D {
 
   static final creditTashkent = PaymentDetails(
     name: 'Вернуть заем на Ташкент',
-    money: 90000,
+    money: 110000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {
@@ -347,7 +347,7 @@ abstract class D {
   );
   static final closeCreditCardTinkoff = PaymentDetails(
     name: 'Погасить кредитку Тинькоф',
-    money: 250000,
+    money: 230000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {
