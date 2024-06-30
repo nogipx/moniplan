@@ -372,4 +372,15 @@ abstract class D {
       Tags.singleTime,
     },
   );
+  static PaymentDetails remont = PaymentDetails(
+    name: 'Ремонт Гондаря 103',
+    money: 120000,
+    type: PaymentType.expense,
+    currency: AppCurrencies.ru,
+    tags: {
+      Tags.required,
+      Tags.everyMonth,
+      Tags.longTimeDebt,
+    },
+  );
 }

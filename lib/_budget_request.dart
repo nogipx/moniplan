@@ -6,28 +6,29 @@ import 'package:moniplan_core/src/features/payment_reference/repo/mock/_details.
 final currentRequest = PaymentPlanner(
   id: const Uuid().v4(),
   dateStart: '08.06'.date,
-  dateEnd: '00.12'.date,
+  dateEnd: '00.05.2025'.date,
   initialBudget: 165000,
   isDraft: true,
   payments: [
     /// Регулярные зп
     ///
-    '15.06'.p.info(D.salaryCopix).repeatMonth.start('15.07'.date).build(),
+    '15.06'.p.info(D.salaryCopix).repeatMonth.start('15.07'.date).end('15.11.2024'.date).build(),
     '07.07'.p.info(D.salaryBristol).repeatMonth.start('07.07'.date).build(),
     '20.06'
         .p
         .info(D.salaryUzumHalf.copyWith(money: 115000))
         .repeatMonth
         .start('20.07'.date)
-        .end('05.13'.date)
+        // .end('05.13'.date)
         .build(),
     '05.07'
         .p
         .info(D.salaryUzumHalf.copyWith(money: 115000))
         .repeatMonth
         .start('05.07'.date)
-        .end('05.13'.date)
+        // .end('05.13'.date)
         .build(),
+    '30.07'.p.info(D.remont).repeatMonth.start('30.07'.date).end('30.04.2025'.date).build(),
 
     /// Нерегулярные зп
     ///
@@ -56,9 +57,10 @@ final currentRequest = PaymentPlanner(
     '21.06'.p.info(D.rentHomeSuvorova).repeatMonth.start('21.07'.date).build(),
     '08.07'
         .p
-        .info(D.daryaLifeMonth.copyWith(money: 100000))
+        .info(D.daryaLifeMonth.copyWith(money: 90000))
         .repeatMonth
         .start('08.07'.date)
+        .end('08.01.2025'.date)
         .build(),
     '08.07'.p.info(D.natashaLifeMonth.copyWith(money: 20000)).build(),
 
