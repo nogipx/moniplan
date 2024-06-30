@@ -1,29 +1,29 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
-part 'payments_manager_state.freezed.dart';
+part 'planner_state.freezed.dart';
 
 @Freezed()
-class PaymentsManagerState with _$PaymentsManagerState {
-  const PaymentsManagerState._();
+class PlannerState with _$PlannerState {
+  const PlannerState._();
 
-  const factory PaymentsManagerState.initial({
+  const factory PlannerState.initial({
     @Default('') String plannerId,
-  }) = PaymentsManagerInitialState;
+  }) = PlannerInitialState;
 
-  const factory PaymentsManagerState.budgetComputed({
+  const factory PlannerState.budgetComputed({
     @Default('') String plannerId,
     DateTime? dateStart,
     DateTime? dateEnd,
     @Default([]) List<Payment> paymentsGenerated,
     @Default({}) Map<Payment, num> budget,
     @Default(MoneyFlowUseCaseResult()) MoneyFlowUseCaseResult moneyFlow,
-  }) = PaymentsManagerBudgetComputedState;
+  }) = PlannerBudgetComputedState;
 
-  const factory PaymentsManagerState.error({
+  const factory PlannerState.error({
     @Default('') String plannerId,
     @Default([]) List<Payment> payments,
-  }) = PaymentsManagerErrorState;
+  }) = PlannerErrorState;
 
   List<Payment> get paymentsGenerated => maybeMap<List<Payment>>(
         budgetComputed: (v) => v.paymentsGenerated,

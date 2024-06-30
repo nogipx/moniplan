@@ -14,11 +14,11 @@ class PlannersListScreen extends StatefulWidget {
 }
 
 class _PlannersListScreenState extends State<PlannersListScreen> {
-  late IPaymentPlannerRepo _plannerRepo;
+  late IPlannerRepo _plannerRepo;
 
   @override
   void initState() {
-    _plannerRepo = PaymentPlannerRepoDrift(db: db);
+    _plannerRepo = PlannerRepoDrift(db: db);
     super.initState();
   }
 
@@ -52,7 +52,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                 return PlannerItemWidget(
                   planner: planner,
                   onPressed: () {
-                    _openPlanner(context, planner);
+                    _openPlanner(context, planner.id);
                   },
                 );
               },
@@ -63,18 +63,16 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
     );
   }
 
-  Future _openPlanner(BuildContext context, PaymentPlanner planner) {
+  Future _openPlanner(BuildContext context, String plannerId) {
     return Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) {
           return BlocProvider(
             create: (context) {
-              final bloc = PaymentsManagerBloc(
+              final bloc = PlannerBloc(
                 paymentPlannerRepo: _plannerRepo,
-              );
-              bloc.add(
-                PaymentsManagerEvent.computeBudget(plannerId: planner.id),
-              );
+                plannerId: plannerId,
+              )..add(const PlannerEvent.computeBudget());
               return bloc;
             },
             child: const PlannerViewScreen(),

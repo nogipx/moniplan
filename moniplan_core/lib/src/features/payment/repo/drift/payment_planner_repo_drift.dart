@@ -1,21 +1,15 @@
 import 'package:drift/drift.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
-final class PaymentPlannerRepoDrift implements IPaymentPlannerRepo {
+final class PlannerRepoDrift implements IPlannerRepo {
   final MoniplanDriftDb db;
 
-  const PaymentPlannerRepoDrift({
+  const PlannerRepoDrift({
     required this.db,
   });
 
   static const _plannerMapper = PlannerMapperDrift();
   static const _paymentMapper = PaymentMapperDrift();
-
-  @override
-  Future<PaymentPlanner?> getLastPlanner() {
-    // TODO: implement getLastPlanner
-    throw UnimplementedError();
-  }
 
   @override
   Future<PaymentPlanner?> getPlannerById(String id) {
@@ -137,28 +131,13 @@ final class PaymentPlannerRepoDrift implements IPaymentPlannerRepo {
   Future<Payment?> savePayment({
     required String plannerId,
     required Payment payment,
-  }) {
-    // TODO: implement save
-    throw UnimplementedError();
-  }
+  }) async {
+    return db.transaction(() async {
+      final resultPayment = payment.copyWith(plannerId: plannerId);
 
-  @override
-  Future<void> setPaymentDone({
-    required String plannerId,
-    required String paymentId,
-    required bool isDone,
-  }) {
-    // TODO: implement setDoneState
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> setPaymentEnabled({
-    required String plannerId,
-    required String paymentId,
-    required bool isEnabled,
-  }) {
-    // TODO: implement setEnabledState
-    throw UnimplementedError();
+      final paymentDao = _paymentMapper.toDto(resultPayment);
+      final isUpdated = await db.managers.paymentsComposedDriftTable.replace(paymentDao);
+      return isUpdated ? payment : null;
+    });
   }
 }

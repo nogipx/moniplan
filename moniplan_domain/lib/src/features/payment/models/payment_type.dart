@@ -1,8 +1,7 @@
 enum PaymentType {
   unknown(-100, 0),
   income(1, 1),
-  expense(-1, 2),
-  transfer(0, 3);
+  expense(-1, 2);
 
   final double modifier;
   final int id;
@@ -14,7 +13,6 @@ enum PaymentType {
       0 => PaymentType.unknown,
       1 => PaymentType.income,
       2 => PaymentType.expense,
-      3 => PaymentType.transfer,
       _ => PaymentType.unknown,
     };
   }

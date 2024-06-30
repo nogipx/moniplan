@@ -6,7 +6,7 @@ import 'package:moniplan_core/src/features/payment_reference/repo/mock/_details.
 final currentRequest = PaymentPlanner(
   id: const Uuid().v4(),
   dateStart: '08.06'.date,
-  dateEnd: '00.05.2025'.date,
+  dateEnd: '00.08'.date,
   initialBudget: 165000,
   isDraft: true,
   payments: [

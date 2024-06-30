@@ -32,7 +32,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PaymentsManagerBloc, PaymentsManagerState>(
+    return BlocBuilder<PlannerBloc, PlannerState>(
       builder: (context, state) {
         final dateStartRaw = state.mapOrNull(
           budgetComputed: (s) => s.dateStart,
@@ -85,7 +85,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
               ],
             ),
             backgroundColor: MoniplanColors.white,
-            body: BlocBuilder<PaymentsManagerBloc, PaymentsManagerState>(
+            body: BlocBuilder<PlannerBloc, PlannerState>(
               builder: (context, state) {
                 return MoniplanThemeListenable(
                   child: CustomScrollView(
@@ -104,13 +104,14 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                           operations: state.paymentsGenerated,
                           budget: state.budget,
                           onPaymentPressed: (payment) async {
-                            final repo = PaymentPlannerRepoDrift(db: db);
-                            await repo.setPaymentDone(
-                              plannerId: state.plannerId,
-                              paymentId: payment.paymentId,
-                              isDone: !payment.isDone,
-                            );
-                            context.read<PaymentsManagerBloc>().reload();
+                            context.read<PlannerBloc>().add(
+                                  PlannerEvent.updatePayment(
+                                    newPayment: payment.copyWith(
+                                      isDone: !payment.isDone,
+                                      // isEnabled: !payment.isEnabled,
+                                    ),
+                                  ),
+                                );
                           },
                         ),
                       )

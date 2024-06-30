@@ -1,6 +1,7 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 class GeneratePlannerUseCaseArgs {
+  final String? customPlannerId;
   final Iterable<Payment> payments;
   final DateTime dateStart;
   final DateTime dateEnd;
@@ -11,6 +12,7 @@ class GeneratePlannerUseCaseArgs {
     required this.dateStart,
     required this.dateEnd,
     this.initialBudget = 0,
+    this.customPlannerId,
   });
 }
 
@@ -38,7 +40,7 @@ class GeneratePlannerUseCase implements IUseCase<GeneratePlannerUseCaseResult> {
       return GeneratePlannerUseCaseResult(
         originalPayments: const [],
         planner: PaymentPlanner(
-          id: uuid.v4(),
+          id: '',
           dateStart: args.dateStart,
           dateEnd: args.dateEnd,
           initialBudget: args.initialBudget,
@@ -49,7 +51,7 @@ class GeneratePlannerUseCase implements IUseCase<GeneratePlannerUseCaseResult> {
 
     final dateStart = args.dateStart;
     final dateEnd = args.dateEnd;
-    final plannerId = uuid.v4();
+    final plannerId = args.customPlannerId ?? uuid.v4();
 
     final generated = payments
         .map(
