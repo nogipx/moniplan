@@ -6,7 +6,7 @@ import 'package:moniplan_core/src/features/payment_reference/repo/mock/_details.
 final currentRequest = PaymentPlanner(
   id: const Uuid().v4(),
   dateStart: '08.06'.date,
-  dateEnd: '00.08'.date,
+  dateEnd: '00.11.2024'.date,
   initialBudget: 165000,
   isDraft: true,
   payments: [
@@ -57,7 +57,7 @@ final currentRequest = PaymentPlanner(
     '21.06'.p.info(D.rentHomeSuvorova).repeatMonth.start('21.07'.date).build(),
     '08.07'
         .p
-        .info(D.daryaLifeMonth.copyWith(money: 90000))
+        .info(D.daryaLifeMonth.copyWith(money: 100000))
         .repeatMonth
         .start('08.07'.date)
         .end('08.01.2025'.date)
@@ -68,10 +68,9 @@ final currentRequest = PaymentPlanner(
     ///
     '08.07'.p.info(D.implanon).build(),
     '08.07'.p.info(D.arsenyCarCompens).build(),
-    '03.07'.p.info(D.hairCorrection).build(),
-    '16.07'.p.info(D.cosmetic).build(),
+    // '16.07'.p.info(D.cosmetic).build(),
     // '08.07'.p.info(D.gym).build(),
-    '08.10'.p.info(D.closeCreditCardAlfa).build(),
+    '08.08'.p.info(D.closeCreditCardAlfa).build(),
     '16.07'.p.info(D.closeCreditCardTinkoff).build(),
     // '08.08'.p.info(D.macbookUpdate).build(),
 
@@ -96,6 +95,15 @@ final currentRequest = PaymentPlanner(
     '29.06'.p.done.info(D.kubishkaFullfill.copyWith(money: 32000)).build(),
     '29.06'.p.done.info(D.creditCardTinkoff).build(),
     '29.06'.p.done.info(D.creditTashkent).build(),
+    '03.07'.p.done.info(D.hairCorrection.copyWith(money: 33000)).build(),
+    '04.07'
+        .p
+        .done
+        .info(D.daryaLifeMonth.copyWith(
+          name: 'Штраф за просрочку регистрации авто',
+          money: 5000,
+        ))
+        .build(),
 
     // '20.06'.p.info(D.carInvestment.copyWith(money: 25000)).build(),
   ],

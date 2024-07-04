@@ -57,21 +57,21 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
 
   PlannerState _computeStateFromPlanner(PaymentPlanner planner) {
     var targetPlanner = planner.copyWith();
-    // if (targetPlanner.isDraft) {
-    final result = GeneratePlannerUseCase(
-      args: GeneratePlannerUseCaseArgs(
-        customPlannerId: targetPlanner.id,
-        payments: targetPlanner.payments,
-        dateStart: targetPlanner.dateStart,
-        dateEnd: targetPlanner.dateEnd,
-        initialBudget: targetPlanner.initialBudget,
-      ),
-    ).run();
-    targetPlanner = result.planner.copyWith(
-      id: targetPlanner.id,
-      isDraft: false,
-    );
-    // }
+    if (targetPlanner.isDraft) {
+      final result = GeneratePlannerUseCase(
+        args: GeneratePlannerUseCaseArgs(
+          customPlannerId: targetPlanner.id,
+          payments: targetPlanner.payments,
+          dateStart: targetPlanner.dateStart,
+          dateEnd: targetPlanner.dateEnd,
+          initialBudget: targetPlanner.initialBudget,
+        ),
+      ).run();
+      targetPlanner = result.planner.copyWith(
+        id: targetPlanner.id,
+        isDraft: false,
+      );
+    }
 
     final constrainedPayments = ConstrainItemsInPeriod(
       args: ConstrainItemsInPeriodArgs(
