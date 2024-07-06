@@ -102,7 +102,7 @@ abstract class D {
 
   static final creditCardAlfa = PaymentDetails(
     name: 'Кредитка Альфа',
-    money: 6600,
+    money: 16000,
     type: PaymentType.expense,
     currency: AppCurrencies.ru,
     tags: {

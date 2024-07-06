@@ -25,14 +25,21 @@ final currentRequest = PaymentPlanner(
         .p
         .info(D.salaryUzumHalf.copyWith(money: 115000))
         .repeatMonth
-        .start('05.07'.date)
+        .start('05.08'.date)
         // .end('05.13'.date)
         .build(),
-    '30.07'.p.info(D.remont).repeatMonth.start('30.07'.date).end('30.04.2025'.date).build(),
+    '30.07'
+        .p
+        .disabled
+        .info(D.remont)
+        .repeatMonth
+        .start('30.09'.date)
+        .end('30.04.2025'.date)
+        .build(),
 
     /// Нерегулярные зп
     ///
-    '05.07'.p.info(D.salaryUzumHalf.copyWith(money: 250000)).build(), // мейби придет больше
+    '05.07'.p.info(D.salaryUzumHalf.copyWith(money: 160000)).build(), // мейби придет больше
 
     /// Кредиты
     ///
@@ -40,9 +47,9 @@ final currentRequest = PaymentPlanner(
     '06.09'.p.info(D.refinanceCredit).start('06.09'.date).repeatMonth.build(),
     '16.06'.p.info(D.ipotekaLower).start('16.07'.date).repeatMonth.build(),
     '21.06'.p.info(D.ipotekaGreater.copyWith(money: 41000)).start('21.07'.date).repeatMonth.build(),
-    '14.06'.p.info(D.creditCardTinkoff).start('14.07'.date).end('21.06'.date).repeatMonth.build(),
-    // '24.06'.p.info(D.creditCardAlfa).repeatMonth.end('08.07'.date).build(),
-
+    // '14.06'.p.info(D.creditCardTinkoff).start('14.07'.date).end('21.06'.date).repeatMonth.build(),
+    '22.07'.p.info(D.creditCardAlfa).repeatMonth.start('22.07'.date).end('16.08'.date).build(),
+    //
     /// Регулярные платежи
     ///
     '10.06'.p.start('10.7'.date).info(D.communalBelichenko).repeatMonth.build(),
@@ -50,28 +57,27 @@ final currentRequest = PaymentPlanner(
     '10.06'.p.start('10.7'.date).info(D.communalSuvorova).repeatMonth.build(),
     '10.06'.p.start('10.7'.date).info(D.internet).repeatMonth.build(),
     '10.06'.p.start('10.7'.date).info(D.catsSummary).repeatMonth.build(),
-    '26.07'.p.info(D.splitGooglePixel).build(),
 
     /// Регулярные переводы
     ///
     '21.06'.p.info(D.rentHomeSuvorova).repeatMonth.start('21.07'.date).build(),
-    '08.07'
+    '08.08'
         .p
         .info(D.daryaLifeMonth.copyWith(money: 100000))
         .repeatMonth
-        .start('08.07'.date)
+        .start('08.08'.date)
         .end('08.01.2025'.date)
         .build(),
-    '08.07'.p.info(D.natashaLifeMonth.copyWith(money: 20000)).build(),
+    '08.08'.p.info(D.natashaLifeMonth.copyWith(money: 20000)).start('08.08.2024'.date).build(),
 
     /// Одноразовые
     ///
-    '08.07'.p.info(D.implanon).build(),
+    '17.07'.p.info(D.implanon).build(),
     '08.07'.p.info(D.arsenyCarCompens).build(),
     // '16.07'.p.info(D.cosmetic).build(),
     // '08.07'.p.info(D.gym).build(),
-    '08.08'.p.info(D.closeCreditCardAlfa).build(),
-    '16.07'.p.info(D.closeCreditCardTinkoff).build(),
+    '16.08'.p.info(D.closeCreditCardAlfa).build(),
+    '16.08'.p.info(D.closeCreditCardTinkoff).build(),
     // '08.08'.p.info(D.macbookUpdate).build(),
 
     /// Done .06 Июнь
@@ -104,6 +110,9 @@ final currentRequest = PaymentPlanner(
           money: 5000,
         ))
         .build(),
+    '08.07'.p.info(D.daryaLifeMonth.copyWith(money: 80000)).build(),
+    '08.07'.p.info(D.natashaLifeMonth.copyWith(money: 10000)).build(),
+    '26.07'.p.info(D.splitGooglePixel).build(),
 
     // '20.06'.p.info(D.carInvestment.copyWith(money: 25000)).build(),
   ],
