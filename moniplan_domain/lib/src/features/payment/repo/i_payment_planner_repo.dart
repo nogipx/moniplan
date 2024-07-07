@@ -15,6 +15,12 @@ abstract interface class IPlannerRepo {
   /// Удаление планнера.
   Future<void> deletePlanner(String plannerId);
 
+  /// Удаление платежа.
+  Future<void> deletePayment({
+    required String plannerId,
+    required String paymentId,
+  });
+
   /// Получение платежа по id внутри планера
   Future<Payment?> getPaymentById({
     required String plannerId,
@@ -30,5 +36,6 @@ abstract interface class IPlannerRepo {
   Future<Payment?> savePayment({
     required String plannerId,
     required Payment payment,
+    bool allowCreate = false,
   });
 }

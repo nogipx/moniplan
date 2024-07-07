@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/payment_planner/_index.dart';
 import 'package:moniplan/features/planners_list/_index.dart';
 import 'package:moniplan/features/planners_list/widgets/dialog_create_planner.dart';
+import 'package:moniplan/features/planners_list/widgets/dialog_delete_planner.dart';
 import 'package:moniplan/main.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
@@ -135,35 +136,4 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
       ),
     );
   }
-}
-
-void showDeletePlannerDialog(BuildContext context, VoidCallback onDelete) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Delete Planner'),
-        content:
-            Text('Are you sure you want to delete this planner? This action cannot be undone.'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Закрываем диалог
-            },
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              onDelete(); // Вызываем функцию удаления
-              Navigator.of(context).pop(); // Закрываем диалог
-            },
-            child: Text('Delete'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red, // Меняем цвет кнопки на красный
-            ),
-          ),
-        ],
-      );
-    },
-  );
 }

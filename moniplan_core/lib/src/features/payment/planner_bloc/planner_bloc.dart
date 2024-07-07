@@ -23,6 +23,10 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       _onUpdatePayment,
       transformer: restartable(),
     );
+    on<PlannerDeletePaymentEvent>(
+      _onDeletePayment,
+      transformer: restartable(),
+    );
   }
 
   FutureOr<void> _onCompute(
@@ -49,11 +53,24 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     final result = await _plannerRepo.savePayment(
       plannerId: plannerId,
       payment: event.newPayment,
+      allowCreate: event.create,
     );
 
     if (result != null) {
       add(PlannerEvent.computeBudget());
     }
+  }
+
+  FutureOr<void> _onDeletePayment(
+    PlannerDeletePaymentEvent event,
+    Emitter<PlannerState> emit,
+  ) async {
+    await _plannerRepo.deletePayment(
+      plannerId: plannerId,
+      paymentId: event.paymentId,
+    );
+
+    add(PlannerEvent.computeBudget());
   }
 
   PlannerState _computeStateFromPlanner(PaymentPlanner planner) {

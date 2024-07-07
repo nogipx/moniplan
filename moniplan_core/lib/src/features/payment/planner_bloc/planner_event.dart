@@ -13,5 +13,10 @@ class PlannerEvent with _$PlannerEvent {
 
   const factory PlannerEvent.updatePayment({
     required final Payment newPayment,
+    @Default(false) bool create,
   }) = PlannerUpdatePaymentEvent;
+
+  const factory PlannerEvent.deletePayment({
+    required final String paymentId,
+  }) = PlannerDeletePaymentEvent;
 }

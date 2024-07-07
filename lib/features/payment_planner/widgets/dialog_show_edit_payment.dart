@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
-void showEditPaymentDialog({
+Future<void> showEditPaymentDialog({
   required BuildContext context,
   required Function(Payment) onSave,
-  required Function() onDelete,
+  Function()? onDelete,
   Payment? payment,
-}) {
+}) async {
   final TextEditingController titleController = TextEditingController(
     text: payment?.details.name ?? '',
   );
@@ -66,7 +66,7 @@ void showEditPaymentDialog({
     border: InputBorder.none,
   );
 
-  showDialog(
+  return showDialog(
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(
@@ -76,16 +76,17 @@ void showEditPaymentDialog({
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Edit Payment'),
-                TextButton(
-                  onPressed: () {
-                    onDelete();
-                    Navigator.of(context).pop(); // Закрываем диалог
-                  },
-                  child: Text('Delete'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.red,
+                if (onDelete != null)
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      onDelete();
+                    },
+                    child: Text('Delete'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red,
+                    ),
                   ),
-                ),
               ],
             ),
             content: SingleChildScrollView(
@@ -100,7 +101,7 @@ void showEditPaymentDialog({
                   TextField(
                     controller: amountController,
                     keyboardType: TextInputType.number,
-                    decoration: inputDecoration.copyWith(labelText: 'Amount'),
+                    decoration: inputDecoration.copyWith(labelText: 'Money'),
                   ),
                   Column(
                     mainAxisSize: MainAxisSize.min,

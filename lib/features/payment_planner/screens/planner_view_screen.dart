@@ -2,6 +2,7 @@ import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/_common/db_view_floating_button.dart';
+import 'package:moniplan/features/payment_planner/widgets/dialog_delete_payment.dart';
 import 'package:moniplan/features/payment_planner/widgets/dialog_show_edit_payment.dart';
 import 'package:moniplan/main.dart';
 import 'package:moniplan/theme/_index.dart';
@@ -62,7 +63,9 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
               },
               child: FloatingActionButton(
                 child: const Icon(Icons.add),
-                onPressed: () {},
+                onPressed: () {
+                  _updateDialog();
+                },
               ),
             ),
             appBar: AppBar(
@@ -116,27 +119,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                           operations: state.paymentsGenerated,
                           budget: state.budget,
                           onPaymentPressed: (payment) async {
-                            Payment targetPayment = payment;
-                            if (payment.isNotParent) {
-                              final original = await PlannerRepoDrift(db: db).getPaymentById(
-                                plannerId: payment.plannerId,
-                                paymentId: payment.originalPaymentId ?? '',
-                              );
-                              if (original != null) {
-                                targetPayment = original;
-                              }
-                            }
-
-                            showEditPaymentDialog(
-                              context: context,
-                              payment: targetPayment,
-                              onSave: (newPayment) {
-                                context
-                                    .read<PlannerBloc>()
-                                    .add(PlannerEvent.updatePayment(newPayment: newPayment));
-                              },
-                              onDelete: () {},
-                            );
+                            _updateDialog(payment);
                           },
                         ),
                       )
@@ -149,5 +132,54 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
         );
       },
     );
+  }
+
+  Future<void> _updateDialog([Payment? paymentToEdit]) async {
+    Payment? targetPayment;
+    if (paymentToEdit != null) {
+      targetPayment = paymentToEdit;
+      if (targetPayment.isNotParent) {
+        final original = await PlannerRepoDrift(db: db).getPaymentById(
+          plannerId: targetPayment.plannerId,
+          paymentId: targetPayment.originalPaymentId ?? '',
+        );
+        if (original != null) {
+          targetPayment = original;
+        }
+      }
+    }
+
+    showEditPaymentDialog(
+      context: context,
+      payment: targetPayment,
+      onSave: (newPayment) {
+        context.read<PlannerBloc>().add(
+              PlannerEvent.updatePayment(
+                newPayment: newPayment,
+                create: paymentToEdit == null,
+              ),
+            );
+      },
+      onDelete: paymentToEdit != null
+          ? () {
+              showDeletePaymentDialog(
+                context,
+                () {
+                  if (targetPayment == null) {
+                    return;
+                  }
+
+                  context.read<PlannerBloc>().add(
+                        PlannerEvent.deletePayment(
+                          paymentId: targetPayment.paymentId,
+                        ),
+                      );
+                },
+              );
+            }
+          : null,
+    ).then((_) {
+      context.read<PlannerBloc>().add(PlannerEvent.computeBudget());
+    });
   }
 }

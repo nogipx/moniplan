@@ -191,21 +191,38 @@ final class PlannerRepoDrift implements IPlannerRepo {
   Future<Payment?> savePayment({
     required String plannerId,
     required Payment payment,
+    bool allowCreate = false,
   }) async {
     return db.transaction(() async {
-      final paymentInPlanner = await db.managers.paymentsComposedDriftTable.filter((f) {
+      final selectorPaymentInPlanner = db.managers.paymentsComposedDriftTable.filter((f) {
         return f.plannerId(plannerId) & f.paymentId(payment.paymentId);
-      }).get();
+      });
 
-      if (paymentInPlanner.isEmpty) {
-        throw Exception('Payment "${payment.paymentId}" is not linked with Planner "$plannerId"');
+      final selectorPaymentItself = db.managers.paymentsComposedDriftTable.filter((f) {
+        return f.paymentId(payment.paymentId);
+      });
+
+      if (!allowCreate) {
+        final paymentInPlanner = await selectorPaymentInPlanner.get();
+
+        if (paymentInPlanner.isEmpty) {
+          throw Exception('Payment "${payment.paymentId}" is not linked with Planner "$plannerId"');
+        }
       }
 
       final resultPayment = payment.copyWith(plannerId: plannerId);
-
       final paymentDao = _paymentMapper.toDto(resultPayment);
-      final isUpdated = await db.managers.paymentsComposedDriftTable.replace(paymentDao);
-      return isUpdated ? payment : null;
+
+      try {
+        if (await selectorPaymentItself.exists()) {
+          await db.managers.paymentsComposedDriftTable.replace(paymentDao);
+        } else {
+          await db.managers.paymentsComposedDriftTable.create((_) => paymentDao);
+        }
+        return payment;
+      } on Object catch (error, trace) {
+        return null;
+      }
     });
   }
 
@@ -214,6 +231,26 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return db.transaction(() async {
       await db.managers.paymentsComposedDriftTable.filter((f) => f.plannerId(plannerId)).delete();
       await db.managers.paymentPlannersDriftTable.filter((f) => f.plannerId(plannerId)).delete();
+    });
+  }
+
+  @override
+  Future<void> deletePayment({
+    required String plannerId,
+    required String paymentId,
+  }) async {
+    return db.transaction(() async {
+      final selector = db.managers.paymentsComposedDriftTable.filter((f) {
+        return f.plannerId(plannerId) & f.paymentId(paymentId);
+      });
+
+      final paymentInPlanner = await selector.exists();
+
+      if (!paymentInPlanner) {
+        throw Exception('Payment "$paymentId" is not linked with Planner "$plannerId"');
+      }
+
+      await selector.delete();
     });
   }
 }
