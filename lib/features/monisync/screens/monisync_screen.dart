@@ -39,14 +39,13 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
             ElevatedButton(
               onPressed: () async {
                 final now = DateTime.now();
-                String? outputFile = await FilePicker.platform.saveFile(
-                  dialogTitle: 'Please select an output file:',
-                  fileName: _monisyncRepo.getBackupFileName(now),
-                );
+                final exportResult = await _monisyncRepo.exportDataToFile();
 
-                if (outputFile != null) {
-                  await _monisyncRepo.exportDataToFile(
-                    targetFilePath: outputFile,
+                if (exportResult != null) {
+                  await FilePicker.platform.saveFile(
+                    dialogTitle: 'Where to backup Moniplan',
+                    fileName: _monisyncRepo.getBackupFileName(now),
+                    bytes: exportResult.file.readAsBytesSync(),
                   );
                 }
               },
@@ -55,10 +54,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-                FilePickerResult? result = await FilePicker.platform.pickFiles(
-                  type: FileType.custom,
-                  allowedExtensions: ['moniplan'],
-                );
+                FilePickerResult? result = await FilePicker.platform.pickFiles();
 
                 if (result != null) {
                   final filePath = result.files.single.path!;

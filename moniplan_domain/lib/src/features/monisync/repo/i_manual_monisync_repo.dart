@@ -1,7 +1,9 @@
-class ExportResult {
-  final String filePath;
+import 'dart:io';
 
-  ExportResult({required this.filePath});
+class ExportResult {
+  final File file;
+
+  ExportResult({required this.file});
 }
 
 abstract interface class IMonisyncRepo {
