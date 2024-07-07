@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'colors.dart';
+import 'package:moniplan_uikit/src/app/colors.dart';
 
 abstract class MoniplanConst {
   static const tinkoffCardShadow = BoxShadow(

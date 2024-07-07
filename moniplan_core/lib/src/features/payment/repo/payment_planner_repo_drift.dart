@@ -133,6 +133,14 @@ final class PlannerRepoDrift implements IPlannerRepo {
     required Payment payment,
   }) async {
     return db.transaction(() async {
+      final paymentInPlanner = await db.managers.paymentsComposedDriftTable.filter((f) {
+        return f.plannerId(plannerId) & f.paymentId(payment.paymentId);
+      }).get();
+
+      if (paymentInPlanner.isEmpty) {
+        throw Exception('Payment "${payment.paymentId}" is not linked with Planner "$plannerId"');
+      }
+
       final resultPayment = payment.copyWith(plannerId: plannerId);
 
       final paymentDao = _paymentMapper.toDto(resultPayment);

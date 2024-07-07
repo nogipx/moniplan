@@ -1,7 +1,7 @@
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_core/moniplan_db.dart';
 
-part '_drift_database.g.dart';
+part 'drift_database.g.dart';
 
 typedef DriftDbConnector = LazyDatabase Function();
 

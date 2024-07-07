@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'colors.dart';
+import 'package:moniplan_uikit/src/app/colors.dart';
 
 final baseTextTheme = TextTheme(
   displayMedium: TextStyle(

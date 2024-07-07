@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '_index.dart';
+import 'package:moniplan_uikit/src/theme/_index.dart';
 
 typedef ChangeThemeCallback = void Function(ThemeBrightness);
 
@@ -46,6 +46,5 @@ class ThemeChangerInherited extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(covariant ThemeChangerInherited oldWidget) =>
-      oldWidget.theme != theme;
+  bool updateShouldNotify(covariant ThemeChangerInherited oldWidget) => oldWidget.theme != theme;
 }

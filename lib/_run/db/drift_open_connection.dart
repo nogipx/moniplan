@@ -6,13 +6,18 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
+Future<File> getDatabaseFile() async {
+  final dbFolder = await getApplicationDocumentsDirectory();
+  final file = File(p.join(dbFolder.path, 'db.sqlite'));
+  return file;
+}
+
 LazyDatabase driftOpenConnection() {
   // the LazyDatabase util lets us find the right location for the file async.
   return LazyDatabase(() async {
     // put the database file, called db.sqlite here, into the documents folder
     // for your app.
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'db.sqlite'));
+    final file = await getDatabaseFile();
 
     // Also work around limitations on old Android versions
     if (Platform.isAndroid) {

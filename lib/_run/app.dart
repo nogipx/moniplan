@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan/features/payment_details_reference/payments_reference_screen.dart';
 import 'package:moniplan/features/planners_list//_index.dart';
 import 'package:moniplan/theme/_index.dart';
@@ -54,6 +55,17 @@ class _MoniplanAppState extends State<MoniplanApp> {
                             Navigator.of(context).push(
                               MaterialPageRoute(builder: (context) {
                                 return const PlannersListScreen();
+                              }),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          child: const Text('MoniSync'),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) {
+                                return const MonisyncScreen();
                               }),
                             );
                           },

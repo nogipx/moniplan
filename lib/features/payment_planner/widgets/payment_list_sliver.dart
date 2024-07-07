@@ -3,7 +3,7 @@ import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'dart:math' as math;
 
-import '_index.dart';
+import 'package:moniplan/features/payment_planner/widgets/_index.dart';
 
 typedef OnPaymentPressed = void Function(Payment payment);
 

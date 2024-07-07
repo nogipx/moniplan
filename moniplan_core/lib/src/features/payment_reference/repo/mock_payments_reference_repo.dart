@@ -1,7 +1,7 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-import '_details.dart';
-import '_tags.dart';
+import 'package:moniplan_core/src/features/payment_reference/repo/mock/_details.dart';
+import 'package:moniplan_core/src/features/payment_reference/repo/mock/_tags.dart';
 
 class MockPaymentsReferenceRepo implements IPaymentsReferenceRepo {
   @override

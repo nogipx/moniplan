@@ -1,6 +1,6 @@
 import 'package:moniplan_core/moniplan_core.dart';
 
-import '_tags.dart';
+import 'package:moniplan_core/src/features/payment_reference/repo/mock/_tags.dart';
 
 String get newUuid => const Uuid().v4();
 
