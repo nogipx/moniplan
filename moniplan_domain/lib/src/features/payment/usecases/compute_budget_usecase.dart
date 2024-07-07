@@ -4,37 +4,23 @@ import 'dart:collection';
 
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-class ComputeBudgetUseCaseArgs {
+/// Вычисляет промежуточные итоги платежей.
+/// Работает с любым списком платежей, не зависит от генерации планера.
+class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
   final num initialBudget;
   final Iterable<Payment> payments;
 
-  const ComputeBudgetUseCaseArgs({
+  const ComputeBudgetUseCase({
     this.initialBudget = 0,
     required this.payments,
-  });
-}
-
-class ComputeBudgetUseCaseResult {
-  final LinkedHashMap<Payment, num> budget;
-
-  const ComputeBudgetUseCaseResult({
-    required this.budget,
-  });
-}
-
-class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
-  final ComputeBudgetUseCaseArgs args;
-
-  const ComputeBudgetUseCase({
-    required this.args,
   });
 
   @override
   ComputeBudgetUseCaseResult run() {
     final budget = LinkedHashMap<Payment, num>();
 
-    var tempBudget = args.initialBudget;
-    for (final item in args.payments) {
+    var tempBudget = initialBudget;
+    for (final item in payments) {
       tempBudget += item.isEnabled ? item.normalizedMoney : 0;
       budget[item] = tempBudget;
     }
@@ -45,4 +31,12 @@ class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
 
     return result;
   }
+}
+
+class ComputeBudgetUseCaseResult {
+  final LinkedHashMap<Payment, num> budget;
+
+  const ComputeBudgetUseCaseResult({
+    required this.budget,
+  });
 }

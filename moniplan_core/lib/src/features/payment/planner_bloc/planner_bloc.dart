@@ -60,13 +60,11 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     var targetPlanner = planner.copyWith();
     if (planner.isGenerationAllowed) {
       final result = GenerateNewPlannerUseCase(
-        args: GenerateNewPlannerUseCaseArgs(
-          customPlannerId: targetPlanner.id,
-          payments: targetPlanner.payments,
-          dateStart: targetPlanner.dateStart,
-          dateEnd: targetPlanner.dateEnd,
-          initialBudget: targetPlanner.initialBudget,
-        ),
+        customPlannerId: targetPlanner.id,
+        payments: targetPlanner.payments,
+        dateStart: targetPlanner.dateStart,
+        dateEnd: targetPlanner.dateEnd,
+        initialBudget: targetPlanner.initialBudget,
       ).run();
       targetPlanner = result.planner.copyWith(
         id: targetPlanner.id,
@@ -78,31 +76,25 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       throw Exception('Cannot work with not generated planner');
     }
 
-    final constrainedPayments = ConstrainItemsInPeriod(
-      args: ConstrainItemsInPeriodArgs(
-        items: targetPlanner.payments,
-        dateStart: targetPlanner.dateStart,
-        dateEnd: targetPlanner.dateEnd,
-        dateExtractor: (payment) => payment.date,
-      ),
+    final constrainedPayments = ConstrainItemsInPeriodUseCase(
+      items: targetPlanner.payments,
+      dateStart: targetPlanner.dateStart,
+      dateEnd: targetPlanner.dateEnd,
+      dateExtractor: (payment) => payment.date,
     ).run();
 
     final computedBudget = ComputeBudgetUseCase(
-      args: ComputeBudgetUseCaseArgs(
-        payments: constrainedPayments.constrained,
-        initialBudget: targetPlanner.initialBudget,
-      ),
+      payments: constrainedPayments,
+      initialBudget: targetPlanner.initialBudget,
     ).run();
 
     final moneyFlow = MoneyFlowUseCase(
-      args: MoneyFlowUseCaseArgs(
-        payments: constrainedPayments.constrained,
-        initialBudget: targetPlanner.initialBudget,
-      ),
+      payments: constrainedPayments,
+      initialBudget: targetPlanner.initialBudget,
     ).run();
 
     final newState = PlannerState.budgetComputed(
-      paymentsGenerated: constrainedPayments.constrained.toList(),
+      paymentsGenerated: constrainedPayments.toList(),
       budget: Map.from(computedBudget.budget),
       dateStart: targetPlanner.dateStart,
       dateEnd: targetPlanner.dateEnd,

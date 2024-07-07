@@ -1,43 +1,24 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-class MoneyFlowUseCaseArgs {
+/// Вычисляет денежный поток для набора платежей.
+/// Не зависит от генерации планера.
+/// Может быть использован для любого списка платежей.
+class MoneyFlowUseCase implements IUseCase<MoneyFlowUseCaseResult> {
   final num initialBudget;
   final Iterable<Payment> payments;
 
-  const MoneyFlowUseCaseArgs({
+  const MoneyFlowUseCase({
     this.payments = const [],
     this.initialBudget = 0,
-  });
-}
-
-class MoneyFlowUseCaseResult {
-  final num totalIncome;
-  final num totalOutcome;
-  final num balance;
-  final num initialBalance;
-
-  const MoneyFlowUseCaseResult({
-    this.totalIncome = 0,
-    this.totalOutcome = 0,
-    this.balance = 0,
-    this.initialBalance = 0,
-  });
-}
-
-class MoneyFlowUseCase implements IUseCase<MoneyFlowUseCaseResult> {
-  final MoneyFlowUseCaseArgs args;
-
-  const MoneyFlowUseCase({
-    required this.args,
   });
 
   @override
   MoneyFlowUseCaseResult run() {
     num totalIncome = 0;
     num totalOutcome = 0;
-    num balance = args.initialBudget;
+    num balance = initialBudget;
 
-    for (var e in args.payments) {
+    for (var e in payments) {
       if (!e.isEnabled) {
         continue;
       }
@@ -53,7 +34,21 @@ class MoneyFlowUseCase implements IUseCase<MoneyFlowUseCaseResult> {
       totalIncome: totalIncome,
       totalOutcome: totalOutcome,
       balance: balance,
-      initialBalance: args.initialBudget,
+      initialBalance: initialBudget,
     );
   }
+}
+
+class MoneyFlowUseCaseResult {
+  final num totalIncome;
+  final num totalOutcome;
+  final num balance;
+  final num initialBalance;
+
+  const MoneyFlowUseCaseResult({
+    this.totalIncome = 0,
+    this.totalOutcome = 0,
+    this.balance = 0,
+    this.initialBalance = 0,
+  });
 }

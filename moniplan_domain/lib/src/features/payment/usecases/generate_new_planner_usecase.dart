@@ -1,57 +1,30 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-class GenerateNewPlannerUseCaseArgs {
+/// Генерирует планер, добавляя в него повторяющиеся операции.
+class GenerateNewPlannerUseCase implements IUseCase<GenerateNewPlannerUseCaseResult> {
   final String? customPlannerId;
   final Iterable<Payment> payments;
   final DateTime dateStart;
   final DateTime dateEnd;
   final num initialBudget;
 
-  const GenerateNewPlannerUseCaseArgs({
+  const GenerateNewPlannerUseCase({
     required this.payments,
     required this.dateStart,
     required this.dateEnd,
     this.initialBudget = 0,
     this.customPlannerId,
   });
-}
-
-class GenerateNewPlannerUseCaseResult {
-  final Iterable<Payment> originalPayments;
-  final PaymentPlanner planner;
-
-  const GenerateNewPlannerUseCaseResult({
-    required this.originalPayments,
-    required this.planner,
-  });
-}
-
-class GenerateNewPlannerUseCase implements IUseCase<GenerateNewPlannerUseCaseResult> {
-  final GenerateNewPlannerUseCaseArgs args;
-
-  const GenerateNewPlannerUseCase({required this.args});
 
   @override
   GenerateNewPlannerUseCaseResult run() {
     const uuid = Uuid();
-    final payments = args.payments;
 
     if (payments.isEmpty) {
-      return GenerateNewPlannerUseCaseResult(
-        originalPayments: const [],
-        planner: PaymentPlanner(
-          id: '',
-          dateStart: args.dateStart,
-          dateEnd: args.dateEnd,
-          initialBudget: args.initialBudget,
-          isGenerationAllowed: false,
-        ),
-      );
+      throw Exception('Cannot generate planner without payments');
     }
 
-    final dateStart = args.dateStart;
-    final dateEnd = args.dateEnd;
-    final plannerId = args.customPlannerId ?? uuid.v4();
+    final plannerId = customPlannerId ?? uuid.v4();
 
     final generated = payments
         .map(
@@ -77,7 +50,7 @@ class GenerateNewPlannerUseCase implements IUseCase<GenerateNewPlannerUseCaseRes
       payments: generated,
       dateStart: dateStart,
       dateEnd: dateEnd,
-      initialBudget: args.initialBudget,
+      initialBudget: initialBudget,
       isGenerationAllowed: false,
     );
 
@@ -86,4 +59,14 @@ class GenerateNewPlannerUseCase implements IUseCase<GenerateNewPlannerUseCaseRes
       planner: resultPlanner,
     );
   }
+}
+
+class GenerateNewPlannerUseCaseResult {
+  final Iterable<Payment> originalPayments;
+  final PaymentPlanner planner;
+
+  const GenerateNewPlannerUseCaseResult({
+    required this.originalPayments,
+    required this.planner,
+  });
 }

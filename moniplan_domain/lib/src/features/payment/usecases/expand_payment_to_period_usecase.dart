@@ -1,22 +1,15 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-class ExpandPaymentToPeriodUseCaseResult {
-  final DateTime dateStart;
-  final DateTime dateEnd;
-  final Payment basePayment;
-  final List<Payment> payments;
-
-  ExpandPaymentToPeriodUseCaseResult({
-    required this.basePayment,
-    required this.dateStart,
-    required this.dateEnd,
-    this.payments = const [],
-  });
-}
-
+/// В заданных границах дат генерирует для повторяющихся платежей
+/// список платежей.
+/// У каждого платежа будет указан [plannerId].
+/// Используется каждый раз, когда перегенирируем планер.
 class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseCaseResult> {
+  /// С этим id будут связаны все платежи.
   final String plannerId;
+
   final Payment payment;
+
   final DateTime startPeriod;
   final DateTime endPeriod;
 
@@ -33,6 +26,8 @@ class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseC
     final start = startPeriod;
     final end = endPeriod;
 
+    // Если платеж не повторяющийся, то просто
+    // меняем ему plannerId и возвращаем
     if (!payment.isRepeat) {
       final originalPayment = payment.copyWith(
         plannerId: plannerId,
@@ -44,15 +39,34 @@ class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseC
         payments: [originalPayment],
       );
     }
+
     final paymentDateStart = payment.dateStart;
     final paymentDateEnd = payment.dateEnd;
 
+    // Определяем границы дат для генерации повторяющегося платежа
+
+    // Если у платежа указана дата начала и старт планера раньше,
+    // то используется дата начала платежа
+    //
+    // Если у платежа указана дата начала и старт планера позже,
+    // то используется дата старта планера
+    //
+    // Если у платежа НЕ указана дата начала
+    // то используется дата старта планера
     final targetDateStart = paymentDateStart != null
         ? startPeriod.isAfter(paymentDateStart)
             ? startPeriod
             : paymentDateStart
         : startPeriod;
 
+    // Если у платежа указана дата окончания и конец планера раньше,
+    // то используется дата конца планера
+    //
+    // Если у платежа указана дата начала и конец планера позже,
+    // то используется дата окончания платежа
+    //
+    // Если у платежа НЕ указана дата начала
+    // то используется дата конца планера
     final targetDateEnd = paymentDateEnd != null
         ? endPeriod.isBefore(paymentDateEnd)
             ? endPeriod
@@ -60,6 +74,9 @@ class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseC
         : endPeriod;
 
     final baseDate = payment.date;
+
+    // Генерируем даты в рамках заданного начала и конца повторения,
+    // начиная с даты платежа
     final generatedDates = GenerateRepeatDatesUseCase(
       repeat: payment.repeat,
       base: baseDate,
@@ -67,14 +84,24 @@ class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseC
       dateEnd: targetDateEnd,
     ).run();
 
+    // Затем в каждую сгенерированную дату копируем платеж
     final payments = generatedDates.map((e) {
       final date = e;
+
+      // Если дата платежа совпадает с датой оригинального платежа, из которого генерируем,
+      // то не меняем id и подставляем оригинальный платеж.
+      // В любом случае заменяем plannerId.
       if (date.isSameDay(baseDate)) {
         return payment.copyWith(
           date: date,
           plannerId: plannerId,
         );
-      } else {
+      }
+
+      // Если дата платежа НЕ совпадает с датой оригинального платежа, из которого генерируем,
+      // то создаем новый id у платежа, и записываем референс на оригинальный платеж.
+      // В любом случае заменяем plannerId.
+      else {
         return payment.copyWith(
           date: date,
           paymentId: uuid.v4(),
@@ -93,4 +120,18 @@ class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseC
 
     return result;
   }
+}
+
+class ExpandPaymentToPeriodUseCaseResult {
+  final DateTime dateStart;
+  final DateTime dateEnd;
+  final Payment basePayment;
+  final List<Payment> payments;
+
+  ExpandPaymentToPeriodUseCaseResult({
+    required this.basePayment,
+    required this.dateStart,
+    required this.dateEnd,
+    this.payments = const [],
+  });
 }
