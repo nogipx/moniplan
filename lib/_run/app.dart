@@ -39,6 +39,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
       },
       builder: (context, brightness) {
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           home: Builder(
             builder: (context) {
               return Scaffold(

@@ -253,6 +253,7 @@ Future<void> showUpdatePaymentDialog({
                   final updated = targetPayment.copyWith(
                     isEnabled: isEnabled,
                     isDone: isDone,
+                    date: date!,
                     dateStart: startDate,
                     dateEnd: endDate,
                     repeat: repeatPeriod,
@@ -265,7 +266,7 @@ Future<void> showUpdatePaymentDialog({
                   onSave(updated); // Вызываем функцию сохранения
                   Navigator.of(context).pop(); // Закрываем диалог
                 },
-                child: Text(payment != null ? 'Update' : 'Create'),
+                child: Text(payment != null ? 'Save' : 'Create'),
               ),
             ],
           );

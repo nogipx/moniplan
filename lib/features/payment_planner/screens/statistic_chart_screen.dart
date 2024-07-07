@@ -67,70 +67,77 @@ class _StatisticChartState extends State<StatisticChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.budget.isEmpty) {
-      return const Center(
-        child: Text('No data...'),
-      );
-    }
+    return Scaffold(
+      appBar: AppBar(),
+      body: Builder(
+        builder: (context) {
+          if (widget.budget.isEmpty) {
+            return const Center(
+              child: Text('No data...'),
+            );
+          }
 
-    try {
-      return SfCartesianChart(
-        zoomPanBehavior: ZoomPanBehavior(
-          enablePanning: true,
-          enablePinching: true,
-          zoomMode: ZoomMode.x,
-        ),
-        primaryXAxis: DateTimeAxis(
-          interval: 1,
-          intervalType: DateTimeIntervalType.days,
-          dateFormat: DateFormat('d MMM', 'ru'),
-          majorGridLines: const MajorGridLines(width: 0),
-          majorTickLines: const MajorTickLines(width: 0),
-        ),
-        primaryYAxis: const NumericAxis(
-          interactiveTooltip: InteractiveTooltip(
-            enable: true,
-          ),
-        ),
-        trackballBehavior: _trackballBehavior,
-        series: [
-          LineSeries<MapEntry<Payment, num>, DateTime>(
-            name: 'Бюджет',
-            color: Colors.blue.shade900,
-            dataSource: widget.budget.entries.where((e) => e.key.isEnabled).toList(),
-            xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
-            yValueMapper: (MapEntry<Payment, num> data, _) => data.value,
-          ),
-          ColumnSeries<MapEntry<Payment, num>, DateTime>(
-            width: 1,
-            name: 'Расход',
-            color: Colors.red.shade100,
-            dataSource: widget.budget.entries
-                .where((e) => e.key.type.modifier < 0 && e.key.isEnabled)
-                .toList(),
-            xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
-            yValueMapper: (MapEntry<Payment, num> data, _) => data.key.normalizedMoney,
-          ),
-          ColumnSeries<MapEntry<Payment, num>, DateTime>(
-            width: 1,
-            name: 'Доход',
-            color: Colors.green.shade100,
-            dataSource: widget.budget.entries
-                .where((e) => e.key.type.modifier > 0 && e.key.isEnabled)
-                .toList(),
-            xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
-            yValueMapper: (MapEntry<Payment, num> data, _) => data.key.normalizedMoney,
-          ),
-          // LineSeries<MapEntry<Payment, double>, String>(
-          //   color: Colors.red,
-          //   dataSource: budget.entries.toList(),
-          //   xValueMapper: (MapEntry<Payment, double> data, _) =>
-          //       DateFormat('d.M').format(data.key.date),
-          //   yValueMapper: (MapEntry<Payment, double> data, _) => data.value,
-          // ),
-        ],
-      );
-    } on RangeError {}
-    return const SizedBox();
+          try {
+            return SfCartesianChart(
+              zoomPanBehavior: ZoomPanBehavior(
+                enablePanning: true,
+                enablePinching: true,
+                zoomMode: ZoomMode.x,
+              ),
+              primaryXAxis: DateTimeAxis(
+                interval: 1,
+                intervalType: DateTimeIntervalType.days,
+                dateFormat: DateFormat('d MMM', 'ru'),
+                majorGridLines: const MajorGridLines(width: 0),
+                majorTickLines: const MajorTickLines(width: 0),
+              ),
+              primaryYAxis: const NumericAxis(
+                interactiveTooltip: InteractiveTooltip(
+                  enable: true,
+                ),
+              ),
+              trackballBehavior: _trackballBehavior,
+              series: [
+                LineSeries<MapEntry<Payment, num>, DateTime>(
+                  name: 'Бюджет',
+                  color: Colors.blue.shade900,
+                  dataSource: widget.budget.entries.where((e) => e.key.isEnabled).toList(),
+                  xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
+                  yValueMapper: (MapEntry<Payment, num> data, _) => data.value,
+                ),
+                ColumnSeries<MapEntry<Payment, num>, DateTime>(
+                  width: 1,
+                  name: 'Расход',
+                  color: Colors.red.shade100,
+                  dataSource: widget.budget.entries
+                      .where((e) => e.key.type.modifier < 0 && e.key.isEnabled)
+                      .toList(),
+                  xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
+                  yValueMapper: (MapEntry<Payment, num> data, _) => data.key.normalizedMoney,
+                ),
+                ColumnSeries<MapEntry<Payment, num>, DateTime>(
+                  width: 1,
+                  name: 'Доход',
+                  color: Colors.green.shade100,
+                  dataSource: widget.budget.entries
+                      .where((e) => e.key.type.modifier > 0 && e.key.isEnabled)
+                      .toList(),
+                  xValueMapper: (MapEntry<Payment, num> data, _) => data.key.date,
+                  yValueMapper: (MapEntry<Payment, num> data, _) => data.key.normalizedMoney,
+                ),
+                // LineSeries<MapEntry<Payment, double>, String>(
+                //   color: Colors.red,
+                //   dataSource: budget.entries.toList(),
+                //   xValueMapper: (MapEntry<Payment, double> data, _) =>
+                //       DateFormat('d.M').format(data.key.date),
+                //   yValueMapper: (MapEntry<Payment, double> data, _) => data.value,
+                // ),
+              ],
+            );
+          } on RangeError {}
+          return const SizedBox();
+        },
+      ),
+    );
   }
 }

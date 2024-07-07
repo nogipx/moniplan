@@ -54,7 +54,6 @@ class PaymentListItem extends StatelessWidget {
         onTap: onPressed,
         child: Container(
           padding: const EdgeInsets.all(12),
-          color: MoniplanColors.white,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

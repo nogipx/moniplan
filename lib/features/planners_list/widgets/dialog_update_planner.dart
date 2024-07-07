@@ -9,8 +9,8 @@ void showDialogUpdatePlanner(
 }) {
   final TextEditingController numberController = TextEditingController()
     ..text = planner?.initialBudget.toString() ?? '';
-  DateTime startDate = planner?.dateStart ?? DateTime.now().subtract(Duration(days: 7));
-  DateTime endDate = planner?.dateEnd ?? DateTime.now().add(Duration(days: 7));
+  DateTime startDate = planner?.dateStart ?? DateTime.now();
+  DateTime endDate = planner?.dateEnd ?? DateTime.now().monthEnd;
   bool isStartDateValid = true;
 
   Future<void> selectStartDate(BuildContext context) async {
@@ -49,7 +49,7 @@ void showDialogUpdatePlanner(
           return AlertDialog(
             title: Row(
               children: [
-                Text(planner != null ? 'Update Planner' : 'Create Planner'),
+                Text(planner != null ? 'Edit Planner' : 'Create Planner'),
                 if (onDelete != null)
                   TextButton(
                     onPressed: () {
@@ -69,13 +69,14 @@ void showDialogUpdatePlanner(
                 Row(
                   children: <Widget>[
                     Text('Start date: ${dateFormat.format(startDate)}'),
-                    IconButton(
-                      icon: Icon(Icons.calendar_today),
-                      onPressed: () async {
-                        await selectStartDate(context);
-                        setState(() {});
-                      },
-                    ),
+                    if (planner == null)
+                      IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        onPressed: () async {
+                          await selectStartDate(context);
+                          setState(() {});
+                        },
+                      ),
                   ],
                 ),
                 SizedBox(height: 16),
@@ -121,7 +122,7 @@ void showDialogUpdatePlanner(
                         Navigator.of(context).pop(); // Закрываем диалог
                       }
                     : null,
-                child: Text(planner != null ? 'Update' : 'Create'),
+                child: Text(planner != null ? 'Save' : 'Create'),
               ),
             ],
           );
