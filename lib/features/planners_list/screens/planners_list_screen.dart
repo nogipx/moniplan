@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/_common/db_view_floating_button.dart';
 import 'package:moniplan/features/payment_planner/_index.dart';
 import 'package:moniplan/features/planners_list/_index.dart';
+import 'package:moniplan/features/planners_list/widgets/dialog_create_planner.dart';
 import 'package:moniplan/main.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
@@ -21,7 +22,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _getPlanners();
+    _updatePlannersList();
   }
 
   @override
@@ -44,7 +45,23 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
         },
         child: FloatingActionButton(
           child: const Icon(Icons.add),
-          onPressed: () {},
+          onPressed: () {
+            showDialogCreatePlanner(
+              context,
+              onSave: (start, end, money) async {
+                final newPlanner = PaymentPlanner(
+                  id: const Uuid().v4(),
+                  dateStart: start,
+                  dateEnd: end,
+                  initialBudget: num.tryParse(money) ?? 0,
+                  isGenerationAllowed: true,
+                );
+                await _plannerRepo.savePlanner(newPlanner).then((_) {
+                  _updatePlannersList();
+                });
+              },
+            );
+          },
         ),
       ),
       body: SafeArea(
@@ -72,14 +89,16 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                       context,
                       () async {
                         await _plannerRepo.deletePlanner(planner.id);
-                        _getPlanners();
+                        _updatePlannersList();
                       },
                     );
                   },
                   child: PlannerItemWidget(
                     planner: planner,
                     onPressed: () {
-                      _openPlanner(context, planner.id);
+                      _openPlanner(context, planner.id).then((_) {
+                        _updatePlannersList();
+                      });
                     },
                   ),
                 );
@@ -91,7 +110,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
     );
   }
 
-  Future<void> _getPlanners() async {
+  Future<void> _updatePlannersList() async {
     final planners = await _plannerRepo.getPlanners(withPayments: true);
     _planners.value = planners;
   }

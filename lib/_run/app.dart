@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
-import 'package:moniplan/features/payment_details_reference/payments_reference_screen.dart';
 import 'package:moniplan/features/planners_list//_index.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,17 +69,17 @@ class _MoniplanAppState extends State<MoniplanApp> {
                             );
                           },
                         ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          child: const Text('Справочник платежей'),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) {
-                                return const PaymentsReferenceScreen();
-                              }),
-                            );
-                          },
-                        ),
+                        // const SizedBox(height: 16),
+                        // ElevatedButton(
+                        //   child: const Text('Справочник платежей'),
+                        //   onPressed: () {
+                        //     Navigator.of(context).push(
+                        //       MaterialPageRoute(builder: (context) {
+                        //         return const PaymentsReferenceScreen();
+                        //       }),
+                        //     );
+                        //   },
+                        // ),
                       ],
                     ),
                   ),

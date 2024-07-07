@@ -21,7 +21,18 @@ class GenerateNewPlannerUseCase implements IUseCase<GenerateNewPlannerUseCaseRes
     const uuid = Uuid();
 
     if (payments.isEmpty) {
-      throw Exception('Cannot generate planner without payments');
+      final emptyPlanner = PaymentPlanner(
+        id: customPlannerId ?? uuid.v4(),
+        payments: [],
+        dateStart: dateStart,
+        dateEnd: dateEnd,
+        initialBudget: initialBudget,
+        isGenerationAllowed: false,
+      );
+      return GenerateNewPlannerUseCaseResult(
+        originalPayments: payments,
+        planner: emptyPlanner,
+      );
     }
 
     final plannerId = customPlannerId ?? uuid.v4();

@@ -28,8 +28,8 @@ Future<void> main() async {
         ]);
         // SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
         final prefs = await SharedPreferences.getInstance();
-        await _clear();
-        await _savePlanner(currentRequest);
+        // await _clear();
+        // await _savePlanner(currentRequest);
 
         runApp(MoniplanApp(
           sharedPreferences: prefs,
