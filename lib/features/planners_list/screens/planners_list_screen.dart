@@ -23,7 +23,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
   }
 
   Future<List<PaymentPlanner>> _getPlanners() {
-    return _plannerRepo.getPlanners();
+    return _plannerRepo.getPlanners(withPayments: true);
   }
 
   @override

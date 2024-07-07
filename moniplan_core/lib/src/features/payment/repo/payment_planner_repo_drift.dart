@@ -22,10 +22,35 @@ final class PlannerRepoDrift implements IPlannerRepo {
   }
 
   @override
-  Future<List<PaymentPlanner>> getPlanners() {
+  Future<List<PaymentPlanner>> getPlanners({
+    bool withPayments = false,
+  }) {
     return db.transaction(() async {
       final plannersDao = await db.managers.paymentPlannersDriftTable.get();
-      final planners = plannersDao.map(_plannerMapper.toDomain).toList();
+
+      final paymentsForPlanner = <String, List<Payment>>{};
+
+      if (withPayments) {
+        final plannersIds = plannersDao.map((e) => e.plannerId).toSet();
+
+        final allPaymentsDao = await db.managers.paymentsComposedDriftTable
+            .filter((f) => f.plannerId.isIn(plannersIds))
+            .get();
+
+        final allPayments = allPaymentsDao.map(_paymentMapper.toDomain).toList();
+
+        for (final payment in allPayments) {
+          final list = paymentsForPlanner.putIfAbsent(payment.plannerId, () => []);
+          list.add(payment);
+        }
+      }
+
+      final planners = plannersDao.map((e) {
+        return _plannerMapper.toDomain(e).copyWith(
+              payments: paymentsForPlanner[e.plannerId] ?? [],
+            );
+      }).toList();
+
       return planners;
     });
   }

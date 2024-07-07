@@ -2,7 +2,9 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 
 abstract interface class IPlannerRepo {
   /// Получение списка планнеров.
-  Future<List<PaymentPlanner>> getPlanners();
+  Future<List<PaymentPlanner>> getPlanners({
+    bool withPayments = false,
+  });
 
   /// Получение планнера по id.
   Future<PaymentPlanner?> getPlannerById(String id);

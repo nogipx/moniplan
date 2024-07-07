@@ -50,7 +50,9 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
       await exportFile.writeAsBytes(bytesToWrite);
 
-      return ExportResult(filePath: exportFile.path);
+      return ExportResult(
+        filePath: exportFile.path,
+      );
     }
 
     return null;

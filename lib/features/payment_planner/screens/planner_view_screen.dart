@@ -36,16 +36,14 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
         final dateStartRaw = state.mapOrNull(
           budgetComputed: (s) => s.dateStart,
         );
-        final dateStartString = dateStartRaw != null
-            ? DateFormat(DateFormat.ABBR_MONTH_DAY, 'ru').format(dateStartRaw)
-            : '';
+        final dateStartString =
+            dateStartRaw != null ? DateFormat(plannerBoundDateFormat).format(dateStartRaw) : '';
 
         final dateEndRaw = state.mapOrNull(
           budgetComputed: (s) => s.dateEnd,
         );
-        final dateEndString = dateEndRaw != null
-            ? DateFormat(DateFormat.ABBR_MONTH_DAY, 'ru').format(dateEndRaw)
-            : '';
+        final dateEndString =
+            dateEndRaw != null ? DateFormat(plannerBoundDateFormat).format(dateEndRaw) : '';
 
         final titleWidget = Text('$dateStartString - $dateEndString');
 
