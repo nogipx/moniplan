@@ -12,10 +12,18 @@ abstract interface class IPlannerRepo {
   /// Сохранение планнера.
   Future<PaymentPlanner?> savePlanner(PaymentPlanner planner);
 
+  /// Удаление планнера.
+  Future<void> deletePlanner(String plannerId);
+
   /// Получение платежа по id внутри планера
   Future<Payment?> getPaymentById({
     required String plannerId,
     required String paymentId,
+  });
+
+  /// Получение всех платедей по id планера
+  Future<List<Payment>> getPaymentsByPlannerId({
+    required String plannerId,
   });
 
   /// Сохранение платежа по id внутри планера

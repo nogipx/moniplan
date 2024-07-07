@@ -57,8 +57,24 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
   @override
   Future<PaymentPlanner?> savePlanner(PaymentPlanner planner) async {
+    if (!planner.isGenerationAllowed) {
+      throw Exception(
+        'Cannot persist generated planners. '
+        'Only blueprints allowed to persist.',
+      );
+    }
+    if (planner.id.isEmpty) {
+      throw Exception(
+        'Invalid planner.'
+        'Planner should have id.',
+      );
+    }
+
     final plannerDao = _plannerMapper.toDto(planner);
-    final paymentsDao = planner.payments.map(_paymentMapper.toDto).toList();
+    final paymentsDao = planner.payments
+        .map((e) => e.copyWith(plannerId: planner.id))
+        .map(_paymentMapper.toDto)
+        .toList();
 
     return db.transaction(() async {
       await db.managers.paymentPlannersDriftTable.create(
@@ -153,6 +169,17 @@ final class PlannerRepoDrift implements IPlannerRepo {
   }
 
   @override
+  Future<List<Payment>> getPaymentsByPlannerId({required String plannerId}) {
+    return db.transaction(() async {
+      final paymentInPlanner =
+          await db.managers.paymentsComposedDriftTable.filter((f) => f.plannerId(plannerId)).get();
+
+      final payments = paymentInPlanner.map(_paymentMapper.toDomain).toList();
+      return payments;
+    });
+  }
+
+  @override
   Future<Payment?> savePayment({
     required String plannerId,
     required Payment payment,
@@ -171,6 +198,14 @@ final class PlannerRepoDrift implements IPlannerRepo {
       final paymentDao = _paymentMapper.toDto(resultPayment);
       final isUpdated = await db.managers.paymentsComposedDriftTable.replace(paymentDao);
       return isUpdated ? payment : null;
+    });
+  }
+
+  @override
+  Future<void> deletePlanner(String plannerId) {
+    return db.transaction(() async {
+      await db.managers.paymentsComposedDriftTable.filter((f) => f.plannerId(plannerId)).delete();
+      await db.managers.paymentPlannersDriftTable.filter((f) => f.plannerId(plannerId)).delete();
     });
   }
 }

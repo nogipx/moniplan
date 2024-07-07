@@ -13,18 +13,14 @@ class PaymentPlanner with _$PaymentPlanner {
     required final String id,
     required final DateTime dateStart,
     required final DateTime dateEnd,
+    required final bool isGenerationAllowed,
     @Default([]) final List<Payment> payments,
     @Default(0) final num initialBudget,
-    @Default(false) final bool isDraft,
   }) = _PaymentPlanner;
 
   factory PaymentPlanner.fromJson(Map<String, dynamic> json) => _$PaymentPlannerFromJson(json);
 
   num get needToPay {
-    if (isDraft == true) {
-      return -1;
-    }
-
     final futurePayments = payments
         .where((e) => e.details.type == PaymentType.expense && !e.isDone)
         .map((e) => e.details.money.abs())

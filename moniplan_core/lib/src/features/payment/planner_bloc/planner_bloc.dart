@@ -30,10 +30,11 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     Emitter<PlannerState> emit,
   ) async {
     final id = plannerId;
+    final payments = await _plannerRepo.getPaymentsByPlannerId(plannerId: id);
     final planner = await _plannerRepo.getPlannerById(id);
 
     if (planner != null) {
-      final newState = _computeStateFromPlanner(planner).copyWith(
+      final newState = _computeStateFromPlanner(planner.copyWith(payments: payments)).copyWith(
         plannerId: id,
       );
 
@@ -57,9 +58,9 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
 
   PlannerState _computeStateFromPlanner(PaymentPlanner planner) {
     var targetPlanner = planner.copyWith();
-    if (targetPlanner.isDraft) {
-      final result = GeneratePlannerUseCase(
-        args: GeneratePlannerUseCaseArgs(
+    if (planner.isGenerationAllowed) {
+      final result = GenerateNewPlannerUseCase(
+        args: GenerateNewPlannerUseCaseArgs(
           customPlannerId: targetPlanner.id,
           payments: targetPlanner.payments,
           dateStart: targetPlanner.dateStart,
@@ -69,8 +70,12 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       ).run();
       targetPlanner = result.planner.copyWith(
         id: targetPlanner.id,
-        isDraft: false,
+        isGenerationAllowed: false,
       );
+    }
+
+    if (targetPlanner.isGenerationAllowed) {
+      throw Exception('Cannot work with not generated planner');
     }
 
     final constrainedPayments = ConstrainItemsInPeriod(

@@ -1,13 +1,13 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-class GeneratePlannerUseCaseArgs {
+class GenerateNewPlannerUseCaseArgs {
   final String? customPlannerId;
   final Iterable<Payment> payments;
   final DateTime dateStart;
   final DateTime dateEnd;
   final num initialBudget;
 
-  const GeneratePlannerUseCaseArgs({
+  const GenerateNewPlannerUseCaseArgs({
     required this.payments,
     required this.dateStart,
     required this.dateEnd,
@@ -16,35 +16,35 @@ class GeneratePlannerUseCaseArgs {
   });
 }
 
-class GeneratePlannerUseCaseResult {
+class GenerateNewPlannerUseCaseResult {
   final Iterable<Payment> originalPayments;
   final PaymentPlanner planner;
 
-  const GeneratePlannerUseCaseResult({
+  const GenerateNewPlannerUseCaseResult({
     required this.originalPayments,
     required this.planner,
   });
 }
 
-class GeneratePlannerUseCase implements IUseCase<GeneratePlannerUseCaseResult> {
-  final GeneratePlannerUseCaseArgs args;
+class GenerateNewPlannerUseCase implements IUseCase<GenerateNewPlannerUseCaseResult> {
+  final GenerateNewPlannerUseCaseArgs args;
 
-  const GeneratePlannerUseCase({required this.args});
+  const GenerateNewPlannerUseCase({required this.args});
 
   @override
-  GeneratePlannerUseCaseResult run() {
+  GenerateNewPlannerUseCaseResult run() {
     const uuid = Uuid();
     final payments = args.payments;
 
     if (payments.isEmpty) {
-      return GeneratePlannerUseCaseResult(
+      return GenerateNewPlannerUseCaseResult(
         originalPayments: const [],
         planner: PaymentPlanner(
           id: '',
           dateStart: args.dateStart,
           dateEnd: args.dateEnd,
           initialBudget: args.initialBudget,
-          isDraft: false,
+          isGenerationAllowed: false,
         ),
       );
     }
@@ -72,16 +72,18 @@ class GeneratePlannerUseCase implements IUseCase<GeneratePlannerUseCaseResult> {
 
     generated.sort((a, b) => a.date.compareTo(b.date));
 
-    return GeneratePlannerUseCaseResult(
+    final resultPlanner = PaymentPlanner(
+      id: plannerId,
+      payments: generated,
+      dateStart: dateStart,
+      dateEnd: dateEnd,
+      initialBudget: args.initialBudget,
+      isGenerationAllowed: false,
+    );
+
+    return GenerateNewPlannerUseCaseResult(
       originalPayments: payments,
-      planner: PaymentPlanner(
-        id: plannerId,
-        payments: generated,
-        dateStart: dateStart,
-        dateEnd: dateEnd,
-        initialBudget: args.initialBudget,
-        isDraft: false,
-      ),
+      planner: resultPlanner,
     );
   }
 }

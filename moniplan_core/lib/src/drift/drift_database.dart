@@ -17,7 +17,7 @@ class MoniplanDriftDb extends _$MoniplanDriftDb {
   MoniplanDriftDb({required this.lazyDatabase}) : super(lazyDatabase);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -29,6 +29,13 @@ class MoniplanDriftDb extends _$MoniplanDriftDb {
         if (from < 2) {
           await m.addColumn(paymentsComposedDriftTable, paymentsComposedDriftTable.paymentTags);
           await m.addColumn(paymentsComposedDriftTable, paymentsComposedDriftTable.paymentTax);
+        }
+        if (from < 3) {
+          await m.renameColumn(
+            paymentPlannersDriftTable,
+            'is_draft',
+            paymentPlannersDriftTable.isGenerationAllowed,
+          );
         }
       },
     );

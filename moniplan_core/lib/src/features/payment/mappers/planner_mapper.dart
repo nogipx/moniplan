@@ -18,7 +18,7 @@ class PlannerMapperDrift implements IMapper<PaymentPlanner, PaymentPlannersDrift
       dateStart: start,
       dateEnd: end,
       initialBudget: data.initialBudget,
-      isDraft: data.isDraft,
+      isGenerationAllowed: data.isGenerationAllowed,
     );
   }
 
@@ -29,7 +29,7 @@ class PlannerMapperDrift implements IMapper<PaymentPlanner, PaymentPlannersDrift
       dateStart: data.dateStart,
       dateEnd: data.dateEnd,
       initialBudget: data.initialBudget.toDouble(),
-      isDraft: data.isDraft,
+      isGenerationAllowed: data.isGenerationAllowed,
     );
     return dto;
   }

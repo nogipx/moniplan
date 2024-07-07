@@ -1,3 +1,4 @@
+import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/_common/db_view_floating_button.dart';
@@ -15,27 +16,42 @@ class PlannersListScreen extends StatefulWidget {
 
 class _PlannersListScreenState extends State<PlannersListScreen> {
   late IPlannerRepo _plannerRepo;
+  final _planners = ValueNotifier<List<PaymentPlanner>>([]);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _getPlanners();
+  }
 
   @override
   void initState() {
-    _plannerRepo = PlannerRepoDrift(db: db);
     super.initState();
-  }
-
-  Future<List<PaymentPlanner>> _getPlanners() {
-    return _plannerRepo.getPlanners(withPayments: true);
+    _plannerRepo = PlannerRepoDrift(db: db);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      floatingActionButton: dbInspectorFloatingActionButton,
+      floatingActionButton: GestureDetector(
+        onLongPress: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => DriftDbViewer(db),
+            ),
+          );
+        },
+        child: FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () {},
+        ),
+      ),
       body: SafeArea(
-        child: FutureBuilder(
-          future: _getPlanners(),
-          builder: (context, snapshot) {
-            final data = snapshot.data ?? [];
+        child: ValueListenableBuilder(
+          valueListenable: _planners,
+          builder: (context, value, child) {
+            final data = value;
             if (data.isEmpty) {
               return const Center(
                 child: Text('No planners'),
@@ -46,14 +62,26 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
               itemCount: data.length,
               padding: const EdgeInsets.symmetric(
                 vertical: 16,
+                horizontal: 16,
               ),
               itemBuilder: (context, index) {
                 final planner = data[index];
-                return PlannerItemWidget(
-                  planner: planner,
-                  onPressed: () {
-                    _openPlanner(context, planner.id);
+                return GestureDetector(
+                  onLongPress: () {
+                    showDeletePlannerDialog(
+                      context,
+                      () async {
+                        await _plannerRepo.deletePlanner(planner.id);
+                        _getPlanners();
+                      },
+                    );
                   },
+                  child: PlannerItemWidget(
+                    planner: planner,
+                    onPressed: () {
+                      _openPlanner(context, planner.id);
+                    },
+                  ),
                 );
               },
             );
@@ -61,6 +89,11 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _getPlanners() async {
+    final planners = await _plannerRepo.getPlanners(withPayments: true);
+    _planners.value = planners;
   }
 
   Future _openPlanner(BuildContext context, String plannerId) {
@@ -81,4 +114,35 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
       ),
     );
   }
+}
+
+void showDeletePlannerDialog(BuildContext context, VoidCallback onDelete) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Delete Planner'),
+        content:
+            Text('Are you sure you want to delete this planner? This action cannot be undone.'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Закрываем диалог
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              onDelete(); // Вызываем функцию удаления
+              Navigator.of(context).pop(); // Закрываем диалог
+            },
+            child: Text('Delete'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red, // Меняем цвет кнопки на красный
+            ),
+          ),
+        ],
+      );
+    },
+  );
 }

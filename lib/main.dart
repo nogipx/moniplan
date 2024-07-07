@@ -28,8 +28,8 @@ Future<void> main() async {
         ]);
         // SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
         final prefs = await SharedPreferences.getInstance();
-        // await _clear();
-        // await _savePlanner(currentRequest);
+        await _clear();
+        await _savePlanner(currentRequest);
 
         runApp(MoniplanApp(
           sharedPreferences: prefs,
@@ -53,15 +53,15 @@ _clear() async {
 }
 
 _savePlanner(PaymentPlanner planner) async {
-  final generated = GeneratePlannerUseCase(
-    args: GeneratePlannerUseCaseArgs(
-      payments: planner.payments,
-      dateStart: planner.dateStart,
-      dateEnd: planner.dateEnd,
-      initialBudget: planner.initialBudget,
-    ),
-  ).run();
+  // final generated = GenerateNewPlannerUseCase(
+  //   args: GenerateNewPlannerUseCaseArgs(
+  //     payments: planner.payments,
+  //     dateStart: planner.dateStart,
+  //     dateEnd: planner.dateEnd,
+  //     initialBudget: planner.initialBudget,
+  //   ),
+  // ).run();
 
   final repo = PlannerRepoDrift(db: db);
-  await repo.savePlanner(generated.planner);
+  await repo.savePlanner(planner);
 }

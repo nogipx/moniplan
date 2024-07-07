@@ -39,10 +39,10 @@ class PlannerItemWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    child: Wrap(
                       children: [
                         _PlannerInfoItem(
                           icon: Icons.done_all,
@@ -114,7 +114,7 @@ class _PlannerInfoItem extends StatelessWidget {
             size: 20,
             color: iconColor,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           valueWidget ??
               Text(
                 value,

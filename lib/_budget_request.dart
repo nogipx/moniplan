@@ -8,7 +8,7 @@ final currentRequest = PaymentPlanner(
   dateStart: '08.06'.date,
   dateEnd: '00.11.2024'.date,
   initialBudget: 165000,
-  isDraft: true,
+  isGenerationAllowed: true,
   payments: [
     /// Регулярные зп
     ///

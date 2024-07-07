@@ -15,7 +15,7 @@ class PaymentPlannersDriftTable extends Table {
 
   /// Status section
   ///
-  BoolColumn get isDraft => boolean().withDefault(const Constant(false))();
+  BoolColumn get isGenerationAllowed => boolean().withDefault(const Constant(true))();
 
   /// Dates section
   ///
