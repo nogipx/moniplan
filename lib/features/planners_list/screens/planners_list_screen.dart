@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/payment_planner/_index.dart';
 import 'package:moniplan/features/planners_list/_index.dart';
-import 'package:moniplan/features/planners_list/widgets/dialog_create_planner.dart';
+import 'package:moniplan/features/planners_list/widgets/dialog_update_planner.dart';
 import 'package:moniplan/features/planners_list/widgets/dialog_delete_planner.dart';
 import 'package:moniplan/main.dart';
 import 'package:moniplan_core/moniplan_core.dart';
@@ -46,7 +46,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
         child: FloatingActionButton(
           child: const Icon(Icons.add),
           onPressed: () {
-            showDialogCreatePlanner(
+            showDialogUpdatePlanner(
               context,
               onSave: (start, end, money) async {
                 final newPlanner = PaymentPlanner(
@@ -88,11 +88,29 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                 final planner = data[index];
                 return GestureDetector(
                   onLongPress: () {
-                    showDeletePlannerDialog(
+                    showDialogUpdatePlanner(
                       context,
-                      () async {
-                        await _plannerRepo.deletePlanner(planner.id);
-                        _updatePlannersList();
+                      planner: planner,
+                      onSave: (start, end, money) async {
+                        final newPlanner = planner.copyWith(
+                          dateStart: start,
+                          dateEnd: end,
+                          initialBudget: num.tryParse(money) ?? 0,
+                        );
+                        await _plannerRepo.savePlanner(newPlanner).then(
+                          (planner) async {
+                            await _updatePlannersList();
+                          },
+                        );
+                      },
+                      onDelete: () {
+                        showDeletePlannerDialog(
+                          context,
+                          () async {
+                            await _plannerRepo.deletePlanner(planner.id);
+                            _updatePlannersList();
+                          },
+                        );
                       },
                     );
                   },

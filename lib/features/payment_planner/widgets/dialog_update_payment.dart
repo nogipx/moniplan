@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
-Future<void> showEditPaymentDialog({
+Future<void> showUpdatePaymentDialog({
   required BuildContext context,
   required Function(Payment) onSave,
   Function()? onDelete,
@@ -75,7 +75,7 @@ Future<void> showEditPaymentDialog({
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Edit Payment'),
+                Text(payment != null ? 'Edit Payment' : 'Create payment'),
                 if (onDelete != null)
                   TextButton(
                     onPressed: () {
@@ -265,7 +265,7 @@ Future<void> showEditPaymentDialog({
                   onSave(updated); // Вызываем функцию сохранения
                   Navigator.of(context).pop(); // Закрываем диалог
                 },
-                child: Text('Save'),
+                child: Text(payment != null ? 'Update' : 'Create'),
               ),
             ],
           );

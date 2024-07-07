@@ -1,9 +1,8 @@
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan/features/_common/db_view_floating_button.dart';
 import 'package:moniplan/features/payment_planner/widgets/dialog_delete_payment.dart';
-import 'package:moniplan/features/payment_planner/widgets/dialog_show_edit_payment.dart';
+import 'package:moniplan/features/payment_planner/widgets/dialog_update_payment.dart';
 import 'package:moniplan/main.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
@@ -149,7 +148,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
       }
     }
 
-    showEditPaymentDialog(
+    showUpdatePaymentDialog(
       context: context,
       payment: targetPayment,
       onSave: (newPayment) {

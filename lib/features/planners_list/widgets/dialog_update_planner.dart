@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:moniplan_core/moniplan_core.dart';
 
-void showDialogCreatePlanner(
+void showDialogUpdatePlanner(
   BuildContext context, {
+  PaymentPlanner? planner,
   required Function(DateTime, DateTime, String) onSave,
+  Function()? onDelete,
 }) {
-  final TextEditingController numberController = TextEditingController();
-  DateTime startDate = DateTime.now().subtract(Duration(days: 7));
-  DateTime endDate = DateTime.now().add(Duration(days: 7));
+  final TextEditingController numberController = TextEditingController()
+    ..text = planner?.initialBudget.toString() ?? '';
+  DateTime startDate = planner?.dateStart ?? DateTime.now().subtract(Duration(days: 7));
+  DateTime endDate = planner?.dateEnd ?? DateTime.now().add(Duration(days: 7));
   bool isStartDateValid = true;
 
   Future<void> selectStartDate(BuildContext context) async {
@@ -36,19 +39,36 @@ void showDialogCreatePlanner(
     }
   }
 
+  final dateFormat = DateFormat(plannerBoundDateFormat);
+
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AlertDialog(
-            title: Text('Create Planner'),
+            title: Row(
+              children: [
+                Text(planner != null ? 'Update Planner' : 'Create Planner'),
+                if (onDelete != null)
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      onDelete();
+                    },
+                    child: Text('Delete'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red,
+                    ),
+                  ),
+              ],
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Text('Start date: ${DateFormat.yMd().format(startDate)}'),
+                    Text('Start date: ${dateFormat.format(startDate)}'),
                     IconButton(
                       icon: Icon(Icons.calendar_today),
                       onPressed: () async {
@@ -61,7 +81,7 @@ void showDialogCreatePlanner(
                 SizedBox(height: 16),
                 Row(
                   children: <Widget>[
-                    Text('End date: ${DateFormat.yMd().format(endDate)}'),
+                    Text('End date: ${dateFormat.format(endDate)}'),
                     IconButton(
                       icon: Icon(Icons.calendar_today),
                       onPressed: () async {
@@ -92,9 +112,6 @@ void showDialogCreatePlanner(
                   Navigator.of(context).pop(); // Закрываем диалог
                 },
                 child: Text('Cancel'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.red,
-                ),
               ),
               TextButton(
                 onPressed: isStartDateValid
@@ -104,7 +121,7 @@ void showDialogCreatePlanner(
                         Navigator.of(context).pop(); // Закрываем диалог
                       }
                     : null,
-                child: Text('Create'),
+                child: Text(planner != null ? 'Update' : 'Create'),
               ),
             ],
           );
