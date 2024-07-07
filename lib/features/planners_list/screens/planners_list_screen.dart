@@ -1,7 +1,6 @@
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan/features/_common/db_view_floating_button.dart';
 import 'package:moniplan/features/payment_planner/_index.dart';
 import 'package:moniplan/features/planners_list/_index.dart';
 import 'package:moniplan/features/planners_list/widgets/dialog_create_planner.dart';
@@ -56,8 +55,11 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                   initialBudget: num.tryParse(money) ?? 0,
                   isGenerationAllowed: true,
                 );
-                await _plannerRepo.savePlanner(newPlanner).then((_) {
-                  _updatePlannersList();
+                await _plannerRepo.savePlanner(newPlanner).then((planner) async {
+                  await _updatePlannersList();
+                  if (planner != null) {
+                    _openPlanner(context, planner.id);
+                  }
                 });
               },
             );

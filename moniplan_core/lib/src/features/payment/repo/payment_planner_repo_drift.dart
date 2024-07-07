@@ -164,8 +164,16 @@ final class PlannerRepoDrift implements IPlannerRepo {
     required String plannerId,
     required String paymentId,
   }) {
-    // TODO: implement getById
-    throw UnimplementedError();
+    return db.transaction(() async {
+      final paymentInPlanner = await db.managers.paymentsComposedDriftTable
+          .filter((f) => f.plannerId(plannerId) & f.paymentId(paymentId))
+          .getSingleOrNull();
+
+      if (paymentInPlanner != null) {
+        return _paymentMapper.toDomain(paymentInPlanner);
+      }
+      return null;
+    });
   }
 
   @override

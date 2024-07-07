@@ -1,6 +1,9 @@
+import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/_common/db_view_floating_button.dart';
+import 'package:moniplan/features/payment_planner/widgets/dialog_show_edit_payment.dart';
+import 'package:moniplan/main.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:sliver_tools/sliver_tools.dart';
@@ -49,7 +52,19 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
 
         return MoniplanThemeListenable(
           child: Scaffold(
-            floatingActionButton: dbInspectorFloatingActionButton,
+            floatingActionButton: GestureDetector(
+              onLongPress: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => DriftDbViewer(db),
+                  ),
+                );
+              },
+              child: FloatingActionButton(
+                child: const Icon(Icons.add),
+                onPressed: () {},
+              ),
+            ),
             appBar: AppBar(
               title: titleWidget,
               actions: [
@@ -101,14 +116,27 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                           operations: state.paymentsGenerated,
                           budget: state.budget,
                           onPaymentPressed: (payment) async {
-                            context.read<PlannerBloc>().add(
-                                  PlannerEvent.updatePayment(
-                                    newPayment: payment.copyWith(
-                                      isDone: !payment.isDone,
-                                      // isEnabled: !payment.isEnabled,
-                                    ),
-                                  ),
-                                );
+                            Payment targetPayment = payment;
+                            if (payment.isNotParent) {
+                              final original = await PlannerRepoDrift(db: db).getPaymentById(
+                                plannerId: payment.plannerId,
+                                paymentId: payment.originalPaymentId ?? '',
+                              );
+                              if (original != null) {
+                                targetPayment = original;
+                              }
+                            }
+
+                            showEditPaymentDialog(
+                              context: context,
+                              payment: targetPayment,
+                              onSave: (newPayment) {
+                                context
+                                    .read<PlannerBloc>()
+                                    .add(PlannerEvent.updatePayment(newPayment: newPayment));
+                              },
+                              onDelete: () {},
+                            );
                           },
                         ),
                       )

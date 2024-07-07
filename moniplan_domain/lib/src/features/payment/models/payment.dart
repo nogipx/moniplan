@@ -60,7 +60,7 @@ class Payment with _$Payment, EquatableMixin {
 
   PaymentType get type => details.type;
 
-  bool get isNotParent => !isParent;
+  bool get isNotParent => originalPaymentId != null && originalPaymentId!.isNotEmpty;
   bool get isParent => paymentId != virtualPaymentId && originalPaymentId == null;
   bool get isRepeat => repeat != DateTimeRepeat.noRepeat;
   bool get isRepeatParent => isRepeat && isParent;
