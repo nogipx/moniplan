@@ -5,7 +5,7 @@ import 'package:moniplan/features/payment_planner/dialogs/_index.dart';
 import 'package:moniplan/main.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:sliver_tools/sliver_tools.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:moniplan/features/payment_planner/_index.dart';
 
@@ -17,23 +17,28 @@ class PlannerViewScreen extends StatefulWidget {
 }
 
 class _PlannerViewScreenState extends State<PlannerViewScreen> {
-  late final ScrollController _controller;
+  late final ItemScrollController _controller;
+  bool _isFirstScrolled = false;
 
   @override
   void initState() {
-    _controller = ScrollController();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
+    _controller = ItemScrollController();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PlannerBloc, PlannerState>(
+    return BlocConsumer<PlannerBloc, PlannerState>(
+      listener: (context, state) {
+        if (state is PlannerBudgetComputedState &&
+            state.getPaymentsByDate.isNotEmpty &&
+            !_isFirstScrolled) {
+          setState(() {
+            _isFirstScrolled = true;
+          });
+          _moveToDate(DateTime.now(), jump: true);
+        }
+      },
       builder: (context, state) {
         final dateStartRaw = state.mapOrNull(
           budgetComputed: (s) => s.dateStart,
@@ -48,6 +53,9 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
             dateEndRaw != null ? DateFormat(plannerBoundDateFormat).format(dateEndRaw) : '';
 
         final titleWidget = Text('$dateStartString - $dateEndString');
+
+        final paymentsByDate = state.getPaymentsByDate;
+        final today = DateTime.now().onlyDate;
 
         return MoniplanThemeListenable(
           child: Scaffold(
@@ -98,39 +106,84 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
               ],
             ),
             backgroundColor: MoniplanColors.white,
-            body: BlocBuilder<PlannerBloc, PlannerState>(
-              builder: (context, state) {
-                return MoniplanThemeListenable(
-                  child: CustomScrollView(
-                    controller: _controller,
-                    slivers: [
-                      SliverPinnedHeader(
-                        child: state.maybeMap(
-                          budgetComputed: (s) => MoneyFlowWidget(
-                            state: s.moneyFlow,
-                          ),
-                          orElse: () => const SizedBox(),
-                        ),
-                      ),
-                      SliverList(
-                        delegate: PaymentsListSliver(
-                          payments: state.paymentsGenerated,
-                          budget: state.budget,
-                          today: DateTime.now().onlyDate,
-                          onPaymentPressed: (payment) async {
-                            _updateDialog(payment);
-                          },
-                        ),
-                      )
-                    ],
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                state is PlannerBudgetComputedState
+                    ? MoneyFlowWidget(state: state.moneyFlow)
+                    : const SizedBox(),
+                Expanded(
+                  child: ScrollablePositionedList.separated(
+                    itemScrollController: _controller,
+                    itemCount: paymentsByDate.length,
+                    itemBuilder: (context, index) {
+                      if (index < 0) {
+                        return const SizedBox();
+                      }
+
+                      final datePayments = paymentsByDate[index];
+
+                      var paymentsWidgets = datePayments.payments.map((payment) {
+                        return PaymentListItem(
+                          payment: payment,
+                          mediateSummary: state.budget[payment],
+                          onPressed: () => _onTapPayment(payment),
+                        );
+                      }).toList();
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: paymentsWidgets,
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      if (index == paymentsByDate.length - 1) {
+                        return const SizedBox();
+                      }
+
+                      final todayPayments = paymentsByDate[index];
+                      final nextDayPayments = paymentsByDate[index + 1];
+
+                      return PaymentListSeparator(
+                        currentPayment: todayPayments.payments.first,
+                        nextPayment: nextDayPayments.payments.first,
+                        today: today,
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
           ),
         );
       },
     );
+  }
+
+  void _onTapPayment(Payment payment) {
+    _updateDialog(payment);
+  }
+
+  Future<void> _moveToDate(DateTime date, {bool jump = false}) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    final state = context.read<PlannerBloc>().state.getPaymentsByDate.getIndexOfDate(date);
+    if (state == null || !_controller.isAttached) {
+      return;
+    }
+
+    if (jump) {
+      _controller.jumpTo(
+        index: state.index,
+        alignment: state.alignment,
+      );
+    } else {
+      _controller.scrollTo(
+        index: state.index,
+        alignment: state.alignment,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.fastEaseInToSlowEaseOut,
+      );
+    }
   }
 
   Future<void> _updateDialog([Payment? paymentToEdit]) async {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/features/payment_planner/widgets/payment_list_separator.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'dart:math' as math;
 
@@ -43,19 +42,9 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
                 );
               }
 
-              widget = ColoredBox(
-                color: !debugColors
-                    ? Colors.transparent
-                    : index == 0
-                        ? Colors.green
-                        : Colors.blue,
-                child: widget,
-              );
+              widget = widget;
             } else {
-              widget = ColoredBox(
-                color: !debugColors ? Colors.transparent : Colors.red,
-                child: _separatorBuilder(payments, today).call(context, itemIndex),
-              );
+              widget = _separatorBuilder(payments, today).call(context, itemIndex);
             }
             return widget;
           },
@@ -74,7 +63,7 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
   ) {
     return (context, operation) {
       return PaymentListItem(
-        operation: operation,
+        payment: operation,
         mediateSummary: budget[operation],
         onPressed: () => onPressed?.call(operation),
       );

@@ -22,6 +22,7 @@ dependencies:
   sliver_tools: 0.2.12
   share_plus: 9.0.0
   file_picker: 8.0.6
+  scrollable_positioned_list: 0.3.8
 
   syncfusion_flutter_charts: 26.1.35
 

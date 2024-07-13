@@ -110,8 +110,13 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       initialBudget: targetPlanner.initialBudget,
     ).run();
 
+    final paymentsByDate = GroupPaymentsByDateUsecase(
+      payments: constrainedPayments,
+    ).run();
+
     final newState = PlannerState.budgetComputed(
-      paymentsGenerated: constrainedPayments.toList(),
+      payments: constrainedPayments,
+      paymentsByDate: paymentsByDate,
       budget: Map.from(computedBudget.budget),
       dateStart: targetPlanner.dateStart,
       dateEnd: targetPlanner.dateEnd,

@@ -6,12 +6,12 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 class PaymentListItem extends StatelessWidget {
   const PaymentListItem({
     super.key,
-    required this.operation,
+    required this.payment,
     this.mediateSummary,
     this.onPressed,
   });
 
-  final Payment operation;
+  final Payment payment;
   final num? mediateSummary;
   final VoidCallback? onPressed;
 
@@ -20,19 +20,19 @@ class PaymentListItem extends StatelessWidget {
     final budgetPredictWidget = mediateSummary != null
         ? MoneyColoredWidget(
             value: mediateSummary,
-            currency: operation.details.currency,
+            currency: payment.details.currency,
             showPlusSign: false,
           )
         : const SizedBox();
 
     final repeatWidget = SizedBox(
       width: 40,
-      child: operation.isRepeat
+      child: payment.isRepeat
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  operation.repeat.shortName,
+                  payment.repeat.shortName,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: MoniplanColors.secondaryTextColor,
                       ),
@@ -49,7 +49,7 @@ class PaymentListItem extends StatelessWidget {
     );
 
     return Grayscale(
-      grayscale: !operation.isEnabled || operation.isDone,
+      grayscale: !payment.isEnabled || payment.isDone,
       child: InkWell(
         onTap: onPressed,
         child: Container(
@@ -62,11 +62,11 @@ class PaymentListItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SelectableText(
-                      operation.details.name,
+                      payment.details.name,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             color: MoniplanColors.primaryTextColor,
                             fontWeight: FontWeight.w400,
-                            decoration: operation.isDone ? TextDecoration.lineThrough : null,
+                            decoration: payment.isDone ? TextDecoration.lineThrough : null,
                           ),
                     ),
                     const SizedBox(height: 8),
@@ -87,8 +87,8 @@ class PaymentListItem extends StatelessWidget {
                     Row(
                       children: [
                         MoneyColoredWidget(
-                          value: operation.normalizedMoney,
-                          currency: operation.details.currency,
+                          value: payment.normalizedMoney,
+                          currency: payment.details.currency,
                         ),
                         const SizedBox(width: 4),
                         Icon(

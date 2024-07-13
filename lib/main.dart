@@ -8,8 +8,6 @@ import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:moniplan/_budget_request.dart';
-
 late MoniplanDriftDb db;
 
 Future<void> main() async {

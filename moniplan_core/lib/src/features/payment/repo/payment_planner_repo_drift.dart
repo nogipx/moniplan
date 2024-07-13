@@ -220,7 +220,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
           await db.managers.paymentsComposedDriftTable.create((_) => paymentDao);
         }
         return payment;
-      } on Object catch (error, trace) {
+      } on Object catch (_) {
         return null;
       }
     });
