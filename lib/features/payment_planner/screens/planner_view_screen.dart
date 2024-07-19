@@ -59,20 +59,34 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
 
         return MoniplanThemeListenable(
           child: Scaffold(
-            floatingActionButton: GestureDetector(
-              onLongPress: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => DriftDbViewer(db),
+            floatingActionButton: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 24),
+                  child: ElevatedButton(
+                    child: Text('Сегодня'),
+                    onPressed: () {
+                      _moveToDate(DateTime.now());
+                    },
                   ),
-                );
-              },
-              child: FloatingActionButton(
-                child: const Icon(Icons.add),
-                onPressed: () {
-                  _updateDialog();
-                },
-              ),
+                ),
+                GestureDetector(
+                  onLongPress: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DriftDbViewer(db),
+                      ),
+                    );
+                  },
+                  child: FloatingActionButton(
+                    child: const Icon(Icons.add),
+                    onPressed: () {
+                      _updateDialog();
+                    },
+                  ),
+                ),
+              ],
             ),
             appBar: AppBar(
               title: titleWidget,
@@ -181,7 +195,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
         index: state.index,
         alignment: state.alignment,
         duration: const Duration(milliseconds: 300),
-        curve: Curves.fastEaseInToSlowEaseOut,
+        curve: Curves.fastLinearToSlowEaseIn,
       );
     }
   }
