@@ -1,8 +1,7 @@
 import 'package:moniplan/theme/_index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final class ThemeChangerStorageSharedPreferences
-    implements IThemeChangerStorage {
+final class ThemeChangerStorageSharedPreferences implements IThemeChangerStorage {
   final SharedPreferences sharedPreferences;
 
   ThemeChangerStorageSharedPreferences({

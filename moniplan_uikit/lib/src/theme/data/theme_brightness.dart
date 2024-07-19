@@ -16,6 +16,5 @@ enum ThemeBrightness {
     }
   }
 
-  factory ThemeBrightness.fromName(String name) =>
-      values.firstWhere((e) => e.name == name);
+  factory ThemeBrightness.fromName(String name) => values.firstWhere((e) => e.name == name);
 }

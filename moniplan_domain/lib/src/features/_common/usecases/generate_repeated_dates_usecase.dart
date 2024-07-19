@@ -68,8 +68,6 @@ class GenerateRepeatDatesUseCase implements IUseCase<List<DateTime>> {
       ...pastDates.reversed,
       base,
       ...futureDates,
-    ]
-        .where((e) => e.compareTo(dateStart) >= 0 && e.compareTo(dateEnd) <= 0)
-        .toList();
+    ].where((e) => e.compareTo(dateStart) >= 0 && e.compareTo(dateEnd) <= 0).toList();
   }
 }

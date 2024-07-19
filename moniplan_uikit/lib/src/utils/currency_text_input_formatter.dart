@@ -21,8 +21,7 @@ class CurrencyTextInputFormatter extends TextInputFormatter {
   ) =>
       _format(newValue: TextEditingValue(text: value), override: true).text;
 
-  RegExp get forbiddenCharacters =>
-      RegExp(allowNegative ? r'[^0-9,.-]' : r'[^0-9,.]');
+  RegExp get forbiddenCharacters => RegExp(allowNegative ? r'[^0-9,.-]' : r'[^0-9,.]');
 
   TextEditingValue _format({
     TextEditingValue oldValue = const TextEditingValue(text: ''),
@@ -30,11 +29,9 @@ class CurrencyTextInputFormatter extends TextInputFormatter {
     bool override = false,
   }) {
     final bool isInsertedCharacter =
-        oldValue.text.length + 1 == newValue.text.length &&
-            newValue.text.startsWith(oldValue.text);
+        oldValue.text.length + 1 == newValue.text.length && newValue.text.startsWith(oldValue.text);
     final bool isRemovedCharacter =
-        oldValue.text.length - 1 == newValue.text.length &&
-            oldValue.text.startsWith(newValue.text);
+        oldValue.text.length - 1 == newValue.text.length && oldValue.text.startsWith(newValue.text);
 
     if (forbiddenCharacters.hasMatch(newValue.text)) {
       return oldValue;
@@ -46,13 +43,11 @@ class CurrencyTextInputFormatter extends TextInputFormatter {
     final bool isNegative = newValue.text.startsWith('-');
 
     if (override) {
-      final number =
-          int.tryParse(newValue.text.replaceAll(RegExp(r'[^0-9]'), ''));
+      final number = int.tryParse(newValue.text.replaceAll(RegExp(r'[^0-9]'), ''));
       if (number != null) {
         final decimal = number / (isNegative ? -100 : 100);
-        final numberString = decimal % 1 == 0
-            ? decimal.toInt().toString()
-            : decimal.toString().replaceAll('.', ',');
+        final numberString =
+            decimal % 1 == 0 ? decimal.toInt().toString() : decimal.toString().replaceAll('.', ',');
         return TextEditingValue(text: numberString);
       }
     }
