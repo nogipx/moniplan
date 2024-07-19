@@ -10,11 +10,14 @@ class GenerateRepeatDatesUseCase implements IUseCase<List<DateTime>> {
   final DateTime dateStart;
   final DateTime dateEnd;
 
+  final bool generatePastDates;
+
   const GenerateRepeatDatesUseCase({
     required this.repeat,
     required this.base,
     required this.dateStart,
     required this.dateEnd,
+    this.generatePastDates = false,
   });
 
   @override
@@ -29,7 +32,7 @@ class GenerateRepeatDatesUseCase implements IUseCase<List<DateTime>> {
     /// if next/previous date is not in the desired range
     /// then do not add it to the list, but cache it in one variable
 
-    if (hasPastDays) {
+    if (generatePastDates && hasPastDays) {
       pastDates.add(repeat.previous(base));
       while (true) {
         final next = repeat.previous(pastDates.last);
@@ -65,6 +68,8 @@ class GenerateRepeatDatesUseCase implements IUseCase<List<DateTime>> {
       ...pastDates.reversed,
       base,
       ...futureDates,
-    ].where((e) => e.compareTo(dateStart) >= 0 && e.compareTo(dateEnd) <= 0).toList();
+    ]
+        .where((e) => e.compareTo(dateStart) >= 0 && e.compareTo(dateEnd) <= 0)
+        .toList();
   }
 }

@@ -4,7 +4,8 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 /// список платежей.
 /// У каждого платежа будет указан [plannerId].
 /// Используется каждый раз, когда перегенирируем планер.
-class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseCaseResult> {
+class ExpandPaymentToPeriodUseCase
+    implements IUseCase<ExpandPaymentToPeriodUseCaseResult> {
   /// С этим id будут связаны все платежи.
   final String plannerId;
 
@@ -82,6 +83,7 @@ class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseC
       base: baseDate,
       dateStart: targetDateStart,
       dateEnd: targetDateEnd,
+      generatePastDates: false,
     ).run();
 
     // Затем в каждую сгенерированную дату копируем платеж
