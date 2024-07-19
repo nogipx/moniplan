@@ -20,7 +20,7 @@ class PaymentListDaySeparator extends StatelessWidget {
       alignment: Alignment.center,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
       child: Material(
-        elevation: 3,
+        elevation: 2,
         shadowColor: MoniplanColors.disabledColor,
         color: isSameDay ? MoniplanColors.blueColor : MoniplanColors.primaryTextColor,
         borderRadius: MoniplanConst.borderRadius50,
@@ -35,7 +35,7 @@ class PaymentListDaySeparator extends StatelessWidget {
               child: Text(
                 DateFormat.MMMMd('ru').format(date),
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: MoniplanColors.white,
+                      color: isSameDay ? MoniplanColors.primaryTextColor : MoniplanColors.white,
                     ),
               ),
             ),

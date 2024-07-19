@@ -30,7 +30,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
   @override
   Widget build(BuildContext context) {
     return ThemeChanger(
-      initialBrightness: ThemeBrightness.light,
+      initialBrightness: ThemeBrightness.dark,
       storage: ThemeChangerStorageSharedPreferences(
         sharedPreferences: widget.sharedPreferences,
       ),
@@ -40,6 +40,15 @@ class _MoniplanAppState extends State<MoniplanApp> {
       builder: (context, brightness) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+          theme: ThemeData.dark(
+            useMaterial3: true,
+          ).copyWith(
+            primaryColor: MoniplanColors.blueColor,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: MoniplanColors.blueColor,
+              brightness: Brightness.dark,
+            ),
+          ),
           home: Builder(
             builder: (context) {
               return Scaffold(

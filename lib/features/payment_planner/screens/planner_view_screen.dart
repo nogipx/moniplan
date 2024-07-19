@@ -119,7 +119,6 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                 ),
               ],
             ),
-            backgroundColor: MoniplanColors.white,
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -215,35 +214,59 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
       }
     }
 
+    void save(Payment newPayment, {bool? create}) => context.read<PlannerBloc>().add(
+          PlannerEvent.updatePayment(
+            newPayment: newPayment,
+            create: create ?? paymentToEdit == null,
+          ),
+        );
+
+    void delete() {
+      if (paymentToEdit == null) {
+        return;
+      }
+
+      showDeletePaymentDialog(
+        context,
+        () {
+          if (targetPayment == null) {
+            return;
+          }
+
+          context.read<PlannerBloc>().add(
+                PlannerEvent.deletePayment(
+                  paymentId: targetPayment.paymentId,
+                ),
+              );
+        },
+      );
+    }
+
+    void duplicate() {
+      if (paymentToEdit == null || targetPayment == null) {
+        return;
+      }
+
+      final duplicationPayment = targetPayment.copyWith(
+        paymentId: const Uuid().v4(),
+        repeat: DateTimeRepeat.noRepeat,
+        dateStart: null,
+        dateEnd: null,
+      );
+
+      showUpdatePaymentDialog(
+        context: context,
+        payment: duplicationPayment,
+        onSave: (p) => save(p, create: true),
+      );
+    }
+
     showUpdatePaymentDialog(
       context: context,
       payment: targetPayment,
-      onSave: (newPayment) {
-        context.read<PlannerBloc>().add(
-              PlannerEvent.updatePayment(
-                newPayment: newPayment,
-                create: paymentToEdit == null,
-              ),
-            );
-      },
-      onDelete: paymentToEdit != null
-          ? () {
-              showDeletePaymentDialog(
-                context,
-                () {
-                  if (targetPayment == null) {
-                    return;
-                  }
-
-                  context.read<PlannerBloc>().add(
-                        PlannerEvent.deletePayment(
-                          paymentId: targetPayment.paymentId,
-                        ),
-                      );
-                },
-              );
-            }
-          : null,
+      onSave: save,
+      onDelete: delete,
+      onDuplicate: duplicate,
     ).then((_) {
       context.read<PlannerBloc>().add(PlannerEvent.computeBudget());
     });

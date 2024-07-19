@@ -24,7 +24,6 @@ class MoneyFlowWidget extends StatelessWidget {
     );
 
     return Material(
-      color: MoniplanColors.white,
       elevation: .5,
       child: Padding(
         padding: const EdgeInsets.symmetric(

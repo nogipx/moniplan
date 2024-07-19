@@ -33,7 +33,6 @@ class _StatisticChartState extends State<StatisticChart> {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(8)),
-                    // color: Colors.white,
                     color: data.seriesIndex == 0 ? Colors.white : Colors.black12,
                     border: Border.all(
                       width: 3,

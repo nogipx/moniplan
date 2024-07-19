@@ -15,13 +15,14 @@ abstract class MoniplanColors {
   static final white = ColorToken(
     brightness: _brightness,
     light: const Color(0xffffffff),
-    dark: const Color(0xffffffff),
+    dark: const Color(0xff454545),
     // dark: const Color(0xff454545),
   );
 
   static final blueColor = ColorToken(
     brightness: _brightness,
     light: const Color(0xff0C82D8),
+    dark: const Color(0xff58A9E4),
   );
   static final orangeColor = ColorToken(
     brightness: _brightness,
@@ -56,6 +57,7 @@ abstract class MoniplanColors {
   static final primaryTextColor = ColorToken(
     brightness: _brightness,
     light: const Color(0xff454545),
+    dark: const Color(0xffffffff),
   );
   static final secondaryTextColor = ColorToken(
     brightness: _brightness,

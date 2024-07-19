@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 Future<void> showUpdatePaymentDialog({
   required BuildContext context,
   required Function(Payment) onSave,
   Function()? onDelete,
+  Function()? onDuplicate,
   Payment? payment,
 }) async {
   final TextEditingController titleController = TextEditingController(
     text: payment?.details.name ?? '',
   );
   final TextEditingController amountController = TextEditingController(
-    text: payment?.details.money.toString() ?? '',
+    text: payment?.details.money.toInt().toString() ?? '',
   );
 
   DateTime? date = payment?.date;
@@ -75,8 +77,14 @@ Future<void> showUpdatePaymentDialog({
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(payment != null ? 'Edit Payment' : 'Create payment'),
-                if (onDelete != null)
+                Text(
+                  payment != null
+                      ? onDuplicate == null
+                          ? 'Duplicate payment'
+                          : 'Edit Payment'
+                      : 'Create payment',
+                ),
+                if (payment != null && onDelete != null)
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -89,139 +97,178 @@ Future<void> showUpdatePaymentDialog({
                   ),
               ],
             ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextField(
-                    controller: titleController,
-                    decoration: inputDecoration.copyWith(labelText: 'Title'),
-                  ),
-                  const Divider(),
-                  TextField(
-                    controller: amountController,
-                    keyboardType: TextInputType.number,
-                    decoration: inputDecoration.copyWith(labelText: 'Money'),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      RadioListTile<PaymentType>(
-                        title: const Text('Expense'),
-                        value: PaymentType.expense,
-                        groupValue: type,
-                        onChanged: (PaymentType? value) {
-                          setState(() {
-                            type = value!;
-                          });
-                        },
+            insetPadding: EdgeInsets.symmetric(horizontal: 8),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextField(
+                      controller: titleController,
+                      decoration: inputDecoration.copyWith(labelText: 'Title'),
+                    ),
+                    const Divider(),
+                    TextField(
+                      controller: amountController,
+                      keyboardType: TextInputType.number,
+                      decoration: inputDecoration.copyWith(
+                        labelText: 'Money',
+                        icon: Icon(Icons.attach_money),
+                        iconColor: MoniplanColors.blueColor,
                       ),
-                      RadioListTile<PaymentType>(
-                        title: const Text('Income'),
-                        value: PaymentType.income,
-                        groupValue: type,
-                        onChanged: (PaymentType? value) {
-                          setState(() {
-                            type = value!;
-                          });
-                        },
-                      )
-                    ],
-                  ),
-                  const Divider(),
-                  Row(
-                    children: <Widget>[
-                      Text(
-                        'Payment date: ${date != null ? dateFormat.format(date!) : 'Not set'}',
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.calendar_today),
-                        onPressed: () async {
-                          await selectPaymentDate(context);
-                          setState(() {});
-                        },
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Enabled:'),
-                      Switch(
-                        value: isEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            isEnabled = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Done:'),
-                      Switch(
-                        value: isDone,
-                        onChanged: (value) {
-                          setState(() {
-                            isDone = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  Row(
-                    children: [
-                      Text('Repeat: '),
-                      DropdownButton<DateTimeRepeat>(
-                        value: repeatPeriod,
-                        onChanged: (DateTimeRepeat? newValue) {
-                          setState(() {
-                            repeatPeriod = newValue!;
-                          });
-                        },
-                        items: DateTimeRepeat.values
-                            .map<DropdownMenuItem<DateTimeRepeat>>((DateTimeRepeat value) {
-                          return DropdownMenuItem<DateTimeRepeat>(
-                            value: value,
-                            child: Text(
-                                value == DateTimeRepeat.noRepeat ? 'No repeat' : value.shortName),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-                  if (repeatPeriod != DateTimeRepeat.noRepeat) ...[
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RadioListTile<PaymentType>(
+                          title: const Text('Expense'),
+                          value: PaymentType.expense,
+                          groupValue: type,
+                          onChanged: (PaymentType? value) {
+                            setState(() {
+                              type = value!;
+                            });
+                          },
+                        ),
+                        RadioListTile<PaymentType>(
+                          title: const Text('Income'),
+                          value: PaymentType.income,
+                          groupValue: type,
+                          onChanged: (PaymentType? value) {
+                            setState(() {
+                              type = value!;
+                            });
+                          },
+                        )
+                      ],
+                    ),
+                    const Divider(),
                     Row(
                       children: <Widget>[
                         Text(
-                          'Start date: ${startDate != null ? dateFormat.format(startDate!) : 'Not set'}',
+                          'Payment date: ${date != null ? dateFormat.format(date!) : 'Not set'}',
                         ),
                         IconButton(
                           icon: Icon(Icons.calendar_today),
                           onPressed: () async {
-                            await selectStartDate(context);
+                            await selectPaymentDate(context);
                             setState(() {});
                           },
                         ),
                       ],
                     ),
                     Row(
-                      children: <Widget>[
-                        Text(
-                          'End date: ${endDate != null ? dateFormat.format(endDate!) : 'Not set'}',
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.calendar_today),
-                          onPressed: () async {
-                            await selectEndDate(context);
-                            setState(() {});
+                      children: [
+                        Text('Enabled:'),
+                        Switch(
+                          value: isEnabled,
+                          onChanged: (value) {
+                            setState(() {
+                              isEnabled = value;
+                            });
                           },
                         ),
                       ],
                     ),
+                    Row(
+                      children: [
+                        Text('Done:'),
+                        Switch(
+                          value: isDone,
+                          onChanged: (value) {
+                            setState(() {
+                              isDone = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    const Divider(),
+                    Row(
+                      children: [
+                        Text('Repeat: '),
+                        DropdownButton<DateTimeRepeat>(
+                          value: repeatPeriod,
+                          onChanged: (DateTimeRepeat? newValue) {
+                            setState(() {
+                              repeatPeriod = newValue!;
+                            });
+                          },
+                          items: DateTimeRepeat.values
+                              .map<DropdownMenuItem<DateTimeRepeat>>((DateTimeRepeat value) {
+                            return DropdownMenuItem<DateTimeRepeat>(
+                              value: value,
+                              child: Text(
+                                  value == DateTimeRepeat.noRepeat ? 'No repeat' : value.shortName),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                    if (repeatPeriod != DateTimeRepeat.noRepeat) ...[
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            'Start date: ${startDate != null ? dateFormat.format(startDate!) : 'Not set'}',
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.calendar_today),
+                            onPressed: () async {
+                              await selectStartDate(context);
+                              setState(() {});
+                            },
+                          ),
+                          Spacer(),
+                          if (startDate != null)
+                            IconButton(
+                              icon: Icon(Icons.close),
+                              onPressed: () async {
+                                setState(() {
+                                  startDate = null;
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            'End date: ${endDate != null ? dateFormat.format(endDate!) : 'Not set'}',
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.calendar_today),
+                            onPressed: () async {
+                              await selectEndDate(context);
+                              setState(() {});
+                            },
+                          ),
+                          Spacer(),
+                          if (endDate != null)
+                            IconButton(
+                              icon: Icon(Icons.close),
+                              onPressed: () async {
+                                setState(() {
+                                  endDate = null;
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
+                    if (payment != null && onDuplicate != null) ...[
+                      const Divider(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          onDuplicate();
+                        },
+                        child: Text('Создать копию'),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
             actions: <Widget>[
