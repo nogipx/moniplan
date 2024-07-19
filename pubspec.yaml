@@ -64,6 +64,10 @@ flutter:
     - family: SfProText
       fonts:
         - asset: fonts/SF-Pro-Text-Regular.otf
+    - family: TTFirsText
+      fonts:
+        - asset: fonts/TT-Firs-Text-Regular.ttf
+        - asset: fonts/TT-Firs-Text-Variable.ttf
     - family: SfProDisplay
       fonts:
         - asset: fonts/SF-Pro-Display-Regular.otf

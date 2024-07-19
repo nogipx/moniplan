@@ -40,9 +40,9 @@ class _MoniplanAppState extends State<MoniplanApp> {
       builder: (context, brightness) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: ThemeData.dark(
-            useMaterial3: true,
-          ).copyWith(
+          theme: ThemeData(
+            brightness: Brightness.dark,
+            fontFamily: 'TTFirsText',
             primaryColor: MoniplanColors.blueColor,
             colorScheme: ColorScheme.fromSeed(
               seedColor: MoniplanColors.blueColor,
