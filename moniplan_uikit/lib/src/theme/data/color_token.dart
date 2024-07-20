@@ -10,6 +10,31 @@ enum ColorExtra {
   buttonForeground,
 }
 
+typedef ColorTokenFactory = ColorToken Function({
+  required Color light,
+  Color? dark,
+  Map<ColorExtra, Color>? lightExtra,
+  Map<ColorExtra, Color>? darkExtra,
+});
+
+ColorTokenFactory colorTokenFactory(
+  ValueListenable<Brightness>? brightness,
+) =>
+    ({
+      required light,
+      dark,
+      lightExtra,
+      darkExtra,
+    }) {
+      return ColorToken(
+        brightness: brightness,
+        light: light,
+        dark: dark,
+        lightExtra: lightExtra ?? {},
+        darkExtra: darkExtra ?? {},
+      );
+    };
+
 class ColorToken implements Color {
   final Color light;
   final Color? dark;

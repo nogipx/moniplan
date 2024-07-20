@@ -12,16 +12,16 @@ final lightTheme = ThemeData(
       top: 30,
     ),
     hintStyle: baseTextTheme.bodyMedium?.copyWith(
-      color: MoniplanColors.inactiveTextColor,
+      color: AppColorTokens.inactiveTextColor,
       fontWeight: FontWeight.normal,
     ),
     labelStyle: baseTextTheme.bodyMedium?.copyWith(
-      color: MoniplanColors.inactiveTextColor,
+      color: AppColorTokens.inactiveTextColor,
       fontWeight: FontWeight.normal,
     ),
     enabledBorder: UnderlineInputBorder(
       borderSide: BorderSide(
-        color: MoniplanColors.inactiveTextColor,
+        color: AppColorTokens.inactiveTextColor,
       ),
     ),
   ),

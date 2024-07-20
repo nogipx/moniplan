@@ -19,7 +19,7 @@ class MoneyFlowWidget extends StatelessWidget {
       child: VerticalDivider(
         thickness: 1,
         width: 1,
-        color: MoniplanColors.inactiveTextColor,
+        color: AppColorTokens.inactiveTextColor,
       ),
     );
 

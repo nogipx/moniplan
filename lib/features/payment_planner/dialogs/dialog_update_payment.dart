@@ -116,7 +116,7 @@ Future<void> showUpdatePaymentDialog({
                       decoration: inputDecoration.copyWith(
                         labelText: 'Money',
                         icon: Icon(Icons.attach_money),
-                        iconColor: MoniplanColors.blueColor,
+                        iconColor: AppColorTokens.brandColor,
                       ),
                     ),
                     Column(
@@ -208,30 +208,30 @@ Future<void> showUpdatePaymentDialog({
                       ],
                     ),
                     if (repeatPeriod != DateTimeRepeat.noRepeat) ...[
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            'Start date: ${startDate != null ? dateFormat.format(startDate!) : 'Not set'}',
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.calendar_today),
-                            onPressed: () async {
-                              await selectStartDate(context);
-                              setState(() {});
-                            },
-                          ),
-                          Spacer(),
-                          if (startDate != null)
-                            IconButton(
-                              icon: Icon(Icons.close),
-                              onPressed: () async {
-                                setState(() {
-                                  startDate = null;
-                                });
-                              },
-                            ),
-                        ],
-                      ),
+                      // Row(
+                      //   children: <Widget>[
+                      //     Text(
+                      //       'Start date: ${startDate != null ? dateFormat.format(startDate!) : 'Not set'}',
+                      //     ),
+                      //     IconButton(
+                      //       icon: Icon(Icons.calendar_today),
+                      //       onPressed: () async {
+                      //         await selectStartDate(context);
+                      //         setState(() {});
+                      //       },
+                      //     ),
+                      //     Spacer(),
+                      //     if (startDate != null)
+                      //       IconButton(
+                      //         icon: Icon(Icons.close),
+                      //         onPressed: () async {
+                      //           setState(() {
+                      //             startDate = null;
+                      //           });
+                      //         },
+                      //       ),
+                      //   ],
+                      // ),
                       Row(
                         children: <Widget>[
                           Text(

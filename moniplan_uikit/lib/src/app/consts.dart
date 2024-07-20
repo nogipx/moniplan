@@ -12,7 +12,7 @@ abstract class MoniplanConst {
 
   static final lightSystemUIOverlay = SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.white,
-    systemNavigationBarDividerColor: MoniplanColors.navigationBarColor,
+    systemNavigationBarDividerColor: AppColorTokens.navigationBarColor,
     statusBarColor: const Color(0x00FFFFFF),
     statusBarBrightness: Brightness.light,
     statusBarIconBrightness: Brightness.dark,

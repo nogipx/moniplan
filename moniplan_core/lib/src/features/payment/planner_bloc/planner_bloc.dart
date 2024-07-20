@@ -52,7 +52,10 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   ) async {
     final result = await _plannerRepo.savePayment(
       plannerId: plannerId,
-      payment: event.newPayment,
+      payment: event.newPayment.copyWith(
+        // dateStart больше не нужен, поскольку больше не генерируем платежи прошлого
+        dateStart: null,
+      ),
       allowCreate: event.create,
     );
 

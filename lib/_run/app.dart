@@ -35,7 +35,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
         sharedPreferences: widget.sharedPreferences,
       ),
       onChangeTheme: (brightness) {
-        MoniplanColors.brightness = brightness;
+        AppColorTokens.brightness = brightness;
       },
       builder: (context, brightness) {
         return MaterialApp(
@@ -43,9 +43,9 @@ class _MoniplanAppState extends State<MoniplanApp> {
           theme: ThemeData(
             brightness: Brightness.dark,
             fontFamily: 'TTFirsText',
-            primaryColor: MoniplanColors.blueColor,
+            primaryColor: AppColorTokens.brandColor,
             colorScheme: ColorScheme.fromSeed(
-              seedColor: MoniplanColors.blueColor,
+              seedColor: AppColorTokens.brandColor,
               brightness: Brightness.dark,
             ),
           ),

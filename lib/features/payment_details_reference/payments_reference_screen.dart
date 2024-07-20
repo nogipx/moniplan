@@ -122,13 +122,13 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                           tag,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: isSelected
-                                    ? MoniplanColors.white
-                                    : MoniplanColors.primaryTextColor,
+                                    ? AppColorTokens.white
+                                    : AppColorTokens.primaryTextColor,
                               ),
                         ),
                         backgroundColor: isSelected
-                            ? MoniplanColors.blueColor
-                            : MoniplanColors.inactiveBackgroundColor,
+                            ? AppColorTokens.brandColor
+                            : AppColorTokens.inactiveBackgroundColor,
                         onPressed: () {
                           if (isSelected) {
                             _clearTagSelection();
@@ -171,8 +171,8 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                         child: Card(
                           elevation: isSelected ? 3 : 1,
                           shadowColor: isSelected
-                              ? MoniplanColors.positiveMoneyColor
-                              : MoniplanColors.inactiveBackgroundColor,
+                              ? AppColorTokens.positiveMoneyColor
+                              : AppColorTokens.inactiveBackgroundColor,
                           child: Grayscale(
                             grayscale: isSelected,
                             child: Padding(
@@ -202,7 +202,7 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                                               'Налог ${(payment.tax * 100).toInt()}%',
                                               style:
                                                   Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                        color: MoniplanColors.secondaryTextColor,
+                                                        color: AppColorTokens.secondaryTextColor,
                                                       ),
                                             )
                                         ],
@@ -217,7 +217,7 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                                       child: Text(
                                         payment.note,
                                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: MoniplanColors.primaryTextColor,
+                                              color: AppColorTokens.primaryTextColor,
                                             ),
                                       ),
                                     ),
@@ -227,7 +227,7 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodySmall
-                                        ?.copyWith(color: MoniplanColors.secondaryTextColor),
+                                        ?.copyWith(color: AppColorTokens.secondaryTextColor),
                                   )
                                 ],
                               ),

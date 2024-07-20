@@ -34,14 +34,14 @@ class PaymentListItem extends StatelessWidget {
                 Text(
                   payment.repeat.shortName,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: MoniplanColors.secondaryTextColor,
+                        color: AppColorTokens.secondaryTextColor,
                       ),
                 ),
                 const SizedBox(width: 2),
                 Icon(
                   Icons.refresh_rounded,
                   size: 18,
-                  color: MoniplanColors.secondaryTextColor,
+                  color: AppColorTokens.secondaryTextColor,
                 ),
               ],
             )
@@ -64,8 +64,8 @@ class PaymentListItem extends StatelessWidget {
                     SelectableText(
                       payment.details.name,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: MoniplanColors.primaryTextColor,
-                            fontWeight: FontWeight.w400,
+                            color: AppColorTokens.primaryTextColor,
+                            fontSize: 16,
                             decoration: payment.isDone ? TextDecoration.lineThrough : null,
                           ),
                     ),
@@ -94,7 +94,7 @@ class PaymentListItem extends StatelessWidget {
                         Icon(
                           Icons.arrow_right_alt_rounded,
                           size: 20,
-                          color: MoniplanColors.disabledColor,
+                          color: AppColorTokens.disabledColor,
                         ),
                         const SizedBox(width: 4),
                         budgetPredictWidget,
