@@ -148,8 +148,20 @@ Future<void> showUpdatePaymentDialog({
                     const Divider(),
                     Row(
                       children: <Widget>[
-                        Text(
-                          'Payment date: ${date != null ? dateFormat.format(date!) : 'Not set'}',
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Payment date: ',
+                              ),
+                              TextSpan(
+                                text: date != null ? dateFormat.format(date!) : 'Not set',
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
                         IconButton(
                           icon: Icon(Icons.calendar_today),
