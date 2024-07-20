@@ -36,7 +36,7 @@ class Payment with _$Payment, EquatableMixin {
 
     /// Date of money reservation.
     /// Indicates calendar day which amount of money reserved.
-    DateTime? dateMoneyReserved,
+    @Deprecated('Unused field') DateTime? dateMoneyReserved,
 
     /// Field for repeated payments.
     /// It shows which payment this payment was generated from.
@@ -61,7 +61,9 @@ class Payment with _$Payment, EquatableMixin {
   PaymentType get type => details.type;
 
   bool get isNotParent => originalPaymentId != null && originalPaymentId!.isNotEmpty;
-  bool get isParent => paymentId != virtualPaymentId && originalPaymentId == null;
+  bool get isParent =>
+      originalPaymentId == null || (originalPaymentId != null && originalPaymentId!.isEmpty);
+
   bool get isRepeat => repeat != DateTimeRepeat.noRepeat;
   bool get isRepeatParent => isRepeat && isParent;
 
@@ -70,8 +72,12 @@ class Payment with _$Payment, EquatableMixin {
   @override
   List<Object?> get props => [
         paymentId,
-        date,
-        dateMoneyReserved,
         originalPaymentId,
+        isEnabled,
+        isDone,
+        details,
+        date,
+        dateStart,
+        dateEnd,
       ];
 }

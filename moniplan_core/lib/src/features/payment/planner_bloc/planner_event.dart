@@ -19,4 +19,8 @@ class PlannerEvent with _$PlannerEvent {
   const factory PlannerEvent.deletePayment({
     required final String paymentId,
   }) = PlannerDeletePaymentEvent;
+
+  const factory PlannerEvent.fixatePayment({
+    required final String paymentId,
+  }) = PlannerDeletePaymentEvent;
 }

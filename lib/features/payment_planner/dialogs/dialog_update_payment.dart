@@ -7,22 +7,24 @@ Future<void> showUpdatePaymentDialog({
   required Function(Payment) onSave,
   Function()? onDelete,
   Function()? onDuplicate,
-  Payment? payment,
+  Function()? onFixation,
+  Payment? paymentWhichTapped,
+  Payment? targetPayment,
 }) async {
   final TextEditingController titleController = TextEditingController(
-    text: payment?.details.name ?? '',
+    text: targetPayment?.details.name ?? '',
   );
   final TextEditingController amountController = TextEditingController(
-    text: payment?.details.money.toInt().toString() ?? '',
+    text: targetPayment?.details.money.toInt().toString() ?? '',
   );
 
-  DateTime? date = payment?.date;
-  DateTime? startDate = payment?.dateStart;
-  DateTime? endDate = payment?.dateEnd;
-  bool isEnabled = payment?.isEnabled ?? true;
-  bool isDone = payment?.isDone ?? false;
-  DateTimeRepeat repeatPeriod = payment?.repeat ?? DateTimeRepeat.noRepeat;
-  PaymentType type = payment?.details.type ?? PaymentType.expense;
+  DateTime? date = targetPayment?.date;
+  DateTime? startDate = targetPayment?.dateStart;
+  DateTime? endDate = targetPayment?.dateEnd;
+  bool isEnabled = targetPayment?.isEnabled ?? true;
+  bool isDone = targetPayment?.isDone ?? false;
+  DateTimeRepeat repeatPeriod = targetPayment?.repeat ?? DateTimeRepeat.noRepeat;
+  PaymentType type = targetPayment?.details.type ?? PaymentType.expense;
 
   Future<void> selectPaymentDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -33,21 +35,6 @@ Future<void> showUpdatePaymentDialog({
     );
     if (picked != null) {
       date = picked;
-    }
-  }
-
-  Future<void> selectStartDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: startDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != startDate) {
-      startDate = picked;
-      if (endDate != null && startDate!.isAfter(endDate!)) {
-        endDate = startDate;
-      }
     }
   }
 
@@ -76,24 +63,36 @@ Future<void> showUpdatePaymentDialog({
           return AlertDialog(
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  payment != null
-                      ? onDuplicate == null
-                          ? 'Duplicate payment'
-                          : 'Edit Payment'
-                      : 'Create payment',
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      targetPayment != null
+                          ? onDuplicate == null
+                              ? 'Duplicate payment'
+                              : 'Edit Payment'
+                          : 'Create payment',
+                    ),
+                    if (paymentWhichTapped != null)
+                      Text(
+                        paymentWhichTapped.isParent
+                            ? 'original'
+                            : 'generated - you edit an original now',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              fontStyle: FontStyle.italic,
+                            ),
+                      )
+                  ],
                 ),
-                if (payment != null && onDelete != null)
+                if (targetPayment != null && onDelete != null)
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                       onDelete();
                     },
                     child: Text('Delete'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.red,
-                    ),
                   ),
               ],
             ),
@@ -119,31 +118,26 @@ Future<void> showUpdatePaymentDialog({
                         iconColor: AppColorTokens.brandColor,
                       ),
                     ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        RadioListTile<PaymentType>(
-                          title: const Text('Expense'),
+                    const SizedBox(height: 16),
+                    SegmentedButton<PaymentType>(
+                      selected: {type},
+                      segments: [
+                        ButtonSegment(
                           value: PaymentType.expense,
-                          groupValue: type,
-                          onChanged: (PaymentType? value) {
-                            setState(() {
-                              type = value!;
-                            });
-                          },
+                          label: const Text('Expense'),
                         ),
-                        RadioListTile<PaymentType>(
-                          title: const Text('Income'),
+                        ButtonSegment(
                           value: PaymentType.income,
-                          groupValue: type,
-                          onChanged: (PaymentType? value) {
-                            setState(() {
-                              type = value!;
-                            });
-                          },
-                        )
+                          label: const Text('Income'),
+                        ),
                       ],
+                      onSelectionChanged: (paymentTypes) {
+                        setState(() {
+                          type = paymentTypes.first;
+                        });
+                      },
                     ),
+                    const SizedBox(height: 8),
                     const Divider(),
                     Row(
                       children: <Widget>[
@@ -208,30 +202,6 @@ Future<void> showUpdatePaymentDialog({
                       ],
                     ),
                     if (repeatPeriod != DateTimeRepeat.noRepeat) ...[
-                      // Row(
-                      //   children: <Widget>[
-                      //     Text(
-                      //       'Start date: ${startDate != null ? dateFormat.format(startDate!) : 'Not set'}',
-                      //     ),
-                      //     IconButton(
-                      //       icon: Icon(Icons.calendar_today),
-                      //       onPressed: () async {
-                      //         await selectStartDate(context);
-                      //         setState(() {});
-                      //       },
-                      //     ),
-                      //     Spacer(),
-                      //     if (startDate != null)
-                      //       IconButton(
-                      //         icon: Icon(Icons.close),
-                      //         onPressed: () async {
-                      //           setState(() {
-                      //             startDate = null;
-                      //           });
-                      //         },
-                      //       ),
-                      //   ],
-                      // ),
                       Row(
                         children: <Widget>[
                           Text(
@@ -257,15 +227,26 @@ Future<void> showUpdatePaymentDialog({
                         ],
                       ),
                     ],
-                    if (payment != null && onDuplicate != null) ...[
+                    if (targetPayment != null && paymentWhichTapped != null) ...[
                       const Divider(),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          onDuplicate();
-                        },
-                        child: Text('Создать копию'),
-                      ),
+                      if (onDuplicate != null)
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            onDuplicate();
+                          },
+                          child: Text('Duplicate'),
+                        ),
+                      if (onFixation != null && paymentWhichTapped.isRepeat)
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            onFixation();
+                          },
+                          child: paymentWhichTapped.isRepeatParent
+                              ? Text('Fixate this payment')
+                              : Text('Fixate original payment'),
+                        ),
                     ],
                   ],
                 ),
@@ -277,8 +258,14 @@ Future<void> showUpdatePaymentDialog({
                   Navigator.of(context).pop(); // Закрываем диалог
                 },
                 child: Text('Cancel'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                ),
               ),
-              TextButton(
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: AppColorTokens.positiveMoneyColor,
+                ),
                 onPressed: () {
                   if (date == null) {
                     return;
@@ -286,7 +273,7 @@ Future<void> showUpdatePaymentDialog({
                   final newMoney = num.tryParse(amountController.text) ?? 0.0;
                   final newType = type;
 
-                  final targetPayment = payment ??
+                  final resultPayment = targetPayment ??
                       Payment(
                         paymentId: const Uuid().v4(),
                         details: PaymentDetails(
@@ -297,14 +284,14 @@ Future<void> showUpdatePaymentDialog({
                         date: date!,
                       );
 
-                  final updated = targetPayment.copyWith(
+                  final updated = resultPayment.copyWith(
                     isEnabled: isEnabled,
                     isDone: isDone,
                     date: date!,
                     dateStart: startDate,
                     dateEnd: endDate,
                     repeat: repeatPeriod,
-                    details: targetPayment.details.copyWith(
+                    details: resultPayment.details.copyWith(
                       name: titleController.text,
                       money: newMoney.abs(),
                       type: newType,
@@ -313,7 +300,13 @@ Future<void> showUpdatePaymentDialog({
                   onSave(updated); // Вызываем функцию сохранения
                   Navigator.of(context).pop(); // Закрываем диалог
                 },
-                child: Text(payment != null ? 'Save' : 'Create'),
+                child: Text(
+                  targetPayment != null ? 'Save' : 'Create',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: Colors.green,
+                      ),
+                ),
               ),
             ],
           );

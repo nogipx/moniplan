@@ -256,17 +256,21 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
 
       showUpdatePaymentDialog(
         context: context,
-        payment: duplicationPayment,
+        targetPayment: duplicationPayment,
         onSave: (p) => save(p, create: true),
       );
     }
 
+    void fixate() {}
+
     showUpdatePaymentDialog(
       context: context,
-      payment: targetPayment,
+      paymentWhichTapped: paymentToEdit,
+      targetPayment: targetPayment,
       onSave: save,
       onDelete: delete,
       onDuplicate: duplicate,
+      onFixation: fixate,
     ).then((_) {
       context.read<PlannerBloc>().add(PlannerEvent.computeBudget());
     });
