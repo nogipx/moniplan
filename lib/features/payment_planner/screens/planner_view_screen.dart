@@ -261,7 +261,17 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
       );
     }
 
-    void fixate() {}
+    void fixate() {
+      if (paymentToEdit == null || targetPayment == null) {
+        return;
+      }
+
+      context.read<PlannerBloc>().add(
+            PlannerEvent.fixateRepeatedPayment(
+              paymentId: targetPayment.paymentId,
+            ),
+          );
+    }
 
     showUpdatePaymentDialog(
       context: context,

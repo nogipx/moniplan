@@ -21,11 +21,15 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     );
     on<PlannerUpdatePaymentEvent>(
       _onUpdatePayment,
-      transformer: restartable(),
+      transformer: sequential(),
     );
     on<PlannerDeletePaymentEvent>(
       _onDeletePayment,
-      transformer: restartable(),
+      transformer: sequential(),
+    );
+    on<PlannerFixateRepeatedPaymentEvent>(
+      _onFixateRepeatedPayment,
+      transformer: sequential(),
     );
   }
 
@@ -69,6 +73,18 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     Emitter<PlannerState> emit,
   ) async {
     await _plannerRepo.deletePayment(
+      plannerId: plannerId,
+      paymentId: event.paymentId,
+    );
+
+    add(PlannerEvent.computeBudget());
+  }
+
+  Future<void> _onFixateRepeatedPayment(
+    PlannerFixateRepeatedPaymentEvent event,
+    Emitter<PlannerState> emit,
+  ) async {
+    await _plannerRepo.fixateRepeatedPayment(
       plannerId: plannerId,
       paymentId: event.paymentId,
     );

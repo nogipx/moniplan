@@ -253,4 +253,45 @@ final class PlannerRepoDrift implements IPlannerRepo {
       await selector.delete();
     });
   }
+
+  @override
+  Future<Payment?> fixateRepeatedPayment({
+    required String plannerId,
+    required String paymentId,
+  }) {
+    return db.transaction(() async {
+      final payment = await getPaymentById(plannerId: plannerId, paymentId: paymentId);
+      if (payment == null) {
+        throw Exception('Cannot find payment with id "$paymentId" in planner "$plannerId"');
+      }
+
+      if (!payment.isRepeatParent) {
+        throw Exception('Payment should be repeated and parent');
+      }
+
+      final copiedPayment = payment.copyWith(
+        paymentId: const Uuid().v4(),
+        repeat: DateTimeRepeat.noRepeat,
+        dateStart: null,
+        dateEnd: null,
+      );
+
+      final updatedOriginalPayment = payment.copyWith(
+        date: payment.repeat.next(payment.date),
+      );
+
+      await savePayment(
+        plannerId: plannerId,
+        payment: copiedPayment,
+        allowCreate: true,
+      );
+
+      await savePayment(
+        plannerId: plannerId,
+        payment: updatedOriginalPayment,
+      );
+
+      return copiedPayment;
+    });
+  }
 }

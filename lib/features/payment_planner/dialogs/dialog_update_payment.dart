@@ -65,26 +65,33 @@ Future<void> showUpdatePaymentDialog({
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      targetPayment != null
-                          ? onDuplicate == null
-                              ? 'Duplicate payment'
-                              : 'Edit Payment'
-                          : 'Create payment',
-                    ),
-                    if (paymentWhichTapped != null)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                       Text(
-                        paymentWhichTapped.isParent
-                            ? 'original'
-                            : 'generated - you edit an original now',
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              fontStyle: FontStyle.italic,
-                            ),
-                      )
-                  ],
+                        textAlign: TextAlign.start,
+                        targetPayment != null
+                            ? onDuplicate == null
+                                ? 'Duplicate payment'
+                                : 'Edit Payment'
+                            : 'Create payment',
+                      ),
+                      if (paymentWhichTapped != null)
+                        Text(
+                          maxLines: 2,
+                          textAlign: TextAlign.start,
+                          paymentWhichTapped.isParent
+                              ? paymentWhichTapped.isRepeat
+                                  ? 'initial repeated payment'
+                                  : 'regular'
+                              : 'repeated payment generation \n— you edit an original now',
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                fontStyle: FontStyle.italic,
+                              ),
+                        )
+                    ],
+                  ),
                 ),
                 if (targetPayment != null && onDelete != null)
                   TextButton(

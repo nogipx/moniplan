@@ -20,7 +20,7 @@ class PlannerEvent with _$PlannerEvent {
     required final String paymentId,
   }) = PlannerDeletePaymentEvent;
 
-  const factory PlannerEvent.fixatePayment({
+  const factory PlannerEvent.fixateRepeatedPayment({
     required final String paymentId,
-  }) = PlannerDeletePaymentEvent;
+  }) = PlannerFixateRepeatedPaymentEvent;
 }
