@@ -42,7 +42,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             brightness: Brightness.dark,
-            fontFamily: 'TTFirsText',
+            fontFamily: 'TTNeoris',
             primaryColor: AppColorTokens.brandColor,
             colorScheme: ColorScheme.fromSeed(
               seedColor: AppColorTokens.brandColor,

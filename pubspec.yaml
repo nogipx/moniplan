@@ -61,14 +61,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   fonts:
-    - family: SfProText
+    - family: TTNeoris
       fonts:
-        - asset: fonts/SF-Pro-Text-Regular.otf
-    - family: TTFirsText
-      fonts:
-        - asset: fonts/TT-Firs-Text-Regular.ttf
-        - asset: fonts/TT-Firs-Text-Variable.ttf
-    - family: SfProDisplay
-      fonts:
-        - asset: fonts/SF-Pro-Display-Regular.otf
-        - asset: fonts/SF-Pro-Display-Bold.otf
+        - asset: fonts/TT-Neoris-Variable.ttf
