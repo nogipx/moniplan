@@ -14,6 +14,7 @@ abstract interface class IMonisyncRepo {
   });
 
   Future<ExportResult?> exportDataToFile({
+    required DateTime now,
     String targetFilePath = '',
   });
 

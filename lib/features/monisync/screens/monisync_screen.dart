@@ -36,14 +36,19 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
             ElevatedButton(
               onPressed: () async {
                 final now = DateTime.now();
-                final exportResult = await _monisyncRepo.exportDataToFile();
+                final exportResult = await _monisyncRepo.exportDataToFile(now: now);
 
                 if (exportResult != null) {
-                  await FilePicker.platform.saveFile(
-                    dialogTitle: 'Where to backup Moniplan',
-                    fileName: _monisyncRepo.getBackupFileName(now),
-                    bytes: exportResult.file.readAsBytesSync(),
-                  );
+                  try {
+                    final result = await FilePicker.platform.saveFile(
+                      dialogTitle: 'Where to backup Moniplan',
+                      fileName: _monisyncRepo.getBackupFileName(now),
+                      bytes: exportResult.file.readAsBytesSync(),
+                    );
+                    print(result);
+                  } on Object catch (e) {
+                    rethrow;
+                  }
                 }
               },
               child: Text('Export Data'),

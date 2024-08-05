@@ -21,6 +21,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
   @override
   Future<ExportResult?> exportDataToFile({
+    required DateTime now,
     String targetFilePath = '',
   }) async {
     final file = await getDatabaseFile();
@@ -32,7 +33,6 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         exportFile = File(targetFilePath);
       } else {
         final directory = await getApplicationDocumentsDirectory();
-        final now = DateTime.now().toUtc();
         exportFile = File('${directory.path}/${getBackupFileName(now)}');
       }
 
