@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan/features/planners_list//_index.dart';
 import 'package:moniplan/theme/_index.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MoniplanApp extends StatefulWidget {
@@ -49,54 +50,32 @@ class _MoniplanAppState extends State<MoniplanApp> {
               brightness: Brightness.dark,
             ),
           ),
-          home: Builder(
-            builder: (context) {
-              return Scaffold(
-                body: SafeArea(
-                  child: Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          child: const Text('Планеры'),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) {
-                                return const PlannersListScreen();
-                              }),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          child: const Text('MoniSync'),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) {
-                                return const MonisyncScreen();
-                              }),
-                            );
-                          },
-                        ),
-                        // const SizedBox(height: 16),
-                        // ElevatedButton(
-                        //   child: const Text('Справочник платежей'),
-                        //   onPressed: () {
-                        //     Navigator.of(context).push(
-                        //       MaterialPageRoute(builder: (context) {
-                        //         return const PaymentsReferenceScreen();
-                        //       }),
-                        //     );
-                        //   },
-                        // ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
+          builder: (context, child) => ResponsiveBreakpoints.builder(
+            child: child!,
+            breakpoints: [
+              const Breakpoint(
+                start: 0,
+                end: 450,
+                name: MOBILE,
+              ),
+              const Breakpoint(
+                start: 451,
+                end: 800,
+                name: TABLET,
+              ),
+              const Breakpoint(
+                start: 801,
+                end: 1920,
+                name: DESKTOP,
+              ),
+              const Breakpoint(
+                start: 1921,
+                end: double.infinity,
+                name: '4K',
+              ),
+            ],
           ),
+          home: PlannersListScreen(),
         );
       },
     );

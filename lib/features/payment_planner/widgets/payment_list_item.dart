@@ -26,7 +26,6 @@ class PaymentListItem extends StatelessWidget {
         : const SizedBox();
 
     final repeatWidget = SizedBox(
-      width: 40,
       child: payment.isRepeat
           ? Row(
               mainAxisSize: MainAxisSize.min,
@@ -48,42 +47,54 @@ class PaymentListItem extends StatelessWidget {
           : const SizedBox(),
     );
 
-    return Grayscale(
-      grayscale: !payment.isEnabled || payment.isDone,
-      child: InkWell(
-        onTap: onPressed,
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
+    final controlsWidget = SizedBox(
+      width: 50,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (payment.isDone) ...[
+            Icon(
+              Icons.done_outlined,
+              size: 16,
+              color: payment.isDone ? AppColorTokens.green : AppColorTokens.secondaryTextColor,
+            ),
+            const SizedBox(width: 8),
+          ],
+          Icon(
+            Icons.power_settings_new_rounded,
+            size: 16,
+            color:
+                payment.isEnabled ? AppColorTokens.brandColor : AppColorTokens.secondaryTextColor,
+          ),
+        ],
+      ),
+    );
+
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Grayscale(
+                grayscale: !payment.isEnabled || payment.isDone,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SelectableText(
                       payment.details.name,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: AppColorTokens.primaryTextColor,
+                            color: payment.isEnabled
+                                ? AppColorTokens.primaryTextColor
+                                : AppColorTokens.inactiveTextColor,
                             fontSize: 16,
-                            decoration: payment.isDone ? TextDecoration.lineThrough : null,
+                            decoration: !payment.isEnabled ? TextDecoration.lineThrough : null,
                           ),
                     ),
                     const SizedBox(height: 8),
-                    // Row(
-                    //   children: [
-                    //     Text(
-                    //       DateFormat(DateFormat.YEAR_ABBR_MONTH_WEEKDAY_DAY, 'RU')
-                    //           .format(operation.date),
-                    //       style: Theme.of(context).textTheme.caption?.copyWith(
-                    //             fontSize: 14,
-                    //           ),
-                    //     ),
-                    //     // const SizedBox(width: 8),
-                    //     // repeatWidget
-                    //   ],
-                    // ),
-                    // const SizedBox(height: 8),
                     Row(
                       children: [
                         MoneyColoredWidget(
@@ -103,13 +114,16 @@ class PaymentListItem extends StatelessWidget {
                   ],
                 ),
               ),
-              Column(
-                children: [
-                  repeatWidget,
-                ],
-              )
-            ],
-          ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                controlsWidget,
+                const SizedBox(height: 4),
+                repeatWidget,
+              ],
+            )
+          ],
         ),
       ),
     );

@@ -5,6 +5,7 @@ import 'package:moniplan/features/payment_planner/dialogs/_index.dart';
 import 'package:moniplan/main.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:moniplan/features/payment_planner/_index.dart';
@@ -129,6 +130,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                   child: ScrollablePositionedList.separated(
                     itemScrollController: _controller,
                     itemCount: paymentsByDate.length,
+                    padding: const EdgeInsets.only(bottom: 80),
                     itemBuilder: (context, index) {
                       if (index < 0) {
                         return const SizedBox();

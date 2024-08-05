@@ -1,6 +1,7 @@
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan/features/payment_planner/_index.dart';
 import 'package:moniplan/features/planners_list/_index.dart';
 import 'package:moniplan/features/planners_list/widgets/dialog_update_planner.dart';
@@ -34,7 +35,31 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          ElevatedButton(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.import_export_outlined,
+                  size: 18,
+                ),
+                const SizedBox(width: 4),
+                const Text('MoniSync'),
+              ],
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) {
+                  return const MonisyncScreen();
+                }),
+              );
+            },
+          ),
+          const SizedBox(width: 20),
+        ],
+      ),
       floatingActionButton: GestureDetector(
         onLongPress: () {
           Navigator.of(context).push(

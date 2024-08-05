@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 abstract interface class AppColors {
@@ -61,6 +62,9 @@ abstract interface class AppColorTokens {
   static final darkBackgroundColor = _token(
     light: const Color(0xff5b5a5a),
   );
+  static final green = _token(
+    light: Colors.green,
+  );
 
   static final daySeparatorBackground = _token(
     light: AppColors.eerieBlack,
@@ -75,7 +79,7 @@ abstract interface class AppColorTokens {
 
   static final primaryTextColor = _token(
     light: const Color(0xff454545),
-    dark: const Color(0xffffffff),
+    dark: AppColors.antiFlashWhite,
   );
   static final secondaryTextColor = _token(
     light: const Color(0xff9299A2),
@@ -85,6 +89,7 @@ abstract interface class AppColorTokens {
   );
   static final inactiveTextColor = _token(
     light: const Color(0xffC7C9CC),
+    dark: AppColors.antiFlashWhite.withOpacity(.5),
   );
   static final navigationBarColor = _token(
     light: const Color(0xffC7C9CC),

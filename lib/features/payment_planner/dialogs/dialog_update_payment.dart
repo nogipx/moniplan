@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 Future<void> showUpdatePaymentDialog({
   required BuildContext context,
@@ -55,6 +56,193 @@ Future<void> showUpdatePaymentDialog({
     border: InputBorder.none,
   );
 
+  final boxDecoration = BoxDecoration(
+    color: AppColors.night,
+    borderRadius: BorderRadius.all(Radius.circular(16)),
+    border: Border.all(
+      color: AppColors.moniplanBrand.withOpacity(.5),
+      width: .5,
+    ),
+  );
+
+  Widget buildMoneySection(BuildContext context, StateSetter setState) {
+    return Container(
+      decoration: boxDecoration,
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            controller: amountController,
+            keyboardType: TextInputType.number,
+            decoration: inputDecoration.copyWith(
+              labelText: 'Money',
+              icon: Icon(Icons.attach_money),
+              iconColor: AppColorTokens.brandColor,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SegmentedButton<PaymentType>(
+            selected: {type},
+            segments: [
+              ButtonSegment(
+                value: PaymentType.expense,
+                label: const Text('Expense'),
+                icon: Icon(Icons.remove),
+              ),
+              ButtonSegment(
+                value: PaymentType.income,
+                label: const Text('Income'),
+                icon: Icon(Icons.add),
+              ),
+            ],
+            selectedIcon: Icon(
+              type == PaymentType.expense ? Icons.remove : Icons.add,
+              color: AppColorTokens.primaryTextColor,
+            ),
+            onSelectionChanged: (paymentTypes) {
+              setState(() {
+                type = paymentTypes.first;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildDateSection(BuildContext context, StateSetter setState) {
+    return Container(
+      decoration: boxDecoration,
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: <Widget>[
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Payment date: ',
+                    ),
+                    TextSpan(
+                      text: date != null ? dateFormat.format(date!) : 'Not set',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.calendar_today),
+                onPressed: () async {
+                  await selectPaymentDate(context);
+                  setState(() {});
+                },
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Text('Repeat: '),
+              DropdownButton<DateTimeRepeat>(
+                value: repeatPeriod,
+                onChanged: (DateTimeRepeat? newValue) {
+                  setState(() {
+                    repeatPeriod = newValue!;
+                  });
+                },
+                items: DateTimeRepeat.values
+                    .map<DropdownMenuItem<DateTimeRepeat>>((DateTimeRepeat value) {
+                  return DropdownMenuItem<DateTimeRepeat>(
+                    value: value,
+                    child: Text(value == DateTimeRepeat.noRepeat ? 'No repeat' : value.shortName),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          if (repeatPeriod != DateTimeRepeat.noRepeat) ...[
+            Row(
+              children: <Widget>[
+                Text(
+                  'End date: ${endDate != null ? dateFormat.format(endDate!) : 'Not set'}',
+                ),
+                IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () async {
+                    await selectEndDate(context);
+                    setState(() {});
+                  },
+                ),
+                Spacer(),
+                if (endDate != null)
+                  IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () async {
+                      setState(() {
+                        endDate = null;
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget buildControls(BuildContext context, StateSetter setState) {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () {
+              setState(() {
+                isEnabled = !isEnabled;
+              });
+            },
+            icon: Icon(
+              Icons.power_settings_new_rounded,
+              size: 22,
+            ),
+            label: Text(isEnabled ? 'Enabled' : 'Disabled'),
+            style: ElevatedButton.styleFrom(
+              foregroundColor: isEnabled ? AppColorTokens.brandColor : null,
+              side: BorderSide(
+                color: isEnabled ? AppColorTokens.brandColor : Colors.transparent,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () {
+              setState(() {
+                isDone = !isDone;
+              });
+            },
+            icon: Icon(
+              Icons.done_rounded,
+              size: 22,
+            ),
+            label: Text(isDone ? 'Completed' : 'Not completed'),
+            style: ElevatedButton.styleFrom(
+              foregroundColor: isDone ? AppColorTokens.green : null,
+              side: BorderSide(
+                color: isDone ? AppColorTokens.green : Colors.transparent,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   return showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -105,7 +293,9 @@ Future<void> showUpdatePaymentDialog({
             ),
             insetPadding: EdgeInsets.symmetric(horizontal: 8),
             content: SizedBox(
-              width: MediaQuery.of(context).size.width,
+              width: ResponsiveBreakpoints.of(context).isDesktop
+                  ? MediaQuery.of(context).size.width * .5
+                  : MediaQuery.of(context).size.width,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -114,140 +304,16 @@ Future<void> showUpdatePaymentDialog({
                     TextField(
                       controller: titleController,
                       decoration: inputDecoration.copyWith(labelText: 'Title'),
-                    ),
-                    const Divider(),
-                    TextField(
-                      controller: amountController,
-                      keyboardType: TextInputType.number,
-                      decoration: inputDecoration.copyWith(
-                        labelText: 'Money',
-                        icon: Icon(Icons.attach_money),
-                        iconColor: AppColorTokens.brandColor,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    SegmentedButton<PaymentType>(
-                      selected: {type},
-                      segments: [
-                        ButtonSegment(
-                          value: PaymentType.expense,
-                          label: const Text('Expense'),
-                        ),
-                        ButtonSegment(
-                          value: PaymentType.income,
-                          label: const Text('Income'),
-                        ),
-                      ],
-                      onSelectionChanged: (paymentTypes) {
-                        setState(() {
-                          type = paymentTypes.first;
-                        });
-                      },
+                      autofocus: titleController.text.isEmpty,
                     ),
                     const SizedBox(height: 8),
-                    const Divider(),
-                    Row(
-                      children: <Widget>[
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Payment date: ',
-                              ),
-                              TextSpan(
-                                text: date != null ? dateFormat.format(date!) : 'Not set',
-                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.calendar_today),
-                          onPressed: () async {
-                            await selectPaymentDate(context);
-                            setState(() {});
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text('Enabled:'),
-                        Switch(
-                          value: isEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              isEnabled = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text('Done:'),
-                        Switch(
-                          value: isDone,
-                          onChanged: (value) {
-                            setState(() {
-                              isDone = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    const Divider(),
-                    Row(
-                      children: [
-                        Text('Repeat: '),
-                        DropdownButton<DateTimeRepeat>(
-                          value: repeatPeriod,
-                          onChanged: (DateTimeRepeat? newValue) {
-                            setState(() {
-                              repeatPeriod = newValue!;
-                            });
-                          },
-                          items: DateTimeRepeat.values
-                              .map<DropdownMenuItem<DateTimeRepeat>>((DateTimeRepeat value) {
-                            return DropdownMenuItem<DateTimeRepeat>(
-                              value: value,
-                              child: Text(
-                                  value == DateTimeRepeat.noRepeat ? 'No repeat' : value.shortName),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                    if (repeatPeriod != DateTimeRepeat.noRepeat) ...[
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            'End date: ${endDate != null ? dateFormat.format(endDate!) : 'Not set'}',
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.calendar_today),
-                            onPressed: () async {
-                              await selectEndDate(context);
-                              setState(() {});
-                            },
-                          ),
-                          Spacer(),
-                          if (endDate != null)
-                            IconButton(
-                              icon: Icon(Icons.close),
-                              onPressed: () async {
-                                setState(() {
-                                  endDate = null;
-                                });
-                              },
-                            ),
-                        ],
-                      ),
-                    ],
+                    buildMoneySection(context, setState),
+                    const SizedBox(height: 8),
+                    buildDateSection(context, setState),
+                    const SizedBox(height: 16),
+                    buildControls(context, setState),
+                    const SizedBox(height: 24),
                     if (targetPayment != null && paymentWhichTapped != null) ...[
-                      const Divider(),
                       if (onDuplicate != null)
                         ElevatedButton(
                           onPressed: () {
@@ -256,7 +322,8 @@ Future<void> showUpdatePaymentDialog({
                           },
                           child: Text('Duplicate'),
                         ),
-                      if (onFixation != null && paymentWhichTapped.isRepeat)
+                      if (onFixation != null && paymentWhichTapped.isRepeat) ...[
+                        const SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).pop();
@@ -266,6 +333,7 @@ Future<void> showUpdatePaymentDialog({
                               ? Text('Fixate this payment')
                               : Text('Fixate original payment'),
                         ),
+                      ]
                     ],
                   ],
                 ),
@@ -323,7 +391,7 @@ Future<void> showUpdatePaymentDialog({
                   targetPayment != null ? 'Save' : 'Create',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: Colors.green,
+                        color: AppColorTokens.green,
                       ),
                 ),
               ),
