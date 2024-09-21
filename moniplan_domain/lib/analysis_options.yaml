@@ -13,12 +13,9 @@ analyzer:
     todo: warning
     omit_local_variable_types: ignore
     avoid_relative_lib_imports: error
-    avoid_relative_imports: error
     avoid_void_async: warning
 
 linter:
   rules:
-    avoid_relative_imports: true
     avoid_relative_lib_imports: true
     avoid_void_async: true
-    always_use_package_imports: true

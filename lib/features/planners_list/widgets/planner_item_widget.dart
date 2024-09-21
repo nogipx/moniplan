@@ -9,7 +9,7 @@ class PlannerItemWidget extends StatelessWidget {
     this.onPressed,
   });
 
-  final PaymentPlanner planner;
+  final Planner planner;
   final VoidCallback? onPressed;
 
   @override

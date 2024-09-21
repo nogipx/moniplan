@@ -1,19 +1,31 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_domain/src/features/payment/models/planner_actual_info.dart';
 
 abstract interface class IPlannerRepo {
   /// Получение списка планнеров.
-  Future<List<PaymentPlanner>> getPlanners({
+  Future<List<Planner>> getPlanners({
     bool withPayments = false,
   });
 
   /// Получение планнера по id.
-  Future<PaymentPlanner?> getPlannerById(String id);
+  Future<Planner?> getPlannerById(String id);
 
   /// Сохранение планнера.
-  Future<PaymentPlanner?> savePlanner(PaymentPlanner planner);
+  Future<Planner?> savePlanner(Planner planner);
 
   /// Удаление планнера.
   Future<void> deletePlanner(String plannerId);
+
+  /// Обновление результатов просчета планнера.
+  Future<PlannerActualInfo?> updatePlannerActualInfo({
+    required String plannerId,
+    required PlannerActualInfo plannerActualInfo,
+  });
+
+  /// Получение последних результатов просчета планнера.
+  Future<PlannerActualInfo?> getPlannerActualInfo({
+    required String plannerId,
+  });
 
   /// Удаление платежа.
   Future<void> deletePayment({

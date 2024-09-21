@@ -1,1 +1,1 @@
-include: package:moniplan_domain/linter.yaml
+include: package:moniplan_domain/analysis_options.yaml

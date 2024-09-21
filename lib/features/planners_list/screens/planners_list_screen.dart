@@ -18,7 +18,7 @@ class PlannersListScreen extends StatefulWidget {
 
 class _PlannersListScreenState extends State<PlannersListScreen> {
   late IPlannerRepo _plannerRepo;
-  final _planners = ValueNotifier<List<PaymentPlanner>>([]);
+  final _planners = ValueNotifier<List<Planner>>([]);
 
   @override
   void didChangeDependencies() {
@@ -37,18 +37,12 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          ElevatedButton(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.import_export_outlined,
-                  size: 18,
-                ),
-                const SizedBox(width: 4),
-                const Text('MoniSync'),
-              ],
+          ElevatedButton.icon(
+            icon: Icon(
+              Icons.import_export_outlined,
+              size: 18,
             ),
+            label: const Text('MoniSync'),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) {
@@ -74,7 +68,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
             showDialogUpdatePlanner(
               context,
               onSave: (start, end, money) async {
-                final newPlanner = PaymentPlanner(
+                final newPlanner = Planner(
                   id: const Uuid().v4(),
                   dateStart: start,
                   dateEnd: end,

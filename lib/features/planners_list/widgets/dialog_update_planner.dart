@@ -3,7 +3,7 @@ import 'package:moniplan_core/moniplan_core.dart';
 
 void showDialogUpdatePlanner(
   BuildContext context, {
-  PaymentPlanner? planner,
+  Planner? planner,
   required Function(DateTime, DateTime, String) onSave,
   Function()? onDelete,
 }) {

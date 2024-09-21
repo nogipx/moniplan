@@ -1,1 +1,1 @@
-include: lib/linter.yaml
+include: lib/analysis_options.yaml

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/src/features/payment/models/planner_actual_info.dart';
 
 final class PlannerRepoDrift implements IPlannerRepo {
   final MoniplanDriftDb db;
@@ -12,8 +13,8 @@ final class PlannerRepoDrift implements IPlannerRepo {
   static const _paymentMapper = PaymentMapperDrift();
 
   @override
-  Future<PaymentPlanner?> getPlannerById(String id) {
-    return db.transaction<PaymentPlanner?>(() async {
+  Future<Planner?> getPlannerById(String id) {
+    return db.transaction<Planner?>(() async {
       return _composePlanner(
         plannerDao: await _getPlannerById(id),
         paymentsDao: await _getPaymentsByPlannerId(id),
@@ -22,7 +23,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
   }
 
   @override
-  Future<List<PaymentPlanner>> getPlanners({
+  Future<List<Planner>> getPlanners({
     bool withPayments = false,
   }) {
     return db.transaction(() async {
@@ -56,7 +57,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
   }
 
   @override
-  Future<PaymentPlanner?> savePlanner(PaymentPlanner planner) async {
+  Future<Planner?> savePlanner(Planner planner) async {
     if (!planner.isGenerationAllowed) {
       throw Exception(
         'Cannot persist generated planners. '
@@ -141,7 +142,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
   Future<List<PaymentsComposedDriftTableData>> _getPaymentsByPlannerId(String id) =>
       db.managers.paymentsComposedDriftTable.filter((f) => f.plannerId.equals(id)).get();
 
-  PaymentPlanner? _composePlanner({
+  Planner? _composePlanner({
     PaymentPlannersDriftTableData? plannerDao,
     List<PaymentsComposedDriftTableData> paymentsDao = const [],
   }) {
@@ -231,6 +232,8 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return db.transaction(() async {
       await db.managers.paymentsComposedDriftTable.filter((f) => f.plannerId(plannerId)).delete();
       await db.managers.paymentPlannersDriftTable.filter((f) => f.plannerId(plannerId)).delete();
+
+      /// TODO(при удалении планнера также удалять поледние результаты)
     });
   }
 
@@ -293,5 +296,20 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
       return copiedPayment;
     });
+  }
+
+  @override
+  Future<PlannerActualInfo?> getPlannerActualInfo({required String plannerId}) {
+    // TODO: implement getPlannerActualInfo
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<PlannerActualInfo?> updatePlannerActualInfo({
+    required String plannerId,
+    required PlannerActualInfo plannerActualInfo,
+  }) {
+    // TODO: implement updatePlannerActualInfo
+    throw UnimplementedError();
   }
 }

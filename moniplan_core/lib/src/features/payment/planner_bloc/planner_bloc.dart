@@ -92,7 +92,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     add(PlannerEvent.computeBudget());
   }
 
-  PlannerState _computeStateFromPlanner(PaymentPlanner planner) {
+  PlannerState _computeStateFromPlanner(Planner planner) {
     var targetPlanner = planner.copyWith();
     if (planner.isGenerationAllowed) {
       final result = GenerateNewPlannerUseCase(

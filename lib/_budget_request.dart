@@ -3,7 +3,7 @@
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_core/src/features/payment_reference/repo/mock/_details.dart';
 
-final currentRequest = PaymentPlanner(
+final currentRequest = Planner(
   id: const Uuid().v4(),
   dateStart: '08.06'.date,
   dateEnd: '00.11.2024'.date,

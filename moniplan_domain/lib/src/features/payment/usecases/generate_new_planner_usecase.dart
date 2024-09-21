@@ -21,7 +21,7 @@ class GenerateNewPlannerUseCase implements IUseCase<GenerateNewPlannerUseCaseRes
     const uuid = Uuid();
 
     if (payments.isEmpty) {
-      final emptyPlanner = PaymentPlanner(
+      final emptyPlanner = Planner(
         id: customPlannerId ?? uuid.v4(),
         payments: [],
         dateStart: dateStart,
@@ -56,7 +56,7 @@ class GenerateNewPlannerUseCase implements IUseCase<GenerateNewPlannerUseCaseRes
 
     generated.sort((a, b) => a.date.compareTo(b.date));
 
-    final resultPlanner = PaymentPlanner(
+    final resultPlanner = Planner(
       id: plannerId,
       payments: generated,
       dateStart: dateStart,
@@ -74,7 +74,7 @@ class GenerateNewPlannerUseCase implements IUseCase<GenerateNewPlannerUseCaseRes
 
 class GenerateNewPlannerUseCaseResult {
   final Iterable<Payment> originalPayments;
-  final PaymentPlanner planner;
+  final Planner planner;
 
   const GenerateNewPlannerUseCaseResult({
     required this.originalPayments,

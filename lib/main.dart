@@ -50,7 +50,7 @@ _clear() async {
   await db.managers.paymentsComposedDriftTable.delete();
 }
 
-_savePlanner(PaymentPlanner planner) async {
+_savePlanner(Planner planner) async {
   // final generated = GenerateNewPlannerUseCase(
   //   args: GenerateNewPlannerUseCaseArgs(
   //     payments: planner.payments,

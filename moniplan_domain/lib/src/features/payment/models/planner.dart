@@ -2,23 +2,23 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '_index.dart';
 
-part 'payment_planner.freezed.dart';
-part 'payment_planner.g.dart';
+part 'planner.freezed.dart';
+part 'planner.g.dart';
 
 @Freezed()
-class PaymentPlanner with _$PaymentPlanner {
-  const PaymentPlanner._();
+class Planner with _$Planner {
+  const Planner._();
 
-  const factory PaymentPlanner({
+  const factory Planner({
     required final String id,
     required final DateTime dateStart,
     required final DateTime dateEnd,
     required final bool isGenerationAllowed,
     @Default([]) final List<Payment> payments,
     @Default(0) final num initialBudget,
-  }) = _PaymentPlanner;
+  }) = _Planner;
 
-  factory PaymentPlanner.fromJson(Map<String, dynamic> json) => _$PaymentPlannerFromJson(json);
+  factory Planner.fromJson(Map<String, dynamic> json) => _$PlannerFromJson(json);
 
   num get needToPay {
     final futurePayments = payments
