@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:moniplan/_run/_index.dart';
+import 'package:moniplan/_run/db/drift_open_temporary_connection.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 import 'package:path_provider/path_provider.dart';
@@ -85,4 +86,38 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   @override
   String getBackupFileName(DateTime date) =>
       'db_${DateFormat(backupDateFormat).format(date)}.moniplan';
+
+  @override
+  Future<BackupInfo?> readBackupInfo(String filePath) async {
+    final file = File(filePath);
+    if (!file.existsSync()) {
+      return null;
+    }
+
+    final originalBytes = await file.readAsBytes();
+    Uint8List bytesToWrite = originalBytes;
+
+    if (encryptKey.isNotEmpty) {
+      final encryptionHelper = EncryptionHelper(encryptKey);
+      bytesToWrite = encryptionHelper.decryptBytes(originalBytes);
+    }
+
+    final dbFile = await getDatabaseFile();
+    await dbFile.writeAsBytes(bytesToWrite);
+
+    final db = MoniplanDriftDb(
+      lazyDatabase: driftOpenTemporary(bytes: bytesToWrite),
+    );
+    final planners = await PlannerRepoDrift(db: db).getPlanners();
+
+    await db.close();
+    await driftClearTemporary();
+
+    return BackupInfo(
+      file: File(filePath),
+      // TODO(nogipx): add last edit date inside database
+      creationDate: DateTime.now(),
+      plannersCount: planners.length,
+    );
+  }
 }

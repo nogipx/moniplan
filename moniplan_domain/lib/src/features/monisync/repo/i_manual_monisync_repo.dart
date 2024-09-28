@@ -6,6 +6,18 @@ class ExportResult {
   ExportResult({required this.file});
 }
 
+class BackupInfo {
+  final File file;
+  final DateTime? creationDate;
+  final int plannersCount;
+
+  BackupInfo({
+    required this.file,
+    required this.creationDate,
+    required this.plannersCount,
+  });
+}
+
 abstract interface class IMonisyncRepo {
   String getBackupFileName(DateTime date);
 
@@ -19,4 +31,6 @@ abstract interface class IMonisyncRepo {
   });
 
   Future<bool> checkNeedSync();
+
+  Future<BackupInfo?> readBackupInfo(String filePath);
 }

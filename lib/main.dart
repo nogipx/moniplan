@@ -17,7 +17,7 @@ Future<void> main() async {
         WidgetsFlutterBinding.ensureInitialized();
 
         db = MoniplanDriftDb(
-          lazyDatabase: driftOpenConnection(),
+          lazyDatabase: driftOpenDefault(),
         );
 
         initializeDateFormatting('ru');

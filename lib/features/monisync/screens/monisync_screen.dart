@@ -109,7 +109,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
       await db.close();
       await _monisyncRepo.importDataFromFile(filePath: filePath);
       db = MoniplanDriftDb(
-        lazyDatabase: driftOpenConnection(),
+        lazyDatabase: driftOpenDefault(),
       );
     } else {
       // User canceled the picker
