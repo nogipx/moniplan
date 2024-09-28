@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
+import 'package:moniplan/app_log_impl.dart';
 import 'package:moniplan/features/planners_list//_index.dart';
 import 'package:moniplan/theme/_index.dart';
+import 'package:moniplan_core/moniplan_core.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logging/logging.dart';
 
 class MoniplanApp extends StatefulWidget {
   const MoniplanApp({
@@ -21,6 +23,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
   @override
   void initState() {
     super.initState();
+    AppLog.factory = (name) => MoniplanLog(logger: Logger(name));
   }
 
   @override
