@@ -105,11 +105,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
 
     if (result != null) {
       final filePath = result.files.single.path!;
-      await db.close();
       await _monisyncRepo.importDataFromFile(filePath: filePath);
-      db = MoniplanDriftDb(
-        dbExecutor: driftOpenDefault(),
-      );
     } else {
       // User canceled the picker
     }

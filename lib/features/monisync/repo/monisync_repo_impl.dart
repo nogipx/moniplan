@@ -5,7 +5,6 @@ import 'dart:typed_data';
 
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan/_run/db/drift_open_temporary_connection.dart';
-import 'package:moniplan/main.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 import 'package:path_provider/path_provider.dart';

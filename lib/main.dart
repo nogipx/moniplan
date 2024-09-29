@@ -12,6 +12,8 @@ import 'package:stack_trace/stack_trace.dart';
 
 late MoniplanDriftDb db;
 
+MoniplanDriftDb get actualDb => db;
+
 Future<void> main() async {
   unawaited(
     runZonedGuarded(

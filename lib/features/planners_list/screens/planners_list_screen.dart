@@ -19,153 +19,156 @@ class PlannersListScreen extends StatefulWidget {
 }
 
 class _PlannersListScreenState extends State<PlannersListScreen> {
-  late IPlannerRepo _plannerRepo;
-  final _planners = ValueNotifier<List<Planner>>([]);
-  StreamSubscription? _updSub;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _plannerRepo = PlannerRepoDrift(db: db);
-    _updSub?.cancel();
-    // _updSub = db.managers.paymentPlannersDriftTable.watch().listen((_) {
-    //   _updatePlannersList();
-    // });
-    _updatePlannersList();
-  }
+  IPlannerRepo get _plannerRepo => PlannerRepoDrift(db: actualDb);
+  final _actualPlanners = ValueNotifier<List<Planner>>([]);
 
   @override
   void initState() {
+    _updatePlannersList();
     super.initState();
   }
 
   @override
-  void dispose() {
-    _updSub?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          ElevatedButton.icon(
-            icon: Icon(
-              Icons.import_export_outlined,
-              size: 18,
-            ),
-            label: const Text('MoniSync'),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) {
-                  return const MonisyncScreen();
-                }),
-              );
-            },
-          ),
-          const SizedBox(width: 20),
-        ],
-      ),
-      floatingActionButton: GestureDetector(
-        onLongPress: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => DriftDbViewer(db),
-            ),
-          );
-        },
-        child: FloatingActionButton(
-          child: const Icon(Icons.add),
-          onPressed: () {
-            showDialogUpdatePlanner(
-              context,
-              onSave: (start, end, money) async {
-                final newPlanner = Planner(
-                  id: const Uuid().v4(),
-                  dateStart: start,
-                  dateEnd: end,
-                  initialBudget: num.tryParse(money) ?? 0,
-                  isGenerationAllowed: true,
-                );
-                await _plannerRepo.savePlanner(newPlanner).then((planner) async {
-                  await _updatePlannersList();
-                  if (planner != null) {
-                    _openPlanner(context, planner.id);
-                  }
-                });
-              },
-            );
-          },
-        ),
-      ),
-      body: SafeArea(
-        child: ValueListenableBuilder(
-          valueListenable: _planners,
-          builder: (context, value, child) {
-            final data = value;
-            if (data.isEmpty) {
-              return const Center(
-                child: Text('No planners'),
-              );
-            }
-
-            return ListView.builder(
-              itemCount: data.length,
-              padding: const EdgeInsets.symmetric(
-                vertical: 16,
-                horizontal: 16,
+    return AnimatedBuilder(
+        animation: Listenable.merge([_actualPlanners]),
+        builder: (context, _) {
+          return RefreshIndicator(
+            onRefresh: _updatePlannersList,
+            child: Scaffold(
+              appBar: AppBar(
+                actions: [
+                  ElevatedButton.icon(
+                    icon: Icon(
+                      Icons.import_export_outlined,
+                      size: 18,
+                    ),
+                    label: const Text('MoniSync'),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) {
+                          return const MonisyncScreen();
+                        }),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 20),
+                ],
               ),
-              itemBuilder: (context, index) {
-                final planner = data[index];
-                return GestureDetector(
-                  onLongPress: () {
+              floatingActionButton: GestureDetector(
+                onLongPress: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => DriftDbViewer(db),
+                    ),
+                  );
+                },
+                child: FloatingActionButton(
+                  child: const Icon(Icons.add),
+                  onPressed: () {
                     showDialogUpdatePlanner(
                       context,
-                      planner: planner,
                       onSave: (start, end, money) async {
-                        final newPlanner = planner.copyWith(
+                        final newPlanner = Planner(
+                          id: const Uuid().v4(),
                           dateStart: start,
                           dateEnd: end,
                           initialBudget: num.tryParse(money) ?? 0,
+                          isGenerationAllowed: true,
                         );
-                        await _plannerRepo.savePlanner(newPlanner).then(
-                          (planner) async {
-                            await _updatePlannersList();
-                          },
-                        );
+                        await _plannerRepo.savePlanner(newPlanner).then((planner) async {
+                          await _updatePlannersList();
+                          if (planner != null) {
+                            _openPlanner(context, planner.id);
+                          }
+                        });
                       },
-                      onDelete: () {
-                        showDeletePlannerDialog(
-                          context,
-                          () async {
-                            await _plannerRepo.deletePlanner(planner.id);
-                            _updatePlannersList();
+                    );
+                  },
+                ),
+              ),
+              body: SafeArea(
+                child: Builder(
+                  builder: (context) {
+                    final data = _actualPlanners.value;
+                    if (data.isEmpty) {
+                      return Column(
+                        children: [
+                          Expanded(
+                            child: SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              child: const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 30),
+                                  child: Text('No planners'),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+
+                    return ListView.builder(
+                      itemCount: _actualPlanners.value.length,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
+                      itemBuilder: (context, index) {
+                        final planner = _actualPlanners.value[index];
+                        return GestureDetector(
+                          onLongPress: () {
+                            showDialogUpdatePlanner(
+                              context,
+                              planner: planner,
+                              onSave: (start, end, money) async {
+                                final newPlanner = planner.copyWith(
+                                  dateStart: start,
+                                  dateEnd: end,
+                                  initialBudget: num.tryParse(money) ?? 0,
+                                );
+                                await _plannerRepo.savePlanner(newPlanner).then(
+                                  (planner) async {
+                                    await _updatePlannersList();
+                                  },
+                                );
+                              },
+                              onDelete: () {
+                                showDeletePlannerDialog(
+                                  context,
+                                  () async {
+                                    await _plannerRepo.deletePlanner(planner.id);
+                                    _updatePlannersList();
+                                  },
+                                );
+                              },
+                            );
                           },
+                          child: PlannerItemWidget(
+                            planner: planner,
+                            onPressed: () {
+                              _openPlanner(context, planner.id).then((_) {
+                                _updatePlannersList();
+                              });
+                            },
+                          ),
                         );
                       },
                     );
                   },
-                  child: PlannerItemWidget(
-                    planner: planner,
-                    onPressed: () {
-                      _openPlanner(context, planner.id).then((_) {
-                        _updatePlannersList();
-                      });
-                    },
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      ),
-    );
+                ),
+              ),
+            ),
+          );
+        });
   }
 
-  Future<void> _updatePlannersList() async {
+  Future<void> _updatePlannersList({List<PaymentPlannersDriftTableData>? newPlanners}) async {
+    await Future.delayed(const Duration(milliseconds: 100));
     final planners = await _plannerRepo.getPlanners(withPayments: true);
-    _planners.value = planners;
+    _actualPlanners.value = planners;
+    setState(() {});
   }
 
   Future _openPlanner(BuildContext context, String plannerId) {
