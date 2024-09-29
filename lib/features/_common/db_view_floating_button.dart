@@ -1,6 +1,6 @@
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
-import 'package:moniplan/main.dart';
+import 'package:moniplan_core/moniplan_core.dart';
 
 final dbInspectorFloatingActionButton = Builder(builder: (context) {
   return FloatingActionButton(
@@ -8,7 +8,7 @@ final dbInspectorFloatingActionButton = Builder(builder: (context) {
     onPressed: () {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => DriftDbViewer(db),
+          builder: (context) => DriftDbViewer(AppDb().value),
         ),
       );
     },

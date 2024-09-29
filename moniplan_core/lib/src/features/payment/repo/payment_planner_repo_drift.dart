@@ -3,18 +3,19 @@ import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_domain/src/features/payment/models/planner_actual_info.dart';
 
 final class PlannerRepoDrift implements IPlannerRepo {
-  final MoniplanDriftDb db;
+  final AppDb db;
+  final AppLog _log;
 
-  const PlannerRepoDrift({
+  PlannerRepoDrift({
     required this.db,
-  });
+  }) : _log = AppLog('PlannerRepoDrift');
 
   static const _plannerMapper = PlannerMapperDrift();
   static const _paymentMapper = PaymentMapperDrift();
 
   @override
   Future<Planner?> getPlannerById(String id) {
-    return db.transaction<Planner?>(() async {
+    return db.value.transaction<Planner?>(() async {
       return _composePlanner(
         plannerDao: await _getPlannerById(id),
         paymentsDao: await _getPaymentsByPlannerId(id),
@@ -26,15 +27,15 @@ final class PlannerRepoDrift implements IPlannerRepo {
   Future<List<Planner>> getPlanners({
     bool withPayments = false,
   }) {
-    return db.transaction(() async {
-      final plannersDao = await db.managers.paymentPlannersDriftTable.get();
+    return db.value.transaction(() async {
+      final plannersDao = await db.value.managers.paymentPlannersDriftTable.get();
 
       final paymentsForPlanner = <String, List<Payment>>{};
 
       if (withPayments) {
         final plannersIds = plannersDao.map((e) => e.plannerId).toSet();
 
-        final allPaymentsDao = await db.managers.paymentsComposedDriftTable
+        final allPaymentsDao = await db.value.managers.paymentsComposedDriftTable
             .filter((f) => f.plannerId.isIn(plannersIds))
             .get();
 
@@ -77,13 +78,13 @@ final class PlannerRepoDrift implements IPlannerRepo {
         .map(_paymentMapper.toDto)
         .toList();
 
-    return db.transaction(() async {
-      await db.managers.paymentPlannersDriftTable.create(
+    return db.value.transaction(() async {
+      await db.value.managers.paymentPlannersDriftTable.create(
         (o) => plannerDao,
         mode: InsertMode.insertOrReplace,
       );
 
-      final existingPaymentsDao = await db.managers.paymentsComposedDriftTable
+      final existingPaymentsDao = await db.value.managers.paymentsComposedDriftTable
           .filter((f) => f.plannerId.equals(planner.id))
           .get();
 
@@ -123,12 +124,12 @@ final class PlannerRepoDrift implements IPlannerRepo {
         }
       }
 
-      await db.managers.paymentsComposedDriftTable.bulkCreate(
+      await db.value.managers.paymentsComposedDriftTable.bulkCreate(
         (o) => toInsertItems,
         mode: InsertMode.insertOrReplace,
       );
 
-      await db.managers.paymentsComposedDriftTable
+      await db.value.managers.paymentsComposedDriftTable
           .filter((f) => f.paymentId.isIn(toDelete))
           .delete();
 
@@ -137,10 +138,12 @@ final class PlannerRepoDrift implements IPlannerRepo {
   }
 
   Future<PaymentPlannersDriftTableData?> _getPlannerById(String id) =>
-      db.managers.paymentPlannersDriftTable.filter((f) => f.plannerId.equals(id)).getSingleOrNull();
+      db.value.managers.paymentPlannersDriftTable
+          .filter((f) => f.plannerId.equals(id))
+          .getSingleOrNull();
 
   Future<List<PaymentsComposedDriftTableData>> _getPaymentsByPlannerId(String id) =>
-      db.managers.paymentsComposedDriftTable.filter((f) => f.plannerId.equals(id)).get();
+      db.value.managers.paymentsComposedDriftTable.filter((f) => f.plannerId.equals(id)).get();
 
   Planner? _composePlanner({
     PaymentPlannersDriftTableData? plannerDao,
@@ -165,8 +168,8 @@ final class PlannerRepoDrift implements IPlannerRepo {
     required String plannerId,
     required String paymentId,
   }) {
-    return db.transaction(() async {
-      final paymentInPlanner = await db.managers.paymentsComposedDriftTable
+    return db.value.transaction(() async {
+      final paymentInPlanner = await db.value.managers.paymentsComposedDriftTable
           .filter((f) => f.plannerId(plannerId) & f.paymentId(paymentId))
           .getSingleOrNull();
 
@@ -179,9 +182,10 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
   @override
   Future<List<Payment>> getPaymentsByPlannerId({required String plannerId}) {
-    return db.transaction(() async {
-      final paymentInPlanner =
-          await db.managers.paymentsComposedDriftTable.filter((f) => f.plannerId(plannerId)).get();
+    return db.value.transaction(() async {
+      final paymentInPlanner = await db.value.managers.paymentsComposedDriftTable
+          .filter((f) => f.plannerId(plannerId))
+          .get();
 
       final payments = paymentInPlanner.map(_paymentMapper.toDomain).toList();
       return payments;
@@ -194,44 +198,45 @@ final class PlannerRepoDrift implements IPlannerRepo {
     required Payment payment,
     bool allowCreate = false,
   }) async {
-    return db.transaction(() async {
-      final selectorPaymentInPlanner = db.managers.paymentsComposedDriftTable.filter((f) {
-        return f.plannerId(plannerId) & f.paymentId(payment.paymentId);
-      });
-
-      final selectorPaymentItself = db.managers.paymentsComposedDriftTable.filter((f) {
-        return f.paymentId(payment.paymentId);
-      });
-
-      if (!allowCreate) {
-        final paymentInPlanner = await selectorPaymentInPlanner.get();
-
-        if (paymentInPlanner.isEmpty) {
-          throw Exception('Payment "${payment.paymentId}" is not linked with Planner "$plannerId"');
-        }
-      }
-
-      final resultPayment = payment.copyWith(plannerId: plannerId);
-      final paymentDao = _paymentMapper.toDto(resultPayment);
-
-      try {
-        if (await selectorPaymentItself.exists()) {
-          await db.managers.paymentsComposedDriftTable.replace(paymentDao);
-        } else {
-          await db.managers.paymentsComposedDriftTable.create((_) => paymentDao);
-        }
-        return payment;
-      } on Object catch (_) {
-        return null;
-      }
+    // return d.transaction(() async {
+    final selectorPaymentInPlanner = db.value.managers.paymentsComposedDriftTable.filter((f) {
+      return f.plannerId(plannerId) & f.paymentId(payment.paymentId);
     });
+
+    final selectorPaymentItself = db.value.managers.paymentsComposedDriftTable.filter((f) {
+      return f.paymentId(payment.paymentId);
+    });
+
+    if (!allowCreate) {
+      final paymentInPlanner = await selectorPaymentInPlanner.get();
+
+      if (paymentInPlanner.isEmpty) {
+        throw Exception('Payment "${payment.paymentId}" is not linked with Planner "$plannerId"');
+      }
+    }
+
+    final resultPayment = payment.copyWith(plannerId: plannerId);
+    final paymentDao = _paymentMapper.toDto(resultPayment);
+
+    if (await selectorPaymentItself.exists()) {
+      await db.value.managers.paymentsComposedDriftTable.replace(paymentDao);
+    } else {
+      await db.value.managers.paymentsComposedDriftTable.create((_) => paymentDao);
+    }
+
+    return payment;
+    // });
   }
 
   @override
   Future<void> deletePlanner(String plannerId) {
-    return db.transaction(() async {
-      await db.managers.paymentsComposedDriftTable.filter((f) => f.plannerId(plannerId)).delete();
-      await db.managers.paymentPlannersDriftTable.filter((f) => f.plannerId(plannerId)).delete();
+    return db.value.transaction(() async {
+      await db.value.managers.paymentsComposedDriftTable
+          .filter((f) => f.plannerId(plannerId))
+          .delete();
+      await db.value.managers.paymentPlannersDriftTable
+          .filter((f) => f.plannerId(plannerId))
+          .delete();
 
       /// TODO(при удалении планнера также удалять поледние результаты)
     });
@@ -242,8 +247,8 @@ final class PlannerRepoDrift implements IPlannerRepo {
     required String plannerId,
     required String paymentId,
   }) async {
-    return db.transaction(() async {
-      final selector = db.managers.paymentsComposedDriftTable.filter((f) {
+    return db.value.transaction(() async {
+      final selector = db.value.managers.paymentsComposedDriftTable.filter((f) {
         return f.plannerId(plannerId) & f.paymentId(paymentId);
       });
 
@@ -262,7 +267,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
     required String plannerId,
     required String paymentId,
   }) {
-    return db.transaction(() async {
+    return db.value.transaction(() async {
       final payment = await getPaymentById(plannerId: plannerId, paymentId: paymentId);
       if (payment == null) {
         throw Exception('Cannot find payment with id "$paymentId" in planner "$plannerId"');

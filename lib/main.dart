@@ -1,20 +1,26 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:moniplan/_run/_index.dart';
+import 'package:moniplan/_run/db/_index.dart';
+import 'package:moniplan/_run/db/drift_open_temporary_connection.dart';
+import 'package:moniplan/app_log_impl.dart';
+import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logging/logging.dart';
 import 'package:stack_trace/stack_trace.dart';
 
-late MoniplanDriftDb db;
-
-MoniplanDriftDb get actualDb => db;
-
 Future<void> main() async {
+  AppLog.factory = (name) => MoniplanLog(logger: Logger(name));
+  AppDb.factory = () => AppDbImpl(encryptKey: mockEncryptionKey);
+
+  final zoneLog = AppLog('ZoneGuarded');
+
   unawaited(
     runZonedGuarded(
       () async {
@@ -30,50 +36,21 @@ Future<void> main() async {
           );
         });
 
-        db = MoniplanDriftDb(
-          dbExecutor: driftOpenDefault(),
-        );
+        await AppDb().openDefault();
 
         initializeDateFormatting('ru');
         await SystemChrome.setPreferredOrientations([
           DeviceOrientation.portraitUp,
         ]);
-        // SystemChrome.setSystemUIOverlayStyle(lightSystemUIOverlay);
         final prefs = await SharedPreferences.getInstance();
-        // await _clear();
-        // await _savePlanner(currentRequest);
 
         runApp(MoniplanApp(
           sharedPreferences: prefs,
         ));
       },
       (exception, stackTrace) {
-        if (kDebugMode) {
-          print(exception);
-        }
-        if (kDebugMode) {
-          print(stackTrace);
-        }
+        zoneLog.critical("Global error", error: exception, trace: stackTrace);
       },
     ),
   );
-}
-
-_clear() async {
-  await db.managers.paymentPlannersDriftTable.delete();
-  await db.managers.paymentsComposedDriftTable.delete();
-}
-
-_savePlanner(Planner planner) async {
-  // final generated = GenerateNewPlannerUseCase(
-  //   args: GenerateNewPlannerUseCaseArgs(
-  //     payments: planner.payments,
-  //     dateStart: planner.dateStart,
-  //     dateEnd: planner.dateEnd,
-  //     initialBudget: planner.initialBudget,
-  //   ),
-  // ).run();
-
-  final repo = PlannerRepoDrift(db: db);
-  await repo.savePlanner(planner);
 }

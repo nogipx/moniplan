@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan/_run/db/drift_open_temporary_connection.dart';
+import 'package:moniplan/main.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 import 'package:path_provider/path_provider.dart';
@@ -64,16 +65,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final file = File(filePath);
 
     if (await file.exists()) {
-      final originalBytes = await file.readAsBytes();
-      Uint8List bytesToWrite = originalBytes;
-
-      if (encryptKey.isNotEmpty) {
-        final encryptionHelper = EncryptionHelper(encryptKey);
-        bytesToWrite = encryptionHelper.decryptBytes(originalBytes);
-      }
-
-      final dbFile = await getDatabaseFile();
-      await dbFile.writeAsBytes(bytesToWrite);
+      await AppDb().overrideDefaultFromFile(file);
     }
   }
 
@@ -89,35 +81,14 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
   @override
   Future<BackupInfo?> readBackupInfo(String filePath) async {
-    // await db.close();
-
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
-    if (!file.existsSync()) {
-      return null;
-    }
 
-    final originalBytes = await file.readAsBytes();
-    Uint8List tempBytes = originalBytes;
+    await AppDb().openFromFile(file);
 
-    if (encryptKey.isNotEmpty) {
-      final encryptionHelper = EncryptionHelper(encryptKey);
-      tempBytes = encryptionHelper.decryptBytes(originalBytes);
-    }
+    final planners = await PlannerRepoDrift(db: AppDb()).getPlanners();
 
-    final connection = driftOpenTemporary(bytes: tempBytes);
-
-    final tempDb = MoniplanDriftDb(
-      dbExecutor: connection,
-    );
-    final planners = await PlannerRepoDrift(db: tempDb).getPlanners();
-
-    await connection.close();
-    await driftClearTemporary();
-
-    // db = MoniplanDriftDb(
-    //   lazyDatabase: driftOpenDefault(),
-    // );
+    await AppDb().openDefault();
 
     return BackupInfo(
       file: File(filePath),

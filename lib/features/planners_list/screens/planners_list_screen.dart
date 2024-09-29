@@ -19,7 +19,7 @@ class PlannersListScreen extends StatefulWidget {
 }
 
 class _PlannersListScreenState extends State<PlannersListScreen> {
-  IPlannerRepo get _plannerRepo => PlannerRepoDrift(db: actualDb);
+  IPlannerRepo get _plannerRepo => PlannerRepoDrift(db: AppDb());
   final _actualPlanners = ValueNotifier<List<Planner>>([]);
 
   @override
@@ -59,7 +59,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                 onLongPress: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => DriftDbViewer(db),
+                      builder: (context) => DriftDbViewer(AppDb().value),
                     ),
                   );
                 },
@@ -165,6 +165,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
   }
 
   Future<void> _updatePlannersList({List<PaymentPlannersDriftTableData>? newPlanners}) async {
+    final t = AppDb();
     await Future.delayed(const Duration(milliseconds: 100));
     final planners = await _plannerRepo.getPlanners(withPayments: true);
     _actualPlanners.value = planners;

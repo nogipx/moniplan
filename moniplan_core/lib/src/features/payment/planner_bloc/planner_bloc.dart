@@ -54,17 +54,22 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     PlannerUpdatePaymentEvent event,
     Emitter<PlannerState> emit,
   ) async {
-    final result = await _plannerRepo.savePayment(
-      plannerId: plannerId,
-      payment: event.newPayment.copyWith(
-        // dateStart больше не нужен, поскольку больше не генерируем платежи прошлого
-        dateStart: null,
-      ),
-      allowCreate: event.create,
-    );
+    try {
+      final result = await _plannerRepo.savePayment(
+        plannerId: plannerId,
+        payment: event.newPayment.copyWith(
+          // dateStart больше не нужен, поскольку больше не генерируем платежи прошлого
+          dateStart: null,
+        ),
+        allowCreate: event.create,
+      );
 
-    if (result != null) {
-      add(PlannerEvent.computeBudget());
+      if (result != null) {
+        add(PlannerEvent.computeBudget());
+      }
+    } on Object catch (e, trace) {
+      print(e);
+      rethrow;
     }
   }
 

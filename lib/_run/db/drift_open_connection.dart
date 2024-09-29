@@ -12,7 +12,7 @@ Future<File> getDatabaseFile() async {
   return file;
 }
 
-LazyDatabase driftOpenDefault() {
+Future<QueryExecutor> driftOpenDefault() async {
   // the LazyDatabase util lets us find the right location for the file async.
   return LazyDatabase(() async {
     // put the database file, called db.sqlite here, into the documents folder

@@ -18,13 +18,15 @@ class PlannerViewScreen extends StatefulWidget {
 }
 
 class _PlannerViewScreenState extends State<PlannerViewScreen> {
+  late final IPlannerRepo _plannerRepo;
   late final ItemScrollController _controller;
   bool _isFirstScrolled = false;
 
   @override
   void initState() {
-    super.initState();
+    _plannerRepo = PlannerRepoDrift(db: AppDb());
     _controller = ItemScrollController();
+    super.initState();
   }
 
   @override
@@ -76,7 +78,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                   onLongPress: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => DriftDbViewer(db),
+                        builder: (context) => DriftDbViewer(AppDb().value),
                       ),
                     );
                   },
@@ -206,7 +208,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
     if (paymentToEdit != null) {
       targetPayment = paymentToEdit;
       if (targetPayment.isNotParent) {
-        final original = await PlannerRepoDrift(db: db).getPaymentById(
+        final original = await _plannerRepo.getPaymentById(
           plannerId: targetPayment.plannerId,
           paymentId: targetPayment.originalPaymentId ?? '',
         );
