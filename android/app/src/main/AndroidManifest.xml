@@ -3,6 +3,7 @@
     <uses-permission android:name="android.permission.STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 
    <application
         android:label="Moniplan"
@@ -14,6 +15,7 @@
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
+            android:requestLegacyExternalStorage="true"
             android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
@@ -43,17 +45,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <!-- Для локальных файлов -->
-                <data
-                    android:scheme="file"
-                    android:host="*"
-                    android:pathPattern=".*\\.moniplan"
-                    android:mimeType="application/x-moniplan" />
-
-                <!-- Для контентных URI -->
-                <data
-                    android:scheme="content"
-                    android:mimeType="application/x-moniplan" />
+                <data android:scheme="file" android:pathPattern=".*\\.moniplan" />
+                <data android:scheme="content" android:mimeType="*/*" android:pathPattern=".*\\.moniplan" />
             </intent-filter>
 
         </activity>

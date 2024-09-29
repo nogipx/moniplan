@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan/features/monisync/repo/monisync_repo_impl.dart';
 import 'package:moniplan/main.dart';
@@ -23,9 +24,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
 
   @override
   void initState() {
-    _monisyncRepo = MonisyncRepoImpl(
-      encryptKey: mockEncryptionKey,
-    );
+    _monisyncRepo = context.read();
     super.initState();
   }
 
@@ -109,7 +108,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
       await db.close();
       await _monisyncRepo.importDataFromFile(filePath: filePath);
       db = MoniplanDriftDb(
-        lazyDatabase: driftOpenDefault(),
+        dbExecutor: driftOpenDefault(),
       );
     } else {
       // User canceled the picker

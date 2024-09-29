@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,17 +21,28 @@ class PlannersListScreen extends StatefulWidget {
 class _PlannersListScreenState extends State<PlannersListScreen> {
   late IPlannerRepo _plannerRepo;
   final _planners = ValueNotifier<List<Planner>>([]);
+  StreamSubscription? _updSub;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _plannerRepo = PlannerRepoDrift(db: db);
+    _updSub?.cancel();
+    // _updSub = db.managers.paymentPlannersDriftTable.watch().listen((_) {
+    //   _updatePlannersList();
+    // });
     _updatePlannersList();
   }
 
   @override
   void initState() {
     super.initState();
-    _plannerRepo = PlannerRepoDrift(db: db);
+  }
+
+  @override
+  void dispose() {
+    _updSub?.cancel();
+    super.dispose();
   }
 
   @override

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 part 'state.dart';
 part 'event.dart';
@@ -34,21 +35,19 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
   ) async {
     if (event.shouldRestart) {
       _intentStream?.cancel();
-    } else {
-      _onCheckIsActive(ReceiveImportCheckIsActiveEvent(), emit);
+    } else if (_intentStream != null) {
+      add(ReceiveImportCheckIsActiveEvent());
       return;
     }
 
-    _intentStream = ReceiveSharingIntent.instance.getMediaStream().listen((v) {
-      _onData(ReceiveImportOnDataEvent(receivedValues: v), emit);
+    _intentStream = ReceiveSharingIntent.instance.getMediaStream().listen((v) async {
+      add(ReceiveImportOnDataEvent(receivedValues: v));
     });
 
     final inititalFiles = await ReceiveSharingIntent.instance.getInitialMedia();
-    if (inititalFiles.isNotEmpty) {
-      _onData(ReceiveImportOnDataEvent(receivedValues: inititalFiles), emit);
-    }
+    add(ReceiveImportOnDataEvent(receivedValues: inititalFiles));
 
-    _onCheckIsActive(ReceiveImportCheckIsActiveEvent(), emit);
+    add(ReceiveImportCheckIsActiveEvent());
   }
 
   FutureOr<void> _onStopReceive(
@@ -61,10 +60,18 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     emit(ReceiveImportActiveState(isActive: false));
   }
 
-  FutureOr<void> _onData(
+  Future<void> _onData(
     ReceiveImportOnDataEvent event,
     Emitter<ReceiveImportState> emit,
   ) async {
+    if (event.receivedValues.isEmpty) {
+      return;
+    }
+    ReceiveSharingIntent.instance.reset();
+
+    await Permission.storage.request();
+    await Permission.manageExternalStorage.request();
+
     final backupInfos = <BackupInfo>[];
     for (final file in event.receivedValues) {
       try {
@@ -115,5 +122,12 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     Emitter<ReceiveImportState> emit,
   ) {
     emit(ReceiveImportActiveState(isActive: _intentStream != null));
+  }
+
+  @override
+  Future<void> close() async {
+    super.close();
+    _intentStream?.cancel();
+    _intentStream = null;
   }
 }

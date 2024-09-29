@@ -7,6 +7,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logging/logging.dart';
+import 'package:stack_trace/stack_trace.dart';
 
 late MoniplanDriftDb db;
 
@@ -15,9 +17,19 @@ Future<void> main() async {
     runZonedGuarded(
       () async {
         WidgetsFlutterBinding.ensureInitialized();
+        Logger.root.level = Level.ALL;
+        Logger.root.onRecord.listen((record) {
+          print(
+            '${record.level.name}: '
+            '${record.time}: '
+            '${record.message} '
+            '${record.error != null ? '\n${record.error}' : ''}'
+            '${record.stackTrace != null ? '\n${Trace.from(record.stackTrace!)}' : ''}\n',
+          );
+        });
 
         db = MoniplanDriftDb(
-          lazyDatabase: driftOpenDefault(),
+          dbExecutor: driftOpenDefault(),
         );
 
         initializeDateFormatting('ru');

@@ -12,9 +12,9 @@ typedef DriftDbConnector = LazyDatabase Function();
   ],
 )
 class MoniplanDriftDb extends _$MoniplanDriftDb {
-  final QueryExecutor lazyDatabase;
+  final QueryExecutor dbExecutor;
 
-  MoniplanDriftDb({required this.lazyDatabase}) : super(lazyDatabase);
+  MoniplanDriftDb({required this.dbExecutor}) : super(dbExecutor);
 
   @override
   int get schemaVersion => 3;

@@ -848,10 +848,11 @@ packages:
   receive_sharing_intent:
     dependency: "direct main"
     description:
-      name: receive_sharing_intent
-      sha256: f127989f8662ea15e193bd1e10605e5a0ab6bb92dffd51f3ce002feb0ce24c93
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "5a1157a74f084d5a9656105cc2b61f73862487f2"
+      url: "https://github.com/nogipx/receive_sharing_intent"
+    source: git
     version: "1.8.0"
   responsive_framework:
     dependency: "direct main"
@@ -1059,7 +1060,7 @@ packages:
     source: hosted
     version: "0.5.23"
   stack_trace:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: stack_trace
       sha256: "73713990125a6d93122541237550ee3352a2d84baad52d375a4cad2eb9b7ce0b"

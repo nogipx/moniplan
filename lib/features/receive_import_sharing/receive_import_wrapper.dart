@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/receive_import_sharing/bloc/_index.dart';
 
-class ReceiveImportWrapper extends StatelessWidget {
+class ReceiveImportWrapper extends StatefulWidget {
   final Widget child;
 
   const ReceiveImportWrapper({
@@ -11,9 +11,20 @@ class ReceiveImportWrapper extends StatelessWidget {
   });
 
   @override
+  State<ReceiveImportWrapper> createState() => _ReceiveImportWrapperState();
+}
+
+class _ReceiveImportWrapperState extends State<ReceiveImportWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ReceiveImportSharingBloc>().add(ReceiveImportStartReceiveEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<ReceiveImportSharingBloc, ReceiveImportState>(
-      child: child,
+      child: widget.child,
       listenWhen: (prev, curr) {
         return curr is ReceiveImportDecisionState || curr is ReceiveImportResultState;
       },
@@ -24,8 +35,8 @@ class ReceiveImportWrapper extends StatelessWidget {
             context.read<ReceiveImportSharingBloc>().add(decision);
           }
         }
-        if (state is ReceiveImportResultState) {
-          _onImported(context, state);
+        if (state is ReceiveImportResultState && state.result == ReceiveImportResult.imported) {
+          _onImportedSuccess(context, state);
         }
       },
     );
@@ -39,40 +50,47 @@ class ReceiveImportWrapper extends StatelessWidget {
       return null;
     }
 
-    final backup = state.toImportBackups.first;
+    final backup = state.toImportBackups.firstOrNull;
+    if (backup == null) {
+      return null;
+    }
 
     final shouldImport = await showModalBottomSheet<bool>(
       context: context,
       builder: (context) {
-        return Column(
-          children: [
-            Text('Is this backup should be imported?'),
-            const SizedBox(height: 16),
-            Visibility(
-              visible: backup.creationDate != null,
-              child: Text('Created at ${backup.creationDate}'),
-            ),
-            const SizedBox(height: 8),
-            Visibility(
-              visible: backup.plannersCount > 0,
-              child: Text('Has ${backup.plannersCount} planners'),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: Text('Yes, import it'),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: Text('Cancel'),
-            ),
-            const SizedBox(height: 24),
-          ],
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('Is this backup should be imported?'),
+              const SizedBox(height: 16),
+              Visibility(
+                visible: backup.creationDate != null,
+                child: Text('Backup created at ${backup.creationDate}'),
+              ),
+              const SizedBox(height: 8),
+              Visibility(
+                visible: backup.plannersCount > 0,
+                child: Text('Has ${backup.plannersCount} planners'),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: Text('Yes, import it'),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text('Cancel'),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         );
       },
     );
@@ -83,7 +101,7 @@ class ReceiveImportWrapper extends StatelessWidget {
     );
   }
 
-  Future<void> _onImported(BuildContext context, ReceiveImportResultState state) async {
+  Future<void> _onImportedSuccess(BuildContext context, ReceiveImportResultState state) async {
     if (!context.mounted) {
       return;
     }
@@ -91,18 +109,22 @@ class ReceiveImportWrapper extends StatelessWidget {
     await showModalBottomSheet<void>(
       context: context,
       builder: (context) {
-        return Column(
-          children: [
-            Text('Backup Imported'),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: Text('Good'),
-            ),
-            const SizedBox(height: 24),
-          ],
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('Backup Imported'),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text('Good'),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         );
       },
     );

@@ -24,8 +24,10 @@ dependencies:
   share_plus: 10.0.2
   file_picker: 8.1.2
   scrollable_positioned_list: 0.3.8
-  receive_sharing_intent: 1.8.0
+  stack_trace: 1.11.1
   syncfusion_flutter_charts: 26.1.35
+  receive_sharing_intent:
+    git: https://github.com/nogipx/receive_sharing_intent
 
   # Data management
   flutter_bloc: 8.1.6

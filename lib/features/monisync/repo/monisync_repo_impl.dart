@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan/_run/db/drift_open_temporary_connection.dart';
+import 'package:moniplan/main.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 import 'package:path_provider/path_provider.dart';
@@ -89,29 +90,35 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
   @override
   Future<BackupInfo?> readBackupInfo(String filePath) async {
-    final file = File(filePath);
+    // await db.close();
+
+    final cleanedPath = filePath.replaceAll('file://', '');
+    final file = File(cleanedPath);
     if (!file.existsSync()) {
       return null;
     }
 
     final originalBytes = await file.readAsBytes();
-    Uint8List bytesToWrite = originalBytes;
+    Uint8List tempBytes = originalBytes;
 
     if (encryptKey.isNotEmpty) {
       final encryptionHelper = EncryptionHelper(encryptKey);
-      bytesToWrite = encryptionHelper.decryptBytes(originalBytes);
+      tempBytes = encryptionHelper.decryptBytes(originalBytes);
     }
 
-    final dbFile = await getDatabaseFile();
-    await dbFile.writeAsBytes(bytesToWrite);
+    final connection = driftOpenTemporary(bytes: tempBytes);
 
-    final db = MoniplanDriftDb(
-      lazyDatabase: driftOpenTemporary(bytes: bytesToWrite),
+    final tempDb = MoniplanDriftDb(
+      dbExecutor: connection,
     );
-    final planners = await PlannerRepoDrift(db: db).getPlanners();
+    final planners = await PlannerRepoDrift(db: tempDb).getPlanners();
 
-    await db.close();
+    await connection.close();
     await driftClearTemporary();
+
+    // db = MoniplanDriftDb(
+    //   lazyDatabase: driftOpenDefault(),
+    // );
 
     return BackupInfo(
       file: File(filePath),
