@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:moniplan_core/moniplan_db.dart';
 
-@TableIndex(name: 'index_planner_id_actual_info', columns: {#plannerId})
 class PlannerActualInfoDriftTable extends Table {
   @override
   Set<Column> get primaryKey => {plannerId};

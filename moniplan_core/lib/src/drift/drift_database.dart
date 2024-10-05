@@ -43,10 +43,10 @@ class MoniplanDriftDb extends _$MoniplanDriftDb {
           await m.createTable(plannerActualInfoDriftTable);
         }
         if (from < 5) {
-          await m.addColumn(
-            plannerActualInfoDriftTable,
-            plannerActualInfoDriftTable.updatedAtBudget,
-          );
+          // await m.addColumn(
+          //   plannerActualInfoDriftTable,
+          //   plannerActualInfoDriftTable.updatedAtBudget,
+          // );
         }
         if (from < 6) {
           await m.createTable(globalLastUpdate);

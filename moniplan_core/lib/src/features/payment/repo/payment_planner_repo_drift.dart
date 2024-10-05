@@ -336,9 +336,9 @@ final class PlannerRepoDrift implements IPlannerRepo {
       () async {
         final info = await db.value.managers.plannerActualInfoDriftTable
             .filter((f) => f.plannerId.equals(plannerId))
-            .getSingleOrNull();
+            .get();
 
-        return info != null ? _plannerActualInfoMapper.toDomain(info) : null;
+        return info.isNotEmpty ? _plannerActualInfoMapper.toDomain(info.first) : null;
       },
     );
   }
