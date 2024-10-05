@@ -7,8 +7,10 @@ typedef DriftDbConnector = LazyDatabase Function();
 
 @DriftDatabase(
   tables: [
+    GlobalLastUpdate,
     PaymentPlannersDriftTable,
     PaymentsComposedDriftTable,
+    PlannerActualInfoDriftTable,
   ],
 )
 class MoniplanDriftDb extends _$MoniplanDriftDb {
@@ -17,7 +19,7 @@ class MoniplanDriftDb extends _$MoniplanDriftDb {
   MoniplanDriftDb({required this.dbExecutor}) : super(dbExecutor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -36,6 +38,18 @@ class MoniplanDriftDb extends _$MoniplanDriftDb {
             'is_draft',
             paymentPlannersDriftTable.isGenerationAllowed,
           );
+        }
+        if (from < 4) {
+          await m.createTable(plannerActualInfoDriftTable);
+        }
+        if (from < 5) {
+          await m.addColumn(
+            plannerActualInfoDriftTable,
+            plannerActualInfoDriftTable.updatedAtBudget,
+          );
+        }
+        if (from < 6) {
+          await m.createTable(globalLastUpdate);
         }
       },
     );

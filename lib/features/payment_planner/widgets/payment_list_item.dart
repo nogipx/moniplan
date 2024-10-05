@@ -53,20 +53,24 @@ class PaymentListItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (payment.isDone) ...[
-            Icon(
-              Icons.done_outlined,
-              size: 16,
-              color: payment.isDone ? AppColorTokens.green : AppColorTokens.secondaryTextColor,
+          if (payment.isDone)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Icon(
+                Icons.done_outlined,
+                size: 16,
+                color: payment.isDone ? AppColorTokens.green : AppColorTokens.secondaryTextColor,
+              ),
             ),
-            const SizedBox(width: 8),
-          ],
-          Icon(
-            Icons.power_settings_new_rounded,
-            size: 16,
-            color:
-                payment.isEnabled ? AppColorTokens.brandColor : AppColorTokens.secondaryTextColor,
-          ),
+          if (!payment.isEnabled)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Icon(
+                Icons.power_settings_new_rounded,
+                size: 16,
+                color: AppColorTokens.negativeMoneyColor,
+              ),
+            ),
         ],
       ),
     );

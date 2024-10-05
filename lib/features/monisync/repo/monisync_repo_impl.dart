@@ -4,8 +4,6 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:moniplan/_run/_index.dart';
-import 'package:moniplan/_run/db/drift_open_temporary_connection.dart';
-import 'package:moniplan/main.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 import 'package:path_provider/path_provider.dart';
@@ -87,13 +85,18 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     await AppDb().openFromFile(file);
 
     final planners = await PlannerRepoDrift(db: AppDb()).getPlanners();
+    final lastUpdate = await AppDb()
+        .value
+        .managers
+        .globalLastUpdate
+        .filter((f) => f.lastUpdateId.equals(GlobalLastUpdate.entityId))
+        .getSingleOrNull();
 
     await AppDb().openDefault();
 
     return BackupInfo(
       file: File(filePath),
-      // TODO(nogipx): add last edit date inside database
-      creationDate: DateTime.now(),
+      creationDate: lastUpdate?.updatedAt,
       plannersCount: planners.length,
     );
   }

@@ -67,7 +67,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       if (result != null) {
         add(PlannerEvent.computeBudget());
       }
-    } on Object catch (e, trace) {
+    } on Object catch (e) {
       print(e);
       rethrow;
     }
@@ -138,6 +138,17 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       payments: constrainedPayments,
     ).run();
 
+    final actualInfo = ComputeActualPlannerInfo(
+      plannerId: targetPlanner.id,
+      lastUpdatedBudget: computedBudget.lastUpdatedBudget,
+      payments: constrainedPayments,
+    ).run();
+
+    unawaited(_plannerRepo.updatePlannerActualInfo(
+      plannerId: plannerId,
+      plannerActualInfo: actualInfo,
+    ));
+
     final newState = PlannerState.budgetComputed(
       payments: constrainedPayments,
       paymentsByDate: paymentsByDate,
@@ -146,6 +157,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       dateEnd: targetPlanner.dateEnd,
       moneyFlow: moneyFlow,
     );
+
     return newState;
   }
 }

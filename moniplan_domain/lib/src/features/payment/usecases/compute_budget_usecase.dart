@@ -18,15 +18,31 @@ class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
   @override
   ComputeBudgetUseCaseResult run() {
     final budget = LinkedHashMap<Payment, num>();
+    final now = DateTime.now().onlyDate;
 
     var tempBudget = initialBudget;
+
+    num lastUpdatedBudget = 0;
+    bool shouldIncludeCurrent = true;
+
     for (final item in payments) {
-      tempBudget += item.isEnabled ? item.normalizedMoney : 0;
+      final value = item.isEnabled ? item.normalizedMoney : 0;
+
+      tempBudget += value;
       budget[item] = tempBudget;
+
+      if (item.date.isAfter(now)) {
+        shouldIncludeCurrent = false;
+      }
+
+      if (shouldIncludeCurrent) {
+        lastUpdatedBudget = tempBudget;
+      }
     }
 
     final result = ComputeBudgetUseCaseResult(
       budget: budget,
+      lastUpdatedBudget: lastUpdatedBudget,
     );
 
     return result;
@@ -35,8 +51,10 @@ class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
 
 class ComputeBudgetUseCaseResult {
   final LinkedHashMap<Payment, num> budget;
+  final num lastUpdatedBudget;
 
   const ComputeBudgetUseCaseResult({
     required this.budget,
+    this.lastUpdatedBudget = 0,
   });
 }

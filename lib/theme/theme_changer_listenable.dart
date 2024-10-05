@@ -13,9 +13,9 @@ class MoniplanThemeListenable extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Brightness>(
       valueListenable: AppColorTokens.brightnessListenable,
-      builder: (context, _, __) {
+      builder: (context, brightness, __) {
         return SizedBox(
-          key: ValueKey(_),
+          key: ValueKey(brightness),
           child: child,
         );
       },

@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan/_run/db/_index.dart';
-import 'package:moniplan/_run/db/drift_open_temporary_connection.dart';
 import 'package:moniplan/app_log_impl.dart';
 import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan_core/moniplan_core.dart';

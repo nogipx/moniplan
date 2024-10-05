@@ -2,10 +2,8 @@ import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/payment_planner/dialogs/_index.dart';
-import 'package:moniplan/main.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:moniplan/features/payment_planner/_index.dart';
@@ -182,7 +180,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
   }
 
   Future<void> _moveToDate(DateTime date, {bool jump = false}) async {
-    await Future.delayed(const Duration(milliseconds: 150));
+    await Future.delayed(const Duration(milliseconds: 100));
     final state = context.read<PlannerBloc>().state.getPaymentsByDate.getIndexOfDate(date);
     if (state == null || !_controller.isAttached) {
       return;

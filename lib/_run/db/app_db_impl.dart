@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -13,6 +14,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
   MoniplanDriftDb? _db;
   String? _encryptKey;
+  StreamSubscription? _listenChanges;
 
   @override
   MoniplanDriftDb get value => _db!;
@@ -34,8 +36,10 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   Future<void> close() async {
     try {
       await _db?.close();
+      _stopWatchChanges();
       await driftClearTemporary();
       _db = null;
+
       notifyListeners();
     } on Object catch (error, trace) {
       _log?.critical('close', error: error, trace: trace);
@@ -50,6 +54,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       await Future.delayed(_reopenWaitDuration);
       final executor = await driftOpenDefault();
       _db = MoniplanDriftDb(dbExecutor: executor);
+      _startWatchChanges();
 
       notifyListeners();
     } on Object catch (error, trace) {
@@ -83,6 +88,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
         dbExecutor: connection,
       );
       _db = tempDb;
+
       notifyListeners();
     } on Object catch (error, trace) {
       _log?.critical('openFromFile', error: error, trace: trace);
@@ -117,5 +123,37 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       _log?.critical('overrideDefaultFromFile', error: error, trace: trace);
       rethrow;
     }
+  }
+
+  Future<void> updateLastActionDate() async {
+    if (_db == null) {
+      throw Exception('Database not opened');
+    }
+
+    final data = GlobalLastUpdateData(
+      lastUpdateId: GlobalLastUpdate.entityId,
+      updatedAt: DateTime.now(),
+    );
+
+    _db!.globalLastUpdate.insertOne(data, mode: InsertMode.insertOrReplace);
+  }
+
+  void _startWatchChanges() {
+    if (_db == null) {
+      throw Exception('Database not opened');
+    }
+
+    final query = TableUpdateQuery.onAllTables([
+      _db!.paymentPlannersDriftTable,
+      _db!.paymentsComposedDriftTable,
+    ]);
+
+    _listenChanges = _db!.tableUpdates(query).listen((updates) {
+      updateLastActionDate();
+    });
+  }
+
+  void _stopWatchChanges() {
+    _listenChanges?.cancel();
   }
 }

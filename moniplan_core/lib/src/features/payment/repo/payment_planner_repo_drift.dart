@@ -11,6 +11,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
   static const _plannerMapper = PlannerMapperDrift();
   static const _paymentMapper = PaymentMapperDrift();
+  static const _plannerActualInfoMapper = PlannerActualInfoMapper();
 
   Future<T> _guard<T>(Future<T> Function() action, {String name = ''}) async {
     try {
@@ -24,12 +25,13 @@ final class PlannerRepoDrift implements IPlannerRepo {
   }
 
   @override
-  Future<Planner?> getPlannerById(String id) async {
+  Future<Planner?> getPlannerById(String id, {bool withActualInfo = false}) async {
     return _guard(
       name: 'getPlannerById',
       () async => _composePlanner(
         plannerDao: await _getPlannerById(id),
         paymentsDao: await _getPaymentsByPlannerId(id),
+        actualInfo: withActualInfo ? await getPlannerActualInfo(plannerId: id) : null,
       ),
     );
   }
@@ -37,6 +39,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
   @override
   Future<List<Planner>> getPlanners({
     bool withPayments = false,
+    bool withActualInfo = true,
   }) async {
     return _guard(
       name: 'getPlanners',
@@ -44,7 +47,6 @@ final class PlannerRepoDrift implements IPlannerRepo {
         final plannersDao = await db.value.managers.paymentPlannersDriftTable.get();
 
         final paymentsForPlanner = <String, List<Payment>>{};
-
         if (withPayments) {
           final plannersIds = plannersDao.map((e) => e.plannerId).toSet();
 
@@ -59,9 +61,19 @@ final class PlannerRepoDrift implements IPlannerRepo {
             list.add(payment);
           }
         }
+
+        final actualInfosForPlanner = <String, PlannerActualInfo?>{};
+        if (withActualInfo) {
+          for (final plannerDao in plannersDao) {
+            final id = plannerDao.plannerId;
+            actualInfosForPlanner[id] = await getPlannerActualInfo(plannerId: id);
+          }
+        }
+
         final planners = plannersDao.map((e) {
           return _plannerMapper.toDomain(e).copyWith(
                 payments: paymentsForPlanner[e.plannerId] ?? [],
+                actualInfo: actualInfosForPlanner[e.plannerId],
               );
         }).toList();
 
@@ -245,8 +257,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
           await db.value.managers.paymentPlannersDriftTable
               .filter((f) => f.plannerId(plannerId))
               .delete();
-
-          /// TODO(при удалении планнера также удалять поледние результаты)
+          await _deleteInfoForPlanner(plannerId: plannerId);
         });
       },
     );
@@ -320,8 +331,16 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
   @override
   Future<PlannerActualInfo?> getPlannerActualInfo({required String plannerId}) {
-    // TODO: implement getPlannerActualInfo
-    throw UnimplementedError();
+    return _guard(
+      name: 'getPlannerActualInfo',
+      () async {
+        final info = await db.value.managers.plannerActualInfoDriftTable
+            .filter((f) => f.plannerId.equals(plannerId))
+            .getSingleOrNull();
+
+        return info != null ? _plannerActualInfoMapper.toDomain(info) : null;
+      },
+    );
   }
 
   @override
@@ -329,8 +348,43 @@ final class PlannerRepoDrift implements IPlannerRepo {
     required String plannerId,
     required PlannerActualInfo plannerActualInfo,
   }) {
-    // TODO: implement updatePlannerActualInfo
-    throw UnimplementedError();
+    return _guard(
+      name: 'updatePlannerActualInfo',
+      () async {
+        final updatedDao = _plannerActualInfoMapper.toDto(plannerActualInfo);
+
+        final selector = db.value.managers.plannerActualInfoDriftTable
+            .filter((f) => f.plannerId.equals(plannerId));
+
+        return db.value.transaction(() async {
+          if (await selector.exists()) {
+            await db.value.managers.plannerActualInfoDriftTable.replace(updatedDao);
+          } else {
+            await db.value.managers.plannerActualInfoDriftTable.create((_) => updatedDao);
+          }
+
+          return plannerActualInfo;
+        });
+      },
+    );
+  }
+
+  Future<void> _deleteInfoForPlanner({
+    required String plannerId,
+  }) {
+    return _guard(
+      name: '_deleteInfoForPlanner',
+      () async {
+        final selector = db.value.managers.plannerActualInfoDriftTable
+            .filter((f) => f.plannerId.equals(plannerId));
+
+        return db.value.transaction(() async {
+          if (await selector.exists()) {
+            await selector.delete();
+          }
+        });
+      },
+    );
   }
 
   Future<PaymentPlannersDriftTableData?> _getPlannerById(String id) =>
@@ -344,6 +398,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
   Planner? _composePlanner({
     PaymentPlannersDriftTableData? plannerDao,
     List<PaymentsComposedDriftTableData> paymentsDao = const [],
+    PlannerActualInfo? actualInfo,
   }) {
     if (plannerDao != null) {
       final plannerDomain = _plannerMapper.toDomain(plannerDao);
@@ -351,6 +406,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
       final result = plannerDomain.copyWith(
         payments: paymentsDomain,
+        actualInfo: actualInfo,
       );
 
       return result;

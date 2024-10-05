@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 import '_index.dart';
 
@@ -16,20 +17,14 @@ class Planner with _$Planner {
     required final bool isGenerationAllowed,
     @Default([]) final List<Payment> payments,
     @Default(0) final num initialBudget,
+    final PlannerActualInfo? actualInfo,
   }) = _Planner;
 
   factory Planner.fromJson(Map<String, dynamic> json) => _$PlannerFromJson(json);
 
-  num get needToPay {
-    final futurePayments = payments
-        .where((e) => e.details.type == PaymentType.expense && !e.isDone)
-        .map((e) => e.details.money.abs())
-        .fold(0.0, (acc, e) => acc + e);
+  num get currentBudget => actualInfo?.updatedAtBudget ?? 0;
 
-    return futurePayments;
-  }
-
-  int get countDonePayments => payments.where((e) => e.isDone).length;
-  int get countWaitingPayments => payments.where((e) => !e.isDone).length;
-  int get countDisabledPayments => payments.where((e) => !e.isEnabled).length;
+  int get countDonePayments => actualInfo?.completedCount ?? 0;
+  int get countWaitingPayments => actualInfo?.waitingCount ?? 0;
+  int get countDisabledPayments => actualInfo?.disabledCount ?? 0;
 }

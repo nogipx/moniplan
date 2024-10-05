@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:moniplan_core/moniplan_db.dart';
 
 @TableIndex(name: 'index_planner_id_actual_info', columns: {#plannerId})
-class PaymentPlannersDriftTable extends Table {
+class PlannerActualInfoDriftTable extends Table {
   @override
   Set<Column> get primaryKey => {plannerId};
 
@@ -13,6 +13,5 @@ class PaymentPlannersDriftTable extends Table {
   IntColumn get waitingCount => integer().withDefault(const Constant(0))();
   IntColumn get disabledCount => integer().withDefault(const Constant(0))();
   IntColumn get totalCount => integer().withDefault(const Constant(0))();
-
-  TextColumn get budgetSeries => text().withDefault(const Constant('[]'))();
+  RealColumn get updatedAtBudget => real().withDefault(const Constant(0))();
 }

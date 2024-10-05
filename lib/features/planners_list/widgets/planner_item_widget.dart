@@ -14,7 +14,7 @@ class PlannerItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final needToPay = planner.needToPay * -1;
+    final needToPay = planner.currentBudget;
 
     return Card(
       clipBehavior: Clip.hardEdge,
@@ -23,6 +23,7 @@ class PlannerItemWidget extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,7 +77,15 @@ class PlannerItemWidget extends StatelessWidget {
                             : Colors.red,
                   )
                 ],
-              )
+              ),
+              if (planner.actualInfo != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Last compute: ${DateFormat(dateFormatWithTime).format(planner.actualInfo!.updatedAt)}',
+                  style: Theme.of(context).textTheme.titleSmall,
+                  textAlign: TextAlign.start,
+                ),
+              ],
             ],
           ),
         ),
@@ -96,7 +105,6 @@ class _PlannerInfoItem extends StatelessWidget {
     required this.iconColor,
     this.value = '',
     this.valueWidget,
-    super.key,
   });
 
   @override

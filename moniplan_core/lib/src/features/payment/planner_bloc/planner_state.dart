@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:collection/collection.dart';
 
 part 'planner_state.freezed.dart';
 

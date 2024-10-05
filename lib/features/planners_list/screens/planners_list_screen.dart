@@ -8,7 +8,6 @@ import 'package:moniplan/features/payment_planner/_index.dart';
 import 'package:moniplan/features/planners_list/_index.dart';
 import 'package:moniplan/features/planners_list/widgets/dialog_update_planner.dart';
 import 'package:moniplan/features/planners_list/widgets/dialog_delete_planner.dart';
-import 'package:moniplan/main.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 class PlannersListScreen extends StatefulWidget {
@@ -38,6 +37,27 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
             child: Scaffold(
               appBar: AppBar(
                 actions: [
+                  StreamBuilder(
+                    stream: AppDb()
+                        .value
+                        .managers
+                        .globalLastUpdate
+                        .filter((f) => f.lastUpdateId.equals(GlobalLastUpdate.entityId))
+                        .watchSingleOrNull(),
+                    builder: (context, snapshot) {
+                      final updateDate = snapshot.data?.updatedAt;
+                      if (updateDate == null) {
+                        return const SizedBox();
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'Last update: ${DateFormat(dateFormatWithTime).format(updateDate)}',
+                        ),
+                      );
+                    },
+                  ),
                   ElevatedButton.icon(
                     icon: Icon(
                       Icons.import_export_outlined,
@@ -165,9 +185,8 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
   }
 
   Future<void> _updatePlannersList({List<PaymentPlannersDriftTableData>? newPlanners}) async {
-    final t = AppDb();
     await Future.delayed(const Duration(milliseconds: 100));
-    final planners = await _plannerRepo.getPlanners(withPayments: true);
+    final planners = await _plannerRepo.getPlanners();
     _actualPlanners.value = planners;
     setState(() {});
   }

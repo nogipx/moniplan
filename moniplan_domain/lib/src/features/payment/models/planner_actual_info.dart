@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'planner_actual_info.freezed.dart';
+part 'planner_actual_info.g.dart';
 
 @Freezed()
 class PlannerActualInfo with _$PlannerActualInfo {
@@ -9,10 +10,13 @@ class PlannerActualInfo with _$PlannerActualInfo {
   const factory PlannerActualInfo({
     required final String plannerId,
     required final DateTime updatedAt,
-    required final int completedCount,
-    required final int waitingCount,
-    required final int disabledCount,
-    required final int totalCount,
-    @Default([]) final List<num> budgetSeries,
+    @Default(0) final int completedCount,
+    @Default(0) final int waitingCount,
+    @Default(0) final int disabledCount,
+    @Default(0) final int totalCount,
+    @Default(0) final num updatedAtBudget,
   }) = _PlannerActualInfo;
+
+  factory PlannerActualInfo.fromJson(Map<String, dynamic> json) =>
+      _$PlannerActualInfoFromJson(json);
 }
