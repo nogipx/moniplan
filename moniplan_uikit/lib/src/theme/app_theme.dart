@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/src/theme/_index.dart';
-import 'package:moniplan_uikit/src/theme/models/app_border_radius.dart';
 
 import 'models/_index.dart';
 
@@ -10,6 +9,11 @@ class AppTheme {
   static ThemeData theme({
     required ThemeStyle themeStyle,
     String? fontFamily,
+    AppColors? customColors,
+    AppButtonStyle? customButtonStyle,
+    AppShadowTheme? customShadow,
+    AppBorderRadiuses? customRadius,
+    AppSpaces? customSpace,
   }) {
     AppTextTheme.baseTextStyle = TextStyle(
       overflow: TextOverflow.ellipsis,
@@ -18,10 +22,11 @@ class AppTheme {
 
     final textTheme = AppTextTheme.get(themeStyle);
     final data = AppThemeData(
-      colors: AppColors.get(themeStyle),
-      buttonStyle: AppButtonStyle.get(themeStyle),
-      shadow: AppShadowTheme.get(),
-      radius: AppBorderRadiuses.get(),
+      colors: customColors ?? AppColors.get(themeStyle),
+      buttonStyle: customButtonStyle ?? AppButtonStyle.get(themeStyle),
+      shadow: customShadow ?? AppShadowTheme.get(),
+      radius: customRadius ?? AppBorderRadiuses.get(),
+      space: customSpace ?? AppSpaces.get(),
     );
 
     final defaultIconThemeData = IconThemeData(color: data.colors.text.primary, size: 28);
@@ -74,7 +79,10 @@ class AppTheme {
         focusColor: data.colors.text.error,
         // isDense: true,
         filled: true,
-        contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+        contentPadding: EdgeInsets.symmetric(
+          vertical: data.space.small,
+          horizontal: data.space.large,
+        ),
         border: defaultOutlineInputBorder,
         disabledBorder: defaultOutlineInputBorder,
         enabledBorder: defaultOutlineInputBorder,
@@ -104,7 +112,9 @@ class AppTheme {
       dialogTheme: DialogTheme(
         backgroundColor: data.colors.background.primary,
         alignment: Alignment.center,
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 16),
+        actionsPadding: EdgeInsets.symmetric(
+          horizontal: data.space.large,
+        ),
         titleTextStyle: textTheme.displaySmall,
         contentTextStyle: textTheme.bodyMedium,
         iconColor: data.colors.text.primary,

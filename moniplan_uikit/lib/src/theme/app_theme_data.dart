@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan_uikit/src/theme/models/app_border_radius.dart';
 
 import 'models/_index.dart';
 
@@ -17,12 +16,16 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
   /// Радиусы
   final AppBorderRadiuses radius;
 
+  /// Отступы
+  final AppSpaces space;
+
   /// Создаёт класс с данными для темы
   const AppThemeData({
     required this.colors,
     required this.buttonStyle,
     required this.shadow,
     required this.radius,
+    required this.space,
   });
 
   @override
@@ -32,12 +35,14 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
     AppButtonStyle? buttonStyle,
     AppShadowTheme? shadow,
     AppBorderRadiuses? radius,
+    AppSpaces? space,
   }) =>
       AppThemeData(
         colors: colors ?? this.colors,
         buttonStyle: buttonStyle ?? this.buttonStyle,
         shadow: shadow ?? this.shadow,
         radius: radius ?? this.radius,
+        space: space ?? this.space,
       );
 
   @override
@@ -54,6 +59,7 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
       buttonStyle: buttonStyle.lerp(other.buttonStyle, t),
       shadow: shadow.lerp(other.shadow, t),
       radius: radius.lerp(other.radius, t),
+      space: space.lerp(other.space, t),
     );
   }
 }
