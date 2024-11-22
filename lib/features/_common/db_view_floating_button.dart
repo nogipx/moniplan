@@ -8,7 +8,7 @@ final dbInspectorFloatingActionButton = Builder(builder: (context) {
     onPressed: () {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => DriftDbViewer(AppDb().value),
+          builder: (context) => DriftDbViewer(AppDb().db),
         ),
       );
     },

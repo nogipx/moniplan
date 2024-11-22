@@ -21,9 +21,11 @@ class PaymentListDaySeparator extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
       child: Material(
         elevation: 2,
-        shadowColor: AppColorTokens.disabledColor,
-        color: isSameDay ? AppColorTokens.brandColor : AppColorTokens.daySeparatorBackground,
-        borderRadius: MoniplanConst.borderRadius50,
+        shadowColor: context.theme.app.colors.element.secondary,
+        color: isSameDay
+            ? context.theme.app.colors.element.accent
+            : context.theme.app.colors.element.secondary,
+        borderRadius: context.theme.app.radius.round,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -36,8 +38,8 @@ class PaymentListDaySeparator extends StatelessWidget {
                 DateFormat.MMMMd('ru').format(date),
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: isSameDay
-                          ? AppColorTokens.brandColor[ColorExtra.foreground]
-                          : AppColorTokens.daySeparatorBackground[ColorExtra.foreground],
+                          ? context.theme.app.colors.element.primary
+                          : context.theme.app.colors.element.secondary,
                     ),
               ),
             ),

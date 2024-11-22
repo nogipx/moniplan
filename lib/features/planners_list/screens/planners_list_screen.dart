@@ -38,10 +38,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
               appBar: AppBar(
                 actions: [
                   StreamBuilder(
-                    stream: AppDb()
-                        .value
-                        .managers
-                        .globalLastUpdate
+                    stream: AppDb.instance.db.managers.globalLastUpdate
                         .filter((f) => f.lastUpdateId.equals(GlobalLastUpdate.entityId))
                         .watchSingleOrNull(),
                     builder: (context, snapshot) {
@@ -79,7 +76,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                 onLongPress: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => DriftDbViewer(AppDb().value),
+                      builder: (context) => DriftDbViewer(AppDb().db),
                     ),
                   );
                 },

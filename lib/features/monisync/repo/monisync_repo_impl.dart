@@ -86,7 +86,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
     final planners = await PlannerRepoDrift(db: AppDb()).getPlanners();
     final lastUpdate = await AppDb()
-        .value
+        .db
         .managers
         .globalLastUpdate
         .filter((f) => f.lastUpdateId.equals(GlobalLastUpdate.entityId))

@@ -44,13 +44,13 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return _guard(
       name: 'getPlanners',
       () async {
-        final plannersDao = await db.value.managers.paymentPlannersDriftTable.get();
+        final plannersDao = await db.db.managers.paymentPlannersDriftTable.get();
 
         final paymentsForPlanner = <String, List<Payment>>{};
         if (withPayments) {
           final plannersIds = plannersDao.map((e) => e.plannerId).toSet();
 
-          final allPaymentsDao = await db.value.managers.paymentsComposedDriftTable
+          final allPaymentsDao = await db.db.managers.paymentsComposedDriftTable
               .filter((f) => f.plannerId.isIn(plannersIds))
               .get();
 
@@ -106,7 +106,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
             .map(_paymentMapper.toDto)
             .toList();
 
-        final existingPaymentsDao = await db.value.managers.paymentsComposedDriftTable
+        final existingPaymentsDao = await db.db.managers.paymentsComposedDriftTable
             .filter((f) => f.plannerId.equals(planner.id))
             .get();
 
@@ -147,18 +147,18 @@ final class PlannerRepoDrift implements IPlannerRepo {
           }
         }
 
-        return db.value.transaction(() async {
-          await db.value.managers.paymentPlannersDriftTable.create(
+        return db.db.transaction(() async {
+          await db.db.managers.paymentPlannersDriftTable.create(
             (o) => plannerDao,
             mode: InsertMode.insertOrReplace,
           );
 
-          await db.value.managers.paymentsComposedDriftTable.bulkCreate(
+          await db.db.managers.paymentsComposedDriftTable.bulkCreate(
             (o) => toInsertItems,
             mode: InsertMode.insertOrReplace,
           );
 
-          await db.value.managers.paymentsComposedDriftTable
+          await db.db.managers.paymentsComposedDriftTable
               .filter((f) => f.paymentId.isIn(toDelete))
               .delete();
 
@@ -176,7 +176,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return _guard(
       name: 'getPaymentById',
       () async {
-        final paymentInPlanner = await db.value.managers.paymentsComposedDriftTable
+        final paymentInPlanner = await db.db.managers.paymentsComposedDriftTable
             .filter((f) => f.plannerId(plannerId) & f.paymentId(paymentId))
             .getSingleOrNull();
 
@@ -193,7 +193,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return _guard(
       name: 'getPaymentsByPlannerId',
       () async {
-        final paymentInPlanner = await db.value.managers.paymentsComposedDriftTable
+        final paymentInPlanner = await db.db.managers.paymentsComposedDriftTable
             .filter((f) => f.plannerId(plannerId))
             .get();
 
@@ -212,11 +212,11 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return _guard(
       name: 'savePayment',
       () async {
-        final selectorPaymentInPlanner = db.value.managers.paymentsComposedDriftTable.filter((f) {
+        final selectorPaymentInPlanner = db.db.managers.paymentsComposedDriftTable.filter((f) {
           return f.plannerId(plannerId) & f.paymentId(payment.paymentId);
         });
 
-        final selectorPaymentItself = db.value.managers.paymentsComposedDriftTable.filter((f) {
+        final selectorPaymentItself = db.db.managers.paymentsComposedDriftTable.filter((f) {
           return f.paymentId(payment.paymentId);
         });
 
@@ -232,11 +232,11 @@ final class PlannerRepoDrift implements IPlannerRepo {
         final resultPayment = payment.copyWith(plannerId: plannerId);
         final paymentDao = _paymentMapper.toDto(resultPayment);
 
-        return db.value.transaction(() async {
+        return db.db.transaction(() async {
           if (await selectorPaymentItself.exists()) {
-            await db.value.managers.paymentsComposedDriftTable.replace(paymentDao);
+            await db.db.managers.paymentsComposedDriftTable.replace(paymentDao);
           } else {
-            await db.value.managers.paymentsComposedDriftTable.create((_) => paymentDao);
+            await db.db.managers.paymentsComposedDriftTable.create((_) => paymentDao);
           }
 
           return payment;
@@ -250,11 +250,11 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return _guard(
       name: 'deletePlanner',
       () async {
-        return db.value.transaction(() async {
-          await db.value.managers.paymentsComposedDriftTable
+        return db.db.transaction(() async {
+          await db.db.managers.paymentsComposedDriftTable
               .filter((f) => f.plannerId(plannerId))
               .delete();
-          await db.value.managers.paymentPlannersDriftTable
+          await db.db.managers.paymentPlannersDriftTable
               .filter((f) => f.plannerId(plannerId))
               .delete();
           await _deleteInfoForPlanner(plannerId: plannerId);
@@ -271,7 +271,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return _guard(
       name: 'deletePayment',
       () async {
-        final selector = db.value.managers.paymentsComposedDriftTable.filter((f) {
+        final selector = db.db.managers.paymentsComposedDriftTable.filter((f) {
           return f.plannerId(plannerId) & f.paymentId(paymentId);
         });
 
@@ -334,7 +334,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return _guard(
       name: 'getPlannerActualInfo',
       () async {
-        final info = await db.value.managers.plannerActualInfoDriftTable
+        final info = await db.db.managers.plannerActualInfoDriftTable
             .filter((f) => f.plannerId.equals(plannerId))
             .get();
 
@@ -353,14 +353,14 @@ final class PlannerRepoDrift implements IPlannerRepo {
       () async {
         final updatedDao = _plannerActualInfoMapper.toDto(plannerActualInfo);
 
-        final selector = db.value.managers.plannerActualInfoDriftTable
-            .filter((f) => f.plannerId.equals(plannerId));
+        final selector =
+            db.db.managers.plannerActualInfoDriftTable.filter((f) => f.plannerId.equals(plannerId));
 
-        return db.value.transaction(() async {
+        return db.db.transaction(() async {
           if (await selector.exists()) {
-            await db.value.managers.plannerActualInfoDriftTable.replace(updatedDao);
+            await db.db.managers.plannerActualInfoDriftTable.replace(updatedDao);
           } else {
-            await db.value.managers.plannerActualInfoDriftTable.create((_) => updatedDao);
+            await db.db.managers.plannerActualInfoDriftTable.create((_) => updatedDao);
           }
 
           return plannerActualInfo;
@@ -375,10 +375,10 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return _guard(
       name: '_deleteInfoForPlanner',
       () async {
-        final selector = db.value.managers.plannerActualInfoDriftTable
-            .filter((f) => f.plannerId.equals(plannerId));
+        final selector =
+            db.db.managers.plannerActualInfoDriftTable.filter((f) => f.plannerId.equals(plannerId));
 
-        return db.value.transaction(() async {
+        return db.db.transaction(() async {
           if (await selector.exists()) {
             await selector.delete();
           }
@@ -388,12 +388,12 @@ final class PlannerRepoDrift implements IPlannerRepo {
   }
 
   Future<PaymentPlannersDriftTableData?> _getPlannerById(String id) =>
-      db.value.managers.paymentPlannersDriftTable
+      db.db.managers.paymentPlannersDriftTable
           .filter((f) => f.plannerId.equals(id))
           .getSingleOrNull();
 
   Future<List<PaymentsComposedDriftTableData>> _getPaymentsByPlannerId(String id) =>
-      db.value.managers.paymentsComposedDriftTable.filter((f) => f.plannerId.equals(id)).get();
+      db.db.managers.paymentsComposedDriftTable.filter((f) => f.plannerId.equals(id)).get();
 
   Planner? _composePlanner({
     PaymentPlannersDriftTableData? plannerDao,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class MoniplanThemeListenable extends StatelessWidget {
   const MoniplanThemeListenable({
@@ -11,14 +10,15 @@ class MoniplanThemeListenable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<Brightness>(
-      valueListenable: AppColorTokens.brightnessListenable,
-      builder: (context, brightness, __) {
-        return SizedBox(
-          key: ValueKey(brightness),
-          child: child,
-        );
-      },
-    );
+    return child;
+    // return ValueListenableBuilder<Brightness>(
+    //   valueListenable: AppColorTokens.brightnessListenable,
+    //   builder: (context, brightness, __) {
+    //     return SizedBox(
+    //       key: ValueKey(brightness),
+    //       child: child,
+    //     );
+    //   },
+    // );
   }
 }

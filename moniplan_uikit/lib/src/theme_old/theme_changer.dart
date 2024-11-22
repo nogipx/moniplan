@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:moniplan_uikit/moniplan_uikit.dart';
+
+import '_index.dart';
 
 class ThemeChanger extends StatefulWidget {
   final void Function(Brightness)? onChangeTheme;

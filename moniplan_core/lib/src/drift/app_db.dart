@@ -4,22 +4,22 @@ import 'package:moniplan_core/moniplan_core.dart';
 
 typedef AppDbFactory = AppDb Function();
 
-abstract interface class AppDb {
-  static late final AppDbFactory? _factory;
+abstract class AppDb {
+  static late AppDbFactory _factory;
+  static AppDb? _instance;
 
-  // ignore: avoid_setters_without_getters
-  static set factory(AppDbFactory newFactory) {
+  static void initializeFactory(AppDbFactory newFactory) {
     _factory = newFactory;
+    _instance = _factory();
   }
 
   factory AppDb() {
-    if (_factory == null) {
-      throw UnimplementedError('Db factory not setted.');
-    }
-    return _factory!();
+    return _instance ??= _factory();
   }
 
-  MoniplanDriftDb get value;
+  static AppDb get instance => _instance ??= _factory();
+
+  MoniplanDriftDb get db;
 
   Future<void> close();
 

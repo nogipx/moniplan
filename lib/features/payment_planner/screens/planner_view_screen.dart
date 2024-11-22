@@ -76,7 +76,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                   onLongPress: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => DriftDbViewer(AppDb().value),
+                        builder: (context) => DriftDbViewer(AppDb().db),
                       ),
                     );
                   },

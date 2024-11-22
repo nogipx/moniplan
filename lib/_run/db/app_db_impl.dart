@@ -17,7 +17,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   StreamSubscription? _listenChanges;
 
   @override
-  MoniplanDriftDb get value => _db!;
+  MoniplanDriftDb get db => _db!;
 
   AppDbImpl._(this._encryptKey);
 

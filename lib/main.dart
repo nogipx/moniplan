@@ -14,7 +14,7 @@ import 'package:stack_trace/stack_trace.dart';
 
 Future<void> main() async {
   AppLog.factory = (name) => MoniplanLog(logger: Logger(name));
-  AppDb.factory = () => AppDbImpl(encryptKey: mockEncryptionKey);
+  AppDb.initializeFactory(() => AppDbImpl(encryptKey: mockEncryptionKey));
 
   final zoneLog = AppLog('ZoneGuarded');
 

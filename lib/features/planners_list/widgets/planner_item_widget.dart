@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/theme/contour_animation/_index.dart';
-import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PlannerItemWidget extends StatelessWidget {
   const PlannerItemWidget({
@@ -23,6 +22,7 @@ class PlannerItemWidget extends StatelessWidget {
       visibleFractionGenerator: (p) {
         return (sinusoidalFunction(p) / 8) + p / 100;
       },
+      isAnimated: false,
       cornerRadius: 12,
       visibleFraction: 1,
       duration: const Duration(milliseconds: 6000),

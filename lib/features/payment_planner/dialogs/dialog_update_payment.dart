@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 Future<void> showUpdatePaymentDialog({
@@ -57,10 +58,10 @@ Future<void> showUpdatePaymentDialog({
   );
 
   final boxDecoration = BoxDecoration(
-    color: AppColors.night,
+    color: context.theme.app.colors.background.third,
     borderRadius: BorderRadius.all(Radius.circular(16)),
     border: Border.all(
-      color: AppColors.moniplanBrand.withOpacity(.5),
+      color: context.theme.app.colors.background.third,
       width: .5,
     ),
   );
@@ -78,7 +79,7 @@ Future<void> showUpdatePaymentDialog({
             decoration: inputDecoration.copyWith(
               labelText: 'Money',
               icon: Icon(Icons.attach_money),
-              iconColor: AppColorTokens.brandColor,
+              iconColor: context.theme.app.colors.element.accent,
             ),
           ),
           const SizedBox(height: 16),
@@ -98,7 +99,7 @@ Future<void> showUpdatePaymentDialog({
             ],
             selectedIcon: Icon(
               type == PaymentType.expense ? Icons.remove : Icons.add,
-              color: AppColorTokens.primaryTextColor,
+              color: context.theme.app.colors.text.primary,
             ),
             onSelectionChanged: (paymentTypes) {
               setState(() {
@@ -211,9 +212,9 @@ Future<void> showUpdatePaymentDialog({
             ),
             label: Text(isEnabled ? 'Enabled' : 'Disabled'),
             style: ElevatedButton.styleFrom(
-              foregroundColor: isEnabled ? AppColorTokens.brandColor : null,
+              foregroundColor: isEnabled ? context.theme.app.colors.element.accent : null,
               side: BorderSide(
-                color: isEnabled ? AppColorTokens.brandColor : Colors.transparent,
+                color: isEnabled ? context.theme.app.colors.element.accent : Colors.transparent,
               ),
             ),
           ),
@@ -232,9 +233,9 @@ Future<void> showUpdatePaymentDialog({
             ),
             label: Text(isDone ? 'Completed' : 'Not completed'),
             style: ElevatedButton.styleFrom(
-              foregroundColor: isDone ? AppColorTokens.green : null,
+              foregroundColor: isDone ? context.theme.app.colors.element.green : null,
               side: BorderSide(
-                color: isDone ? AppColorTokens.green : Colors.transparent,
+                color: isDone ? context.theme.app.colors.element.green : Colors.transparent,
               ),
             ),
           ),
@@ -351,7 +352,7 @@ Future<void> showUpdatePaymentDialog({
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: AppColorTokens.positiveMoneyColor,
+                  foregroundColor: context.theme.app.colors.element.green,
                 ),
                 onPressed: () {
                   if (date == null) {
@@ -391,7 +392,7 @@ Future<void> showUpdatePaymentDialog({
                   targetPayment != null ? 'Save' : 'Create',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: AppColorTokens.green,
+                        color: context.theme.app.colors.element.green,
                       ),
                 ),
               ),

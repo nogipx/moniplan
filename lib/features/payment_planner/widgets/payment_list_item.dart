@@ -33,14 +33,14 @@ class PaymentListItem extends StatelessWidget {
                 Text(
                   payment.repeat.shortName,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AppColorTokens.secondaryTextColor,
+                        color: context.theme.app.colors.text.secondary,
                       ),
                 ),
                 const SizedBox(width: 2),
                 Icon(
                   Icons.refresh_rounded,
                   size: 18,
-                  color: AppColorTokens.secondaryTextColor,
+                  color: context.theme.app.colors.text.secondary,
                 ),
               ],
             )
@@ -59,7 +59,9 @@ class PaymentListItem extends StatelessWidget {
               child: Icon(
                 Icons.done_outlined,
                 size: 16,
-                color: payment.isDone ? AppColorTokens.green : AppColorTokens.secondaryTextColor,
+                color: payment.isDone
+                    ? context.theme.app.colors.element.green
+                    : context.theme.app.colors.text.secondary,
               ),
             ),
           if (!payment.isEnabled)
@@ -68,7 +70,7 @@ class PaymentListItem extends StatelessWidget {
               child: Icon(
                 Icons.power_settings_new_rounded,
                 size: 16,
-                color: AppColorTokens.negativeMoneyColor,
+                color: context.theme.app.colors.element.red,
               ),
             ),
         ],
@@ -92,8 +94,8 @@ class PaymentListItem extends StatelessWidget {
                       payment.details.name,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             color: payment.isEnabled
-                                ? AppColorTokens.primaryTextColor
-                                : AppColorTokens.inactiveTextColor,
+                                ? context.theme.app.colors.text.primary
+                                : context.theme.app.colors.text.secondary,
                             fontSize: 16,
                             decoration: !payment.isEnabled ? TextDecoration.lineThrough : null,
                           ),
@@ -109,7 +111,7 @@ class PaymentListItem extends StatelessWidget {
                         Icon(
                           Icons.arrow_right_alt_rounded,
                           size: 20,
-                          color: AppColorTokens.disabledColor,
+                          color: context.theme.app.colors.text.secondary,
                         ),
                         const SizedBox(width: 4),
                         budgetPredictWidget,

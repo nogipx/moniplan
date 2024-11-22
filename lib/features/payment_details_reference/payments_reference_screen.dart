@@ -122,13 +122,13 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                           tag,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: isSelected
-                                    ? AppColorTokens.white
-                                    : AppColorTokens.primaryTextColor,
+                                    ? context.theme.app.colors.text.red
+                                    : context.theme.app.colors.text.primary,
                               ),
                         ),
                         backgroundColor: isSelected
-                            ? AppColorTokens.brandColor
-                            : AppColorTokens.inactiveBackgroundColor,
+                            ? context.theme.app.colors.background.accent
+                            : context.theme.app.colors.background.primary,
                         onPressed: () {
                           if (isSelected) {
                             _clearTagSelection();
@@ -171,8 +171,8 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                         child: Card(
                           elevation: isSelected ? 3 : 1,
                           shadowColor: isSelected
-                              ? AppColorTokens.positiveMoneyColor
-                              : AppColorTokens.inactiveBackgroundColor,
+                              ? context.theme.app.colors.background.accent
+                              : context.theme.app.colors.background.accent,
                           child: Grayscale(
                             grayscale: isSelected,
                             child: Padding(
@@ -200,10 +200,13 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                                           if (payment.tax > 0)
                                             Text(
                                               'Налог ${(payment.tax * 100).toInt()}%',
-                                              style:
-                                                  Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                        color: AppColorTokens.secondaryTextColor,
-                                                      ),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall
+                                                  ?.copyWith(
+                                                    color:
+                                                        context.theme.app.colors.background.accent,
+                                                  ),
                                             )
                                         ],
                                       ),
@@ -217,17 +220,15 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                                       child: Text(
                                         payment.note,
                                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: AppColorTokens.primaryTextColor,
+                                              color: context.theme.app.colors.background.accent,
                                             ),
                                       ),
                                     ),
                                   const SizedBox(height: 8),
                                   Text(
                                     payment.tags.map((e) => '#$e').join('  '),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(color: AppColorTokens.secondaryTextColor),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: context.theme.app.colors.background.accent),
                                   )
                                 ],
                               ),

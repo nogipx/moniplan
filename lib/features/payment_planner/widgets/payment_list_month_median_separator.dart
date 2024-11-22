@@ -18,7 +18,7 @@ class PaymentListMonthMedianSeparator extends StatelessWidget {
       child: Text(
         'Середина ${DateFormat(DateFormat.MONTH, 'ru').format(date)}',
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: AppColorTokens.primaryTextColor,
+              color: context.theme.app.colors.text.primary,
               fontWeight: FontWeight.w600,
             ),
       ),

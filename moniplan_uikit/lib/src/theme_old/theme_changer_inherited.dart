@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:moniplan_uikit/src/theme/_index.dart';
+import '_index.dart';
 
 typedef ChangeThemeCallback = void Function(ThemeBrightness);
 

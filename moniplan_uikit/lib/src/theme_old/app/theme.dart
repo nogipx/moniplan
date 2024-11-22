@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan_uikit/src/app/_index.dart';
+
+import '_index.dart';
 
 final lightTheme = ThemeData(
   fontFamily: 'SfProText',

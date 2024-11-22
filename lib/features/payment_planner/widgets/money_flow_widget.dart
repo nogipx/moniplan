@@ -19,7 +19,7 @@ class MoneyFlowWidget extends StatelessWidget {
       child: VerticalDivider(
         thickness: 1,
         width: 1,
-        color: AppColorTokens.inactiveTextColor,
+        color: context.theme.app.colors.element.third,
       ),
     );
 
