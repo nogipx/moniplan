@@ -18,6 +18,7 @@ class AppTheme {
     AppTextTheme.baseTextStyle = baseTextStyle ?? const TextStyle();
 
     return generateThemeDataFromAppColors(
+      brightness: themeStyle == ThemeStyle.dark ? Brightness.dark : Brightness.light,
       colors: customColors ?? AppColors.get(themeStyle),
       textTheme: customTextTheme ?? AppTextTheme.get(themeStyle),
       buttonStyle: customButtonStyle ?? AppButtonStyle.get(themeStyle),
@@ -31,6 +32,7 @@ class AppTheme {
 /// Функция, генерирующая [ThemeData] из [AppColors], [AppButtonStyle], [AppShadowTheme], [AppBorderRadiuses], и [AppSpaces] для Flutter версии с поддержкой Material 3
 ThemeData generateThemeDataFromAppColors({
   required AppColors colors,
+  required Brightness brightness,
   AppButtonStyle? buttonStyle,
   AppShadowTheme? shadow,
   AppBorderRadiuses? radius,
@@ -53,15 +55,16 @@ ThemeData generateThemeDataFromAppColors({
   return ThemeData(
     useMaterial3: true,
     extensions: [themeExtension],
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: colors.palette.primary,
-      brightness:
-          colors.palette.primary.computeLuminance() > 0.5 ? Brightness.light : Brightness.dark,
+    colorScheme: ColorScheme(
+      brightness: brightness,
       primary: colors.palette.primary,
+      onPrimary: colors.text.primary,
       secondary: colors.palette.secondary,
-      error: colors.state.error,
-      background: colors.background.primary,
+      onSecondary: colors.text.secondary,
       surface: colors.element.card,
+      onSurface: colors.text.primary,
+      error: colors.state.error,
+      onError: colors.text.primary,
     ),
     primaryColor: colors.palette.primary,
     canvasColor: colors.background.primary,
