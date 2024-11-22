@@ -165,3 +165,98 @@ class AppTheme {
     );
   }
 }
+
+/// Функция, генерирующая [ThemeData] из [AppColors] для Flutter версии с поддержкой Material 3
+ThemeData generateThemeDataFromAppColors(AppColors appColors) {
+  return ThemeData(
+    useMaterial3: true,
+    colorScheme: ColorScheme(
+      brightness:
+          appColors.palette.primary.computeLuminance() > 0.5 ? Brightness.light : Brightness.dark,
+      primary: appColors.palette.primary,
+      onPrimary: appColors.text.primary,
+      secondary: appColors.palette.secondary,
+      onSecondary: appColors.text.secondary,
+      surface: appColors.element.card,
+      onSurface: appColors.text.primary,
+      error: appColors.state.error,
+      onError: appColors.text.primary,
+    ),
+    primaryColor: appColors.palette.primary,
+    canvasColor: appColors.background.primary,
+    scaffoldBackgroundColor: appColors.background.primary,
+    cardColor: appColors.element.card,
+    dividerColor: appColors.element.divider,
+    highlightColor: appColors.state.active.withOpacity(0.2),
+    splashColor: appColors.button.overlay,
+    textTheme: TextTheme(
+      displayLarge:
+          TextStyle(color: appColors.text.primary, fontSize: 96.0, fontWeight: FontWeight.bold),
+      displayMedium:
+          TextStyle(color: appColors.text.primary, fontSize: 60.0, fontWeight: FontWeight.bold),
+      displaySmall:
+          TextStyle(color: appColors.text.primary, fontSize: 48.0, fontWeight: FontWeight.normal),
+      headlineMedium:
+          TextStyle(color: appColors.text.primary, fontSize: 34.0, fontWeight: FontWeight.normal),
+      headlineSmall:
+          TextStyle(color: appColors.text.primary, fontSize: 24.0, fontWeight: FontWeight.normal),
+      titleLarge:
+          TextStyle(color: appColors.text.primary, fontSize: 20.0, fontWeight: FontWeight.bold),
+      titleMedium:
+          TextStyle(color: appColors.text.secondary, fontSize: 16.0, fontWeight: FontWeight.normal),
+      titleSmall:
+          TextStyle(color: appColors.text.secondary, fontSize: 14.0, fontWeight: FontWeight.normal),
+      bodyLarge:
+          TextStyle(color: appColors.text.primary, fontSize: 16.0, fontWeight: FontWeight.normal),
+      bodyMedium:
+          TextStyle(color: appColors.text.secondary, fontSize: 14.0, fontWeight: FontWeight.normal),
+      labelLarge:
+          TextStyle(color: appColors.text.primary, fontSize: 14.0, fontWeight: FontWeight.bold),
+      bodySmall: TextStyle(color: appColors.text.hint, fontSize: 12.0),
+      labelSmall: TextStyle(color: appColors.text.hint, fontSize: 10.0),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(appColors.button.primary),
+        foregroundColor: MaterialStateProperty.all(appColors.text.primary),
+        overlayColor: MaterialStateProperty.all(appColors.button.overlay),
+        padding: MaterialStateProperty.all(const EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: appColors.button.primary,
+      foregroundColor: appColors.text.primary,
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: appColors.palette.primary,
+      foregroundColor: appColors.text.primary,
+      iconTheme: IconThemeData(color: appColors.text.primary),
+      titleTextStyle: TextStyle(
+        color: appColors.text.primary,
+        fontSize: 20.0,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    iconTheme: IconThemeData(color: appColors.text.primary),
+    cardTheme: CardTheme(
+      color: appColors.element.card,
+      shadowColor: appColors.element.shadow,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: appColors.element.modal,
+      focusColor: appColors.palette.primary,
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: appColors.element.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: appColors.palette.primary, width: 2.0),
+      ),
+      labelStyle: TextStyle(color: appColors.text.hint),
+      hintStyle: TextStyle(color: appColors.text.hint),
+    ),
+  );
+}
