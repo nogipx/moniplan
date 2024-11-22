@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'models/_index.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:moniplan_uikit/src/theme/models/_index.dart';
 
 /// Класс для формирования [ThemeData] в ui kit
 class AppTheme {
@@ -15,10 +15,10 @@ class AppTheme {
     AppSpaces? customSpace,
     AppTextTheme? customTextTheme,
   }) {
-    AppTextTheme.baseTextStyle = baseTextStyle ?? TextStyle();
+    AppTextTheme.baseTextStyle = baseTextStyle ?? const TextStyle();
 
     return generateThemeDataFromAppColors(
-      appColors: customColors ?? AppColors.get(themeStyle),
+      colors: customColors ?? AppColors.get(themeStyle),
       textTheme: customTextTheme ?? AppTextTheme.get(themeStyle),
       buttonStyle: customButtonStyle ?? AppButtonStyle.get(themeStyle),
       shadow: customShadow ?? AppShadowTheme.get(),
@@ -30,7 +30,7 @@ class AppTheme {
 
 /// Функция, генерирующая [ThemeData] из [AppColors], [AppButtonStyle], [AppShadowTheme], [AppBorderRadiuses], и [AppSpaces] для Flutter версии с поддержкой Material 3
 ThemeData generateThemeDataFromAppColors({
-  required AppColors appColors,
+  required AppColors colors,
   AppButtonStyle? buttonStyle,
   AppShadowTheme? shadow,
   AppBorderRadiuses? radius,
@@ -42,66 +42,71 @@ ThemeData generateThemeDataFromAppColors({
   final effectiveBorderRadiuses = radius ?? AppBorderRadiuses.get();
   final effectiveSpaces = space ?? AppSpaces.get();
   final effectiveTextTheme = textTheme ?? AppTextTheme.get(ThemeStyle.dark);
+  final themeExtension = AppThemeData(
+    colors: colors,
+    buttonStyle: effectiveButtonStyle,
+    shadow: effectiveShadowTheme,
+    radius: effectiveBorderRadiuses,
+    space: effectiveSpaces,
+  );
 
   return ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme(
+    extensions: [themeExtension],
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: colors.palette.primary,
       brightness:
-          appColors.palette.primary.computeLuminance() > 0.5 ? Brightness.light : Brightness.dark,
-      primary: appColors.palette.primary,
-      onPrimary: appColors.text.primary,
-      secondary: appColors.palette.secondary,
-      onSecondary: appColors.text.secondary,
-      surface: appColors.element.card,
-      onSurface: appColors.text.primary,
-      error: appColors.state.error,
-      onError: appColors.text.primary,
+          colors.palette.primary.computeLuminance() > 0.5 ? Brightness.light : Brightness.dark,
+      primary: colors.palette.primary,
+      secondary: colors.palette.secondary,
+      error: colors.state.error,
+      background: colors.background.primary,
+      surface: colors.element.card,
     ),
-    primaryColor: appColors.palette.primary,
-    canvasColor: appColors.background.primary,
-    scaffoldBackgroundColor: appColors.background.primary,
-    cardColor: appColors.element.card,
-    dividerColor: appColors.element.divider,
-    highlightColor: appColors.state.active.withOpacity(0.2),
-    splashColor: appColors.button.overlay,
-    textTheme: effectiveTextTheme.value, // Используем AppTextTheme
+    primaryColor: colors.palette.primary,
+    canvasColor: colors.background.primary,
+    scaffoldBackgroundColor: colors.background.primary,
+    cardColor: colors.element.card,
+    dividerColor: colors.element.divider,
+    highlightColor: colors.state.active.withOpacity(0.2),
+    splashColor: colors.button.overlay,
+    textTheme: effectiveTextTheme.value,
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: effectiveButtonStyle.value, // Используем AppButtonStyle
+      style: effectiveButtonStyle.value,
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: appColors.button.primary,
-      foregroundColor: appColors.text.primary,
+      backgroundColor: colors.button.primary,
+      foregroundColor: colors.text.primary,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: appColors.palette.primary,
-      foregroundColor: appColors.text.primary,
-      iconTheme: IconThemeData(color: appColors.text.primary),
-      titleTextStyle: effectiveTextTheme.titleLarge, // Используем AppTextTheme
+      backgroundColor: colors.palette.primary,
+      foregroundColor: colors.text.primary,
+      iconTheme: IconThemeData(color: colors.text.primary),
+      titleTextStyle: effectiveTextTheme.titleLarge,
     ),
-    iconTheme: IconThemeData(color: appColors.text.primary),
+    iconTheme: IconThemeData(color: colors.text.primary),
     cardTheme: CardTheme(
-      color: appColors.element.card,
-      shadowColor: appColors.element.shadow,
-      elevation:
-          effectiveShadowTheme.darkShadow1?.first.blurRadius ?? 4, // Используем AppShadowTheme
+      color: colors.element.card,
+      shadowColor: effectiveShadowTheme.darkShadow1?.first.color ?? colors.element.shadow,
+      elevation: effectiveShadowTheme.darkShadow1?.first.blurRadius ?? 4,
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: appColors.element.modal,
-      focusColor: appColors.palette.primary,
+      fillColor: colors.element.modal,
+      focusColor: colors.palette.primary,
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: appColors.element.border),
-        borderRadius: effectiveBorderRadiuses.small, // Используем AppBorderRadiuses
+        borderSide: BorderSide(color: colors.element.border),
+        borderRadius: effectiveBorderRadiuses.small,
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: appColors.palette.primary, width: 2.0),
-        borderRadius: effectiveBorderRadiuses.medium, // Используем AppBorderRadiuses
+        borderSide: BorderSide(color: colors.palette.primary, width: 2.0),
+        borderRadius: effectiveBorderRadiuses.medium,
       ),
-      labelStyle: effectiveTextTheme.bodySmall, // Используем AppTextTheme
-      hintStyle: effectiveTextTheme.bodySmall, // Используем AppTextTheme
+      labelStyle: effectiveTextTheme.bodySmall,
+      hintStyle: effectiveTextTheme.bodySmall,
     ),
     buttonTheme: ButtonThemeData(
-      padding: EdgeInsets.all(effectiveSpaces.medium), // Используем AppSpaces
+      padding: EdgeInsets.all(effectiveSpaces.medium),
       shape: RoundedRectangleBorder(
         borderRadius: effectiveBorderRadiuses.medium,
       ),
