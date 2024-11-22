@@ -50,7 +50,10 @@ class _MoniplanAppState extends State<MoniplanApp> {
               debugShowCheckedModeBanner: false,
               theme: AppTheme.theme(
                 themeStyle: ThemeStyle.dark,
-                fontFamily: 'TTNeoris',
+                baseTextStyle: TextStyle(
+                  overflow: TextOverflow.ellipsis,
+                  fontFamily: 'TTNeoris',
+                ),
               ),
               builder: (context, child) => ResponsiveBreakpoints.builder(
                 child: child!,
