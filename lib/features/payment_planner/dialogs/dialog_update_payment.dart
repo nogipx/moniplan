@@ -58,10 +58,10 @@ Future<void> showUpdatePaymentDialog({
   );
 
   final boxDecoration = BoxDecoration(
-    color: context.theme.app.colors.background.third,
+    color: context.theme.app.colors.background.tertiary,
     borderRadius: BorderRadius.all(Radius.circular(16)),
     border: Border.all(
-      color: context.theme.app.colors.background.third,
+      color: context.theme.app.colors.background.tertiary,
       width: .5,
     ),
   );
@@ -79,7 +79,7 @@ Future<void> showUpdatePaymentDialog({
             decoration: inputDecoration.copyWith(
               labelText: 'Money',
               icon: Icon(Icons.attach_money),
-              iconColor: context.theme.app.colors.element.accent,
+              iconColor: context.theme.app.colors.palette.primary,
             ),
           ),
           const SizedBox(height: 16),
@@ -212,9 +212,9 @@ Future<void> showUpdatePaymentDialog({
             ),
             label: Text(isEnabled ? 'Enabled' : 'Disabled'),
             style: ElevatedButton.styleFrom(
-              foregroundColor: isEnabled ? context.theme.app.colors.element.accent : null,
+              foregroundColor: isEnabled ? context.theme.app.colors.palette.primary : null,
               side: BorderSide(
-                color: isEnabled ? context.theme.app.colors.element.accent : Colors.transparent,
+                color: isEnabled ? context.theme.app.colors.palette.primary : Colors.transparent,
               ),
             ),
           ),
@@ -233,9 +233,9 @@ Future<void> showUpdatePaymentDialog({
             ),
             label: Text(isDone ? 'Completed' : 'Not completed'),
             style: ElevatedButton.styleFrom(
-              foregroundColor: isDone ? context.theme.app.colors.element.green : null,
+              foregroundColor: isDone ? context.theme.app.colors.palette.primary : null,
               side: BorderSide(
-                color: isDone ? context.theme.app.colors.element.green : Colors.transparent,
+                color: isDone ? context.theme.app.colors.palette.primary : Colors.transparent,
               ),
             ),
           ),
@@ -351,9 +351,6 @@ Future<void> showUpdatePaymentDialog({
                 ),
               ),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: context.theme.app.colors.element.green,
-                ),
                 onPressed: () {
                   if (date == null) {
                     return;
@@ -390,10 +387,7 @@ Future<void> showUpdatePaymentDialog({
                 },
                 child: Text(
                   targetPayment != null ? 'Save' : 'Create',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: context.theme.app.colors.element.green,
-                      ),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
             ],

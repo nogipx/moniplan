@@ -1,45 +1,45 @@
 import 'package:flutter/material.dart';
 
-/// Класс набора цветов для текста в ui kit
+/// Класс, представляющий цвета текста для интерфейса
 class TextColors {
   final Color primary;
   final Color secondary;
-  final Color black;
+  final Color accent;
+  final Color disabled;
+  final Color hint;
+  final Color inverse;
   final Color error;
-  final Color success;
-  final Color red;
-  final Color yellow;
 
-  /// Создаёт приватный класс набора цветов для текста в ui kit
+  /// Создаёт приватный класс набора цветов для текста
   TextColors._({
     required this.primary,
     required this.secondary,
-    required this.black,
+    required this.accent,
+    required this.disabled,
+    required this.hint,
+    required this.inverse,
     required this.error,
-    required this.success,
-    required this.red,
-    required this.yellow,
   });
 
   /// Набор цветов для [ThemeStyle.dark]
   TextColors.dark()
-      : primary = const Color(0xFFF8F8F8),
-        secondary = const Color(0xFF9F9F9F),
-        black = const Color(0xFF252525),
-        error = const Color(0xFFE31C23),
-        success = const Color(0xFF6FBB63),
-        red = const Color(0xFFC75256),
-        yellow = const Color(0xFFE4B305);
+      : primary = const Color(0xFFFFFFFF),
+        secondary = const Color(0xFFB0BEC5),
+        accent = const Color(0xFFBB86FC),
+        disabled = const Color(0xFF757575),
+        hint = const Color(0xFFBDBDBD),
+        inverse = const Color(0xFF000000),
+        error = const Color(0xFFCF6679);
 
   /// Набор цветов для [ThemeStyle.light]
   TextColors.light()
-      : primary = const Color(0xFF222222),
-        secondary = const Color(0xFF9F9F9F),
-        black = const Color(0xFF222222),
-        error = const Color(0xFFE31C23),
-        success = const Color(0xFF6FBB63),
-        red = const Color(0xFFC75256),
-        yellow = const Color(0xFFE4B305);
+      : primary = const Color(0xFF000000),
+        secondary = const Color(0xFF757575),
+        accent = const Color(0xFF6200EE),
+        disabled = const Color(0xFFBDBDBD),
+        hint = const Color(0xFF9E9E9E),
+        inverse = const Color(0xFFFFFFFF),
+        error = const Color(0xFFB00020);
 
   /// Интерполяция для анимированных переходов между [TextColors]
   TextColors lerp(TextColors? b, double t) {
@@ -50,11 +50,11 @@ class TextColors {
     return TextColors._(
       primary: Color.lerp(primary, b?.primary, t) ?? Colors.transparent,
       secondary: Color.lerp(secondary, b?.secondary, t) ?? Colors.transparent,
-      black: Color.lerp(black, b?.black, t) ?? Colors.transparent,
+      accent: Color.lerp(accent, b?.accent, t) ?? Colors.transparent,
+      disabled: Color.lerp(disabled, b?.disabled, t) ?? Colors.transparent,
+      hint: Color.lerp(hint, b?.hint, t) ?? Colors.transparent,
+      inverse: Color.lerp(inverse, b?.inverse, t) ?? Colors.transparent,
       error: Color.lerp(error, b?.error, t) ?? Colors.transparent,
-      success: Color.lerp(success, b?.success, t) ?? Colors.transparent,
-      red: Color.lerp(red, b?.red, t) ?? Colors.transparent,
-      yellow: Color.lerp(yellow, b?.yellow, t) ?? Colors.transparent,
     );
   }
 }

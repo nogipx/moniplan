@@ -42,26 +42,24 @@ class AppTheme {
       primaryTextTheme: textTheme.value,
       scaffoldBackgroundColor: data.colors.background.primary,
       canvasColor: data.colors.background.primary,
-      hintColor: data.colors.text.secondary,
-      primaryColor: data.colors.text.primary,
-      splashColor: data.colors.button.pressed,
-      hoverColor: data.colors.element.secondary,
+      hintColor: data.colors.text.hint,
+      primaryColor: data.colors.palette.primary,
+      splashColor: data.colors.button.overlay,
+      hoverColor: data.colors.button.hovered,
       dialogBackgroundColor: data.colors.background.secondary,
       colorScheme: ColorScheme(
-        brightness: Brightness.dark,
-        primary: data.colors.element.red,
+        brightness: themeStyle == ThemeStyle.dark ? Brightness.dark : Brightness.light,
+        primary: data.colors.palette.primary,
         onPrimary: data.colors.text.primary,
-        secondary: data.colors.background.secondary,
+        secondary: data.colors.palette.secondary,
         onSecondary: data.colors.text.secondary,
-        error: data.colors.background.secondary,
+        error: data.colors.state.error,
         onError: data.colors.text.primary,
-        surface: data.colors.background.surface,
-        onSurface: data.colors.text.black,
-        errorContainer: data.colors.background.surface,
-        onErrorContainer: data.colors.text.black,
+        surface: data.colors.background.secondary,
+        onSurface: data.colors.text.primary,
       ),
-      primarySwatch: getMaterialColor(data.colors.text.primary),
-      textSelectionTheme: TextSelectionThemeData(cursorColor: data.colors.text.error),
+      primarySwatch: getMaterialColor(data.colors.palette.primary),
+      textSelectionTheme: TextSelectionThemeData(cursorColor: data.colors.text.primary),
       appBarTheme: AppAppBarTheme.get(themeStyle).value,
       textButtonTheme: TextButtonThemeData(style: data.buttonStyle.value),
       inputDecorationTheme: InputDecorationTheme(
@@ -70,14 +68,13 @@ class AppTheme {
           backgroundColor: Colors.transparent,
         ),
         labelStyle: textTheme.bodyLarge?.copyWith(color: data.colors.text.primary),
-        hintStyle: textTheme.bodyLarge?.copyWith(color: data.colors.text.secondary),
+        hintStyle: textTheme.bodyLarge?.copyWith(color: data.colors.text.hint),
         errorStyle: textTheme.bodyLarge?.copyWith(color: data.colors.text.error),
         helperStyle: textTheme.bodyLarge?.copyWith(color: data.colors.text.secondary),
         prefixStyle: textTheme.bodyLarge,
         errorMaxLines: 3,
         fillColor: data.colors.background.secondary,
-        focusColor: data.colors.text.error,
-        // isDense: true,
+        focusColor: data.colors.state.active,
         filled: true,
         contentPadding: EdgeInsets.symmetric(
           vertical: data.space.small,
@@ -93,7 +90,7 @@ class AppTheme {
         suffixIconColor: data.colors.text.primary,
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: data.colors.element.primary,
+        backgroundColor: data.colors.background.secondary,
         modalBarrierColor: data.colors.background.primary.withOpacity(0.6),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -123,23 +120,24 @@ class AppTheme {
       datePickerTheme: DatePickerThemeData(
         elevation: 0,
         shadowColor: Colors.transparent,
-        backgroundColor: data.colors.background.surface,
-        rangePickerHeaderBackgroundColor: data.colors.background.accent,
+        backgroundColor: data.colors.background.tertiary,
+        rangePickerHeaderBackgroundColor: data.colors.palette.accent,
         rangePickerHeaderForegroundColor: data.colors.text.primary,
-        headerBackgroundColor: data.colors.background.accent,
+        headerBackgroundColor: data.colors.palette.accent,
         headerForegroundColor: data.colors.text.primary,
-        rangePickerBackgroundColor: data.colors.background.surface,
-        dayStyle: textTheme.bodyMedium?.copyWith(color: data.colors.text.black),
-        weekdayStyle: textTheme.bodyMedium?.copyWith(color: data.colors.text.black),
-        headerHeadlineStyle: textTheme.bodyMedium?.copyWith(color: data.colors.text.black),
-        headerHelpStyle: textTheme.bodyMedium?.copyWith(color: data.colors.text.black),
-        yearStyle: textTheme.bodyMedium?.copyWith(color: data.colors.text.black),
+        rangePickerBackgroundColor: data.colors.background.tertiary,
+        dayStyle: textTheme.bodyMedium?.copyWith(color: data.colors.text.primary),
+        weekdayStyle: textTheme.bodyMedium?.copyWith(color: data.colors.text.primary),
+        headerHeadlineStyle: textTheme.bodyMedium?.copyWith(color: data.colors.text.primary),
+        headerHelpStyle: textTheme.bodyMedium?.copyWith(color: data.colors.text.secondary),
+        yearStyle: textTheme.bodyMedium?.copyWith(color: data.colors.text.primary),
         rangePickerHeaderHeadlineStyle:
-            textTheme.displayMedium?.copyWith(color: data.colors.text.black),
-        rangePickerHeaderHelpStyle: textTheme.displaySmall?.copyWith(color: data.colors.text.black),
+            textTheme.displayMedium?.copyWith(color: data.colors.text.primary),
+        rangePickerHeaderHelpStyle:
+            textTheme.displaySmall?.copyWith(color: data.colors.text.secondary),
         dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return data.colors.background.accent;
+            return data.colors.palette.accent;
           }
 
           return Colors.transparent;
@@ -151,12 +149,12 @@ class AppTheme {
             return data.colors.text.secondary;
           }
 
-          return data.colors.text.black;
+          return data.colors.text.primary;
         }),
-        rangeSelectionBackgroundColor: data.colors.background.accent.withOpacity(0.5),
-        rangeSelectionOverlayColor: WidgetStateProperty.all(data.colors.background.accent),
-        rangePickerSurfaceTintColor: data.colors.text.black,
-        dayOverlayColor: WidgetStateProperty.all(data.colors.button.red),
+        rangeSelectionBackgroundColor: data.colors.palette.accent.withOpacity(0.5),
+        rangeSelectionOverlayColor: WidgetStateProperty.all(data.colors.button.overlay),
+        rangePickerSurfaceTintColor: data.colors.text.primary,
+        dayOverlayColor: WidgetStateProperty.all(data.colors.button.overlay),
       ),
       timePickerTheme: TimePickerThemeData(
         dialBackgroundColor: data.colors.background.primary,

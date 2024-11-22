@@ -5,6 +5,8 @@ class AppColors {
   final BackgroundColors background;
   final ButtonColors button;
   final ElementColors element;
+  final PaletteColors palette;
+  final StateColors state;
   final TextColors text;
 
   /// Создаёт приватный класс набора цветов для ui kit
@@ -12,6 +14,8 @@ class AppColors {
     required this.background,
     required this.button,
     required this.element,
+    required this.palette,
+    required this.state,
     required this.text,
   });
 
@@ -20,6 +24,8 @@ class AppColors {
       : background = BackgroundColors.dark(),
         button = ButtonColors.dark(),
         element = ElementColors.dark(),
+        palette = PaletteColors.dark(),
+        state = StateColors.dark(),
         text = TextColors.dark();
 
   /// Набор цветов для [ThemeStyle.light]
@@ -27,6 +33,8 @@ class AppColors {
       : background = BackgroundColors.light(),
         button = ButtonColors.light(),
         element = ElementColors.light(),
+        palette = PaletteColors.light(),
+        state = StateColors.light(),
         text = TextColors.light();
 
   /// Интерполяция для анимированных переходов между [AppColors]
@@ -39,6 +47,8 @@ class AppColors {
       background: background.lerp(b?.background, t),
       button: button.lerp(b?.button, t),
       element: element.lerp(b?.element, t),
+      palette: palette.lerp(b?.palette, t),
+      state: state.lerp(b?.state, t),
       text: text.lerp(b?.text, t),
     );
   }

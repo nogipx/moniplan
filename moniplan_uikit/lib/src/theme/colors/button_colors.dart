@@ -1,57 +1,45 @@
 import 'package:flutter/material.dart';
 
-/// Класс набора цветов для кнопок в ui kit
+/// Класс, представляющий цвета кнопок для интерфейса
 class ButtonColors {
-  final Color red;
-  final Color green;
   final Color primary;
   final Color secondary;
-  final Color third;
-  final Color overlay;
-  final Color pressed;
+  final Color tertiary;
   final Color disabled;
-  final Color overlayBlack;
-  final Color pressedBlack;
+  final Color pressed;
+  final Color hovered;
+  final Color overlay;
 
-  /// Создаёт приватный класс набора цветов для кнопок в ui kit
+  /// Создаёт приватный класс набора цветов для кнопок
   ButtonColors._({
-    required this.red,
-    required this.green,
     required this.primary,
     required this.secondary,
-    required this.third,
-    required this.overlay,
-    required this.pressed,
+    required this.tertiary,
     required this.disabled,
-    required this.overlayBlack,
-    required this.pressedBlack,
+    required this.pressed,
+    required this.hovered,
+    required this.overlay,
   });
 
   /// Набор цветов для [ThemeStyle.dark]
   ButtonColors.dark()
-      : red = const Color(0xFFE31C23),
-        green = const Color(0xFF6FBB63),
-        primary = const Color(0xFF4E4E4E),
-        secondary = const Color(0xFF787878),
-        third = const Color(0xFFF8F8F8),
-        overlay = const Color(0xFFB4080E).withOpacity(0.5),
-        pressed = const Color(0xFFB4080E).withOpacity(0.7),
-        disabled = const Color(0xFFBDBDBD),
-        overlayBlack = const Color(0xFF292828).withOpacity(0.5),
-        pressedBlack = const Color(0xFF292828).withOpacity(0.7);
+      : primary = const Color(0xFFBB86FC),
+        secondary = const Color(0xFF03DAC6),
+        tertiary = const Color(0xFF3700B3),
+        disabled = const Color(0xFF757575),
+        pressed = const Color(0xFF6200EE),
+        hovered = const Color(0xFF1F1F1F),
+        overlay = const Color(0xFF6200EE).withOpacity(0.1);
 
   /// Набор цветов для [ThemeStyle.light]
   ButtonColors.light()
-      : red = const Color(0xFFE31C23),
-        green = const Color(0xFFFFFFFF),
-        primary = const Color(0xFFFFFFFF),
-        secondary = const Color(0xFFFFFFFF),
-        third = const Color(0xFFFFFFFF),
-        overlay = const Color(0xFFB4080E).withOpacity(0.5),
-        pressed = const Color(0xFFFFFFFF),
+      : primary = const Color(0xFF6200EE),
+        secondary = const Color(0xFF018786),
+        tertiary = const Color(0xFF03DAC6),
         disabled = const Color(0xFFBDBDBD),
-        overlayBlack = const Color(0xFF2F2E2E).withOpacity(0.5),
-        pressedBlack = const Color(0xFF2F2E2E).withOpacity(0.7);
+        pressed = const Color(0xFF3700B3),
+        hovered = const Color(0xFFF1F1F1),
+        overlay = const Color(0xFF6200EE).withOpacity(0.1);
 
   /// Интерполяция для анимированных переходов между [ButtonColors]
   ButtonColors lerp(ButtonColors? b, double t) {
@@ -60,16 +48,13 @@ class ButtonColors {
     }
 
     return ButtonColors._(
-      red: Color.lerp(red, b?.red, t) ?? Colors.transparent,
-      green: Color.lerp(green, b?.green, t) ?? Colors.transparent,
       primary: Color.lerp(primary, b?.primary, t) ?? Colors.transparent,
       secondary: Color.lerp(secondary, b?.secondary, t) ?? Colors.transparent,
-      third: Color.lerp(third, b?.third, t) ?? Colors.transparent,
-      overlay: Color.lerp(overlay, b?.overlay, t) ?? Colors.transparent,
-      pressed: Color.lerp(pressed, b?.pressed, t) ?? Colors.transparent,
+      tertiary: Color.lerp(tertiary, b?.tertiary, t) ?? Colors.transparent,
       disabled: Color.lerp(disabled, b?.disabled, t) ?? Colors.transparent,
-      overlayBlack: Color.lerp(overlayBlack, b?.overlayBlack, t) ?? Colors.transparent,
-      pressedBlack: Color.lerp(pressedBlack, b?.pressedBlack, t) ?? Colors.transparent,
+      pressed: Color.lerp(pressed, b?.pressed, t) ?? Colors.transparent,
+      hovered: Color.lerp(hovered, b?.hovered, t) ?? Colors.transparent,
+      overlay: Color.lerp(overlay, b?.overlay, t) ?? Colors.transparent,
     );
   }
 }
