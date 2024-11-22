@@ -6,6 +6,7 @@ import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan/features/planners_list//_index.dart';
 import 'package:moniplan/features/receive_import_sharing/bloc/_index.dart';
 import 'package:moniplan/features/receive_import_sharing/receive_import_wrapper.dart';
+import 'package:moniplan/test_recolor.dart';
 import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -88,6 +89,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
                   ),
                   home: ReceiveImportWrapper(
                     child: PlannersListScreen(),
+                    // child: TestRecolorScreen(),
                   ),
                 );
               },

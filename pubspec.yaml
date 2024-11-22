@@ -16,7 +16,11 @@ dependencies:
   moniplan_uikit:
     path: moniplan_uikit
 
+  recolor_svg:
+    path: /Users/nogipx/Documents/Projects/nogipx/projects_personal_public/recolor_svg
+
   # UI
+  jovial_svg: ^1.1.23
   responsive_framework: 1.4.0
   draggable_scrollbar: 0.1.0
   permission_handler: 11.3.1
@@ -33,6 +37,7 @@ dependencies:
   flutter_bloc: 8.1.6
 
   # Data
+  logging: any
   intl: 0.19.0
   firebase_core: 3.1.0
 
@@ -67,3 +72,5 @@ flutter:
     - family: TTNeoris
       fonts:
         - asset: fonts/TT-Neoris-Variable.ttf
+  assets:
+    - 'assets/'
