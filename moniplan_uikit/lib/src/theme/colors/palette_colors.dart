@@ -72,4 +72,31 @@ class PaletteColors {
       onBackground: Color.lerp(onBackground, b?.onBackground, t) ?? Colors.transparent,
     );
   }
+
+  /// Метод копирования [PaletteColors]
+  PaletteColors copyWith({
+    Color? primary,
+    Color? secondary,
+    Color? accent,
+    Color? background,
+    Color? surface,
+    Color? error,
+    Color? onPrimary,
+    Color? onSecondary,
+    Color? onSurface,
+    Color? onBackground,
+  }) {
+    return PaletteColors._(
+      primary: primary ?? this.primary,
+      secondary: secondary ?? this.secondary,
+      accent: accent ?? this.accent,
+      background: background ?? this.background,
+      surface: surface ?? this.surface,
+      error: error ?? this.error,
+      onPrimary: onPrimary ?? this.onPrimary,
+      onSecondary: onSecondary ?? this.onSecondary,
+      onSurface: onSurface ?? this.onSurface,
+      onBackground: onBackground ?? this.onBackground,
+    );
+  }
 }

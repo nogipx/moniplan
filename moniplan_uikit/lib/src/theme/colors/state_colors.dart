@@ -47,4 +47,21 @@ class StateColors {
       warning: Color.lerp(warning, b?.warning, t) ?? Colors.transparent,
     );
   }
+
+  /// Метод копирования [StateColors]
+  StateColors copyWith({
+    Color? active,
+    Color? inactive,
+    Color? error,
+    Color? success,
+    Color? warning,
+  }) {
+    return StateColors._(
+      active: active ?? this.active,
+      inactive: inactive ?? this.inactive,
+      error: error ?? this.error,
+      success: success ?? this.success,
+      warning: warning ?? this.warning,
+    );
+  }
 }

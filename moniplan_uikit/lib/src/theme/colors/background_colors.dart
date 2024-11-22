@@ -52,4 +52,23 @@ class BackgroundColors {
       bottomNav: Color.lerp(bottomNav, b?.bottomNav, t) ?? Colors.transparent,
     );
   }
+
+  /// Метод копирования [BackgroundColors]
+  BackgroundColors copyWith({
+    Color? primary,
+    Color? secondary,
+    Color? tertiary,
+    Color? appBar,
+    Color? drawer,
+    Color? bottomNav,
+  }) {
+    return BackgroundColors._(
+      primary: primary ?? this.primary,
+      secondary: secondary ?? this.secondary,
+      tertiary: tertiary ?? this.tertiary,
+      appBar: appBar ?? this.appBar,
+      drawer: drawer ?? this.drawer,
+      bottomNav: bottomNav ?? this.bottomNav,
+    );
+  }
 }

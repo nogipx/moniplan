@@ -57,4 +57,25 @@ class TextColors {
       error: Color.lerp(error, b?.error, t) ?? Colors.transparent,
     );
   }
+
+  /// Метод копирования [TextColors]
+  TextColors copyWith({
+    Color? primary,
+    Color? secondary,
+    Color? accent,
+    Color? disabled,
+    Color? hint,
+    Color? inverse,
+    Color? error,
+  }) {
+    return TextColors._(
+      primary: primary ?? this.primary,
+      secondary: secondary ?? this.secondary,
+      accent: accent ?? this.accent,
+      disabled: disabled ?? this.disabled,
+      hint: hint ?? this.hint,
+      inverse: inverse ?? this.inverse,
+      error: error ?? this.error,
+    );
+  }
 }

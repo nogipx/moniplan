@@ -57,4 +57,25 @@ class ElementColors {
       highlight: Color.lerp(highlight, b?.highlight, t) ?? Colors.transparent,
     );
   }
+
+  /// Метод копирования [ElementColors]
+  ElementColors copyWith({
+    Color? background,
+    Color? card,
+    Color? modal,
+    Color? border,
+    Color? shadow,
+    Color? divider,
+    Color? highlight,
+  }) {
+    return ElementColors._(
+      background: background ?? this.background,
+      card: card ?? this.card,
+      modal: modal ?? this.modal,
+      border: border ?? this.border,
+      shadow: shadow ?? this.shadow,
+      divider: divider ?? this.divider,
+      highlight: highlight ?? this.highlight,
+    );
+  }
 }

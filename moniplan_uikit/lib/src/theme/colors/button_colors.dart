@@ -57,4 +57,25 @@ class ButtonColors {
       overlay: Color.lerp(overlay, b?.overlay, t) ?? Colors.transparent,
     );
   }
+
+  /// Метод копирования [ButtonColors]
+  ButtonColors copyWith({
+    Color? primary,
+    Color? secondary,
+    Color? tertiary,
+    Color? disabled,
+    Color? pressed,
+    Color? hovered,
+    Color? overlay,
+  }) {
+    return ButtonColors._(
+      primary: primary ?? this.primary,
+      secondary: secondary ?? this.secondary,
+      tertiary: tertiary ?? this.tertiary,
+      disabled: disabled ?? this.disabled,
+      pressed: pressed ?? this.pressed,
+      hovered: hovered ?? this.hovered,
+      overlay: overlay ?? this.overlay,
+    );
+  }
 }

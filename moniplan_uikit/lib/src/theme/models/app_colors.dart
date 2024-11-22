@@ -53,6 +53,25 @@ class AppColors {
     );
   }
 
+  /// Метод копирования [AppColors]
+  AppColors copyWith({
+    BackgroundColors? background,
+    ButtonColors? button,
+    ElementColors? element,
+    PaletteColors? palette,
+    StateColors? state,
+    TextColors? text,
+  }) {
+    return AppColors(
+      background: background ?? this.background,
+      button: button ?? this.button,
+      element: element ?? this.element,
+      palette: palette ?? this.palette,
+      state: state ?? this.state,
+      text: text ?? this.text,
+    );
+  }
+
   /// Получение [AppColors] по [themeStyle]
   static AppColors get(ThemeStyle themeStyle) => switch (themeStyle) {
         ThemeStyle.light => AppColors.light(),
