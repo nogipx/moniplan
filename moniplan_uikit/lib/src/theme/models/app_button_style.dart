@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../_index.dart';
 
-const kButtonMinimumSize = Size.square(32);
+const kButtonMinimumSize = Size.square(40); // Увеличено для улучшения удобства нажатия
 
 /// Класс для формирования [ButtonStyle] ui kit
 class AppButtonStyle {
@@ -198,22 +198,32 @@ class AppButtonStyle {
         overlayColor: overlayColor,
         shadowColor: shadowColor,
         surfaceTintColor: surfaceTintColor,
-        elevation: elevation,
-        padding: padding,
+        elevation: elevation ?? WidgetStateProperty.all(4),
+        // Добавлено значение для поднятия кнопки
+        padding: padding ??
+            WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
+        // Улучшено для удобства
         minimumSize: minimumSize,
         fixedSize: fixedSize,
         maximumSize: maximumSize,
         iconColor: iconColor,
-        iconSize: iconSize,
-        side: side,
-        shape: shape,
-        mouseCursor: mouseCursor,
+        iconSize: iconSize ?? WidgetStateProperty.all(24),
+        // Добавлен размер иконки по умолчанию
+        side: side ?? WidgetStateProperty.all(BorderSide(color: Colors.grey.shade400, width: 1)),
+        // Добавлена граница по умолчанию
+        shape: shape ??
+            WidgetStateProperty.all(
+              RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)), // Увеличен радиус закругления
+            ),
+        mouseCursor: mouseCursor ?? WidgetStateProperty.all(SystemMouseCursors.click),
         visualDensity: visualDensity,
         tapTargetSize: tapTargetSize,
-        animationDuration: animationDuration,
-        enableFeedback: enableFeedback,
-        alignment: alignment,
-        splashFactory: splashFactory,
+        animationDuration: animationDuration ?? const Duration(milliseconds: 200),
+        // Добавлена анимация на 200 мс
+        enableFeedback: enableFeedback ?? true,
+        alignment: alignment ?? Alignment.center,
+        splashFactory: splashFactory ?? InkRipple.splashFactory,
       );
 
   /// Получение темы кнопки по [themeStyle]
@@ -249,10 +259,10 @@ class AppButtonStyle {
             return colors.button.overlay;
           },
         ),
-        shadowColor = null,
+        shadowColor = WidgetStateProperty.all(Colors.black.withOpacity(0.15)),
         surfaceTintColor = null,
-        elevation = WidgetStateProperty.all(0),
-        padding = WidgetStateProperty.all(const EdgeInsets.all(4)),
+        elevation = WidgetStateProperty.all(4),
+        padding = WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
         minimumSize = WidgetStateProperty.all(kButtonMinimumSize),
         fixedSize = null,
         maximumSize = null,
@@ -266,16 +276,16 @@ class AppButtonStyle {
             }
           },
         ),
-        iconSize = null,
-        side = WidgetStateProperty.all(BorderSide.none),
+        iconSize = WidgetStateProperty.all(24),
+        side = WidgetStateProperty.all(BorderSide(color: Colors.grey.shade400, width: 1)),
         shape = WidgetStateProperty.all(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        mouseCursor = null,
-        visualDensity = null,
+        mouseCursor = WidgetStateProperty.all(SystemMouseCursors.click),
+        visualDensity = VisualDensity.adaptivePlatformDensity,
         tapTargetSize = MaterialTapTargetSize.shrinkWrap,
-        animationDuration = null,
-        enableFeedback = null,
-        alignment = null,
+        animationDuration = const Duration(milliseconds: 200),
+        enableFeedback = true,
+        alignment = Alignment.center,
         splashFactory = null;
 }

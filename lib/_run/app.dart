@@ -51,6 +51,14 @@ class _MoniplanAppState extends State<MoniplanApp> {
               theme: AppTheme.theme(
                 themeStyle: ThemeStyle.dark,
                 fontFamily: 'TTNeoris',
+                // customColors: AppColors(
+                //   background: BackgroundColors,
+                //   button: null,
+                //   element: null,
+                //   palette: null,
+                //   state: null,
+                //   text: null,
+                // ),
               ),
               builder: (context, child) => ResponsiveBreakpoints.builder(
                 child: child!,

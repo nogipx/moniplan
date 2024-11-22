@@ -42,80 +42,80 @@ class AppShadowTheme {
   AppShadowTheme.get()
       : darkShadow1 = [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            offset: const Offset(0, 2),
-            blurRadius: 3,
+            color: Colors.black.withOpacity(0.4),
+            offset: const Offset(0, 4),
+            blurRadius: 6,
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            offset: const Offset(0, 6),
-            blurRadius: 10,
-            spreadRadius: 4,
+            color: Colors.black.withOpacity(0.2),
+            offset: const Offset(0, 8),
+            blurRadius: 16,
+            spreadRadius: 6,
           ),
         ],
         darkShadow2 = [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            offset: const Offset(0, 1),
-            blurRadius: 3,
+            color: Colors.black.withOpacity(0.35),
+            offset: const Offset(0, 3),
+            blurRadius: 5,
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            offset: const Offset(0, 4),
-            blurRadius: 8,
-            spreadRadius: 3,
+            color: Colors.black.withOpacity(0.18),
+            offset: const Offset(0, 6),
+            blurRadius: 12,
+            spreadRadius: 5,
           ),
         ],
         darkShadow3 = [
           BoxShadow(
             color: Colors.black.withOpacity(0.3),
-            offset: const Offset(0, 1),
-            blurRadius: 2,
+            offset: const Offset(0, 2),
+            blurRadius: 4,
           ),
           BoxShadow(
             color: Colors.black.withOpacity(0.15),
+            offset: const Offset(0, 4),
+            blurRadius: 10,
+            spreadRadius: 3,
+          ),
+        ],
+        darkShadow4 = [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            offset: const Offset(0, 1),
+            blurRadius: 3,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
             offset: const Offset(0, 2),
             blurRadius: 6,
             spreadRadius: 2,
           ),
         ],
-        darkShadow4 = [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            offset: const Offset(0, 1),
-            blurRadius: 2,
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            offset: const Offset(0, 1),
-            blurRadius: 3,
-            spreadRadius: 1,
-          ),
-        ],
         darkShadow1Up = [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            offset: const Offset(0, -1),
-            blurRadius: 3,
+            color: Colors.black.withOpacity(0.4),
+            offset: const Offset(0, -3),
+            blurRadius: 5,
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            offset: const Offset(0, -4),
-            blurRadius: 8,
-            spreadRadius: 3,
+            color: Colors.black.withOpacity(0.2),
+            offset: const Offset(0, -6),
+            blurRadius: 10,
+            spreadRadius: 4,
           ),
         ],
         darkShadow2Up = [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            offset: const Offset(0, -2),
-            blurRadius: 3,
+            color: Colors.black.withOpacity(0.35),
+            offset: const Offset(0, -4),
+            blurRadius: 6,
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            offset: const Offset(0, -2),
-            blurRadius: 8,
-            spreadRadius: 3,
+            color: Colors.black.withOpacity(0.18),
+            offset: const Offset(0, -8),
+            blurRadius: 12,
+            spreadRadius: 5,
           ),
         ];
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
-import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 class MoneyFlowWidget extends StatelessWidget {
@@ -13,7 +12,7 @@ class MoneyFlowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme.labelSmall;
+    final textStyle = context.theme.textTheme.labelSmall;
     final divider = SizedBox(
       height: 30,
       child: VerticalDivider(

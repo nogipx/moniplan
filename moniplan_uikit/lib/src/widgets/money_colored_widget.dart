@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class MoneyColoredWidget extends StatelessWidget {
   final num? value;
@@ -20,10 +21,10 @@ class MoneyColoredWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = value == 0 || value == null
-        ? Colors.blueGrey.shade300
+        ? context.theme.app.colors.text.disabled
         : (value ?? 0) > 0
-            ? Colors.green
-            : Colors.red.shade400;
+            ? context.theme.app.colors.text.accent
+            : context.theme.app.colors.text.error;
 
     final text =
         value != null ? (value! > 0 && showPlusSign ? '+ ' : '') + value!.currency(currency) : '-';
