@@ -11,6 +11,5 @@ export 'models/app_spaces.dart';
 export 'models/app_system_ui_overlay_style.dart';
 export 'models/app_text_theme.dart';
 export 'models/theme_style.dart';
-export 'generators/_index.dart';
 export 'app_theme.dart';
 export 'app_theme_data.dart';

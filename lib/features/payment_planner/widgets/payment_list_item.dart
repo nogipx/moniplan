@@ -60,7 +60,7 @@ class PaymentListItem extends StatelessWidget {
                 Icons.done_outlined,
                 size: 16,
                 color: payment.isDone
-                    ? context.theme.app.colors.palette.primary
+                    ? context.theme.app.colors.scheme.primary
                     : context.theme.app.colors.text.secondary,
               ),
             ),
@@ -70,7 +70,7 @@ class PaymentListItem extends StatelessWidget {
               child: Icon(
                 Icons.power_settings_new_rounded,
                 size: 16,
-                color: context.theme.app.colors.palette.primary,
+                color: context.theme.app.colors.scheme.primary,
               ),
             ),
         ],

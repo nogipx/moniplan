@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  material_color_utilities: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

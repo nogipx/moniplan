@@ -79,7 +79,7 @@ Future<void> showUpdatePaymentDialog({
             decoration: inputDecoration.copyWith(
               labelText: 'Money',
               icon: Icon(Icons.attach_money),
-              iconColor: context.theme.app.colors.palette.primary,
+              iconColor: context.theme.app.colors.scheme.primary,
             ),
           ),
           const SizedBox(height: 16),
@@ -212,9 +212,9 @@ Future<void> showUpdatePaymentDialog({
             ),
             label: Text(isEnabled ? 'Enabled' : 'Disabled'),
             style: ElevatedButton.styleFrom(
-              foregroundColor: isEnabled ? context.theme.app.colors.palette.primary : null,
+              foregroundColor: isEnabled ? context.theme.app.colors.scheme.primary : null,
               side: BorderSide(
-                color: isEnabled ? context.theme.app.colors.palette.primary : Colors.transparent,
+                color: isEnabled ? context.theme.app.colors.scheme.primary : Colors.transparent,
               ),
             ),
           ),
@@ -233,9 +233,9 @@ Future<void> showUpdatePaymentDialog({
             ),
             label: Text(isDone ? 'Completed' : 'Not completed'),
             style: ElevatedButton.styleFrom(
-              foregroundColor: isDone ? context.theme.app.colors.palette.primary : null,
+              foregroundColor: isDone ? context.theme.app.colors.scheme.primary : null,
               side: BorderSide(
-                color: isDone ? context.theme.app.colors.palette.primary : Colors.transparent,
+                color: isDone ? context.theme.app.colors.scheme.primary : Colors.transparent,
               ),
             ),
           ),
