@@ -80,18 +80,18 @@ class AppSystemUiOverlayStyle {
       );
 
   /// Стиль по умолчанию для [SystemUiOverlayStyle]
-  AppSystemUiOverlayStyle.get(Brightness brightness)
+  AppSystemUiOverlayStyle.get(AppColors colors)
       : statusBarColor = Colors.transparent,
-        systemNavigationBarColor = AppColors.get(brightness).background.primary,
-        statusBarBrightness = switch (brightness) {
+        systemNavigationBarColor = colors.background.primary,
+        statusBarBrightness = switch (colors.brightness) {
           Brightness.light => Brightness.light,
           _ => Brightness.dark,
         },
-        statusBarIconBrightness = switch (brightness) {
+        statusBarIconBrightness = switch (colors.brightness) {
           Brightness.light => Brightness.dark,
           _ => Brightness.light,
         },
-        systemNavigationBarIconBrightness = switch (brightness) {
+        systemNavigationBarIconBrightness = switch (colors.brightness) {
           Brightness.light => Brightness.dark,
           _ => Brightness.light,
         },

@@ -21,7 +21,7 @@ class ElementColors {
     required this.highlight,
   });
 
-  /// Набор цветов для [ThemeStyle.dark]
+  /// Набор цветов для [Brightness.dark]
   ElementColors.dark()
       : background = const Color(0xFF121212),
         card = const Color(0xFF1E1E1E),
@@ -31,7 +31,7 @@ class ElementColors {
         divider = const Color(0xFF373737),
         highlight = const Color(0xFF424242);
 
-  /// Набор цветов для [ThemeStyle.light]
+  /// Набор цветов для [Brightness.light]
   ElementColors.light()
       : background = const Color(0xFFFFFFFF),
         card = const Color(0xFFF1F1F1),

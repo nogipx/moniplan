@@ -157,7 +157,7 @@ class AppAppBarTheme {
       );
 
   /// Стиль по умолчанию для [AppBarTheme]
-  AppAppBarTheme.get(Brightness brightness, AppColors appColors)
+  AppAppBarTheme.get(AppColors appColors)
       : backgroundColor = Colors.transparent,
         foregroundColor = Colors.transparent,
         elevation = 0,
@@ -172,5 +172,5 @@ class AppAppBarTheme {
         toolbarHeight = kAppAppBarHeight,
         toolbarTextStyle = AppTextTheme.get(appColors).displayLarge,
         titleTextStyle = AppTextTheme.get(appColors).displayLarge,
-        systemOverlayStyle = AppSystemUiOverlayStyle.get(brightness).value;
+        systemOverlayStyle = AppSystemUiOverlayStyle.get(appColors).value;
 }

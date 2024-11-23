@@ -21,7 +21,7 @@ class ButtonColors {
     required this.overlay,
   });
 
-  /// Набор цветов для [ThemeStyle.dark]
+  /// Набор цветов для [Brightness.dark]
   ButtonColors.dark()
       : primary = const Color(0xFFBB86FC),
         secondary = const Color(0xFF03DAC6),
@@ -31,7 +31,7 @@ class ButtonColors {
         hovered = const Color(0xFF1F1F1F),
         overlay = const Color(0xFF6200EE).withOpacity(0.1);
 
-  /// Набор цветов для [ThemeStyle.light]
+  /// Набор цветов для [Brightness.light]
   ButtonColors.light()
       : primary = const Color(0xFF6200EE),
         secondary = const Color(0xFF018786),

@@ -27,7 +27,7 @@ class AppBorderRadiuses {
     required this.round,
   });
 
-  /// Набор радиусов для [ThemeStyle.light]
+  /// Набор радиусов для [Brightness.light]
   AppBorderRadiuses.get()
       : none = BorderRadius.zero,
         extraSmall = BorderRadius.circular(2.0),

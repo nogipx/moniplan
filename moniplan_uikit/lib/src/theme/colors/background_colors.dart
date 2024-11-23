@@ -19,7 +19,7 @@ class BackgroundColors {
     required this.bottomNav,
   });
 
-  /// Набор цветов для [ThemeStyle.dark]
+  /// Набор цветов для [Brightness.dark]
   BackgroundColors.dark()
       : primary = const Color(0xFF121212),
         secondary = const Color(0xFF1E1E1E),
@@ -28,7 +28,7 @@ class BackgroundColors {
         drawer = const Color(0xFF2A2A2A),
         bottomNav = const Color(0xFF1E1E1E);
 
-  /// Набор цветов для [ThemeStyle.light]
+  /// Набор цветов для [Brightness.light]
   BackgroundColors.light()
       : primary = const Color(0xFFFFFFFF),
         secondary = const Color(0xFFF1F1F1),

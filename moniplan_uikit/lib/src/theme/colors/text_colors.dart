@@ -21,7 +21,7 @@ class TextColors {
     required this.error,
   });
 
-  /// Набор цветов для [ThemeStyle.dark]
+  /// Набор цветов для [Brightness.dark]
   TextColors.dark()
       : primary = const Color(0xFFFFFFFF),
         secondary = const Color(0xFFB0BEC5),
@@ -31,7 +31,7 @@ class TextColors {
         inverse = const Color(0xFF000000),
         error = const Color(0xFFCF6679);
 
-  /// Набор цветов для [ThemeStyle.light]
+  /// Набор цветов для [Brightness.light]
   TextColors.light()
       : primary = const Color(0xFF000000),
         secondary = const Color(0xFF757575),

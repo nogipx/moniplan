@@ -20,7 +20,7 @@ class AppColors {
     required this.state,
   });
 
-  /// Набор цветов для [ThemeStyle.dark]
+  /// Набор цветов для [Brightness.dark]
   AppColors.dark()
       : scheme = ColorScheme.dark(),
         background = BackgroundColors.dark(),
@@ -29,7 +29,7 @@ class AppColors {
         state = StateColors.dark(),
         text = TextColors.dark();
 
-  /// Набор цветов для [ThemeStyle.light]
+  /// Набор цветов для [Brightness.light]
   AppColors.light()
       : scheme = ColorScheme.light(),
         background = BackgroundColors.light(),
@@ -37,6 +37,11 @@ class AppColors {
         element = ElementColors.light(),
         state = StateColors.light(),
         text = TextColors.light();
+
+  static AppColors get(Brightness _) => switch (_) {
+        Brightness.light => AppColors.light(),
+        _ => AppColors.dark(),
+      };
 
   /// Интерполяция для анимированных переходов между [AppColors]
   AppColors lerp(AppColors? b, double t) {
@@ -72,11 +77,6 @@ class AppColors {
       text: text ?? this.text,
     );
   }
-
-  static AppColors get(Brightness _) => switch (_) {
-        Brightness.light => AppColors.light(),
-        _ => AppColors.dark(),
-      };
 
   static AppColors fromSeedColor({
     required Color seedColor,

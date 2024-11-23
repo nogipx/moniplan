@@ -61,13 +61,13 @@ class _MoniplanAppState extends State<MoniplanApp> {
               //   seedColor: targetColor,
               //   isDarkTheme: true,
               // ),
-              // customColors: AppColors.fromColorScheme(
-              //   ColorScheme.fromSeed(
-              //     seedColor: Colors.cyanAccent,
-              //     brightness: Brightness.dark,
-              //   ),
-              // ),
-              // brightness: Brightness.dark,
+              customColors: AppColors.fromColorScheme(
+                ColorScheme.fromSwatch(
+                  primarySwatch: Colors.lightGreen,
+                  brightness: Brightness.dark,
+                ),
+              ),
+              brightness: Brightness.dark,
               baseTextStyle: TextStyle(
                 overflow: TextOverflow.ellipsis,
                 fontFamily: 'TTNeoris',

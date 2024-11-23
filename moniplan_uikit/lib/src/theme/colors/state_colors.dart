@@ -17,7 +17,7 @@ class StateColors {
     required this.warning,
   });
 
-  /// Набор цветов для [ThemeStyle.dark]
+  /// Набор цветов для [Brightness.dark]
   StateColors.dark()
       : active = const Color(0xFF58A9E4),
         inactive = const Color(0xFF4F5D75),
@@ -25,7 +25,7 @@ class StateColors {
         success = const Color(0xFF4CAF50),
         warning = const Color(0xFFFFA500);
 
-  /// Набор цветов для [ThemeStyle.light]
+  /// Набор цветов для [Brightness.light]
   StateColors.light()
       : active = const Color(0xFF0C82D8),
         inactive = const Color(0xFFB0BEC5),
