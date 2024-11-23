@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/_run/db/_index.dart';
@@ -46,6 +48,22 @@ class _MoniplanAppState extends State<MoniplanApp> {
         child: AnimatedBuilder(
           animation: AppDbImpl(),
           builder: (context, _) {
+            final random = Random().nextDouble();
+            final rainbow = generateRainbowColor(random);
+            final targetColor = AppColorsRaw.brightBlue;
+
+            final color1 = changeColorLightness(changeColorSaturation(targetColor, .3), .4);
+
+            final result = generateAppColorsFromPalette(
+              generatePaletteColors(
+                isDarkTheme: true,
+                primary: AppColorsRaw.oliveBlack,
+                accentColor: AppColorsRaw.brightBlue,
+                backgroundColor: AppColorsRaw.standardDarkGray,
+                diversityFactor: .1,
+              ),
+            );
+
             return MaterialApp(
               debugShowCheckedModeBanner: false,
               theme: AppTheme.theme(
@@ -54,6 +72,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
                   overflow: TextOverflow.ellipsis,
                   fontFamily: 'TTNeoris',
                 ),
+                customColors: result,
               ),
               builder: (context, child) => ResponsiveBreakpoints.builder(
                 child: child!,

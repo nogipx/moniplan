@@ -8,6 +8,8 @@ const kButtonMinimumSize = Size.square(40); // Увеличено для улу�
 
 /// Класс для формирования [ButtonStyle] ui kit
 class AppButtonStyle {
+  // final AppColors colors;
+
   /// [WidgetStateProperty] для [ButtonStyle.textStyle]
   final WidgetStateProperty<TextStyle?>? textStyle;
 
@@ -76,6 +78,7 @@ class AppButtonStyle {
 
   /// Создаёт класс для формирования [ButtonStyle] ui kit
   const AppButtonStyle({
+    // required this.colors,
     this.textStyle,
     this.backgroundColor,
     this.foregroundColor,
@@ -102,6 +105,7 @@ class AppButtonStyle {
 
   /// Метод копирования [AppButtonStyle]
   AppButtonStyle copyWith({
+    // AppColors? colors,
     WidgetStateProperty<TextStyle?>? textStyle,
     WidgetStateProperty<Color?>? backgroundColor,
     WidgetStateProperty<Color?>? foregroundColor,
@@ -126,6 +130,7 @@ class AppButtonStyle {
     InteractiveInkFeatureFactory? splashFactory,
   }) =>
       AppButtonStyle(
+        // colors: colors ?? this.colors,
         textStyle: textStyle ?? this.textStyle,
         backgroundColor: backgroundColor ?? this.backgroundColor,
         foregroundColor: foregroundColor ?? this.foregroundColor,
@@ -227,9 +232,9 @@ class AppButtonStyle {
       );
 
   /// Получение темы кнопки по [themeStyle]
-  AppButtonStyle.get(ThemeStyle themeStyle)
+  AppButtonStyle.get(ThemeStyle themeStyle, AppColors appColors)
       : textStyle = WidgetStateProperty.resolveWith((states) {
-          final textTheme = AppTextTheme.get(themeStyle).value;
+          final textTheme = AppTextTheme.get(themeStyle, appColors).value;
           final colors = AppColors.get(themeStyle);
 
           if (states.contains(WidgetState.disabled)) {

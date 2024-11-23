@@ -10,7 +10,7 @@ class BackgroundColors {
   final Color bottomNav;
 
   /// Создаёт приватный класс набора цветов для фонов
-  BackgroundColors._({
+  BackgroundColors({
     required this.primary,
     required this.secondary,
     required this.tertiary,
@@ -43,7 +43,7 @@ class BackgroundColors {
       return this;
     }
 
-    return BackgroundColors._(
+    return BackgroundColors(
       primary: Color.lerp(primary, b?.primary, t) ?? Colors.transparent,
       secondary: Color.lerp(secondary, b?.secondary, t) ?? Colors.transparent,
       tertiary: Color.lerp(tertiary, b?.tertiary, t) ?? Colors.transparent,
@@ -62,7 +62,7 @@ class BackgroundColors {
     Color? drawer,
     Color? bottomNav,
   }) {
-    return BackgroundColors._(
+    return BackgroundColors(
       primary: primary ?? this.primary,
       secondary: secondary ?? this.secondary,
       tertiary: tertiary ?? this.tertiary,

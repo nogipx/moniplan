@@ -11,7 +11,7 @@ class ButtonColors {
   final Color overlay;
 
   /// Создаёт приватный класс набора цветов для кнопок
-  ButtonColors._({
+  ButtonColors({
     required this.primary,
     required this.secondary,
     required this.tertiary,
@@ -47,7 +47,7 @@ class ButtonColors {
       return this;
     }
 
-    return ButtonColors._(
+    return ButtonColors(
       primary: Color.lerp(primary, b?.primary, t) ?? Colors.transparent,
       secondary: Color.lerp(secondary, b?.secondary, t) ?? Colors.transparent,
       tertiary: Color.lerp(tertiary, b?.tertiary, t) ?? Colors.transparent,
@@ -68,7 +68,7 @@ class ButtonColors {
     Color? hovered,
     Color? overlay,
   }) {
-    return ButtonColors._(
+    return ButtonColors(
       primary: primary ?? this.primary,
       secondary: secondary ?? this.secondary,
       tertiary: tertiary ?? this.tertiary,

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 Color generateRainbowColor(double value, {double offset = 0}) {
   if (value < 0 || value > 1) {
@@ -23,3 +24,6 @@ Color changeColorSaturation(Color color, double value) =>
 
 Color changeColorLightness(Color color, double value) =>
     HSLColor.fromColor(color).withLightness(value).toColor();
+
+Color changeColorHue(Color color, double value) =>
+    HSLColor.fromColor(color).withHue(value).toColor();

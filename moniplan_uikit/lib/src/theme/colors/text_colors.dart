@@ -11,7 +11,7 @@ class TextColors {
   final Color error;
 
   /// Создаёт приватный класс набора цветов для текста
-  TextColors._({
+  TextColors({
     required this.primary,
     required this.secondary,
     required this.accent,
@@ -47,7 +47,7 @@ class TextColors {
       return this;
     }
 
-    return TextColors._(
+    return TextColors(
       primary: Color.lerp(primary, b?.primary, t) ?? Colors.transparent,
       secondary: Color.lerp(secondary, b?.secondary, t) ?? Colors.transparent,
       accent: Color.lerp(accent, b?.accent, t) ?? Colors.transparent,
@@ -68,7 +68,7 @@ class TextColors {
     Color? inverse,
     Color? error,
   }) {
-    return TextColors._(
+    return TextColors(
       primary: primary ?? this.primary,
       secondary: secondary ?? this.secondary,
       accent: accent ?? this.accent,

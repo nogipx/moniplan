@@ -9,7 +9,7 @@ class StateColors {
   final Color warning;
 
   /// Создаёт приватный класс набора цветов для состояний элементов
-  StateColors._({
+  StateColors({
     required this.active,
     required this.inactive,
     required this.error,
@@ -39,7 +39,7 @@ class StateColors {
       return this;
     }
 
-    return StateColors._(
+    return StateColors(
       active: Color.lerp(active, b?.active, t) ?? Colors.transparent,
       inactive: Color.lerp(inactive, b?.inactive, t) ?? Colors.transparent,
       error: Color.lerp(error, b?.error, t) ?? Colors.transparent,
@@ -56,7 +56,7 @@ class StateColors {
     Color? success,
     Color? warning,
   }) {
-    return StateColors._(
+    return StateColors(
       active: active ?? this.active,
       inactive: inactive ?? this.inactive,
       error: error ?? this.error,

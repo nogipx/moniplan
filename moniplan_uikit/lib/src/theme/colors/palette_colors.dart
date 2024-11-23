@@ -14,7 +14,7 @@ class PaletteColors {
   final Color onBackground;
 
   /// Создаёт приватный класс набора цветов для темы
-  PaletteColors._({
+  PaletteColors({
     required this.primary,
     required this.secondary,
     required this.accent,
@@ -59,7 +59,7 @@ class PaletteColors {
       return this;
     }
 
-    return PaletteColors._(
+    return PaletteColors(
       primary: Color.lerp(primary, b?.primary, t) ?? Colors.transparent,
       secondary: Color.lerp(secondary, b?.secondary, t) ?? Colors.transparent,
       accent: Color.lerp(accent, b?.accent, t) ?? Colors.transparent,
@@ -86,7 +86,7 @@ class PaletteColors {
     Color? onSurface,
     Color? onBackground,
   }) {
-    return PaletteColors._(
+    return PaletteColors(
       primary: primary ?? this.primary,
       secondary: secondary ?? this.secondary,
       accent: accent ?? this.accent,

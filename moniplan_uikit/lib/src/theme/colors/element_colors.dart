@@ -11,7 +11,7 @@ class ElementColors {
   final Color highlight;
 
   /// Создаёт приватный класс набора цветов для элементов
-  ElementColors._({
+  ElementColors({
     required this.background,
     required this.card,
     required this.modal,
@@ -47,7 +47,7 @@ class ElementColors {
       return this;
     }
 
-    return ElementColors._(
+    return ElementColors(
       background: Color.lerp(background, b?.background, t) ?? Colors.transparent,
       card: Color.lerp(card, b?.card, t) ?? Colors.transparent,
       modal: Color.lerp(modal, b?.modal, t) ?? Colors.transparent,
@@ -68,7 +68,7 @@ class ElementColors {
     Color? divider,
     Color? highlight,
   }) {
-    return ElementColors._(
+    return ElementColors(
       background: background ?? this.background,
       card: card ?? this.card,
       modal: modal ?? this.modal,

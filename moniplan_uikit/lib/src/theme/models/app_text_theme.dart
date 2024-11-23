@@ -73,96 +73,96 @@ class AppTextTheme {
   });
 
   /// Получение текстовой темы по [themeStyle]
-  AppTextTheme.get(ThemeStyle themeStyle)
+  AppTextTheme.get(ThemeStyle themeStyle, AppColors colors)
       : displayLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w800,
           fontSize: 28,
           height: 1.3,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         displayMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 24,
           height: 1.25,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         displaySmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 20,
           height: 1.2,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         bodyLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 18,
           height: 1.5,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         bodyMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w400,
           fontSize: 16,
           height: 1.4,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         bodySmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w400,
           fontSize: 14,
           height: 1.3,
-          color: AppColors.get(themeStyle).text.secondary,
+          color: colors.text.secondary,
         ),
         headlineLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 22,
           height: 1.3,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         headlineMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 20,
           height: 1.25,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         headlineSmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 18,
           height: 1.2,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         titleLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 16,
           height: 1.4,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         titleMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 14,
           height: 1.3,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         titleSmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 12,
           height: 1.3,
-          color: AppColors.get(themeStyle).text.secondary,
+          color: colors.text.secondary,
         ),
         labelLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 16,
           height: 1.5,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         labelMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 14,
           height: 1.4,
-          color: AppColors.get(themeStyle).text.primary,
+          color: colors.text.primary,
         ),
         labelSmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 12,
           height: 1.4,
-          color: AppColors.get(themeStyle).text.secondary,
+          color: colors.text.secondary,
         );
 
   /// Получение [TextTheme]
@@ -186,6 +186,7 @@ class AppTextTheme {
 
   /// Метод копирования [AppTextTheme]
   AppTextTheme copyWith({
+    AppColors? colors,
     TextStyle? displayLarge,
     TextStyle? displayMedium,
     TextStyle? displaySmall,
