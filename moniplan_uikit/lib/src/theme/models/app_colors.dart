@@ -129,13 +129,14 @@ class AppColors {
       onErrorContainer: Color(errorPalette.get(onPrimaryContainerTone)),
       surface: Color(neutralPalette.get(surfaceTone)),
       onSurface: Color(neutralPalette.get(onSurfaceTone)),
-      onSurfaceVariant: Color(neutralVariantPalette.get(outlineTone)),
       outline: Color(neutralVariantPalette.get(outlineTone)),
       shadow: Colors.black,
       inverseSurface: Color(neutralPalette.get(onSurfaceTone)),
       onInverseSurface: Color(neutralPalette.get(surfaceTone)),
       inversePrimary: Color(primaryPalette.get(onPrimaryTone)),
       surfaceTint: Color(primaryPalette.get(primaryTone)),
+      outlineVariant: Color(neutralVariantPalette.get(outlineTone)),
+      scrim: Colors.black.withOpacity(0.5),
     );
 
     return fromColorScheme(colorScheme);
@@ -144,47 +145,88 @@ class AppColors {
   static AppColors fromColorScheme(ColorScheme colorScheme) {
     return AppColors(
       scheme: colorScheme,
-      background: BackgroundColors(
-        primary: colorScheme.surface,
-        secondary: colorScheme.surfaceDim,
-        tertiary: colorScheme.tertiaryContainer,
-        appBar: colorScheme.primary,
-        drawer: colorScheme.secondaryContainer,
-        bottomNav: colorScheme.surface,
-      ),
-      text: TextColors(
-        primary: colorScheme.surface,
-        secondary: colorScheme.onSurface,
-        accent: colorScheme.primary,
-        disabled: colorScheme.onSurface.withOpacity(0.38),
-        hint: colorScheme.onSurface.withOpacity(0.6),
-        inverse: colorScheme.onPrimary,
-        error: colorScheme.onError,
-      ),
-      button: ButtonColors(
+      accent: AccentColors(
+        /// Основной акцентный цвет для кнопок и выделений
         primary: colorScheme.primary,
+
+        /// Контейнер для основного акцента, например, фон кнопок или карточек
+        primaryContainer: colorScheme.primaryContainer,
+
+        /// Второстепенный акцентный цвет, используется для менее выделенных кнопок или чипов
         secondary: colorScheme.secondary,
+
+        /// Контейнер для второстепенного акцента
+        secondaryContainer: colorScheme.secondaryContainer,
+
+        /// Дополнительный акцентный цвет, например, для декоративных элементов
         tertiary: colorScheme.tertiary,
-        pressed: colorScheme.onPrimary.withOpacity(0.12),
-        hovered: colorScheme.primaryContainer,
-        disabled: colorScheme.onSurface.withOpacity(0.12),
-        overlay: colorScheme.primary.withOpacity(0.08),
+
+        /// Контейнер для дополнительного акцента
+        tertiaryContainer: colorScheme.tertiaryContainer,
       ),
-      element: ElementColors(
-        card: colorScheme.surface,
-        modal: colorScheme.tertiaryContainer,
-        border: colorScheme.outline,
-        shadow: Colors.black.withOpacity(0.2),
-        divider: colorScheme.outline.withOpacity(0.5),
-        highlight: colorScheme.primary.withOpacity(0.1),
-        background: colorScheme.tertiaryContainer,
+      background: BackgroundColors(
+        /// Основной цвет фона приложения
+        background: colorScheme.onBackground,
+
+        /// Цвет поверхности для карточек, панелей и модальных окон
+        surface: colorScheme.surface,
+
+        /// Альтернативный цвет поверхности для второстепенных слоёв или декоративных элементов
+        surfaceVariant: colorScheme.surfaceVariant,
+
+        /// Инверсированный цвет поверхности, например, для всплывающих подсказок в тёмной теме
+        inverseSurface: colorScheme.inverseSurface,
+      ),
+      content: ContentColors(
+        /// Цвет текста и иконок поверх основного фона
+        onBackground: colorScheme.onBackground,
+
+        /// Цвет текста и иконок поверх поверхности (surface)
+        onSurface: colorScheme.onSurface,
+
+        /// Цвет текста и иконок поверх альтернативной поверхности (surfaceVariant)
+        onSurfaceVariant: colorScheme.onSurfaceVariant,
+
+        /// Цвет текста и иконок поверх инверсированной поверхности
+        onInverseSurface: colorScheme.onInverseSurface,
+
+        /// Цвет текста и иконок поверх основного акцента (primary)
+        onPrimary: colorScheme.onPrimary,
+
+        /// Цвет текста и иконок поверх второстепенного акцента (secondary)
+        onSecondary: colorScheme.onSecondary,
+
+        /// Цвет текста и иконок поверх дополнительного акцента (tertiary)
+        onTertiary: colorScheme.onTertiary,
+
+        /// Цвет текста и иконок поверх цвета ошибок (error)
+        onError: colorScheme.onError,
       ),
       state: StateColors(
-        active: colorScheme.primary,
-        inactive: colorScheme.onSurface.withOpacity(0.5),
+        /// Цвет, обозначающий ошибки
         error: colorScheme.error,
-        success: Colors.green, // Успех можно динамически настроить
-        warning: Colors.orange, // Предупреждение можно динамически настроить
+
+        /// Цвет контейнера для сообщений об ошибках
+        errorContainer: colorScheme.errorContainer,
+
+        /// Инверсированный основной цвет, используемый для выделения на тёмных фонах
+        inversePrimary: colorScheme.inversePrimary,
+      ),
+      util: UtilityColors(
+        /// Цвет границ или разделителей
+        outline: colorScheme.outline,
+
+        /// Альтернативный цвет для границ
+        outlineVariant: colorScheme.outlineVariant,
+
+        /// Цвет теней, используемых для создания глубины
+        shadow: colorScheme.shadow,
+
+        /// Цвет затемнения для модальных окон или блокирующих слоёв
+        scrim: colorScheme.scrim,
+
+        /// Цвет оттенков поверхности при взаимодействии (например, при наведении или нажатии)
+        surfaceTint: colorScheme.surfaceTint,
       ),
     );
   }

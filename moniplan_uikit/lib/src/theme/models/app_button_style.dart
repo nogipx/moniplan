@@ -237,7 +237,7 @@ class AppButtonStyle {
           final textTheme = AppTextTheme.get(colors).value;
 
           if (states.contains(WidgetState.disabled)) {
-            return textTheme.labelLarge?.copyWith(color: colors.button.disabled);
+            return textTheme.labelLarge?.copyWith(color: colors.content.);
           } else {
             return textTheme.labelLarge;
           }
