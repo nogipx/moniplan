@@ -56,7 +56,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
             final targetColor = AppColorsRaw.brightBlue;
             final colors = AppColors.fromColorScheme(
               ColorScheme.fromSwatch(
-                primarySwatch: Colors.lightGreen,
+                primarySwatch: Colors.blue,
                 brightness: Brightness.dark,
               ),
             );
@@ -108,7 +108,10 @@ class _MoniplanAppState extends State<MoniplanApp> {
                 ],
               ),
               // home: home,
-              home: AppColorsDisplayScreen(appColors: colors),
+              home: AppColorsDisplayScreen(
+                appColors: colors,
+                colorScheme: colors.scheme,
+              ),
             );
           },
         ),
