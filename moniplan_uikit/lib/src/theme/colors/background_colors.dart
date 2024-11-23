@@ -2,40 +2,32 @@ import 'package:flutter/material.dart';
 
 /// Класс, представляющий цвета фонов для интерфейса
 class BackgroundColors {
-  final Color primary;
-  final Color secondary;
-  final Color tertiary;
-  final Color appBar;
-  final Color drawer;
-  final Color bottomNav;
+  final Color background;
+  final Color surface;
+  final Color surfaceVariant;
+  final Color inverseSurface;
 
   /// Создаёт приватный класс набора цветов для фонов
   BackgroundColors({
-    required this.primary,
-    required this.secondary,
-    required this.tertiary,
-    required this.appBar,
-    required this.drawer,
-    required this.bottomNav,
+    required this.background,
+    required this.surface,
+    required this.surfaceVariant,
+    required this.inverseSurface,
   });
 
   /// Набор цветов для [Brightness.dark]
   BackgroundColors.dark()
-      : primary = const Color(0xFF121212),
-        secondary = const Color(0xFF1E1E1E),
-        tertiary = const Color(0xFF2C2C2C),
-        appBar = const Color(0xFF1F1F1F),
-        drawer = const Color(0xFF2A2A2A),
-        bottomNav = const Color(0xFF1E1E1E);
+      : background = const Color(0xFF121212),
+        surface = const Color(0xFF1E1E1E),
+        surfaceVariant = const Color(0xFF2C2C2C),
+        inverseSurface = const Color(0xFFF1F1F1);
 
   /// Набор цветов для [Brightness.light]
   BackgroundColors.light()
-      : primary = const Color(0xFFFFFFFF),
-        secondary = const Color(0xFFF1F1F1),
-        tertiary = const Color(0xFFEAEAEA),
-        appBar = const Color(0xFFF8F8F8),
-        drawer = const Color(0xFFF4F4F4),
-        bottomNav = const Color(0xFFF1F1F1);
+      : background = const Color(0xFFFFFFFF),
+        surface = const Color(0xFFF1F1F1),
+        surfaceVariant = const Color(0xFFEAEAEA),
+        inverseSurface = const Color(0xFF2C2C2C);
 
   /// Интерполяция для анимированных переходов между [BackgroundColors]
   BackgroundColors lerp(BackgroundColors? b, double t) {
@@ -44,31 +36,25 @@ class BackgroundColors {
     }
 
     return BackgroundColors(
-      primary: Color.lerp(primary, b?.primary, t) ?? Colors.transparent,
-      secondary: Color.lerp(secondary, b?.secondary, t) ?? Colors.transparent,
-      tertiary: Color.lerp(tertiary, b?.tertiary, t) ?? Colors.transparent,
-      appBar: Color.lerp(appBar, b?.appBar, t) ?? Colors.transparent,
-      drawer: Color.lerp(drawer, b?.drawer, t) ?? Colors.transparent,
-      bottomNav: Color.lerp(bottomNav, b?.bottomNav, t) ?? Colors.transparent,
+      background: Color.lerp(background, b?.background, t) ?? Colors.transparent,
+      surface: Color.lerp(surface, b?.surface, t) ?? Colors.transparent,
+      surfaceVariant: Color.lerp(surfaceVariant, b?.surfaceVariant, t) ?? Colors.transparent,
+      inverseSurface: Color.lerp(inverseSurface, b?.inverseSurface, t) ?? Colors.transparent,
     );
   }
 
   /// Метод копирования [BackgroundColors]
   BackgroundColors copyWith({
-    Color? primary,
-    Color? secondary,
-    Color? tertiary,
-    Color? appBar,
-    Color? drawer,
-    Color? bottomNav,
+    Color? background,
+    Color? surface,
+    Color? surfaceVariant,
+    Color? inverseSurface,
   }) {
     return BackgroundColors(
-      primary: primary ?? this.primary,
-      secondary: secondary ?? this.secondary,
-      tertiary: tertiary ?? this.tertiary,
-      appBar: appBar ?? this.appBar,
-      drawer: drawer ?? this.drawer,
-      bottomNav: bottomNav ?? this.bottomNav,
+      background: background ?? this.background,
+      surface: surface ?? this.surface,
+      surfaceVariant: surfaceVariant ?? this.surfaceVariant,
+      inverseSurface: inverseSurface ?? this.inverseSurface,
     );
   }
 }

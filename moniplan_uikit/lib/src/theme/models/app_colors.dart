@@ -3,40 +3,40 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class AppColors {
   final ColorScheme scheme;
+  final AccentColors accent;
   final BackgroundColors background;
-  final TextColors text;
-  final ButtonColors button;
-  final ElementColors element;
+  final ContentColors content;
   final StateColors state;
+  final UtilityColors util;
 
   Brightness get brightness => scheme.brightness;
 
   AppColors({
     required this.scheme,
+    required this.accent,
     required this.background,
-    required this.text,
-    required this.button,
-    required this.element,
+    required this.content,
     required this.state,
+    required this.util,
   });
 
   /// Набор цветов для [Brightness.dark]
   AppColors.dark()
       : scheme = ColorScheme.dark(),
+        accent = AccentColors.dark(),
         background = BackgroundColors.dark(),
-        button = ButtonColors.dark(),
-        element = ElementColors.dark(),
+        content = ContentColors.dark(),
         state = StateColors.dark(),
-        text = TextColors.dark();
+        util = UtilityColors.dark();
 
   /// Набор цветов для [Brightness.light]
   AppColors.light()
       : scheme = ColorScheme.light(),
+        accent = AccentColors.light(),
         background = BackgroundColors.light(),
-        button = ButtonColors.light(),
-        element = ElementColors.light(),
+        content = ContentColors.light(),
         state = StateColors.light(),
-        text = TextColors.light();
+        util = UtilityColors.light();
 
   static AppColors get(Brightness _) => switch (_) {
         Brightness.light => AppColors.light(),
@@ -51,30 +51,30 @@ class AppColors {
 
     return AppColors(
       scheme: ColorSchemeLerp(scheme).lerp(b?.scheme, t),
+      accent: accent.lerp(b?.accent, t),
       background: background.lerp(b?.background, t),
-      button: button.lerp(b?.button, t),
-      element: element.lerp(b?.element, t),
+      content: content.lerp(b?.content, t),
       state: state.lerp(b?.state, t),
-      text: text.lerp(b?.text, t),
+      util: util.lerp(b?.util, t),
     );
   }
 
   /// Метод копирования [AppColors]
   AppColors copyWith({
     ColorScheme? scheme,
+    AccentColors? accent,
     BackgroundColors? background,
-    ButtonColors? button,
-    ElementColors? element,
+    ContentColors? content,
     StateColors? state,
-    TextColors? text,
+    UtilityColors? util,
   }) {
     return AppColors(
       scheme: scheme ?? this.scheme,
+      accent: accent ?? this.accent,
       background: background ?? this.background,
-      button: button ?? this.button,
-      element: element ?? this.element,
+      content: content ?? this.content,
       state: state ?? this.state,
-      text: text ?? this.text,
+      util: util ?? this.util,
     );
   }
 
