@@ -145,8 +145,8 @@ class AppColors {
     return AppColors(
       scheme: colorScheme,
       background: BackgroundColors(
-        primary: colorScheme.secondaryContainer,
-        secondary: colorScheme.surface,
+        primary: colorScheme.surface,
+        secondary: colorScheme.surfaceDim,
         tertiary: colorScheme.tertiaryContainer,
         appBar: colorScheme.primary,
         drawer: colorScheme.secondaryContainer,

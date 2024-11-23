@@ -55,7 +55,11 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
           ),
           ListView(
             children: [
-              _buildColorSection('ColorScheme Colors', _extractColorSchemeColors()),
+              _buildColorSection('BackgroundColors', _extractColorSchemeColorsBackground()),
+              _buildColorSection('TextColors', _extractColorSchemeColorsTextColors()),
+              _buildColorSection('ButtonColors', _extractColorSchemeColorsButtonColors()),
+              _buildColorSection('ElementColors', _extractColorSchemeColorsElementColors()),
+              _buildColorSection('StateColors', _extractColorSchemeColorsStateColors()),
             ],
           ),
         ],
@@ -120,37 +124,9 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
     ];
   }
 
-  List<Map<String, Color>> _extractColorSchemeColors() {
+  List<Map<String, Color>> _extractColorSchemeColorsBackground() {
     final colorScheme = widget.colorScheme;
     return [
-      {'Primary': colorScheme.primary},
-      {'On Primary': colorScheme.onPrimary},
-      {'Primary Container': colorScheme.primaryContainer},
-      {'On Primary Container': colorScheme.onPrimaryContainer},
-      {'Primary Fixed': colorScheme.primaryFixed},
-      {'Primary Fixed Dim': colorScheme.primaryFixedDim},
-      {'On Primary Fixed': colorScheme.onPrimaryFixed},
-      {'On Primary Fixed Variant': colorScheme.onPrimaryFixedVariant},
-      {'Secondary': colorScheme.secondary},
-      {'On Secondary': colorScheme.onSecondary},
-      {'Secondary Container': colorScheme.secondaryContainer},
-      {'On Secondary Container': colorScheme.onSecondaryContainer},
-      {'Secondary Fixed': colorScheme.secondaryFixed},
-      {'Secondary Fixed Dim': colorScheme.secondaryFixedDim},
-      {'On Secondary Fixed': colorScheme.onSecondaryFixed},
-      {'On Secondary Fixed Variant': colorScheme.onSecondaryFixedVariant},
-      {'Tertiary': colorScheme.tertiary},
-      {'On Tertiary': colorScheme.onTertiary},
-      {'Tertiary Container': colorScheme.tertiaryContainer},
-      {'On Tertiary Container': colorScheme.onTertiaryContainer},
-      {'Tertiary Fixed': colorScheme.tertiaryFixed},
-      {'Tertiary Fixed Dim': colorScheme.tertiaryFixedDim},
-      {'On Tertiary Fixed': colorScheme.onTertiaryFixed},
-      {'On Tertiary Fixed Variant': colorScheme.onTertiaryFixedVariant},
-      {'Error': colorScheme.error},
-      {'On Error': colorScheme.onError},
-      {'Error Container': colorScheme.errorContainer},
-      {'On Error Container': colorScheme.onErrorContainer},
       {'Surface': colorScheme.surface},
       {'On Surface': colorScheme.onSurface},
       {'Surface Dim': colorScheme.surfaceDim},
@@ -160,15 +136,67 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
       {'Surface Container': colorScheme.surfaceContainer},
       {'Surface Container High': colorScheme.surfaceContainerHigh},
       {'Surface Container Highest': colorScheme.surfaceContainerHighest},
+      {'Primary Container': colorScheme.primaryContainer},
+      {'On Primary Container': colorScheme.onPrimaryContainer},
+      {'Secondary Container': colorScheme.secondaryContainer},
+      {'On Secondary Container': colorScheme.onSecondaryContainer},
+      {'Tertiary Container': colorScheme.tertiaryContainer},
+      {'On Tertiary Container': colorScheme.onTertiaryContainer},
+    ];
+  }
+
+  List<Map<String, Color>> _extractColorSchemeColorsTextColors() {
+    final colorScheme = widget.colorScheme;
+    return [
+      {'On Primary': colorScheme.onPrimary},
+      {'On Primary Fixed': colorScheme.onPrimaryFixed},
+      {'On Primary Fixed Variant': colorScheme.onPrimaryFixedVariant},
+      {'On Secondary': colorScheme.onSecondary},
+      {'On Secondary Fixed': colorScheme.onSecondaryFixed},
+      {'On Secondary Fixed Variant': colorScheme.onSecondaryFixedVariant},
+      {'On Tertiary': colorScheme.onTertiary},
+      {'On Tertiary Fixed': colorScheme.onTertiaryFixed},
+      {'On Tertiary Fixed Variant': colorScheme.onTertiaryFixedVariant},
+      {'On Error': colorScheme.onError},
+      {'On Error Container': colorScheme.onErrorContainer},
       {'On Surface Variant': colorScheme.onSurfaceVariant},
-      {'Outline': colorScheme.outline},
-      {'Outline Variant': colorScheme.outlineVariant},
+      {'On Inverse Surface': colorScheme.onInverseSurface},
+    ];
+  }
+
+  List<Map<String, Color>> _extractColorSchemeColorsButtonColors() {
+    final colorScheme = widget.colorScheme;
+    return [
+      {'Primary': colorScheme.primary},
+      {'Primary Fixed': colorScheme.primaryFixed},
+      {'Primary Fixed Dim': colorScheme.primaryFixedDim},
+      {'Secondary': colorScheme.secondary},
+      {'Secondary Fixed': colorScheme.secondaryFixed},
+      {'Secondary Fixed Dim': colorScheme.secondaryFixedDim},
+      {'Tertiary': colorScheme.tertiary},
+      {'Tertiary Fixed': colorScheme.tertiaryFixed},
+      {'Tertiary Fixed Dim': colorScheme.tertiaryFixedDim},
+      {'Surface Tint': colorScheme.surfaceTint},
       {'Shadow': colorScheme.shadow},
       {'Scrim': colorScheme.scrim},
+    ];
+  }
+
+  List<Map<String, Color>> _extractColorSchemeColorsElementColors() {
+    final colorScheme = widget.colorScheme;
+    return [
+      {'Outline': colorScheme.outline},
+      {'Outline Variant': colorScheme.outlineVariant},
       {'Inverse Surface': colorScheme.inverseSurface},
-      {'On Inverse Surface': colorScheme.onInverseSurface},
       {'Inverse Primary': colorScheme.inversePrimary},
-      {'Surface Tint': colorScheme.surfaceTint},
+    ];
+  }
+
+  List<Map<String, Color>> _extractColorSchemeColorsStateColors() {
+    final colorScheme = widget.colorScheme;
+    return [
+      {'Error': colorScheme.error},
+      {'Error Container': colorScheme.errorContainer},
     ];
   }
 
