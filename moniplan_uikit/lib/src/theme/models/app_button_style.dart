@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../_index.dart';
 
-const kButtonMinimumSize = Size.square(40); // Увеличено для улучшения удобства нажатия
+const kButtonMinimumSize = Size.square(40);
 
 /// Класс для формирования [ButtonStyle] ui kit
 class AppButtonStyle {
-  // final AppColors colors;
+  final AppColors colors;
 
   /// [WidgetStateProperty] для [ButtonStyle.textStyle]
   final WidgetStateProperty<TextStyle?>? textStyle;
@@ -78,7 +78,7 @@ class AppButtonStyle {
 
   /// Создаёт класс для формирования [ButtonStyle] ui kit
   const AppButtonStyle({
-    // required this.colors,
+    required this.colors,
     this.textStyle,
     this.backgroundColor,
     this.foregroundColor,
@@ -105,7 +105,7 @@ class AppButtonStyle {
 
   /// Метод копирования [AppButtonStyle]
   AppButtonStyle copyWith({
-    // AppColors? colors,
+    AppColors? colors,
     WidgetStateProperty<TextStyle?>? textStyle,
     WidgetStateProperty<Color?>? backgroundColor,
     WidgetStateProperty<Color?>? foregroundColor,
@@ -130,7 +130,7 @@ class AppButtonStyle {
     InteractiveInkFeatureFactory? splashFactory,
   }) =>
       AppButtonStyle(
-        // colors: colors ?? this.colors,
+        colors: colors ?? this.colors,
         textStyle: textStyle ?? this.textStyle,
         backgroundColor: backgroundColor ?? this.backgroundColor,
         foregroundColor: foregroundColor ?? this.foregroundColor,
@@ -162,6 +162,7 @@ class AppButtonStyle {
     }
 
     return AppButtonStyle(
+      colors: colors.lerp(colors, t),
       textStyle: WidgetStateProperty.lerp<TextStyle?>(textStyle, b?.textStyle, t, TextStyle.lerp),
       backgroundColor:
           WidgetStateProperty.lerp<Color?>(backgroundColor, b?.backgroundColor, t, Color.lerp),
@@ -232,10 +233,9 @@ class AppButtonStyle {
       );
 
   /// Получение темы кнопки по [themeStyle]
-  AppButtonStyle.get(ThemeStyle themeStyle, AppColors appColors)
+  AppButtonStyle.get(ThemeStyle themeStyle, this.colors)
       : textStyle = WidgetStateProperty.resolveWith((states) {
-          final textTheme = AppTextTheme.get(themeStyle, appColors).value;
-          final colors = AppColors.get(themeStyle);
+          final textTheme = AppTextTheme.get(themeStyle, colors).value;
 
           if (states.contains(WidgetState.disabled)) {
             return textTheme.labelLarge?.copyWith(color: colors.button.disabled);
@@ -246,7 +246,6 @@ class AppButtonStyle {
         backgroundColor = WidgetStateProperty.all(Colors.transparent),
         foregroundColor = WidgetStateProperty.resolveWith(
           (states) {
-            final colors = AppColors.get(themeStyle);
             if (states.contains(WidgetState.disabled)) {
               return colors.button.disabled;
             } else {
@@ -256,7 +255,6 @@ class AppButtonStyle {
         ),
         overlayColor = WidgetStateColor.resolveWith(
           (states) {
-            final colors = AppColors.get(themeStyle);
             if (states.contains(WidgetState.pressed)) {
               return colors.button.pressed;
             }
@@ -273,7 +271,6 @@ class AppButtonStyle {
         maximumSize = null,
         iconColor = WidgetStateProperty.resolveWith(
           (states) {
-            final colors = AppColors.get(themeStyle);
             if (states.contains(WidgetState.disabled)) {
               return colors.button.disabled;
             } else {

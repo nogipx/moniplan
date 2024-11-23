@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:moniplan/features/_common/_index.dart';
 
 class PlannerItemWidget extends StatelessWidget {
   const PlannerItemWidget({
@@ -28,6 +29,8 @@ class PlannerItemWidget extends StatelessWidget {
       duration: const Duration(milliseconds: 6000),
       child: Card(
         clipBehavior: Clip.hardEdge,
+        // color: context.theme.app.colors.background.primary,
+        color: context.theme.app.colors.element.card,
         child: InkWell(
           onTap: onPressed,
           child: Container(

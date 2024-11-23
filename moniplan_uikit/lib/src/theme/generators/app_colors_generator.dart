@@ -8,18 +8,18 @@ AppColors generateAppColorsFromPalette(PaletteColors palette) {
     palette: palette,
     background: BackgroundColors(
       primary: palette.background,
-      secondary: palette.surface.withOpacity(0.9),
-      tertiary: palette.surface, // Добавлен обязательный параметр tertiary
-      appBar: palette.primary.withOpacity(0.8),
-      drawer: palette.background.withOpacity(0.8),
+      secondary: palette.surface,
+      tertiary: palette.onSecondary, // Добавлен обязательный параметр tertiary
+      appBar: palette.primary,
+      drawer: palette.background,
       bottomNav: palette.surface,
     ),
     text: TextColors(
       primary: palette.onBackground,
-      secondary: palette.onSurface.withOpacity(0.7),
+      secondary: palette.onSurface,
       accent: palette.primary,
-      disabled: palette.onSurface.withOpacity(0.38),
-      hint: palette.onSurface.withOpacity(0.5),
+      disabled: palette.onSurface,
+      hint: palette.onSurface,
       inverse: palette.onPrimary,
       error: palette.error,
     ),
@@ -27,20 +27,16 @@ AppColors generateAppColorsFromPalette(PaletteColors palette) {
       primary: palette.primary,
       secondary: palette.secondary,
       tertiary: palette.surface, // Добавлен обязательный параметр tertiary
-      pressed: palette.primary.withOpacity(0.7),
-      hovered: palette.primary
-          .withOpacity(0.85), // Уменьшена прозрачность для более мягкого взаимодействия
-      disabled:
-          palette.onSurface.withOpacity(0.3), // Уменьшена прозрачность для более гармоничного вида
-      overlay:
-          palette.primary.withOpacity(0.08), // Уменьшена прозрачность для более тонкого эффекта
+      pressed: palette.primary,
+      hovered: palette.primary, // Уменьшена прозрачность для более мягкого взаимодействия
+      disabled: palette.onSurface, // Уменьшена прозрачность для более гармоничного вида
+      overlay: palette.primary, // Уменьшена прозрачность для более тонкого эффекта
     ),
     element: ElementColors(
       card: palette.surface,
-      modal: palette.surface.withOpacity(0.85), // Легкое уменьшение прозрачности для модальных окон
-      border:
-          palette.onSurface.withOpacity(0.15), // Увеличена прозрачность для лучшей видимости границ
-      shadow: Colors.black.withOpacity(0.15), // Уменьшена интенсивность тени для более мягкого вида
+      modal: palette.surface, // Легкое уменьшение прозрачности для модальных окон
+      border: palette.onSurface, // Увеличена прозрачность для лучшей видимости границ
+      shadow: Colors.black, // Уменьшена интенсивность тени для более мягкого вида
       divider:
           palette.onSurface.withOpacity(0.1), // Уменьшена прозрачность для более легкого разделения
       highlight: palette.secondary.withOpacity(0.25), // Более мягкий оттенок для выделения

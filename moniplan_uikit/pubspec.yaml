@@ -11,9 +11,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  moniplan_domain:
-    path: ../moniplan_domain
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

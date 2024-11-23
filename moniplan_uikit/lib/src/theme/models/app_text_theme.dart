@@ -8,6 +8,8 @@ class AppTextTheme {
   /// Базовый стиль для текста
   static TextStyle baseTextStyle = TextStyle();
 
+  final AppColors colors;
+
   /// Стиль текста для [TextTheme.displayLarge]
   final TextStyle? displayLarge;
 
@@ -55,6 +57,7 @@ class AppTextTheme {
 
   /// Создаёт класс для формирования стилей текста для [TextTheme] в ui kit
   const AppTextTheme({
+    required this.colors,
     this.displayLarge,
     this.displayMedium,
     this.displaySmall,
@@ -73,7 +76,7 @@ class AppTextTheme {
   });
 
   /// Получение текстовой темы по [themeStyle]
-  AppTextTheme.get(ThemeStyle themeStyle, AppColors colors)
+  AppTextTheme.get(ThemeStyle themeStyle, this.colors)
       : displayLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w800,
           fontSize: 28,
@@ -204,6 +207,7 @@ class AppTextTheme {
     TextStyle? labelSmall,
   }) =>
       AppTextTheme(
+        colors: colors ?? this.colors,
         displayLarge: displayLarge ?? this.displayLarge,
         displayMedium: displayMedium ?? this.displayMedium,
         displaySmall: displaySmall ?? this.displaySmall,
@@ -228,6 +232,7 @@ class AppTextTheme {
     }
 
     return AppTextTheme(
+      colors: colors.lerp(colors, t),
       displayLarge: TextStyle.lerp(displayLarge, b?.displayLarge, t),
       displayMedium: TextStyle.lerp(displayMedium, b?.displayMedium, t),
       displaySmall: TextStyle.lerp(displaySmall, b?.displaySmall, t),

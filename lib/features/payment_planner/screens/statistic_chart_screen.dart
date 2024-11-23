@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:moniplan/features/_common/_index.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class StatisticChart extends StatefulWidget {

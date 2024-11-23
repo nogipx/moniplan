@@ -1,42 +1,41 @@
 import 'package:flutter/material.dart';
 
-import '../_index.dart';
+import '_index.dart';
 
-/// Функция, генерирующая [ThemeData] из [AppColors], [AppButtonStyle], [AppShadowTheme], [AppBorderRadiuses], и [AppSpaces] для Flutter версии с поддержкой Material 3
-ThemeData generateThemeDataFromAppColors({
+/// Функция, генерирующая [ThemeData] из [AppColors], [AppButtonStyle],
+/// [AppShadowTheme], [AppBorderRadiuses], и [AppSpaces]
+/// для Flutter версии с поддержкой Material 3
+ThemeData composeThemeData({
   required AppColors colors,
   required Brightness brightness,
-  AppButtonStyle? buttonStyle,
-  AppShadowTheme? shadow,
-  AppBorderRadiuses? radius,
-  AppSpaces? space,
-  AppTextTheme? textTheme,
+  required AppButtonStyle buttonStyle,
+  required AppShadowTheme shadow,
+  required AppBorderRadiuses radius,
+  required AppSpaces space,
+  required AppTextTheme textTheme,
+  ThemeStyle defaultThemeStyle = ThemeStyle.dark,
   bool? useMaterial3,
 }) {
-  final effectiveButtonStyle = buttonStyle ?? AppButtonStyle.get(ThemeStyle.dark, colors);
-  final effectiveShadowTheme = shadow ?? AppShadowTheme.get();
-  final effectiveBorderRadiuses = radius ?? AppBorderRadiuses.get();
-  final effectiveSpaces = space ?? AppSpaces.get();
-  final effectiveTextTheme = textTheme ?? AppTextTheme.get(ThemeStyle.dark, colors);
   final themeExtension = AppThemeData(
     colors: colors,
-    buttonStyle: effectiveButtonStyle,
-    shadow: effectiveShadowTheme,
-    radius: effectiveBorderRadiuses,
-    space: effectiveSpaces,
+    buttonStyle: buttonStyle,
+    shadow: shadow,
+    radius: radius,
+    space: space,
   );
 
   final defaultIconThemeData = IconThemeData(color: colors.text.primary, size: 28);
   final defaultOutlineInputBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(effectiveSpaces.mediumLarge),
+    borderRadius: BorderRadius.circular(space.mediumLarge),
     borderSide: BorderSide.none,
   );
 
   return ThemeData(
     useMaterial3: useMaterial3,
+    extensions: [themeExtension],
     fontFamily: AppTextTheme.baseTextStyle.fontFamily,
-    textTheme: effectiveTextTheme.value,
-    primaryTextTheme: effectiveTextTheme.value,
+    textTheme: textTheme.value,
+    primaryTextTheme: textTheme.value,
     scaffoldBackgroundColor: colors.background.primary,
     canvasColor: colors.background.primary,
     hintColor: colors.text.secondary,
@@ -63,23 +62,23 @@ ThemeData generateThemeDataFromAppColors({
       backgroundColor: colors.background.appBar,
       foregroundColor: colors.text.primary,
       iconTheme: IconThemeData(color: colors.text.primary),
-      titleTextStyle: effectiveTextTheme.titleLarge,
+      titleTextStyle: textTheme.titleLarge,
     ),
     inputDecorationTheme: InputDecorationTheme(
-      floatingLabelStyle: effectiveTextTheme.bodyLarge?.copyWith(
+      floatingLabelStyle: textTheme.bodyLarge?.copyWith(
         color: colors.text.primary,
         backgroundColor: Colors.transparent,
       ),
-      labelStyle: effectiveTextTheme.bodyLarge?.copyWith(color: colors.text.primary),
-      hintStyle: effectiveTextTheme.bodyLarge?.copyWith(color: colors.text.secondary),
-      errorStyle: effectiveTextTheme.bodyLarge?.copyWith(color: colors.text.error),
-      helperStyle: effectiveTextTheme.bodyLarge?.copyWith(color: colors.text.secondary),
-      prefixStyle: effectiveTextTheme.bodyLarge,
+      labelStyle: textTheme.bodyLarge?.copyWith(color: colors.text.primary),
+      hintStyle: textTheme.bodyLarge?.copyWith(color: colors.text.secondary),
+      errorStyle: textTheme.bodyLarge?.copyWith(color: colors.text.error),
+      helperStyle: textTheme.bodyLarge?.copyWith(color: colors.text.secondary),
+      prefixStyle: textTheme.bodyLarge,
       errorMaxLines: 3,
       fillColor: colors.background.secondary,
       focusColor: colors.text.error,
       filled: true,
-      contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: effectiveSpaces.medium),
+      contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: space.medium),
       border: defaultOutlineInputBorder,
       disabledBorder: defaultOutlineInputBorder,
       enabledBorder: defaultOutlineInputBorder,
@@ -99,8 +98,8 @@ ThemeData generateThemeDataFromAppColors({
       selectedIconTheme: defaultIconThemeData,
       selectedItemColor: colors.text.primary,
       unselectedItemColor: colors.text.secondary,
-      selectedLabelStyle: effectiveTextTheme.titleSmall,
-      unselectedLabelStyle: effectiveTextTheme.titleSmall,
+      selectedLabelStyle: textTheme.titleSmall,
+      unselectedLabelStyle: textTheme.titleSmall,
       unselectedIconTheme: defaultIconThemeData.copyWith(color: colors.text.secondary),
       showSelectedLabels: true,
       showUnselectedLabels: true,
@@ -109,9 +108,9 @@ ThemeData generateThemeDataFromAppColors({
     dialogTheme: DialogTheme(
       backgroundColor: colors.background.primary,
       alignment: Alignment.center,
-      actionsPadding: EdgeInsets.symmetric(horizontal: effectiveSpaces.medium),
-      titleTextStyle: effectiveTextTheme.displaySmall,
-      contentTextStyle: effectiveTextTheme.bodyMedium,
+      actionsPadding: EdgeInsets.symmetric(horizontal: space.medium),
+      titleTextStyle: textTheme.displaySmall,
+      contentTextStyle: textTheme.bodyMedium,
       iconColor: colors.text.primary,
       surfaceTintColor: colors.background.secondary,
     ),
@@ -120,6 +119,5 @@ ThemeData generateThemeDataFromAppColors({
     ),
     iconTheme: defaultIconThemeData,
     primaryIconTheme: defaultIconThemeData,
-    extensions: [themeExtension],
   );
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:moniplan/features/_common/_index.dart';
 
 class PaymentListItem extends StatelessWidget {
   const PaymentListItem({

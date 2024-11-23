@@ -13,6 +13,8 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'screen.dart';
+
 class MoniplanApp extends StatefulWidget {
   const MoniplanApp({
     super.key,
@@ -57,22 +59,23 @@ class _MoniplanAppState extends State<MoniplanApp> {
             final result = generateAppColorsFromPalette(
               generatePaletteColors(
                 isDarkTheme: true,
-                primary: AppColorsRaw.oliveBlack,
+                primary: AppColorsRaw.darkBrownBlack,
                 accentColor: AppColorsRaw.brightBlue,
-                backgroundColor: AppColorsRaw.standardDarkGray,
-                diversityFactor: .1,
+                // backgroundColor: AppColorsRaw.standardDarkGray,
+                diversityFactor: .8,
               ),
             );
 
             return MaterialApp(
               debugShowCheckedModeBanner: false,
-              theme: AppTheme.theme(
+              theme: theme(
+                // customColors: result,
                 themeStyle: ThemeStyle.dark,
                 baseTextStyle: TextStyle(
                   overflow: TextOverflow.ellipsis,
                   fontFamily: 'TTNeoris',
                 ),
-                customColors: result,
+                // customColors: result,
               ),
               builder: (context, child) => ResponsiveBreakpoints.builder(
                 child: child!,
@@ -100,6 +103,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
                 ],
               ),
               home: home,
+              // home: AppColorsDisplayScreen(appColors: result),
             );
           },
         ),
