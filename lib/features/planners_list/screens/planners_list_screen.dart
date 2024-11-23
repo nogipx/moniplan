@@ -9,6 +9,7 @@ import 'package:moniplan/features/planners_list/_index.dart';
 import 'package:moniplan/features/planners_list/widgets/dialog_update_planner.dart';
 import 'package:moniplan/features/planners_list/widgets/dialog_delete_planner.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PlannersListScreen extends StatefulWidget {
   const PlannersListScreen({super.key});
@@ -51,6 +52,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           'Last update: ${DateFormat(dateFormatWithTime).format(updateDate)}',
+                          style: context.theme.textTheme.titleLarge,
                         ),
                       );
                     },

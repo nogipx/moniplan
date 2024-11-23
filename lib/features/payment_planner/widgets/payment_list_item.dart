@@ -32,7 +32,7 @@ class PaymentListItem extends StatelessWidget {
               children: [
                 Text(
                   payment.repeat.shortName,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(),
+                  style: context.theme.textTheme.labelMedium,
                 ),
                 const SizedBox(width: 2),
                 Icon(
@@ -57,7 +57,7 @@ class PaymentListItem extends StatelessWidget {
                 Icons.done_outlined,
                 size: 16,
                 color: payment.isDone
-                    ? context.theme.app.colors.content.onPrimary
+                    ? context.theme.app.colors.content.onSurface
                     : context.theme.app.colors.content.onSecondary,
               ),
             ),
@@ -87,15 +87,14 @@ class PaymentListItem extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SelectableText(
+                    Text(
                       payment.details.name,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: payment.isEnabled
-                                ? context.theme.app.colors.content.onPrimary
-                                : context.theme.app.colors.content.onSecondary,
-                            fontSize: 16,
-                            decoration: !payment.isEnabled ? TextDecoration.lineThrough : null,
-                          ),
+                      style: context.theme.textTheme.bodyLarge?.copyWith(
+                        color: payment.isEnabled
+                            ? context.theme.app.colors.content.onSurface
+                            : context.theme.app.colors.content.onSecondary,
+                        decoration: !payment.isEnabled ? TextDecoration.lineThrough : null,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Row(

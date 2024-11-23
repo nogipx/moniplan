@@ -81,19 +81,19 @@ class AppTextTheme {
           fontWeight: FontWeight.w800,
           fontSize: 28,
           height: 1.3,
-          color: colors.content.onPrimary,
+          color: colors.content.onSurface,
         ),
         displayMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 24,
           height: 1.25,
-          color: colors.content.onPrimary,
+          color: colors.content.onSurface,
         ),
         displaySmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 20,
           height: 1.2,
-          color: colors.content.onPrimary,
+          color: colors.content.onSurface,
         ),
         bodyLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
@@ -111,25 +111,25 @@ class AppTextTheme {
           fontWeight: FontWeight.w400,
           fontSize: 14,
           height: 1.3,
-          color: colors.content.onSurfaceVariant,
+          color: colors.content.onSurface,
         ),
         headlineLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 22,
           height: 1.3,
-          color: colors.content.onPrimary,
+          color: colors.content.onSurface,
         ),
         headlineMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 20,
           height: 1.25,
-          color: colors.content.onPrimary,
+          color: colors.content.onSurface,
         ),
         headlineSmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 18,
           height: 1.2,
-          color: colors.content.onPrimary,
+          color: colors.content.onSurface,
         ),
         titleLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
@@ -147,25 +147,25 @@ class AppTextTheme {
           fontWeight: FontWeight.w500,
           fontSize: 12,
           height: 1.3,
-          color: colors.content.onSecondary,
+          color: colors.content.onSurface,
         ),
         labelLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 16,
           height: 1.5,
-          color: colors.content.onPrimary,
+          color: colors.content.onSurface,
         ),
         labelMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 14,
           height: 1.4,
-          color: colors.content.onSecondary,
+          color: colors.content.onSurface,
         ),
         labelSmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 12,
           height: 1.4,
-          color: colors.content.onSurfaceVariant,
+          color: colors.content.onSurface,
         );
 
   /// Получение [TextTheme]

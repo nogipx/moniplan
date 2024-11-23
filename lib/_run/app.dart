@@ -63,7 +63,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
             // );
 
             final colors = AppColors.fromSeedColor(
-              seedColor: targetColor,
+              seedColor: rainbow,
               isDarkTheme: true,
             );
 
@@ -74,7 +74,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
                 overflow: TextOverflow.ellipsis,
                 fontFamily: 'TTNeoris',
               ),
-              // customColors: colors,
+              customColors: colors,
             );
 
             return MaterialApp(
