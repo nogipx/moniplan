@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:moniplan_uikit/src/theme/models/_index.dart';
+
+import '_index.dart';
 
 /// Класс для формирования [ThemeData] в ui kit
 class AppTheme {
@@ -38,6 +39,7 @@ ThemeData generateThemeDataFromAppColors({
   AppBorderRadiuses? radius,
   AppSpaces? space,
   AppTextTheme? textTheme,
+  bool? useMaterial3,
 }) {
   final effectiveButtonStyle = buttonStyle ?? AppButtonStyle.get(ThemeStyle.dark);
   final effectiveShadowTheme = shadow ?? AppShadowTheme.get();
@@ -52,67 +54,99 @@ ThemeData generateThemeDataFromAppColors({
     space: effectiveSpaces,
   );
 
+  final defaultIconThemeData = IconThemeData(color: colors.text.primary, size: 28);
+  final defaultOutlineInputBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(effectiveSpaces.mediumLarge),
+    borderSide: BorderSide.none,
+  );
+
   return ThemeData(
-    useMaterial3: true,
-    extensions: [themeExtension],
+    useMaterial3: useMaterial3,
+    fontFamily: AppTextTheme.baseTextStyle.fontFamily,
+    textTheme: effectiveTextTheme.value,
+    primaryTextTheme: effectiveTextTheme.value,
+    scaffoldBackgroundColor: colors.background.primary,
+    canvasColor: colors.background.primary,
+    hintColor: colors.text.secondary,
+    primaryColor: colors.text.primary,
+    splashColor: colors.button.pressed,
+    hoverColor: colors.button.hovered,
+    dialogBackgroundColor: colors.background.secondary,
     colorScheme: ColorScheme(
       brightness: brightness,
       primary: colors.palette.primary,
       onPrimary: colors.text.primary,
-      secondary: colors.palette.secondary,
+      secondary: colors.background.secondary,
       onSecondary: colors.text.secondary,
-      surface: colors.element.card,
-      onSurface: colors.text.primary,
-      error: colors.state.error,
+      error: colors.background.secondary,
       onError: colors.text.primary,
+      surface: colors.background.tertiary,
+      onSurface: colors.text.primary,
+      errorContainer: colors.background.tertiary,
+      onErrorContainer: colors.text.primary,
     ),
-    primaryColor: colors.palette.primary,
-    canvasColor: colors.background.primary,
-    scaffoldBackgroundColor: colors.background.primary,
-    cardColor: colors.element.card,
-    dividerColor: colors.element.divider,
-    highlightColor: colors.state.active.withOpacity(0.2),
-    splashColor: colors.button.overlay,
-    textTheme: effectiveTextTheme.value,
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: effectiveButtonStyle.value,
-    ),
-    floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: colors.button.primary,
-      foregroundColor: colors.text.primary,
-    ),
+    textSelectionTheme: TextSelectionThemeData(cursorColor: colors.text.error),
     appBarTheme: AppBarTheme(
-      backgroundColor: colors.palette.primary,
+      backgroundColor: colors.background.appBar,
       foregroundColor: colors.text.primary,
       iconTheme: IconThemeData(color: colors.text.primary),
       titleTextStyle: effectiveTextTheme.titleLarge,
     ),
-    iconTheme: IconThemeData(color: colors.text.primary),
-    cardTheme: CardTheme(
-      color: colors.element.card,
-      shadowColor: effectiveShadowTheme.darkShadow1?.first.color ?? colors.element.shadow,
-      elevation: effectiveShadowTheme.darkShadow1?.first.blurRadius ?? 4,
-    ),
     inputDecorationTheme: InputDecorationTheme(
+      floatingLabelStyle: effectiveTextTheme.bodyLarge?.copyWith(
+        color: colors.text.primary,
+        backgroundColor: Colors.transparent,
+      ),
+      labelStyle: effectiveTextTheme.bodyLarge?.copyWith(color: colors.text.primary),
+      hintStyle: effectiveTextTheme.bodyLarge?.copyWith(color: colors.text.secondary),
+      errorStyle: effectiveTextTheme.bodyLarge?.copyWith(color: colors.text.error),
+      helperStyle: effectiveTextTheme.bodyLarge?.copyWith(color: colors.text.secondary),
+      prefixStyle: effectiveTextTheme.bodyLarge,
+      errorMaxLines: 3,
+      fillColor: colors.background.secondary,
+      focusColor: colors.text.error,
       filled: true,
-      fillColor: colors.element.modal,
-      focusColor: colors.palette.primary,
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: colors.element.border),
-        borderRadius: effectiveBorderRadiuses.small,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: colors.palette.primary, width: 2.0),
-        borderRadius: effectiveBorderRadiuses.medium,
-      ),
-      labelStyle: effectiveTextTheme.bodySmall,
-      hintStyle: effectiveTextTheme.bodySmall,
+      contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: effectiveSpaces.medium),
+      border: defaultOutlineInputBorder,
+      disabledBorder: defaultOutlineInputBorder,
+      enabledBorder: defaultOutlineInputBorder,
+      errorBorder: defaultOutlineInputBorder,
+      focusedBorder: defaultOutlineInputBorder,
+      focusedErrorBorder: defaultOutlineInputBorder,
+      prefixIconColor: colors.text.primary,
+      suffixIconColor: colors.text.primary,
     ),
-    buttonTheme: ButtonThemeData(
-      padding: EdgeInsets.all(effectiveSpaces.medium),
-      shape: RoundedRectangleBorder(
-        borderRadius: effectiveBorderRadiuses.medium,
-      ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: colors.background.tertiary,
+      modalBarrierColor: colors.background.primary.withOpacity(0.6),
     ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      elevation: 0,
+      backgroundColor: colors.background.secondary,
+      selectedIconTheme: defaultIconThemeData,
+      selectedItemColor: colors.text.primary,
+      unselectedItemColor: colors.text.secondary,
+      selectedLabelStyle: effectiveTextTheme.titleSmall,
+      unselectedLabelStyle: effectiveTextTheme.titleSmall,
+      unselectedIconTheme: defaultIconThemeData.copyWith(color: colors.text.secondary),
+      showSelectedLabels: true,
+      showUnselectedLabels: true,
+      type: BottomNavigationBarType.fixed,
+    ),
+    dialogTheme: DialogTheme(
+      backgroundColor: colors.background.primary,
+      alignment: Alignment.center,
+      actionsPadding: EdgeInsets.symmetric(horizontal: effectiveSpaces.medium),
+      titleTextStyle: effectiveTextTheme.displaySmall,
+      contentTextStyle: effectiveTextTheme.bodyMedium,
+      iconColor: colors.text.primary,
+      surfaceTintColor: colors.background.secondary,
+    ),
+    timePickerTheme: TimePickerThemeData(
+      dialBackgroundColor: colors.background.primary,
+    ),
+    iconTheme: defaultIconThemeData,
+    primaryIconTheme: defaultIconThemeData,
+    extensions: [themeExtension],
   );
 }
