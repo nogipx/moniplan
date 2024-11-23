@@ -29,8 +29,6 @@ class PlannerItemWidget extends StatelessWidget {
       duration: const Duration(milliseconds: 6000),
       child: Card(
         clipBehavior: Clip.hardEdge,
-        // color: context.theme.app.colors.background.primary,
-        color: context.theme.app.colors.element.card,
         child: InkWell(
           onTap: onPressed,
           child: Container(

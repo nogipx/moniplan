@@ -32,97 +32,76 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('App Colors Display'),
-        backgroundColor: widget.appColors.background.appBar,
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'App Colors'),
-            Tab(text: 'ColorScheme'),
-          ],
-        ),
+        backgroundColor: widget.appColors.background.surface,
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: ListView(
         children: [
-          ListView(
-            children: [
-              _buildColorSection('Background Colors', _extractBackgroundColors()),
-              _buildColorSection('Text Colors', _extractTextColors()),
-              _buildColorSection('Button Colors', _extractButtonColors()),
-              _buildColorSection('Element Colors', _extractElementColors()),
-              _buildColorSection('State Colors', _extractStateColors()),
-            ],
-          ),
-          ListView(
-            children: [
-              _buildColorSection('BackgroundColors', _extractColorSchemeColorsBackground()),
-              _buildColorSection('TextColors', _extractColorSchemeColorsTextColors()),
-              _buildColorSection('ButtonColors', _extractColorSchemeColorsButtonColors()),
-              _buildColorSection('ElementColors', _extractColorSchemeColorsElementColors()),
-              _buildColorSection('StateColors', _extractColorSchemeColorsStateColors()),
-            ],
-          ),
+          _buildColorSection('BackgroundColors', _extractColorSchemeColorsBackground()),
+          _buildColorSection('TextColors', _extractColorSchemeColorsTextColors()),
+          _buildColorSection('ButtonColors', _extractColorSchemeColorsButtonColors()),
+          _buildColorSection('ElementColors', _extractColorSchemeColorsElementColors()),
+          _buildColorSection('StateColors', _extractColorSchemeColorsStateColors()),
         ],
       ),
     );
   }
 
-  List<Map<String, Color>> _extractBackgroundColors() {
-    return [
-      {'Primary': widget.appColors.background.primary},
-      {'Secondary': widget.appColors.background.secondary},
-      {'Tertiary': widget.appColors.background.tertiary},
-      {'App Bar': widget.appColors.background.appBar},
-      {'Drawer': widget.appColors.background.drawer},
-      {'Bottom Navigation': widget.appColors.background.bottomNav},
-    ];
-  }
-
-  List<Map<String, Color>> _extractTextColors() {
-    return [
-      {'Primary': widget.appColors.text.primary},
-      {'Secondary': widget.appColors.text.secondary},
-      {'Accent': widget.appColors.text.accent},
-      {'Disabled': widget.appColors.text.disabled},
-      {'Hint': widget.appColors.text.hint},
-      {'Inverse': widget.appColors.text.inverse},
-      {'Error': widget.appColors.text.error},
-    ];
-  }
-
-  List<Map<String, Color>> _extractButtonColors() {
-    return [
-      {'Primary': widget.appColors.button.primary},
-      {'Secondary': widget.appColors.button.secondary},
-      {'Tertiary': widget.appColors.button.tertiary},
-      {'Pressed': widget.appColors.button.pressed},
-      {'Hovered': widget.appColors.button.hovered},
-      {'Disabled': widget.appColors.button.disabled},
-      {'Overlay': widget.appColors.button.overlay},
-    ];
-  }
-
-  List<Map<String, Color>> _extractElementColors() {
-    return [
-      {'Card': widget.appColors.element.card},
-      {'Modal': widget.appColors.element.modal},
-      {'Border': widget.appColors.element.border},
-      {'Shadow': widget.appColors.element.shadow},
-      {'Divider': widget.appColors.element.divider},
-      {'Highlight': widget.appColors.element.highlight},
-      {'Background': widget.appColors.element.background},
-    ];
-  }
-
-  List<Map<String, Color>> _extractStateColors() {
-    return [
-      {'Active': widget.appColors.state.active},
-      {'Inactive': widget.appColors.state.inactive},
-      {'Error': widget.appColors.state.error},
-      {'Success': widget.appColors.state.success},
-      {'Warning': widget.appColors.state.warning},
-    ];
-  }
+  // List<Map<String, Color>> _extractBackgroundColors() {
+  //   return [
+  //     {'Primary': widget.appColors.background.primary},
+  //     {'Secondary': widget.appColors.background.secondary},
+  //     {'Tertiary': widget.appColors.background.tertiary},
+  //     {'App Bar': widget.appColors.background.appBar},
+  //     {'Drawer': widget.appColors.background.drawer},
+  //     {'Bottom Navigation': widget.appColors.background.bottomNav},
+  //   ];
+  // }
+  //
+  // List<Map<String, Color>> _extractTextColors() {
+  //   return [
+  //     {'Primary': widget.appColors.text.primary},
+  //     {'Secondary': widget.appColors.text.secondary},
+  //     {'Accent': widget.appColors.text.accent},
+  //     {'Disabled': widget.appColors.text.disabled},
+  //     {'Hint': widget.appColors.text.hint},
+  //     {'Inverse': widget.appColors.text.inverse},
+  //     {'Error': widget.appColors.text.error},
+  //   ];
+  // }
+  //
+  // List<Map<String, Color>> _extractButtonColors() {
+  //   return [
+  //     {'Primary': widget.appColors.button.primary},
+  //     {'Secondary': widget.appColors.button.secondary},
+  //     {'Tertiary': widget.appColors.button.tertiary},
+  //     {'Pressed': widget.appColors.button.pressed},
+  //     {'Hovered': widget.appColors.button.hovered},
+  //     {'Disabled': widget.appColors.button.disabled},
+  //     {'Overlay': widget.appColors.button.overlay},
+  //   ];
+  // }
+  //
+  // List<Map<String, Color>> _extractElementColors() {
+  //   return [
+  //     {'Card': widget.appColors.element.card},
+  //     {'Modal': widget.appColors.element.modal},
+  //     {'Border': widget.appColors.element.border},
+  //     {'Shadow': widget.appColors.element.shadow},
+  //     {'Divider': widget.appColors.element.divider},
+  //     {'Highlight': widget.appColors.element.highlight},
+  //     {'Background': widget.appColors.element.background},
+  //   ];
+  // }
+  //
+  // List<Map<String, Color>> _extractStateColors() {
+  //   return [
+  //     {'Active': widget.appColors.state.active},
+  //     {'Inactive': widget.appColors.state.inactive},
+  //     {'Error': widget.appColors.state.error},
+  //     {'Success': widget.appColors.state.success},
+  //     {'Warning': widget.appColors.state.warning},
+  //   ];
+  // }
 
   List<Map<String, Color>> _extractColorSchemeColorsBackground() {
     final colorScheme = widget.colorScheme;

@@ -18,7 +18,6 @@ class PaymentListMonthSeparator extends StatelessWidget {
       child: Text(
         '${DateFormat(DateFormat.MONTH, 'ru').format(date).capitalize()} ${date.year}',
         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: context.theme.app.colors.text.primary,
               fontWeight: FontWeight.w700,
             ),
       ),

@@ -32,15 +32,12 @@ class PaymentListItem extends StatelessWidget {
               children: [
                 Text(
                   payment.repeat.shortName,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: context.theme.app.colors.text.secondary,
-                      ),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(),
                 ),
                 const SizedBox(width: 2),
                 Icon(
                   Icons.refresh_rounded,
                   size: 18,
-                  color: context.theme.app.colors.text.secondary,
                 ),
               ],
             )
@@ -60,8 +57,8 @@ class PaymentListItem extends StatelessWidget {
                 Icons.done_outlined,
                 size: 16,
                 color: payment.isDone
-                    ? context.theme.app.colors.scheme.primary
-                    : context.theme.app.colors.text.secondary,
+                    ? context.theme.app.colors.content.onPrimary
+                    : context.theme.app.colors.content.onSecondary,
               ),
             ),
           if (!payment.isEnabled)
@@ -94,8 +91,8 @@ class PaymentListItem extends StatelessWidget {
                       payment.details.name,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             color: payment.isEnabled
-                                ? context.theme.app.colors.text.primary
-                                : context.theme.app.colors.text.secondary,
+                                ? context.theme.app.colors.content.onPrimary
+                                : context.theme.app.colors.content.onSecondary,
                             fontSize: 16,
                             decoration: !payment.isEnabled ? TextDecoration.lineThrough : null,
                           ),
@@ -111,7 +108,6 @@ class PaymentListItem extends StatelessWidget {
                         Icon(
                           Icons.arrow_right_alt_rounded,
                           size: 20,
-                          color: context.theme.app.colors.text.secondary,
                         ),
                         const SizedBox(width: 4),
                         budgetPredictWidget,

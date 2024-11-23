@@ -82,7 +82,7 @@ class AppSystemUiOverlayStyle {
   /// Стиль по умолчанию для [SystemUiOverlayStyle]
   AppSystemUiOverlayStyle.get(AppColors colors)
       : statusBarColor = Colors.transparent,
-        systemNavigationBarColor = colors.background.primary,
+        systemNavigationBarColor = colors.background.surface,
         statusBarBrightness = switch (colors.brightness) {
           Brightness.light => Brightness.light,
           _ => Brightness.dark,
@@ -111,6 +111,14 @@ class AppSystemUiOverlayStyle {
           Color.lerp(systemNavigationBarColor, b?.systemNavigationBarColor, t),
       systemNavigationBarDividerColor:
           Color.lerp(systemNavigationBarDividerColor, b?.systemNavigationBarDividerColor, t),
+      systemNavigationBarIconBrightness:
+          t < 0.5 ? systemNavigationBarIconBrightness : b?.systemNavigationBarIconBrightness,
+      systemNavigationBarContrastEnforced:
+          t < 0.5 ? systemNavigationBarContrastEnforced : b?.systemNavigationBarContrastEnforced,
+      statusBarBrightness: t < 0.5 ? statusBarBrightness : b?.statusBarBrightness,
+      statusBarIconBrightness: t < 0.5 ? statusBarIconBrightness : b?.statusBarIconBrightness,
+      systemStatusBarContrastEnforced:
+          t < 0.5 ? systemStatusBarContrastEnforced : b?.systemStatusBarContrastEnforced,
     );
   }
 }

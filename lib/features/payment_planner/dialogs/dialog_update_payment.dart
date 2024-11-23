@@ -58,10 +58,8 @@ Future<void> showUpdatePaymentDialog({
   );
 
   final boxDecoration = BoxDecoration(
-    color: context.theme.app.colors.background.tertiary,
     borderRadius: BorderRadius.all(Radius.circular(16)),
     border: Border.all(
-      color: context.theme.app.colors.background.tertiary,
       width: .5,
     ),
   );
@@ -99,7 +97,6 @@ Future<void> showUpdatePaymentDialog({
             ],
             selectedIcon: Icon(
               type == PaymentType.expense ? Icons.remove : Icons.add,
-              color: context.theme.app.colors.text.primary,
             ),
             onSelectionChanged: (paymentTypes) {
               setState(() {

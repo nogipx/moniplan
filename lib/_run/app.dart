@@ -107,11 +107,11 @@ class _MoniplanAppState extends State<MoniplanApp> {
                   ),
                 ],
               ),
-              // home: home,
-              home: AppColorsDisplayScreen(
-                appColors: colors,
-                colorScheme: colors.scheme,
-              ),
+              home: home,
+              // home: AppColorsDisplayScreen(
+              //   appColors: colors,
+              //   colorScheme: colors.scheme,
+              // ),
             );
           },
         ),

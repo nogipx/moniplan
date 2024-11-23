@@ -107,6 +107,9 @@ class AppColors {
     final int onSurfaceTone = isLight ? 10 : 90;
 
     final int outlineTone = isLight ? 50 : 60;
+    final int backgroundTone = isLight ? 98 : 8;
+    final int surfaceVariantTone = isLight ? 90 : 30;
+    final int inversePrimaryTone = isLight ? 20 : 80;
 
     // Создание ColorScheme
     final ColorScheme colorScheme = ColorScheme(
@@ -130,13 +133,15 @@ class AppColors {
       surface: Color(neutralPalette.get(surfaceTone)),
       onSurface: Color(neutralPalette.get(onSurfaceTone)),
       outline: Color(neutralVariantPalette.get(outlineTone)),
-      shadow: Colors.black,
+      shadow: Colors.black, // Ограниченное использование для теней
       inverseSurface: Color(neutralPalette.get(onSurfaceTone)),
       onInverseSurface: Color(neutralPalette.get(surfaceTone)),
-      inversePrimary: Color(primaryPalette.get(onPrimaryTone)),
-      surfaceTint: Color(primaryPalette.get(primaryTone)),
+      inversePrimary: Color(primaryPalette.get(inversePrimaryTone)),
+      surfaceTint: Color(primaryPalette.get(primaryTone)), // Используется для tint
       outlineVariant: Color(neutralVariantPalette.get(outlineTone)),
-      scrim: Colors.black.withOpacity(0.5),
+      scrim: Colors.black.withOpacity(0.5), // Для модальных затемнений
+      background: Color(neutralPalette.get(backgroundTone)),
+      surfaceVariant: Color(neutralVariantPalette.get(surfaceVariantTone)),
     );
 
     return fromColorScheme(colorScheme);
@@ -146,86 +151,39 @@ class AppColors {
     return AppColors(
       scheme: colorScheme,
       accent: AccentColors(
-        /// Основной акцентный цвет для кнопок и выделений
         primary: colorScheme.primary,
-
-        /// Контейнер для основного акцента, например, фон кнопок или карточек
         primaryContainer: colorScheme.primaryContainer,
-
-        /// Второстепенный акцентный цвет, используется для менее выделенных кнопок или чипов
         secondary: colorScheme.secondary,
-
-        /// Контейнер для второстепенного акцента
         secondaryContainer: colorScheme.secondaryContainer,
-
-        /// Дополнительный акцентный цвет, например, для декоративных элементов
         tertiary: colorScheme.tertiary,
-
-        /// Контейнер для дополнительного акцента
         tertiaryContainer: colorScheme.tertiaryContainer,
       ),
       background: BackgroundColors(
-        /// Основной цвет фона приложения
-        background: colorScheme.onBackground,
-
-        /// Цвет поверхности для карточек, панелей и модальных окон
+        background: colorScheme.background,
         surface: colorScheme.surface,
-
-        /// Альтернативный цвет поверхности для второстепенных слоёв или декоративных элементов
         surfaceVariant: colorScheme.surfaceVariant,
-
-        /// Инверсированный цвет поверхности, например, для всплывающих подсказок в тёмной теме
         inverseSurface: colorScheme.inverseSurface,
       ),
       content: ContentColors(
-        /// Цвет текста и иконок поверх основного фона
         onBackground: colorScheme.onBackground,
-
-        /// Цвет текста и иконок поверх поверхности (surface)
         onSurface: colorScheme.onSurface,
-
-        /// Цвет текста и иконок поверх альтернативной поверхности (surfaceVariant)
         onSurfaceVariant: colorScheme.onSurfaceVariant,
-
-        /// Цвет текста и иконок поверх инверсированной поверхности
         onInverseSurface: colorScheme.onInverseSurface,
-
-        /// Цвет текста и иконок поверх основного акцента (primary)
         onPrimary: colorScheme.onPrimary,
-
-        /// Цвет текста и иконок поверх второстепенного акцента (secondary)
         onSecondary: colorScheme.onSecondary,
-
-        /// Цвет текста и иконок поверх дополнительного акцента (tertiary)
         onTertiary: colorScheme.onTertiary,
-
-        /// Цвет текста и иконок поверх цвета ошибок (error)
         onError: colorScheme.onError,
       ),
       state: StateColors(
-        /// Цвет, обозначающий ошибки
         error: colorScheme.error,
-
-        /// Цвет контейнера для сообщений об ошибках
         errorContainer: colorScheme.errorContainer,
-
-        /// Инверсированный основной цвет, используемый для выделения на тёмных фонах
         inversePrimary: colorScheme.inversePrimary,
       ),
       util: UtilityColors(
-        /// Цвет границ или разделителей
         outline: colorScheme.outline,
-
-        /// Альтернативный цвет для границ
         outlineVariant: colorScheme.outlineVariant,
-
-        /// Цвет теней, используемых для создания глубины
         shadow: colorScheme.shadow,
-
-        /// Цвет затемнения для модальных окон или блокирующих слоёв
         scrim: colorScheme.scrim,
-
-        /// Цвет оттенков поверхности при взаимодействии (например, при наведении или нажатии)
         surfaceTint: colorScheme.surfaceTint,
       ),
     );
