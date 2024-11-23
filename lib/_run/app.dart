@@ -55,38 +55,19 @@ class _MoniplanAppState extends State<MoniplanApp> {
             final rainbow = generateRainbowColor(random);
             final targetColor = AppColorsRaw.brightBlue;
 
-            // Задайте исходный цвет
-            final sourceColorArgb = 0xFF6200EE;
-
-            // // Создайте палитры тонов
-            // final TonalPalette primaryPalette = TonalPalette.of(sourceColorArgb);
-            // final TonalPalette secondaryPalette = TonalPalette.of(sourceColorArgb);
-            // final TonalPalette tertiaryPalette = TonalPalette.of(sourceColorArgb);
-            // final TonalPalette neutralPalette = TonalPalette.of(sourceColorArgb);
-            // final TonalPalette neutralVariantPalette = TonalPalette.of(sourceColorArgb);
-            //
-            // // Создайте DynamicScheme
-            // final DynamicScheme dynamicScheme = DynamicScheme(
-            //   sourceColorArgb: sourceColorArgb,
-            //   variant: Variant.tone,
-            //   contrastLevel: 0.0,
-            //   isDark: false,
-            //   primaryPalette: primaryPalette,
-            //   secondaryPalette: secondaryPalette,
-            //   tertiaryPalette: tertiaryPalette,
-            //   neutralPalette: neutralPalette,
-            //   neutralVariantPalette: neutralVariantPalette,
-            // );
-
-            // Создайте ColorScheme на основе DynamicScheme
-            final ColorScheme colorScheme = generateColorSchemeFromSeed(
-              seedColor: AppColorsRaw.oliveBlack,
-              isDarkTheme: true,
-            );
-
             var resultTheme = theme(
-              customColors: AppColors.fromColorScheme(colorScheme),
-              themeStyle: ThemeStyle.dark,
+              // customColors: AppColors.fromSeedColor(
+              //   // seedColor: AppColorsRaw.brightBlue,
+              //   seedColor: targetColor,
+              //   isDarkTheme: true,
+              // ),
+              // customColors: AppColors.fromColorScheme(
+              //   ColorScheme.fromSeed(
+              //     seedColor: Colors.cyanAccent,
+              //     brightness: Brightness.dark,
+              //   ),
+              // ),
+              // brightness: Brightness.dark,
               baseTextStyle: TextStyle(
                 overflow: TextOverflow.ellipsis,
                 fontFamily: 'TTNeoris',
@@ -134,66 +115,4 @@ class _MoniplanAppState extends State<MoniplanApp> {
       ),
     );
   }
-}
-
-// Генерация ColorScheme из сида цвета с использованием DynamicScheme
-
-ColorScheme generateColorSchemeFromSeed({
-  required Color seedColor,
-  required bool isDarkTheme,
-}) {
-  // Convert Flutter Color to ARGB integer
-  final int seedColorArgb = seedColor.value;
-
-  // Create a CorePalette from the seed color
-  final CorePalette corePalette = CorePalette.of(seedColorArgb);
-  final brightness = isDarkTheme ? Brightness.dark : Brightness.light;
-
-  // Select the appropriate tonal palette based on brightness
-  final TonalPalette primaryPalette = corePalette.primary;
-  final TonalPalette secondaryPalette = corePalette.secondary;
-  final TonalPalette tertiaryPalette = corePalette.tertiary;
-  final TonalPalette neutralPalette = corePalette.neutral;
-  final TonalPalette neutralVariantPalette = corePalette.neutralVariant;
-  final TonalPalette errorPalette = corePalette.error;
-
-  // Define tones based on brightness
-  final int primaryTone = brightness == Brightness.light ? 40 : 80;
-  final int onPrimaryTone = brightness == Brightness.light ? 100 : 20;
-  final int primaryContainerTone = brightness == Brightness.light ? 90 : 30;
-  final int onPrimaryContainerTone = brightness == Brightness.light ? 10 : 90;
-
-  // Repeat for other color roles as needed...
-
-  return ColorScheme(
-    brightness: brightness,
-    primary: Color(primaryPalette.get(primaryTone)),
-    onPrimary: Color(primaryPalette.get(onPrimaryTone)),
-    primaryContainer: Color(primaryPalette.get(primaryContainerTone)),
-    onPrimaryContainer: Color(primaryPalette.get(onPrimaryContainerTone)),
-    secondary: Color(secondaryPalette.get(primaryTone)),
-    onSecondary: Color(secondaryPalette.get(onPrimaryTone)),
-    secondaryContainer: Color(secondaryPalette.get(primaryContainerTone)),
-    onSecondaryContainer: Color(secondaryPalette.get(onPrimaryContainerTone)),
-    tertiary: Color(tertiaryPalette.get(primaryTone)),
-    onTertiary: Color(tertiaryPalette.get(onPrimaryTone)),
-    tertiaryContainer: Color(tertiaryPalette.get(primaryContainerTone)),
-    onTertiaryContainer: Color(tertiaryPalette.get(onPrimaryContainerTone)),
-    error: Color(errorPalette.get(primaryTone)),
-    onError: Color(errorPalette.get(onPrimaryTone)),
-    errorContainer: Color(errorPalette.get(primaryContainerTone)),
-    onErrorContainer: Color(errorPalette.get(onPrimaryContainerTone)),
-    background: Color(neutralPalette.get(primaryContainerTone)),
-    onBackground: Color(neutralPalette.get(onPrimaryContainerTone)),
-    surface: Color(neutralPalette.get(primaryContainerTone)),
-    onSurface: Color(neutralPalette.get(onPrimaryContainerTone)),
-    surfaceVariant: Color(neutralVariantPalette.get(primaryContainerTone)),
-    onSurfaceVariant: Color(neutralVariantPalette.get(onPrimaryContainerTone)),
-    outline: Color(neutralVariantPalette.get(primaryTone)),
-    shadow: Colors.black,
-    inverseSurface: Color(neutralPalette.get(onPrimaryContainerTone)),
-    onInverseSurface: Color(neutralPalette.get(primaryTone)),
-    inversePrimary: Color(primaryPalette.get(onPrimaryTone)),
-    surfaceTint: Color(primaryPalette.get(primaryTone)),
-  );
 }

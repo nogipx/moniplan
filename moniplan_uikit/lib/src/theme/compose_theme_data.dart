@@ -7,13 +7,11 @@ import '_index.dart';
 /// для Flutter версии с поддержкой Material 3
 ThemeData composeThemeData({
   required AppColors colors,
-  required Brightness brightness,
   required AppButtonStyle buttonStyle,
   required AppShadowTheme shadow,
   required AppBorderRadiuses radius,
   required AppSpaces space,
   required AppTextTheme textTheme,
-  ThemeStyle defaultThemeStyle = ThemeStyle.dark,
   bool? useMaterial3,
 }) {
   final themeExtension = AppThemeData(
@@ -32,6 +30,7 @@ ThemeData composeThemeData({
 
   return ThemeData(
     useMaterial3: useMaterial3,
+    brightness: colors.brightness,
     extensions: [themeExtension],
     fontFamily: AppTextTheme.baseTextStyle.fontFamily,
     textTheme: textTheme.value,

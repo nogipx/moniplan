@@ -4,7 +4,7 @@ import '_index.dart';
 import 'compose_theme_data.dart';
 
 ThemeData theme({
-  required ThemeStyle themeStyle,
+  Brightness? brightness,
   TextStyle? baseTextStyle,
   AppColors? customColors,
   AppButtonStyle? customButtonStyle,
@@ -15,14 +15,15 @@ ThemeData theme({
 }) {
   AppTextTheme.baseTextStyle = baseTextStyle ?? const TextStyle();
 
-  final effectiveColors = customColors ?? AppColors.get(themeStyle);
-  final effectiveTextTheme = customTextTheme?.copyWith(colors: effectiveColors) ??
-      AppTextTheme.get(themeStyle, effectiveColors);
-  final effectiveButtonStyle = customButtonStyle?.copyWith(colors: effectiveColors) ??
-      AppButtonStyle.get(themeStyle, effectiveColors);
+  final effectiveBrightness = customColors != null ? customColors.brightness : brightness;
+  final effectiveColors =
+      customColors != null ? customColors : AppColors.get(effectiveBrightness ?? Brightness.light);
+  final effectiveTextTheme =
+      customTextTheme?.copyWith(colors: effectiveColors) ?? AppTextTheme.get(effectiveColors);
+  final effectiveButtonStyle =
+      customButtonStyle?.copyWith(colors: effectiveColors) ?? AppButtonStyle.get(effectiveColors);
 
   return composeThemeData(
-    brightness: themeStyle == ThemeStyle.dark ? Brightness.dark : Brightness.light,
     colors: effectiveColors,
     textTheme: effectiveTextTheme,
     buttonStyle: effectiveButtonStyle,

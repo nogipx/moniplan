@@ -75,8 +75,8 @@ class AppTextTheme {
     this.labelSmall,
   });
 
-  /// Получение текстовой темы по [themeStyle]
-  AppTextTheme.get(ThemeStyle themeStyle, this.colors)
+  /// Получение текстовой темы по [brightness]
+  AppTextTheme.get(this.colors)
       : displayLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w800,
           fontSize: 28,

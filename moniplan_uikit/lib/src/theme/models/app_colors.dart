@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan_uikit/src/theme/_index.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
-/// Класс набора цветов для ui kit
 class AppColors {
   final ColorScheme scheme;
   final BackgroundColors background;
+  final TextColors text;
   final ButtonColors button;
   final ElementColors element;
   final StateColors state;
-  final TextColors text;
 
-  /// Создаёт приватный класс набора цветов для ui kit
-  const AppColors({
+  Brightness get brightness => scheme.brightness;
+
+  AppColors({
     required this.scheme,
     required this.background,
+    required this.text,
     required this.button,
     required this.element,
     required this.state,
-    required this.text,
   });
 
   /// Набор цветов для [ThemeStyle.dark]
@@ -45,7 +45,7 @@ class AppColors {
     }
 
     return AppColors(
-      scheme: scheme.lerp(b?.scheme, t),
+      scheme: ColorSchemeLerp(scheme).lerp(b?.scheme, t),
       background: background.lerp(b?.background, t),
       button: button.lerp(b?.button, t),
       element: element.lerp(b?.element, t),
@@ -73,38 +73,106 @@ class AppColors {
     );
   }
 
-  /// Получение [AppColors] по [themeStyle]
-  static AppColors get(ThemeStyle themeStyle) => switch (themeStyle) {
-        ThemeStyle.light => AppColors.light(),
+  static AppColors get(Brightness _) => switch (_) {
+        Brightness.light => AppColors.light(),
         _ => AppColors.dark(),
       };
 
-  factory AppColors.fromColorScheme(ColorScheme colorScheme) {
+  static AppColors fromSeedColor({
+    required Color seedColor,
+    required bool isDarkTheme,
+  }) {
+    final int seedColorArgb = seedColor.value;
+
+    // Генерация палитры через CorePalette
+    final CorePalette corePalette = CorePalette.of(seedColorArgb);
+    final brightness = isDarkTheme ? Brightness.dark : Brightness.light;
+
+    // Тональные палитры
+    final TonalPalette primaryPalette = corePalette.primary;
+    final TonalPalette secondaryPalette = corePalette.secondary;
+    final TonalPalette tertiaryPalette = corePalette.tertiary;
+    final TonalPalette neutralPalette = corePalette.neutral;
+    final TonalPalette neutralVariantPalette = corePalette.neutralVariant;
+    final TonalPalette errorPalette = corePalette.error;
+
+    // Определение тонов
+    final bool isLight = brightness == Brightness.light;
+    final int primaryTone = isLight ? 40 : 80;
+    final int onPrimaryTone = isLight ? 100 : 20;
+    final int primaryContainerTone = isLight ? 90 : 30;
+    final int onPrimaryContainerTone = isLight ? 10 : 90;
+
+    final int backgroundTone = isLight ? 99 : 10;
+    final int onBackgroundTone = isLight ? 10 : 90;
+
+    final int surfaceTone = isLight ? 99 : 10;
+    final int onSurfaceTone = isLight ? 10 : 90;
+
+    final int outlineTone = isLight ? 50 : 60;
+
+    // Создание ColorScheme
+    final ColorScheme colorScheme = ColorScheme(
+      brightness: brightness,
+      primary: Color(primaryPalette.get(primaryTone)),
+      onPrimary: Color(primaryPalette.get(onPrimaryTone)),
+      primaryContainer: Color(primaryPalette.get(primaryContainerTone)),
+      onPrimaryContainer: Color(primaryPalette.get(onPrimaryContainerTone)),
+      secondary: Color(secondaryPalette.get(primaryTone)),
+      onSecondary: Color(secondaryPalette.get(onPrimaryTone)),
+      secondaryContainer: Color(secondaryPalette.get(primaryContainerTone)),
+      onSecondaryContainer: Color(secondaryPalette.get(onPrimaryContainerTone)),
+      tertiary: Color(tertiaryPalette.get(primaryTone)),
+      onTertiary: Color(tertiaryPalette.get(onPrimaryTone)),
+      tertiaryContainer: Color(tertiaryPalette.get(primaryContainerTone)),
+      onTertiaryContainer: Color(tertiaryPalette.get(onPrimaryContainerTone)),
+      error: Color(errorPalette.get(primaryTone)),
+      onError: Color(errorPalette.get(onPrimaryTone)),
+      errorContainer: Color(errorPalette.get(primaryContainerTone)),
+      onErrorContainer: Color(errorPalette.get(onPrimaryContainerTone)),
+      background: Color(neutralPalette.get(backgroundTone)),
+      onBackground: Color(neutralPalette.get(onBackgroundTone)),
+      surface: Color(neutralPalette.get(surfaceTone)),
+      onSurface: Color(neutralPalette.get(onSurfaceTone)),
+      surfaceVariant: Color(neutralVariantPalette.get(surfaceTone)),
+      onSurfaceVariant: Color(neutralVariantPalette.get(outlineTone)),
+      outline: Color(neutralVariantPalette.get(outlineTone)),
+      shadow: Colors.black,
+      inverseSurface: Color(neutralPalette.get(onSurfaceTone)),
+      onInverseSurface: Color(neutralPalette.get(surfaceTone)),
+      inversePrimary: Color(primaryPalette.get(onPrimaryTone)),
+      surfaceTint: Color(primaryPalette.get(primaryTone)),
+    );
+
+    return fromColorScheme(colorScheme);
+  }
+
+  static AppColors fromColorScheme(ColorScheme colorScheme) {
     return AppColors(
       scheme: colorScheme,
       background: BackgroundColors(
         primary: colorScheme.background,
         secondary: colorScheme.surface,
-        tertiary: colorScheme.onPrimary,
+        tertiary: colorScheme.surfaceVariant,
         appBar: colorScheme.primary,
-        drawer: colorScheme.onSecondary,
-        bottomNav: colorScheme.secondary,
+        drawer: colorScheme.secondaryContainer,
+        bottomNav: colorScheme.surface,
       ),
       text: TextColors(
         primary: colorScheme.onBackground,
         secondary: colorScheme.onSurface,
-        accent: colorScheme.onPrimary,
-        disabled: colorScheme.onSecondary.withOpacity(0.38),
+        accent: colorScheme.primary,
+        disabled: colorScheme.onSurface.withOpacity(0.38),
         hint: colorScheme.onSurface.withOpacity(0.6),
-        inverse: colorScheme.onBackground,
+        inverse: colorScheme.onPrimary,
         error: colorScheme.onError,
       ),
       button: ButtonColors(
         primary: colorScheme.primary,
         secondary: colorScheme.secondary,
         tertiary: colorScheme.tertiary,
-        pressed: colorScheme.onPrimary,
-        hovered: colorScheme.onSecondary,
+        pressed: colorScheme.onPrimary.withOpacity(0.12),
+        hovered: colorScheme.primaryContainer,
         disabled: colorScheme.onSurface.withOpacity(0.12),
         overlay: colorScheme.primary.withOpacity(0.08),
       ),
@@ -112,36 +180,18 @@ class AppColors {
         card: colorScheme.surface,
         modal: colorScheme.background,
         border: colorScheme.outline,
-        shadow: Colors.black.withOpacity(0.1),
-        divider: colorScheme.onSurface.withOpacity(0.12),
-        highlight: colorScheme.primary.withOpacity(0.15),
-        background: colorScheme.background,
+        shadow: Colors.black.withOpacity(0.2),
+        divider: colorScheme.outline.withOpacity(0.5),
+        highlight: colorScheme.primary.withOpacity(0.1),
+        background: colorScheme.surfaceVariant,
       ),
       state: StateColors(
         active: colorScheme.primary,
         inactive: colorScheme.onSurface.withOpacity(0.5),
         error: colorScheme.error,
-        success: Colors.green, // Заменить на цвет успеха из палитры
-        warning: Colors.orange, // Заменить на цвет предупреждения из палитры
+        success: Colors.green, // Успех можно динамически настроить
+        warning: Colors.orange, // Предупреждение можно динамически настроить
       ),
-    );
-  }
-}
-
-extension ColorSchemeLerp on ColorScheme {
-  ColorScheme lerp(ColorScheme? b, double t) {
-    return ColorScheme(
-      primary: Color.lerp(primary, b?.primary, t)!,
-      onPrimary: Color.lerp(onPrimary, b?.onPrimary, t)!,
-      secondary: Color.lerp(secondary, b?.secondary, t)!,
-      onSecondary: Color.lerp(onSecondary, b?.onSecondary, t)!,
-      surface: Color.lerp(surface, b?.surface, t)!,
-      onSurface: Color.lerp(onSurface, b?.onSurface, t)!,
-      background: Color.lerp(background, b?.background, t)!,
-      onBackground: Color.lerp(onBackground, b?.onBackground, t)!,
-      error: Color.lerp(error, b?.error, t)!,
-      onError: Color.lerp(onError, b?.onError, t)!,
-      brightness: t < 0.5 ? brightness : b?.brightness ?? brightness,
     );
   }
 }

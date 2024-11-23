@@ -232,10 +232,9 @@ class AppButtonStyle {
         splashFactory: splashFactory ?? InkRipple.splashFactory,
       );
 
-  /// Получение темы кнопки по [themeStyle]
-  AppButtonStyle.get(ThemeStyle themeStyle, this.colors)
+  AppButtonStyle.get(this.colors)
       : textStyle = WidgetStateProperty.resolveWith((states) {
-          final textTheme = AppTextTheme.get(themeStyle, colors).value;
+          final textTheme = AppTextTheme.get(colors).value;
 
           if (states.contains(WidgetState.disabled)) {
             return textTheme.labelLarge?.copyWith(color: colors.button.disabled);

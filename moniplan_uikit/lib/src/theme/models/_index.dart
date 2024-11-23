@@ -6,4 +6,3 @@ export 'app_shadow_theme.dart';
 export 'app_spaces.dart';
 export 'app_system_ui_overlay_style.dart';
 export 'app_text_theme.dart';
-export 'theme_style.dart';
