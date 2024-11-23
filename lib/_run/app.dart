@@ -54,29 +54,27 @@ class _MoniplanAppState extends State<MoniplanApp> {
             final random = Random().nextDouble();
             final rainbow = generateRainbowColor(random);
             final targetColor = AppColorsRaw.brightBlue;
-            final colors = AppColors.fromColorScheme(
-              ColorScheme.fromSwatch(
-                primarySwatch: Colors.blue,
-                brightness: Brightness.dark,
-              ),
+
+            // final colors = AppColors.fromColorScheme(
+            //   ColorScheme.fromSwatch(
+            //     primarySwatch: Colors.blue,
+            //     brightness: Brightness.dark,
+            //   ),
+            // );
+
+            final colors = AppColors.fromSeedColor(
+              seedColor: targetColor,
+              isDarkTheme: true,
             );
 
             var resultTheme = theme(
-              // customColors: AppColors.fromSeedColor(
-              //   // seedColor: AppColorsRaw.brightBlue,
-              //   seedColor: targetColor,
-              //   isDarkTheme: true,
-              // ),
-              customColors: colors,
+              brightness: Brightness.dark,
+              // brightness: Brightness.light,
               baseTextStyle: TextStyle(
                 overflow: TextOverflow.ellipsis,
                 fontFamily: 'TTNeoris',
               ),
-              // customColors: result,
-            );
-
-            resultTheme = resultTheme.copyWith(
-              colorScheme: resultTheme.colorScheme.harmonized(),
+              // customColors: colors,
             );
 
             return MaterialApp(
@@ -108,10 +106,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
                 ],
               ),
               home: home,
-              // home: AppColorsDisplayScreen(
-              //   appColors: colors,
-              //   colorScheme: colors.scheme,
-              // ),
+              // home: AppColorsDisplayScreen(appColors: colors, colorScheme: colors.scheme),
             );
           },
         ),

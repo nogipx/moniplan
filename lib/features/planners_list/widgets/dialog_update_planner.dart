@@ -57,9 +57,6 @@ void showDialogUpdatePlanner(
                       onDelete();
                     },
                     child: Text('Delete'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.red,
-                    ),
                   ),
               ],
             ),
@@ -95,7 +92,6 @@ void showDialogUpdatePlanner(
                 if (!isStartDateValid)
                   Text(
                     'Start date cannot be after end date',
-                    style: TextStyle(color: Colors.red),
                   ),
                 SizedBox(height: 16),
                 TextField(

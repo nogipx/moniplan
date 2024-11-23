@@ -21,9 +21,6 @@ void showDeletePaymentDialog(BuildContext context, VoidCallback onDelete) {
               Navigator.of(context).pop(); // Закрываем диалог
             },
             child: Text('Delete'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red, // Меняем цвет кнопки на красный
-            ),
           ),
         ],
       );
