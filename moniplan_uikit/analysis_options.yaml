@@ -1,1 +1,22 @@
-include: package:moniplan_domain/analysis_options.yaml
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "trash/**"
+  strong-mode:
+    implicit-dynamic: false
+  errors:
+    missing_required_param: error
+    missing_return: error
+    todo: warning
+    omit_local_variable_types: ignore
+    avoid_relative_lib_imports: error
+    avoid_void_async: warning
+    library_private_types_in_public_api: ignore
+
+linter:
+  rules:
+    avoid_relative_lib_imports: true
+    avoid_void_async: true

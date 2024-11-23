@@ -103,9 +103,6 @@ class AppColors {
     final int primaryContainerTone = isLight ? 90 : 30;
     final int onPrimaryContainerTone = isLight ? 10 : 90;
 
-    final int backgroundTone = isLight ? 99 : 10;
-    final int onBackgroundTone = isLight ? 10 : 90;
-
     final int surfaceTone = isLight ? 99 : 10;
     final int onSurfaceTone = isLight ? 10 : 90;
 
@@ -130,11 +127,8 @@ class AppColors {
       onError: Color(errorPalette.get(onPrimaryTone)),
       errorContainer: Color(errorPalette.get(primaryContainerTone)),
       onErrorContainer: Color(errorPalette.get(onPrimaryContainerTone)),
-      background: Color(neutralPalette.get(backgroundTone)),
-      onBackground: Color(neutralPalette.get(onBackgroundTone)),
       surface: Color(neutralPalette.get(surfaceTone)),
       onSurface: Color(neutralPalette.get(onSurfaceTone)),
-      surfaceVariant: Color(neutralVariantPalette.get(surfaceTone)),
       onSurfaceVariant: Color(neutralVariantPalette.get(outlineTone)),
       outline: Color(neutralVariantPalette.get(outlineTone)),
       shadow: Colors.black,
@@ -151,15 +145,15 @@ class AppColors {
     return AppColors(
       scheme: colorScheme,
       background: BackgroundColors(
-        primary: colorScheme.background,
+        primary: colorScheme.secondaryContainer,
         secondary: colorScheme.surface,
-        tertiary: colorScheme.surfaceVariant,
+        tertiary: colorScheme.tertiaryContainer,
         appBar: colorScheme.primary,
         drawer: colorScheme.secondaryContainer,
         bottomNav: colorScheme.surface,
       ),
       text: TextColors(
-        primary: colorScheme.onBackground,
+        primary: colorScheme.surface,
         secondary: colorScheme.onSurface,
         accent: colorScheme.primary,
         disabled: colorScheme.onSurface.withOpacity(0.38),
@@ -178,12 +172,12 @@ class AppColors {
       ),
       element: ElementColors(
         card: colorScheme.surface,
-        modal: colorScheme.background,
+        modal: colorScheme.tertiaryContainer,
         border: colorScheme.outline,
         shadow: Colors.black.withOpacity(0.2),
         divider: colorScheme.outline.withOpacity(0.5),
         highlight: colorScheme.primary.withOpacity(0.1),
-        background: colorScheme.surfaceVariant,
+        background: colorScheme.tertiaryContainer,
       ),
       state: StateColors(
         active: colorScheme.primary,

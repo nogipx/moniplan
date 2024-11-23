@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '_index.dart';
-
 /// Класс набора радиусов для ui kit
 class AppBorderRadiuses {
   final BorderRadius none;

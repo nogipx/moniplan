@@ -16,8 +16,7 @@ ThemeData theme({
   AppTextTheme.baseTextStyle = baseTextStyle ?? const TextStyle();
 
   final effectiveBrightness = customColors != null ? customColors.brightness : brightness;
-  final effectiveColors =
-      customColors != null ? customColors : AppColors.get(effectiveBrightness ?? Brightness.light);
+  final effectiveColors = customColors ?? AppColors.get(effectiveBrightness ?? Brightness.light);
   final effectiveTextTheme =
       customTextTheme?.copyWith(colors: effectiveColors) ?? AppTextTheme.get(effectiveColors);
   final effectiveButtonStyle =

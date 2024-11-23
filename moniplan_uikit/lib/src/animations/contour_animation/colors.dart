@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 Color generateRainbowColor(double value, {double offset = 0}) {
   if (value < 0 || value > 1) {
