@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/_run/db/_index.dart';
@@ -50,36 +49,40 @@ class _MoniplanAppState extends State<MoniplanApp> {
     FlexSchemeVariant.vividSurfaces,
   ];
 
-  ThemeData _getTheme(FlexSchemeVariant variant) {
+  ThemeData _getTheme({
+    required FlexSchemeVariant variant,
+    Brightness? brightness,
+    Color? color,
+  }) {
     return moniplanTheme(
-      brightness: Brightness.dark,
+      seedColor: color,
+      brightness: brightness ?? Brightness.dark,
       variant: FlexSchemeVariant.chroma,
       monochrome: true,
-      rainbow: true,
-      // monochrome: false,
-      // expressive: false,
+      rainbow: false,
+      expressive: false,
     ).themeData;
   }
 
-  late final ValueNotifier<ThemeData> _theme;
-  late final Timer _ticker;
+  // late final ValueNotifier<ThemeData> _theme;
+  // late final Timer _ticker;
   int counter = 0;
 
   @override
   void initState() {
     super.initState();
-    _theme = ValueNotifier(_getTheme(variants[counter]));
-    _ticker = Timer.periodic(
-      const Duration(seconds: 2),
-      (timer) {
-        setState(() {
-          counter++;
-          final index = counter % variants.length;
-          print(index);
-          _theme.value = _getTheme(variants[index]);
-        });
-      },
-    );
+    // _theme = ValueNotifier(_getTheme(variants[counter]));
+    // _ticker = Timer.periodic(
+    //   const Duration(seconds: 2),
+    //   (timer) {
+    //     setState(() {
+    //       counter++;
+    //       final index = counter % variants.length;
+    //       print(index);
+    //       _theme.value = _getTheme(variants[index]);
+    //     });
+    //   },
+    // );
   }
 
   @override
@@ -93,58 +96,65 @@ class _MoniplanAppState extends State<MoniplanApp> {
       // ),
     );
 
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<IMonisyncRepo>(
-          create: (_) => MonisyncRepoImpl(encryptKey: mockEncryptionKey),
-        )
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => ReceiveImportSharingBloc(monisyncRepo: context.read()),
-          )
-        ],
-        child: ValueListenableBuilder(
-            valueListenable: _theme,
-            builder: (context, theme, _) {
-              return AnimatedBuilder(
-                animation: AppDbImpl(),
-                builder: (context, _) {
-                  return MaterialApp(
-                    debugShowCheckedModeBanner: false,
-                    theme: theme,
-                    builder: (context, child) => ResponsiveBreakpoints.builder(
-                      child: child!,
-                      breakpoints: [
-                        const Breakpoint(
-                          start: 0,
-                          end: 450,
-                          name: MOBILE,
-                        ),
-                        const Breakpoint(
-                          start: 451,
-                          end: 800,
-                          name: TABLET,
-                        ),
-                        const Breakpoint(
-                          start: 801,
-                          end: 1920,
-                          name: DESKTOP,
-                        ),
-                        const Breakpoint(
-                          start: 1921,
-                          end: double.infinity,
-                          name: '4K',
-                        ),
-                      ],
-                    ),
-                    home: home,
-                  );
-                },
-              );
-            }),
-      ),
+    return DynamicColorBuilder(
+      builder: (light, dark) {
+        final brightness = MediaQuery.of(context).platformBrightness;
+        final theme = _getTheme(
+          variant: FlexSchemeVariant.fruitSalad,
+          color: brightness == Brightness.dark ? dark?.primary : light?.primary,
+          brightness: brightness,
+        );
+
+        return MultiRepositoryProvider(
+          providers: [
+            RepositoryProvider<IMonisyncRepo>(
+              create: (_) => MonisyncRepoImpl(encryptKey: mockEncryptionKey),
+            )
+          ],
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) => ReceiveImportSharingBloc(monisyncRepo: context.read()),
+              )
+            ],
+            child: AnimatedBuilder(
+              animation: AppDbImpl(),
+              builder: (context, _) {
+                return MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  theme: theme,
+                  builder: (context, child) => ResponsiveBreakpoints.builder(
+                    child: child!,
+                    breakpoints: [
+                      const Breakpoint(
+                        start: 0,
+                        end: 450,
+                        name: MOBILE,
+                      ),
+                      const Breakpoint(
+                        start: 451,
+                        end: 800,
+                        name: TABLET,
+                      ),
+                      const Breakpoint(
+                        start: 801,
+                        end: 1920,
+                        name: DESKTOP,
+                      ),
+                      const Breakpoint(
+                        start: 1921,
+                        end: double.infinity,
+                        name: '4K',
+                      ),
+                    ],
+                  ),
+                  home: home,
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

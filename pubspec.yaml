@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  dynamic_color: 1.7.0
 
   moniplan_core:
     path: moniplan_core
@@ -32,6 +31,7 @@ dependencies:
   scrollable_positioned_list: 0.3.8
   stack_trace: 1.11.1
   syncfusion_flutter_charts: ^27.2.3
+  dynamic_color: 1.7.0
   receive_sharing_intent:
     git: https://github.com/nogipx/receive_sharing_intent
 

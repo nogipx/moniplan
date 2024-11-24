@@ -8,6 +8,7 @@ final _random = Random();
 ({ThemeData themeData, AppThemeData appThemeData}) moniplanTheme({
   required Brightness brightness,
   required FlexSchemeVariant variant,
+  Color? seedColor,
   double contrast = 0,
   bool monochrome = true,
   bool expressive = false,
@@ -20,7 +21,7 @@ final _random = Random();
     ThemeDataExtension.generator = null;
   }
 
-  Color targetColor = _Colors.moniplanBrand;
+  Color targetColor = seedColor ?? _Colors.moniplanBrand;
   if (rainbow) {
     targetColor = generateRainbowColor(_random.nextDouble());
   }
@@ -28,7 +29,6 @@ final _random = Random();
   final scheme = SeedColorScheme.fromSeeds(
     brightness: brightness,
     primaryKey: targetColor,
-    // primaryKey: _Colors.moniplanBrand,
     // secondaryKey: _Colors.lightBrandColor,
     // tertiaryKey: _Colors.paynesGray,
     // errorKey: _Colors.negativeMoneyColor,
