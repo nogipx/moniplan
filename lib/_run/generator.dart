@@ -5,7 +5,6 @@ ThemeDataGenerator _generator() => (data, useMaterial3) {
       final colors = data.colors;
       final button = data.button;
       final shadow = data.shadow;
-      final radius = data.radius;
       final text = data.text;
 
       final defaultIconThemeData = IconThemeData(color: colors.scheme.onPrimary, size: 28);

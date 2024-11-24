@@ -10,9 +10,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
   /// Тени
   final AppShadowTheme shadow;
 
-  /// Радиусы
-  final AppBorderRadiuses radius;
-
   /// Текстовые стили
   final AppTextTheme text;
 
@@ -29,7 +26,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
     required this.colors,
     required this.button,
     required this.shadow,
-    required this.radius,
     required this.text,
     required this.appBar,
   });
@@ -39,7 +35,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
     AppColors? colors,
     AppButtonStyle? button,
     AppShadowTheme? shadow,
-    AppBorderRadiuses? radius,
     AppTextTheme? text,
     AppAppBarTheme? appBar,
   }) =>
@@ -47,7 +42,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
         colors: colors ?? this.colors,
         button: button ?? this.button,
         shadow: shadow ?? this.shadow,
-        radius: radius ?? this.radius,
         text: text ?? this.text,
         appBar: appBar ?? this.appBar,
       );
@@ -65,7 +59,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
       colors: colors.lerp(other.colors, t),
       button: button.lerp(other.button, t),
       shadow: shadow.lerp(other.shadow, t),
-      radius: radius.lerp(other.radius, t),
       text: text.lerp(other.text, t),
       appBar: appBar.lerp(other.appBar, t),
     );
@@ -77,7 +70,7 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
     TextStyle? baseTextStyle,
     AppButtonStyle? customButtonStyle,
     AppShadowTheme? customShadow,
-    AppBorderRadiuses? customRadius,
+    AppRadius? customRadius,
     AppTextTheme? customTextTheme,
     AppAppBarTheme? customAppBar,
   }) {
@@ -116,7 +109,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
       button: effectiveButtonStyle,
       appBar: effectiveAppBarTheme,
       shadow: customShadow ?? AppShadowTheme.get(),
-      radius: customRadius ?? AppBorderRadiuses.get(),
     );
   }
 }

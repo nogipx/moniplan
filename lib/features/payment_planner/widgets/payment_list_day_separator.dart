@@ -22,7 +22,7 @@ class PaymentListDaySeparator extends StatelessWidget {
       child: Material(
         elevation: 2,
         color: isSameDay ? context.color.scheme.primary : context.color.scheme.secondary,
-        borderRadius: context.radius.round,
+        borderRadius: const BorderRadius.all(AppRadius.r16),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

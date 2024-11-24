@@ -1,6 +1,5 @@
-import 'dart:math';
+import 'dart:async';
 
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/_run/db/_index.dart';
@@ -13,10 +12,6 @@ import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../_colors.dart';
-import '../test_recolor.dart';
-import 'screen.dart';
 
 class MoniplanApp extends StatefulWidget {
   const MoniplanApp({
@@ -31,36 +26,64 @@ class MoniplanApp extends StatefulWidget {
 }
 
 class _MoniplanAppState extends State<MoniplanApp> {
+  final variants = [
+    FlexSchemeVariant.material3Legacy,
+    FlexSchemeVariant.material,
+    FlexSchemeVariant.expressive,
+    FlexSchemeVariant.rainbow,
+    FlexSchemeVariant.content,
+    FlexSchemeVariant.candyPop,
+    FlexSchemeVariant.chroma,
+    FlexSchemeVariant.fidelity,
+    FlexSchemeVariant.fruitSalad,
+    FlexSchemeVariant.jolly,
+    FlexSchemeVariant.monochrome,
+    FlexSchemeVariant.neutral,
+    FlexSchemeVariant.oneHue,
+    FlexSchemeVariant.soft,
+    FlexSchemeVariant.tonalSpot,
+    FlexSchemeVariant.highContrast,
+    FlexSchemeVariant.ultraContrast,
+    FlexSchemeVariant.vibrant,
+    FlexSchemeVariant.vivid,
+    FlexSchemeVariant.vividBackground,
+    FlexSchemeVariant.vividSurfaces,
+  ];
+
+  ThemeData _getTheme(FlexSchemeVariant variant) {
+    return moniplanTheme(
+      brightness: Brightness.dark,
+      variant: FlexSchemeVariant.chroma,
+      monochrome: true,
+      rainbow: true,
+      // monochrome: false,
+      // expressive: false,
+    ).themeData;
+  }
+
+  late final ValueNotifier<ThemeData> _theme;
+  late final Timer _ticker;
+  int counter = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _theme = ValueNotifier(_getTheme(variants[counter]));
+    _ticker = Timer.periodic(
+      const Duration(seconds: 2),
+      (timer) {
+        setState(() {
+          counter++;
+          final index = counter % variants.length;
+          print(index);
+          _theme.value = _getTheme(variants[index]);
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = moniplanTheme(
-      brightness: Brightness.dark,
-      // variant: FlexSchemeVariant.material3Legacy,
-      // variant: FlexSchemeVariant.material,
-      // variant: FlexSchemeVariant.expressive,
-      // variant: FlexSchemeVariant.rainbow,
-      // variant: FlexSchemeVariant.content,
-      // variant: FlexSchemeVariant.candyPop,
-      // variant: FlexSchemeVariant.chroma,
-      // variant: FlexSchemeVariant.fidelity,
-      // variant: FlexSchemeVariant.fruitSalad,
-      variant: FlexSchemeVariant.jolly,
-      // variant: FlexSchemeVariant.monochrome,
-      // variant: FlexSchemeVariant.neutral,
-      // variant: FlexSchemeVariant.oneHue,
-      // variant: FlexSchemeVariant.soft,
-      // variant: FlexSchemeVariant.tonalSpot,
-      // variant: FlexSchemeVariant.highContrast,
-      // variant: FlexSchemeVariant.ultraContrast,
-      // variant: FlexSchemeVariant.vibrant,
-      // variant: FlexSchemeVariant.vivid,
-      // variant: FlexSchemeVariant.vividBackground,
-      // variant: FlexSchemeVariant.vividSurfaces,
-      contrast: -.7,
-      monochrome: false,
-      expressive: false,
-    );
-
     final home = ReceiveImportWrapper(
       child: PlannersListScreen(),
       // child: TestRecolorScreen(),
@@ -82,41 +105,45 @@ class _MoniplanAppState extends State<MoniplanApp> {
             create: (context) => ReceiveImportSharingBloc(monisyncRepo: context.read()),
           )
         ],
-        child: AnimatedBuilder(
-          animation: AppDbImpl(),
-          builder: (context, _) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: theme.themeData,
-              builder: (context, child) => ResponsiveBreakpoints.builder(
-                child: child!,
-                breakpoints: [
-                  const Breakpoint(
-                    start: 0,
-                    end: 450,
-                    name: MOBILE,
-                  ),
-                  const Breakpoint(
-                    start: 451,
-                    end: 800,
-                    name: TABLET,
-                  ),
-                  const Breakpoint(
-                    start: 801,
-                    end: 1920,
-                    name: DESKTOP,
-                  ),
-                  const Breakpoint(
-                    start: 1921,
-                    end: double.infinity,
-                    name: '4K',
-                  ),
-                ],
-              ),
-              home: home,
-            );
-          },
-        ),
+        child: ValueListenableBuilder(
+            valueListenable: _theme,
+            builder: (context, theme, _) {
+              return AnimatedBuilder(
+                animation: AppDbImpl(),
+                builder: (context, _) {
+                  return MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    theme: theme,
+                    builder: (context, child) => ResponsiveBreakpoints.builder(
+                      child: child!,
+                      breakpoints: [
+                        const Breakpoint(
+                          start: 0,
+                          end: 450,
+                          name: MOBILE,
+                        ),
+                        const Breakpoint(
+                          start: 451,
+                          end: 800,
+                          name: TABLET,
+                        ),
+                        const Breakpoint(
+                          start: 801,
+                          end: 1920,
+                          name: DESKTOP,
+                        ),
+                        const Breakpoint(
+                          start: 1921,
+                          end: double.infinity,
+                          name: '4K',
+                        ),
+                      ],
+                    ),
+                    home: home,
+                  );
+                },
+              );
+            }),
       ),
     );
   }

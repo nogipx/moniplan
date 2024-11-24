@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+
+final _random = Random();
 
 ({ThemeData themeData, AppThemeData appThemeData}) moniplanTheme({
   required Brightness brightness,
@@ -8,6 +12,7 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
   bool monochrome = true,
   bool expressive = false,
   ThemeDataGenerator? themeDataGenerator,
+  bool rainbow = false,
 }) {
   if (themeDataGenerator != null) {
     ThemeDataExtension.generator = themeDataGenerator;
@@ -15,14 +20,20 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
     ThemeDataExtension.generator = null;
   }
 
+  Color targetColor = _Colors.moniplanBrand;
+  if (rainbow) {
+    targetColor = generateRainbowColor(_random.nextDouble());
+  }
+
   final scheme = SeedColorScheme.fromSeeds(
     brightness: brightness,
-    primaryKey: _Colors.moniplanBrand,
-    secondaryKey: _Colors.lightBrandColor,
-    tertiaryKey: _Colors.paynesGray,
-    errorKey: _Colors.negativeMoneyColor,
-    neutralKey: _Colors.jet,
-    neutralVariantKey: _Colors.darkBackgroundColor,
+    primaryKey: targetColor,
+    // primaryKey: _Colors.moniplanBrand,
+    // secondaryKey: _Colors.lightBrandColor,
+    // tertiaryKey: _Colors.paynesGray,
+    // errorKey: _Colors.negativeMoneyColor,
+    // neutralKey: _Colors.jet,
+    // neutralVariantKey: _Colors.darkBackgroundColor,
     variant: variant,
     useExpressiveOnContainerColors: expressive,
     respectMonochromeSeed: monochrome,

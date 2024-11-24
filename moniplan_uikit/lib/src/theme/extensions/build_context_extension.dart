@@ -12,8 +12,6 @@ extension BuildContextThemeExtension on BuildContext {
 
   AppTextTheme get text => themeExtension.text;
 
-  AppBorderRadiuses get radius => themeExtension.radius;
-
   AppShadowTheme get shadow => themeExtension.shadow;
 
   AppButtonStyle get button => themeExtension.button;
