@@ -14,6 +14,7 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../_colors.dart';
 import 'screen.dart';
 
 class MoniplanApp extends StatefulWidget {
