@@ -202,13 +202,13 @@ class AppButtonStyle {
           (states) {
             if (states.contains(WidgetState.disabled)) {
               return TextStyle(
-                color: colors.content.onSurface.withOpacity(0.38),
+                color: colors.scheme.onSurface.withOpacity(0.38),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               );
             }
             return TextStyle(
-              color: colors.content.onPrimary,
+              color: colors.scheme.onPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             );
@@ -217,32 +217,32 @@ class AppButtonStyle {
         backgroundColor: WidgetStateProperty.resolveWith(
           (states) {
             if (states.contains(WidgetState.disabled)) {
-              return colors.background.surface.withOpacity(0.12);
+              return colors.scheme.surface.withOpacity(0.12);
             }
-            return colors.accent.primary;
+            return colors.scheme.primary;
           },
         ),
         foregroundColor: WidgetStateProperty.resolveWith(
           (states) {
             if (states.contains(WidgetState.disabled)) {
-              return colors.content.onSurface.withOpacity(0.38);
+              return colors.scheme.onSurface.withOpacity(0.38);
             }
-            return colors.content.onPrimary;
+            return colors.scheme.onPrimary;
           },
         ),
         overlayColor: WidgetStateProperty.resolveWith(
           (states) {
             if (states.contains(WidgetState.pressed)) {
-              return colors.accent.primary.withOpacity(0.12);
+              return colors.scheme.primary.withOpacity(0.12);
             }
             if (states.contains(WidgetState.hovered)) {
-              return colors.accent.primary.withOpacity(0.08);
+              return colors.scheme.primary.withOpacity(0.08);
             }
             return null;
           },
         ),
         shadowColor: WidgetStateProperty.all(Colors.black.withOpacity(0.15)),
-        surfaceTintColor: WidgetStateProperty.all(colors.accent.primary),
+        surfaceTintColor: WidgetStateProperty.all(colors.scheme.primary),
         elevation: WidgetStateProperty.resolveWith(
           (states) {
             if (states.contains(WidgetState.disabled)) {
@@ -258,18 +258,18 @@ class AppButtonStyle {
         iconColor: WidgetStateProperty.resolveWith(
           (states) {
             if (states.contains(WidgetState.disabled)) {
-              return colors.content.onSurface.withOpacity(0.38);
+              return colors.scheme.onSurface.withOpacity(0.38);
             }
-            return colors.content.onPrimary;
+            return colors.scheme.onPrimary;
           },
         ),
         iconSize: WidgetStateProperty.all(24),
         side: WidgetStateProperty.resolveWith(
           (states) {
             if (states.contains(WidgetState.disabled)) {
-              return BorderSide(color: colors.content.onSurface.withOpacity(0.12));
+              return BorderSide(color: colors.scheme.onSurface.withOpacity(0.12));
             }
-            return BorderSide(color: colors.accent.primary, width: 1);
+            return BorderSide(color: colors.scheme.primary, width: 1);
           },
         ),
         shape: WidgetStateProperty.all(

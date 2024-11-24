@@ -19,6 +19,9 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
   /// Отступы
   final AppSpaces space;
 
+  /// Текстовые стили
+  final AppTextTheme text;
+
   /// Создаёт класс с данными для темы
   const AppThemeData({
     required this.colors,
@@ -26,16 +29,17 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
     required this.shadow,
     required this.radius,
     required this.space,
+    required this.text,
   });
 
   @override
   ThemeExtension<AppThemeData> copyWith({
     AppColors? colors,
-    AppTextTheme? textTheme,
     AppButtonStyle? buttonStyle,
     AppShadowTheme? shadow,
     AppBorderRadiuses? radius,
     AppSpaces? space,
+    AppTextTheme? text,
   }) =>
       AppThemeData(
         colors: colors ?? this.colors,
@@ -43,6 +47,7 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
         shadow: shadow ?? this.shadow,
         radius: radius ?? this.radius,
         space: space ?? this.space,
+        text: text ?? this.text,
       );
 
   @override
@@ -60,6 +65,7 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
       shadow: shadow.lerp(other.shadow, t),
       radius: radius.lerp(other.radius, t),
       space: space.lerp(other.space, t),
+      text: text.lerp(other.text, t),
     );
   }
 }

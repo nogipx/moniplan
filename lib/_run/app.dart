@@ -64,12 +64,10 @@ class _MoniplanAppState extends State<MoniplanApp> {
 
             final colors = AppColors.fromSeedColor(
               seedColor: rainbow,
-              isDarkTheme: true,
+              isDarkTheme: false,
             );
 
             var resultTheme = theme(
-              brightness: Brightness.dark,
-              // brightness: Brightness.light,
               baseTextStyle: TextStyle(
                 overflow: TextOverflow.ellipsis,
                 fontFamily: 'TTNeoris',

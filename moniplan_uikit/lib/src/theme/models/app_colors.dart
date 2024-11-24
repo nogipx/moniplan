@@ -3,40 +3,18 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class AppColors {
   final ColorScheme scheme;
-  final AccentColors accent;
-  final BackgroundColors background;
-  final ContentColors content;
-  final StateColors state;
-  final UtilityColors util;
 
   Brightness get brightness => scheme.brightness;
 
   AppColors({
     required this.scheme,
-    required this.accent,
-    required this.background,
-    required this.content,
-    required this.state,
-    required this.util,
   });
 
   /// Набор цветов для [Brightness.dark]
-  AppColors.dark()
-      : scheme = ColorScheme.dark(),
-        accent = AccentColors.dark(),
-        background = BackgroundColors.dark(),
-        content = ContentColors.dark(),
-        state = StateColors.dark(),
-        util = UtilityColors.dark();
+  AppColors.dark() : scheme = ColorScheme.dark();
 
   /// Набор цветов для [Brightness.light]
-  AppColors.light()
-      : scheme = ColorScheme.light(),
-        accent = AccentColors.light(),
-        background = BackgroundColors.light(),
-        content = ContentColors.light(),
-        state = StateColors.light(),
-        util = UtilityColors.light();
+  AppColors.light() : scheme = ColorScheme.light();
 
   static AppColors get(Brightness _) => switch (_) {
         Brightness.light => AppColors.light(),
@@ -51,30 +29,15 @@ class AppColors {
 
     return AppColors(
       scheme: ColorSchemeLerp(scheme).lerp(b?.scheme, t),
-      accent: accent.lerp(b?.accent, t),
-      background: background.lerp(b?.background, t),
-      content: content.lerp(b?.content, t),
-      state: state.lerp(b?.state, t),
-      util: util.lerp(b?.util, t),
     );
   }
 
   /// Метод копирования [AppColors]
   AppColors copyWith({
     ColorScheme? scheme,
-    AccentColors? accent,
-    BackgroundColors? background,
-    ContentColors? content,
-    StateColors? state,
-    UtilityColors? util,
   }) {
     return AppColors(
       scheme: scheme ?? this.scheme,
-      accent: accent ?? this.accent,
-      background: background ?? this.background,
-      content: content ?? this.content,
-      state: state ?? this.state,
-      util: util ?? this.util,
     );
   }
 
@@ -144,48 +107,8 @@ class AppColors {
       surfaceVariant: Color(neutralVariantPalette.get(surfaceVariantTone)),
     );
 
-    return fromColorScheme(colorScheme);
-  }
-
-  static AppColors fromColorScheme(ColorScheme colorScheme) {
     return AppColors(
       scheme: colorScheme,
-      accent: AccentColors(
-        primary: colorScheme.primary,
-        primaryContainer: colorScheme.primaryContainer,
-        secondary: colorScheme.secondary,
-        secondaryContainer: colorScheme.secondaryContainer,
-        tertiary: colorScheme.tertiary,
-        tertiaryContainer: colorScheme.tertiaryContainer,
-      ),
-      background: BackgroundColors(
-        background: colorScheme.background,
-        surface: colorScheme.surface,
-        surfaceVariant: colorScheme.surfaceVariant,
-        inverseSurface: colorScheme.inverseSurface,
-      ),
-      content: ContentColors(
-        onBackground: colorScheme.onBackground,
-        onSurface: colorScheme.onSurface,
-        onSurfaceVariant: colorScheme.onSurfaceVariant,
-        onInverseSurface: colorScheme.onInverseSurface,
-        onPrimary: colorScheme.onPrimary,
-        onSecondary: colorScheme.onSecondary,
-        onTertiary: colorScheme.onTertiary,
-        onError: colorScheme.onError,
-      ),
-      state: StateColors(
-        error: colorScheme.error,
-        errorContainer: colorScheme.errorContainer,
-        inversePrimary: colorScheme.inversePrimary,
-      ),
-      util: UtilityColors(
-        outline: colorScheme.outline,
-        outlineVariant: colorScheme.outlineVariant,
-        shadow: colorScheme.shadow,
-        scrim: colorScheme.scrim,
-        surfaceTint: colorScheme.surfaceTint,
-      ),
     );
   }
 }

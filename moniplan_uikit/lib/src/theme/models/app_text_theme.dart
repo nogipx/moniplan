@@ -6,7 +6,7 @@ import '../_index.dart';
 
 class AppTextTheme {
   /// Базовый стиль для текста
-  static TextStyle baseTextStyle = TextStyle();
+  final TextStyle baseTextStyle;
 
   final AppColors colors;
 
@@ -73,99 +73,102 @@ class AppTextTheme {
     this.labelLarge,
     this.labelMedium,
     this.labelSmall,
+    this.baseTextStyle = const TextStyle(),
   });
 
   /// Получение текстовой темы по [brightness]
-  AppTextTheme.get(this.colors)
-      : displayLarge = baseTextStyle.copyWith(
+  AppTextTheme.get({
+    required this.colors,
+    this.baseTextStyle = const TextStyle(),
+  })  : displayLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w800,
           fontSize: 28,
           height: 1.3,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         displayMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 24,
           height: 1.25,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         displaySmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 20,
           height: 1.2,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         bodyLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 18,
           height: 1.5,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         bodyMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w400,
           fontSize: 16,
           height: 1.4,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         bodySmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w400,
           fontSize: 14,
           height: 1.3,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         headlineLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 22,
           height: 1.3,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         headlineMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 20,
           height: 1.25,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         headlineSmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 18,
           height: 1.2,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         titleLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 16,
           height: 1.4,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         titleMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 14,
           height: 1.3,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         titleSmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 12,
           height: 1.3,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         labelLarge = baseTextStyle.copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 16,
           height: 1.5,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         labelMedium = baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 14,
           height: 1.4,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         ),
         labelSmall = baseTextStyle.copyWith(
           fontWeight: FontWeight.w500,
           fontSize: 12,
           height: 1.4,
-          color: colors.content.onSurface,
+          color: colors.scheme.onSurface,
         );
 
   /// Получение [TextTheme]

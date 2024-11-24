@@ -20,12 +20,12 @@ class MoneyColoredWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = context.theme.app.colors.accent.primary;
+    final color = context.color.scheme.primary;
     // final color = value == 0 || value == null
-    //     ? context.theme.app.colors.content.onSurface
+    //     ? context.colors.content.onSurface
     //     : (value ?? 0) > 0
-    //         ? context.theme.app.colors.accent.primary
-    //         : context.theme.app.colors.accent.secondary;
+    //         ? context.colors.accent.primary
+    //         : context.colors.accent.secondary;
 
     final text =
         value != null ? (value! > 0 && showPlusSign ? '+ ' : '') + value!.currency(currency) : '-';

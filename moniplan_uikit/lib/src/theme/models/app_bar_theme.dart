@@ -157,8 +157,11 @@ class AppAppBarTheme {
       );
 
   /// Стиль по умолчанию для [AppBarTheme]
-  AppAppBarTheme.get(AppColors appColors)
-      : backgroundColor = Colors.transparent,
+  AppAppBarTheme.get({
+    required AppColors appColors,
+    required AppTextTheme textTheme,
+    required AppSystemUiOverlayStyle systemUiOverlay,
+  })  : backgroundColor = Colors.transparent,
         foregroundColor = Colors.transparent,
         elevation = 0,
         scrolledUnderElevation = 0,
@@ -170,7 +173,7 @@ class AppAppBarTheme {
         centerTitle = true,
         titleSpacing = 0,
         toolbarHeight = kAppAppBarHeight,
-        toolbarTextStyle = AppTextTheme.get(appColors).displayLarge,
-        titleTextStyle = AppTextTheme.get(appColors).displayLarge,
-        systemOverlayStyle = AppSystemUiOverlayStyle.get(appColors).value;
+        toolbarTextStyle = textTheme.displayLarge,
+        titleTextStyle = textTheme.displayLarge,
+        systemOverlayStyle = systemUiOverlay.value;
 }

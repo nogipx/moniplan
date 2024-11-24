@@ -21,10 +21,8 @@ class PaymentListDaySeparator extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
       child: Material(
         elevation: 2,
-        color: isSameDay
-            ? context.theme.app.colors.accent.primary
-            : context.theme.app.colors.accent.secondary,
-        borderRadius: context.theme.app.radius.round,
+        color: isSameDay ? context.color.scheme.primary : context.color.scheme.secondary,
+        borderRadius: context.radius.round,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -37,8 +35,8 @@ class PaymentListDaySeparator extends StatelessWidget {
                 DateFormat.MMMMd('ru').format(date),
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: isSameDay
-                          ? context.theme.app.colors.content.onPrimary
-                          : context.theme.app.colors.content.onSecondary,
+                          ? context.color.scheme.onPrimary
+                          : context.color.scheme.onSecondary,
                     ),
               ),
             ),
