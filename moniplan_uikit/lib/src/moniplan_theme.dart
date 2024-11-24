@@ -5,10 +5,12 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 final _random = Random();
 
-({ThemeData themeData, AppThemeData appThemeData}) moniplanTheme({
+typedef CustomTheme = ({ThemeData themeData, AppThemeData appThemeData});
+
+CustomTheme moniplanTheme({
   required Brightness brightness,
   required FlexSchemeVariant variant,
-  Color? seedColor,
+  ColorScheme? seedScheme,
   double contrast = 0,
   bool monochrome = true,
   bool expressive = false,
@@ -21,19 +23,19 @@ final _random = Random();
     ThemeDataExtension.generator = null;
   }
 
-  Color targetColor = seedColor ?? _Colors.moniplanBrand;
+  Color? rainbowColor;
   if (rainbow) {
-    targetColor = generateRainbowColor(_random.nextDouble());
+    rainbowColor = generateRainbowColor(_random.nextDouble());
   }
 
   final scheme = SeedColorScheme.fromSeeds(
     brightness: brightness,
-    primaryKey: targetColor,
-    // secondaryKey: _Colors.lightBrandColor,
-    // tertiaryKey: _Colors.paynesGray,
-    // errorKey: _Colors.negativeMoneyColor,
-    // neutralKey: _Colors.jet,
-    // neutralVariantKey: _Colors.darkBackgroundColor,
+    primaryKey: rainbowColor ?? seedScheme?.primary ?? _Colors.moniplanBrand,
+    secondaryKey: seedScheme?.secondary ?? _Colors.lightBrandColor,
+    tertiaryKey: seedScheme?.tertiary ?? _Colors.paynesGray,
+    errorKey: seedScheme?.error ?? _Colors.negativeMoneyColor,
+    neutralKey: seedScheme?.tertiaryContainer ?? _Colors.jet,
+    neutralVariantKey: seedScheme?.onTertiaryFixedVariant ?? _Colors.darkBackgroundColor,
     variant: variant,
     useExpressiveOnContainerColors: expressive,
     respectMonochromeSeed: monochrome,

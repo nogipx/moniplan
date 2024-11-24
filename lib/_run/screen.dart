@@ -186,11 +186,11 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: style,
-            ),
-            SizedBox(height: 8),
+            // Text(
+            //   title,
+            //   style: style,
+            // ),
+            // SizedBox(height: 8),
             Column(
               children: colors.map((colorMap) {
                 final colorName = colorMap.keys.first;

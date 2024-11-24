@@ -12,6 +12,8 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'screen.dart';
+
 class MoniplanApp extends StatefulWidget {
   const MoniplanApp({
     super.key,
@@ -49,21 +51,6 @@ class _MoniplanAppState extends State<MoniplanApp> {
     FlexSchemeVariant.vividSurfaces,
   ];
 
-  ThemeData _getTheme({
-    required FlexSchemeVariant variant,
-    Brightness? brightness,
-    Color? color,
-  }) {
-    return moniplanTheme(
-      seedColor: color,
-      brightness: brightness ?? Brightness.dark,
-      variant: FlexSchemeVariant.chroma,
-      monochrome: true,
-      rainbow: false,
-      expressive: false,
-    ).themeData;
-  }
-
   // late final ValueNotifier<ThemeData> _theme;
   // late final Timer _ticker;
   int counter = 0;
@@ -99,10 +86,14 @@ class _MoniplanAppState extends State<MoniplanApp> {
     return DynamicColorBuilder(
       builder: (light, dark) {
         final brightness = MediaQuery.of(context).platformBrightness;
-        final theme = _getTheme(
-          variant: FlexSchemeVariant.fruitSalad,
-          color: brightness == Brightness.dark ? dark?.primary : light?.primary,
+        final scheme = brightness == Brightness.dark ? dark : light;
+        final theme = moniplanTheme(
+          seedScheme: scheme,
           brightness: brightness,
+          variant: FlexSchemeVariant.vibrant,
+          monochrome: false,
+          rainbow: false,
+          expressive: false,
         );
 
         return MultiRepositoryProvider(
@@ -122,7 +113,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
               builder: (context, _) {
                 return MaterialApp(
                   debugShowCheckedModeBanner: false,
-                  theme: theme,
+                  theme: theme.themeData,
                   builder: (context, child) => ResponsiveBreakpoints.builder(
                     child: child!,
                     breakpoints: [
@@ -148,7 +139,23 @@ class _MoniplanAppState extends State<MoniplanApp> {
                       ),
                     ],
                   ),
-                  home: home,
+                  home: Builder(
+                    builder: (context) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AppColorsDisplayScreen(
+                                appColors: theme.appThemeData.colors,
+                                colorScheme: scheme ?? ColorScheme.dark(),
+                              ),
+                            ),
+                          );
+                        },
+                        child: home,
+                      );
+                    },
+                  ),
                 );
               },
             ),
