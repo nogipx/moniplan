@@ -63,17 +63,28 @@ class _MoniplanAppState extends State<MoniplanApp> {
             // );
 
             final colors = AppColors.fromSeedColor(
-              seedColor: rainbow,
-              isDarkTheme: false,
+              seedColor: targetColor,
+              isDarkTheme: true,
             );
 
-            var resultTheme = theme(
+            var themeData = AppThemeData.fromStyles(
+              customColors: colors,
               baseTextStyle: TextStyle(
-                overflow: TextOverflow.ellipsis,
+                overflow: TextOverflow.visible,
                 fontFamily: 'TTNeoris',
               ),
-              customColors: colors,
             );
+
+            var resultTheme = ThemeDataExtension.fromData(
+              themeData.copyWith(
+                appBar: themeData.appBar.copyWith(
+                  backgroundColor: colors.scheme.surfaceContainerHigh,
+                ),
+                button: themeData.button.copyWith(),
+              ),
+            );
+
+            resultTheme = resultTheme.copyWith();
 
             return MaterialApp(
               debugShowCheckedModeBanner: false,

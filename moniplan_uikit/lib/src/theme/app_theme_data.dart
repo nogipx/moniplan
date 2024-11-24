@@ -7,9 +7,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
   /// Цвета
   final AppColors colors;
 
-  /// Стиль кнопки
-  final AppButtonStyle buttonStyle;
-
   /// Тени
   final AppShadowTheme shadow;
 
@@ -22,32 +19,43 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
   /// Текстовые стили
   final AppTextTheme text;
 
+  /// Стиль кнопки
+  final AppButtonStyle button;
+
+  /// Стиль аппбара
+  final AppAppBarTheme appBar;
+
+  Brightness get brightness => colors.brightness;
+
   /// Создаёт класс с данными для темы
   const AppThemeData({
     required this.colors,
-    required this.buttonStyle,
+    required this.button,
     required this.shadow,
     required this.radius,
     required this.space,
     required this.text,
+    required this.appBar,
   });
 
   @override
-  ThemeExtension<AppThemeData> copyWith({
+  AppThemeData copyWith({
     AppColors? colors,
-    AppButtonStyle? buttonStyle,
+    AppButtonStyle? button,
     AppShadowTheme? shadow,
     AppBorderRadiuses? radius,
     AppSpaces? space,
     AppTextTheme? text,
+    AppAppBarTheme? appBar,
   }) =>
       AppThemeData(
         colors: colors ?? this.colors,
-        buttonStyle: buttonStyle ?? this.buttonStyle,
+        button: button ?? this.button,
         shadow: shadow ?? this.shadow,
         radius: radius ?? this.radius,
         space: space ?? this.space,
         text: text ?? this.text,
+        appBar: appBar ?? this.appBar,
       );
 
   @override
@@ -61,11 +69,63 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
 
     return AppThemeData(
       colors: colors.lerp(other.colors, t),
-      buttonStyle: buttonStyle.lerp(other.buttonStyle, t),
+      button: button.lerp(other.button, t),
       shadow: shadow.lerp(other.shadow, t),
       radius: radius.lerp(other.radius, t),
       space: space.lerp(other.space, t),
       text: text.lerp(other.text, t),
+      appBar: appBar.lerp(other.appBar, t),
+    );
+  }
+
+  factory AppThemeData.fromStyles({
+    Brightness? brightness,
+    AppColors? customColors,
+    TextStyle? baseTextStyle,
+    AppButtonStyle? customButtonStyle,
+    AppShadowTheme? customShadow,
+    AppBorderRadiuses? customRadius,
+    AppSpaces? customSpace,
+    AppTextTheme? customTextTheme,
+    AppAppBarTheme? customAppBar,
+  }) {
+    final effectiveBrightness = customColors != null ? customColors.brightness : brightness;
+
+    final effectiveColors = customColors ??
+        AppColors.get(
+          effectiveBrightness ?? Brightness.light,
+        );
+
+    final effectiveTextTheme = customTextTheme?.copyWith(
+          colors: effectiveColors,
+        ) ??
+        AppTextTheme.get(
+          colors: effectiveColors,
+          baseTextStyle: baseTextStyle ?? TextStyle(),
+        );
+
+    final effectiveButtonStyle = customButtonStyle?.copyWith(
+          colors: effectiveColors,
+        ) ??
+        AppButtonStyle(
+          colors: effectiveColors,
+        );
+
+    final effectiveAppBarTheme = customAppBar?.copyWith() ??
+        AppAppBarTheme.get(
+          appColors: effectiveColors,
+          textTheme: effectiveTextTheme,
+          systemUiOverlay: AppSystemUiOverlayStyle.get(effectiveColors),
+        );
+
+    return AppThemeData(
+      colors: effectiveColors,
+      text: effectiveTextTheme,
+      button: effectiveButtonStyle,
+      appBar: effectiveAppBarTheme,
+      shadow: customShadow ?? AppShadowTheme.get(),
+      radius: customRadius ?? AppBorderRadiuses.get(),
+      space: customSpace ?? AppSpaces.get(),
     );
   }
 }
