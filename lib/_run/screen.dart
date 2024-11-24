@@ -32,7 +32,6 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('App Colors Display'),
-        backgroundColor: widget.appColors.scheme.surface,
       ),
       body: ListView(
         children: [

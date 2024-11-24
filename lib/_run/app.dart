@@ -55,17 +55,18 @@ class _MoniplanAppState extends State<MoniplanApp> {
             final rainbow = generateRainbowColor(random);
             final targetColor = AppColorsRaw.brightBlue;
 
-            // final colors = AppColors.fromColorScheme(
-            //   ColorScheme.fromSwatch(
-            //     primarySwatch: Colors.blue,
-            //     brightness: Brightness.dark,
-            //   ),
-            // );
-
-            final colors = AppColors.fromSeedColor(
-              seedColor: targetColor,
-              isDarkTheme: true,
+            final colors = AppColors(
+              scheme: ColorScheme.fromSwatch(
+                primarySwatch: Colors.blue,
+                brightness: Brightness.dark,
+              ),
             );
+
+            // final colors = AppColors.fromSeedColor(
+            //   seedColor: targetColor,
+            //   isDarkTheme: true,
+            // );
+            // final colors = AppColors.dark();
 
             var themeData = AppThemeData.fromStyles(
               customColors: colors,
@@ -76,6 +77,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
             );
 
             var resultTheme = ThemeDataExtension.fromData(
+              useMaterial3: true,
               themeData.copyWith(
                 appBar: themeData.appBar.copyWith(
                   backgroundColor: colors.scheme.surfaceContainerHigh,

@@ -13,9 +13,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
   /// Радиусы
   final AppBorderRadiuses radius;
 
-  /// Отступы
-  final AppSpaces space;
-
   /// Текстовые стили
   final AppTextTheme text;
 
@@ -33,7 +30,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
     required this.button,
     required this.shadow,
     required this.radius,
-    required this.space,
     required this.text,
     required this.appBar,
   });
@@ -44,7 +40,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
     AppButtonStyle? button,
     AppShadowTheme? shadow,
     AppBorderRadiuses? radius,
-    AppSpaces? space,
     AppTextTheme? text,
     AppAppBarTheme? appBar,
   }) =>
@@ -53,7 +48,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
         button: button ?? this.button,
         shadow: shadow ?? this.shadow,
         radius: radius ?? this.radius,
-        space: space ?? this.space,
         text: text ?? this.text,
         appBar: appBar ?? this.appBar,
       );
@@ -72,7 +66,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
       button: button.lerp(other.button, t),
       shadow: shadow.lerp(other.shadow, t),
       radius: radius.lerp(other.radius, t),
-      space: space.lerp(other.space, t),
       text: text.lerp(other.text, t),
       appBar: appBar.lerp(other.appBar, t),
     );
@@ -85,7 +78,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
     AppButtonStyle? customButtonStyle,
     AppShadowTheme? customShadow,
     AppBorderRadiuses? customRadius,
-    AppSpaces? customSpace,
     AppTextTheme? customTextTheme,
     AppAppBarTheme? customAppBar,
   }) {
@@ -125,7 +117,6 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
       appBar: effectiveAppBarTheme,
       shadow: customShadow ?? AppShadowTheme.get(),
       radius: customRadius ?? AppBorderRadiuses.get(),
-      space: customSpace ?? AppSpaces.get(),
     );
   }
 }

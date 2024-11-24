@@ -14,12 +14,11 @@ extension ThemeDataExtension on ThemeData {
     final button = data.button;
     final shadow = data.shadow;
     final radius = data.radius;
-    final space = data.space;
     final text = data.text;
 
     final defaultIconThemeData = IconThemeData(color: colors.scheme.onPrimary, size: 28);
     final defaultOutlineInputBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(space.mediumLarge),
+      borderRadius: BorderRadius.circular(AppSpace.s16),
       borderSide: BorderSide(color: colors.scheme.onSurfaceVariant, width: 1),
     );
 
@@ -52,7 +51,10 @@ extension ThemeDataExtension on ThemeData {
         fillColor: colors.scheme.surface,
         focusColor: colors.scheme.onPrimary,
         filled: true,
-        contentPadding: EdgeInsets.symmetric(vertical: space.small, horizontal: space.medium),
+        contentPadding: EdgeInsets.symmetric(
+          vertical: AppSpace.s4,
+          horizontal: AppSpace.s8,
+        ),
         border: defaultOutlineInputBorder,
         disabledBorder: defaultOutlineInputBorder.copyWith(
           borderSide: BorderSide(color: colors.scheme.onSurface.withOpacity(0.12)),
@@ -91,7 +93,9 @@ extension ThemeDataExtension on ThemeData {
       dialogTheme: DialogTheme(
         backgroundColor: colors.scheme.surface,
         alignment: Alignment.center,
-        actionsPadding: EdgeInsets.symmetric(horizontal: space.medium),
+        actionsPadding: EdgeInsets.symmetric(
+          horizontal: AppSpace.s8,
+        ),
         titleTextStyle: text.displaySmall,
         contentTextStyle: text.bodyMedium,
         iconColor: colors.scheme.primary,

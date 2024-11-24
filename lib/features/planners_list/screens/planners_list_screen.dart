@@ -130,10 +130,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
 
                     return ListView.builder(
                       itemCount: _actualPlanners.value.length,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16,
-                        horizontal: 16,
-                      ),
+                      padding: const EdgeInsets.all(AppSpace.s16),
                       itemBuilder: (context, index) {
                         final planner = _actualPlanners.value[index];
                         return GestureDetector(

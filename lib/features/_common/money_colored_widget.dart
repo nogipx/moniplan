@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class MoneyColoredWidget extends StatelessWidget {
@@ -33,8 +33,7 @@ class MoneyColoredWidget extends StatelessWidget {
     return Text(
       text,
       textAlign: TextAlign.center,
-      style: (textStyle ?? Theme.of(context).textTheme.bodyLarge)
-          ?.apply(color: overrideColor ?? color),
+      style: (textStyle ?? Theme.of(context).textTheme.bodyLarge),
     );
   }
 }
