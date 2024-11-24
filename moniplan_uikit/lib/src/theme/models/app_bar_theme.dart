@@ -6,10 +6,10 @@ import 'package:flutter/services.dart';
 import '_index.dart';
 
 /// Высота области для AppBar
-const kAppAppBarHeight = 40.0;
+// const kAppAppBarHeight = 40.0;
 
 /// Высота системного меню
-const kAppSystemMenuHeight = 40.0;
+// const kAppSystemMenuHeight = 40.0;
 
 /// Класс для формирования [AppBarTheme] в ui kit
 class AppAppBarTheme {
@@ -161,8 +161,8 @@ class AppAppBarTheme {
     required AppColors appColors,
     required AppTextTheme textTheme,
     required AppSystemUiOverlayStyle systemUiOverlay,
-  })  : backgroundColor = Colors.transparent,
-        foregroundColor = Colors.transparent,
+  })  : backgroundColor = appColors.scheme.surfaceContainer,
+        foregroundColor = appColors.scheme.onSurface,
         elevation = 0,
         scrolledUnderElevation = 0,
         shadowColor = Colors.transparent,
@@ -172,7 +172,7 @@ class AppAppBarTheme {
         actionsIconTheme = null,
         centerTitle = true,
         titleSpacing = 0,
-        toolbarHeight = kAppAppBarHeight,
+        toolbarHeight = kToolbarHeight,
         toolbarTextStyle = textTheme.displayLarge,
         titleTextStyle = textTheme.displayLarge,
         systemOverlayStyle = systemUiOverlay.value;

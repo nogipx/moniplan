@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
 
   material_color_utilities: any
+  flex_seed_scheme: ^3.4.1
 
 dev_dependencies:
   flutter_test:

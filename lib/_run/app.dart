@@ -15,6 +15,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../_colors.dart';
+import '../test_recolor.dart';
 import 'screen.dart';
 
 class MoniplanApp extends StatefulWidget {
@@ -32,9 +33,41 @@ class MoniplanApp extends StatefulWidget {
 class _MoniplanAppState extends State<MoniplanApp> {
   @override
   Widget build(BuildContext context) {
+    final theme = moniplanTheme(
+      brightness: Brightness.dark,
+      // variant: FlexSchemeVariant.material3Legacy,
+      // variant: FlexSchemeVariant.material,
+      // variant: FlexSchemeVariant.expressive,
+      // variant: FlexSchemeVariant.rainbow,
+      // variant: FlexSchemeVariant.content,
+      // variant: FlexSchemeVariant.candyPop,
+      // variant: FlexSchemeVariant.chroma,
+      // variant: FlexSchemeVariant.fidelity,
+      // variant: FlexSchemeVariant.fruitSalad,
+      variant: FlexSchemeVariant.jolly,
+      // variant: FlexSchemeVariant.monochrome,
+      // variant: FlexSchemeVariant.neutral,
+      // variant: FlexSchemeVariant.oneHue,
+      // variant: FlexSchemeVariant.soft,
+      // variant: FlexSchemeVariant.tonalSpot,
+      // variant: FlexSchemeVariant.highContrast,
+      // variant: FlexSchemeVariant.ultraContrast,
+      // variant: FlexSchemeVariant.vibrant,
+      // variant: FlexSchemeVariant.vivid,
+      // variant: FlexSchemeVariant.vividBackground,
+      // variant: FlexSchemeVariant.vividSurfaces,
+      contrast: -.7,
+      monochrome: false,
+      expressive: false,
+    );
+
     final home = ReceiveImportWrapper(
       child: PlannersListScreen(),
       // child: TestRecolorScreen(),
+      // child: AppColorsDisplayScreen(
+      //   appColors: theme.appThemeData.colors,
+      //   colorScheme: theme.themeData.colorScheme,
+      // ),
     );
 
     return MultiRepositoryProvider(
@@ -52,46 +85,9 @@ class _MoniplanAppState extends State<MoniplanApp> {
         child: AnimatedBuilder(
           animation: AppDbImpl(),
           builder: (context, _) {
-            final random = Random().nextDouble();
-            final rainbow = generateRainbowColor(random);
-            final targetColor = AppColorsRaw.brightBlue;
-
-            final colors = AppColors(
-              scheme: ColorScheme.fromSwatch(
-                primarySwatch: Colors.blue,
-                brightness: Brightness.dark,
-              ),
-            );
-
-            // final colors = AppColors.fromSeedColor(
-            //   seedColor: targetColor,
-            //   isDarkTheme: true,
-            // );
-            // final colors = AppColors.dark();
-
-            var themeData = AppThemeData.fromStyles(
-              customColors: colors,
-              baseTextStyle: TextStyle(
-                overflow: TextOverflow.visible,
-                fontFamily: 'TTNeoris',
-              ),
-            );
-
-            var resultTheme = ThemeDataExtension.fromData(
-              useMaterial3: true,
-              themeData.copyWith(
-                appBar: themeData.appBar.copyWith(
-                  backgroundColor: colors.scheme.surfaceContainerHigh,
-                ),
-                button: themeData.button.copyWith(),
-              ),
-            );
-
-            resultTheme = resultTheme.copyWith();
-
             return MaterialApp(
               debugShowCheckedModeBanner: false,
-              theme: resultTheme,
+              theme: theme.themeData,
               builder: (context, child) => ResponsiveBreakpoints.builder(
                 child: child!,
                 breakpoints: [
@@ -118,7 +114,6 @@ class _MoniplanAppState extends State<MoniplanApp> {
                 ],
               ),
               home: home,
-              // home: AppColorsDisplayScreen(appColors: colors, colorScheme: colors.scheme),
             );
           },
         ),

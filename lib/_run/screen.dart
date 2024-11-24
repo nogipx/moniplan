@@ -180,9 +180,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
 
   Widget _buildColorSection(String title, List<Map<String, Color>> colors) {
     return Builder(builder: (context) {
-      final style = context.theme.textTheme.bodyMedium?.copyWith(
-        color: Colors.black,
-      );
+      final style = context.theme.textTheme.bodyMedium;
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
