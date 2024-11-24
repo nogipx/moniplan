@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:moniplan/features/_common/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
-import 'package:moniplan/features/_common/_index.dart';
 
 class PaymentListItem extends StatelessWidget {
   const PaymentListItem({
@@ -90,9 +90,7 @@ class PaymentListItem extends StatelessWidget {
                     Text(
                       payment.details.name,
                       style: context.theme.textTheme.bodyLarge?.copyWith(
-                        color: payment.isEnabled
-                            ? context.color.scheme.onSurface
-                            : context.color.scheme.onSecondary,
+                        color: payment.isEnabled ? null : context.color.scheme.onSurfaceVariant,
                         decoration: !payment.isEnabled ? TextDecoration.lineThrough : null,
                       ),
                     ),

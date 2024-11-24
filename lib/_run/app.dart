@@ -90,10 +90,8 @@ class _MoniplanAppState extends State<MoniplanApp> {
         final theme = moniplanTheme(
           seedScheme: scheme,
           brightness: brightness,
-          variant: FlexSchemeVariant.vibrant,
+          variant: FlexSchemeVariant.vivid,
           monochrome: false,
-          rainbow: false,
-          expressive: false,
         );
 
         return MultiRepositoryProvider(
