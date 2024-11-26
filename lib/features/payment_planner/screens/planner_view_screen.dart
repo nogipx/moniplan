@@ -1,12 +1,10 @@
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan/features/payment_planner/_index.dart';
 import 'package:moniplan/features/payment_planner/dialogs/_index.dart';
-import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
-import 'package:moniplan/features/payment_planner/_index.dart';
 
 class PlannerViewScreen extends StatefulWidget {
   const PlannerViewScreen({super.key});
@@ -58,117 +56,115 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
         final paymentsByDate = state.getPaymentsByDate;
         final today = DateTime.now().onlyDate;
 
-        return MoniplanThemeListenable(
-          child: Scaffold(
-            floatingActionButton: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 24),
-                  child: ElevatedButton(
-                    child: Text('Сегодня'),
-                    onPressed: () {
-                      _moveToDate(DateTime.now());
-                    },
-                  ),
-                ),
-                GestureDetector(
-                  onLongPress: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => DriftDbViewer(AppDb().db),
-                      ),
-                    );
-                  },
-                  child: FloatingActionButton(
-                    child: const Icon(Icons.add),
-                    onPressed: () {
-                      _updateDialog();
-                    },
-                  ),
-                ),
-              ],
-            ),
-            appBar: AppBar(
-              title: titleWidget,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.ssid_chart),
+        return Scaffold(
+          floatingActionButton: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 24),
+                child: ElevatedButton(
+                  child: Text('Сегодня'),
                   onPressed: () {
-                    Navigator.of(context).push<void>(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return Scaffold(
-                            body: SafeArea(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                  vertical: 24,
-                                ),
-                                child: Center(
-                                  child: StatisticChart(
-                                    budget: state.budget,
-                                  ),
+                    _moveToDate(DateTime.now());
+                  },
+                ),
+              ),
+              GestureDetector(
+                onLongPress: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => DriftDbViewer(AppDb().db),
+                    ),
+                  );
+                },
+                child: FloatingActionButton(
+                  child: const Icon(Icons.add),
+                  onPressed: () {
+                    _updateDialog();
+                  },
+                ),
+              ),
+            ],
+          ),
+          appBar: AppBar(
+            title: titleWidget,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.ssid_chart),
+                onPressed: () {
+                  Navigator.of(context).push<void>(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return Scaffold(
+                          body: SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 24,
+                              ),
+                              child: Center(
+                                child: StatisticChart(
+                                  budget: state.budget,
                                 ),
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              state is PlannerBudgetComputedState
+                  ? MoneyFlowWidget(state: state.moneyFlow)
+                  : const SizedBox(),
+              Expanded(
+                child: ScrollablePositionedList.separated(
+                  itemScrollController: _controller,
+                  itemCount: paymentsByDate.length,
+                  padding: const EdgeInsets.only(bottom: 80),
+                  itemBuilder: (context, index) {
+                    if (index < 0) {
+                      return const SizedBox();
+                    }
+
+                    final datePayments = paymentsByDate[index];
+
+                    var paymentsWidgets = datePayments.payments.map((payment) {
+                      return PaymentListItem(
+                        payment: payment,
+                        mediateSummary: state.budget[payment],
+                        onPressed: () => _onTapPayment(payment),
+                      );
+                    }).toList();
+
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: paymentsWidgets,
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    if (index == paymentsByDate.length - 1) {
+                      return const SizedBox();
+                    }
+
+                    final todayPayments = paymentsByDate[index];
+                    final nextDayPayments = paymentsByDate[index + 1];
+
+                    return PaymentListSeparator(
+                      currentPayment: todayPayments.payments.first,
+                      nextPayment: nextDayPayments.payments.first,
+                      today: today,
                     );
                   },
                 ),
-              ],
-            ),
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                state is PlannerBudgetComputedState
-                    ? MoneyFlowWidget(state: state.moneyFlow)
-                    : const SizedBox(),
-                Expanded(
-                  child: ScrollablePositionedList.separated(
-                    itemScrollController: _controller,
-                    itemCount: paymentsByDate.length,
-                    padding: const EdgeInsets.only(bottom: 80),
-                    itemBuilder: (context, index) {
-                      if (index < 0) {
-                        return const SizedBox();
-                      }
-
-                      final datePayments = paymentsByDate[index];
-
-                      var paymentsWidgets = datePayments.payments.map((payment) {
-                        return PaymentListItem(
-                          payment: payment,
-                          mediateSummary: state.budget[payment],
-                          onPressed: () => _onTapPayment(payment),
-                        );
-                      }).toList();
-
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: paymentsWidgets,
-                      );
-                    },
-                    separatorBuilder: (context, index) {
-                      if (index == paymentsByDate.length - 1) {
-                        return const SizedBox();
-                      }
-
-                      final todayPayments = paymentsByDate[index];
-                      final nextDayPayments = paymentsByDate[index + 1];
-
-                      return PaymentListSeparator(
-                        currentPayment: todayPayments.payments.first,
-                        nextPayment: nextDayPayments.payments.first,
-                        today: today,
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

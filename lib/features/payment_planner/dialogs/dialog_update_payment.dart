@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan/theme/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 Future<void> showUpdatePaymentDialog({
