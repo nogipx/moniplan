@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
-extension MPThemeExtension on BuildContext {
+extension MoniplanExtraColorsExtension on BuildContext {
   MoniplanExtraColors get extra => theme.ext<MoniplanExtraColors>()!;
 }
 
