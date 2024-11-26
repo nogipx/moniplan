@@ -56,9 +56,7 @@ class PaymentListItem extends StatelessWidget {
               child: Icon(
                 Icons.done_outlined,
                 size: 16,
-                color: payment.isDone
-                    ? context.color.scheme.onSurface
-                    : context.color.scheme.onSecondary,
+                color: context.ext<MoniplanExtraColors>()?.moneyPositive,
               ),
             ),
           if (!payment.isEnabled)
@@ -67,7 +65,7 @@ class PaymentListItem extends StatelessWidget {
               child: Icon(
                 Icons.power_settings_new_rounded,
                 size: 16,
-                color: context.color.scheme.primary,
+                color: context.ext<MoniplanExtraColors>()?.moneyNegative,
               ),
             ),
         ],
@@ -90,7 +88,8 @@ class PaymentListItem extends StatelessWidget {
                     Text(
                       payment.details.name,
                       style: context.theme.textTheme.bodyLarge?.copyWith(
-                        color: payment.isEnabled ? null : context.color.scheme.onSurfaceVariant,
+                        color: context.extra.moneyNegative,
+                        // color: payment.isEnabled ? null : context.color.scheme.onSurfaceVariant,
                         decoration: !payment.isEnabled ? TextDecoration.lineThrough : null,
                       ),
                     ),

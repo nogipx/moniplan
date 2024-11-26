@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
-ThemeDataGenerator _generator() => (data, useMaterial3) {
+ThemeDataGenerator _generator() => (data, extensions, useMaterial3) {
       final colors = data.colors;
       final button = data.button;
       final shadow = data.shadow;
@@ -16,7 +16,7 @@ ThemeDataGenerator _generator() => (data, useMaterial3) {
       return ThemeData(
         useMaterial3: useMaterial3,
         brightness: colors.brightness,
-        extensions: [data],
+        extensions: [data, ...extensions],
         fontFamily: text.baseTextStyle.fontFamily,
         textTheme: text.value,
         primaryTextTheme: text.value,

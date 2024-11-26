@@ -2,18 +2,28 @@ import 'package:flutter/material.dart';
 
 import '../_index.dart';
 
-typedef ThemeDataGenerator = ThemeData Function(AppThemeData data, bool useMaterial3);
+typedef ThemeDataGenerator = ThemeData Function(
+  AppThemeData data,
+  List<ThemeExtension> extensions,
+  bool useMaterial3,
+);
 
 /// Расширение для [ThemeData]
 extension ThemeDataExtension on ThemeData {
   /// Получение [AppThemeData] из [BuildContext].
-  AppThemeData get ext => extension<AppThemeData>()!;
+  AppThemeData get appExtension => extension<AppThemeData>()!;
+
+  T? ext<T>() => extension<T>();
 
   static ThemeDataGenerator? generator;
 
-  static ThemeData fromData(AppThemeData data, {bool useMaterial3 = true}) {
+  static ThemeData fromData(
+    AppThemeData data, {
+    List<ThemeExtension> extensions = const [],
+    bool useMaterial3 = true,
+  }) {
     if (generator != null) {
-      return generator!(data, useMaterial3);
+      return generator!(data, extensions, useMaterial3);
     }
 
     final colors = data.colors;
@@ -21,7 +31,7 @@ extension ThemeDataExtension on ThemeData {
 
     return ThemeData(
       useMaterial3: useMaterial3,
-      extensions: [data],
+      extensions: [data, ...extensions],
       brightness: colors.brightness,
       fontFamily: text.baseTextStyle.fontFamily,
       textTheme: text.value,

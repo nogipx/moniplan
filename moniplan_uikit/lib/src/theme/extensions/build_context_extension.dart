@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
-/// Расширение для [BuildContext]
 extension BuildContextThemeExtension on BuildContext {
-  /// Получение [ThemeData] из [BuildContext].
   ThemeData get theme => Theme.of(this);
 
-  AppThemeData get themeExtension => theme.ext;
+  AppThemeData get extension => theme.appExtension;
 
-  AppColors get color => themeExtension.colors;
+  AppColors get color => extension.colors;
 
-  AppTextTheme get text => themeExtension.text;
+  AppTextTheme get text => extension.text;
 
-  AppShadowTheme get shadow => themeExtension.shadow;
+  AppShadowTheme get shadow => extension.shadow;
 
-  AppButtonStyle get button => themeExtension.button;
+  AppButtonStyle get button => extension.button;
+
+  T? ext<T>() => theme.ext<T>();
 }
