@@ -2,55 +2,61 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// Widget with contour animation.
+/// Виджет с анимацией контура.
 ///
-/// [child] — nested widget around which the contour animation will be drawn.
-/// [isAnimated] — flag to enable or disable animation.
+/// Если [animation] не передан, виджет создаёт собственный [AnimationController].
+/// Флаг [isAnimated] работает независимо от того, передана ли внешняя анимация,
+/// и позволяет включать или отключать анимацию.
+///
+/// При использовании в списках рекомендуется передавать внешний [animation]
+/// для оптимальной производительности.
 class ContourAnimationWidget extends StatefulWidget {
   final Widget child;
   final bool debugMode;
+  final Animation<double>? animation;
   final bool isAnimated;
 
-  /// Optional painter for drawing additional elements (e.g., for debugging).
+  /// Опциональный пейнтер для отрисовки дополнительных элементов (например, для отладки).
   final CustomPainter Function(double progress)? debugPainter;
 
-  /// Customizable line width.
+  /// Настраиваемая ширина линии.
   final double strokeWidth;
 
-  /// Customizable line color.
+  /// Настраиваемый цвет линии.
   final Color color;
 
-  /// Customizable line cap style (e.g., round or square).
+  /// Настраиваемый стиль кончиков линии (например, круглый или квадратный).
   final StrokeCap strokeCap;
 
-  /// Corner radius for rounded edges.
+  /// Радиус скругления углов.
   final double cornerRadius;
 
-  /// Length of the visible part of the line as a fraction of the total perimeter length.
+  /// Длина видимой части линии в доле от общей длины периметра.
   final double visibleFraction;
 
-  /// Duration of the animation playback.
+  /// Время проигрывания анимации (используется только при отсутствии внешней анимации).
   final Duration duration;
 
-  /// Parameters for adjusting the size of the rectangle for each side in pixels.
+  /// Параметры для изменения размера прямоугольника по каждой стороне в пикселях.
   final EdgeInsets edgeOffsets;
 
-  /// Callback for generating color based on the current progress.
+  /// Колбек для генерации цвета на основе текущего прогресса.
   final Color Function(double progress)? colorGenerator;
 
-  /// Callback for generating line width based on the current progress.
+  /// Колбек для генерации ширины линии на основе текущего прогресса.
   final double Function(double progress)? strokeWidthGenerator;
 
-  /// Callback for generating corner radius based on the current progress.
+  /// Колбек для генерации радиуса углов на основе текущего прогресса.
   final double Function(double progress)? cornerRadiusGenerator;
 
-  /// Callback for generating visible line length based on the current progress.
+  /// Колбек для генерации длины видимой части линии на основе текущего прогресса.
   final double Function(double progress)? visibleFractionGenerator;
 
   const ContourAnimationWidget({
     required this.child,
-    this.debugMode = false,
+    this.animation,
     this.isAnimated = true,
+    this.debugMode = false,
     this.debugPainter,
     this.strokeWidth = 6.0,
     this.color = Colors.white,
@@ -73,20 +79,30 @@ class ContourAnimationWidget extends StatefulWidget {
 class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
     with SingleTickerProviderStateMixin {
   AnimationController? _controller;
+  late Animation<double> _animation;
+
+  // Флаг, определяющий, должна ли анимация проигрываться
+  bool get _shouldAnimate => widget.isAnimated;
 
   @override
   void initState() {
     super.initState();
 
-    if (widget.isAnimated) {
-      // Create animation controller
-      _controller = AnimationController(
-        duration: widget.duration,
-        vsync: this,
-      );
-
-      // Start animation if isAnimated is true
-      _controller!.repeat();
+    if (_shouldAnimate) {
+      if (widget.animation != null) {
+        // Используем внешний контроллер анимации
+        _animation = widget.animation!;
+      } else {
+        // Создаём и запускаем внутренний контроллер анимации
+        _controller = AnimationController(
+          duration: widget.duration,
+          vsync: this,
+        )..repeat();
+        _animation = _controller!;
+      }
+    } else {
+      // Анимация отключена
+      _animation = const AlwaysStoppedAnimation(0);
     }
   }
 
@@ -94,16 +110,47 @@ class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
   void didUpdateWidget(covariant ContourAnimationWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Update controller state when the isAnimated flag changes
-    if (_controller != null && oldWidget.isAnimated != widget.isAnimated) {
+    if (oldWidget.isAnimated != widget.isAnimated) {
       if (widget.isAnimated) {
-        _controller!.repeat();
+        // Анимация была отключена, теперь включена
+        if (widget.animation != null) {
+          // Используем внешний контроллер анимации
+          _animation = widget.animation!;
+        } else {
+          // Создаём и запускаем внутренний контроллер анимации
+          _controller = AnimationController(
+            duration: widget.duration,
+            vsync: this,
+          )..repeat();
+          _animation = _controller!;
+        }
       } else {
-        _controller!.stop();
+        // Анимация была включена, теперь отключена
+        _controller?.stop();
+        _animation = const AlwaysStoppedAnimation(0);
+      }
+    } else if (_shouldAnimate) {
+      // Если анимация включена, проверяем изменения внешней анимации
+      if (oldWidget.animation != widget.animation) {
+        if (widget.animation != null) {
+          // Используем новый внешний контроллер анимации
+          _controller?.dispose();
+          _controller = null;
+          _animation = widget.animation!;
+        } else {
+          // Если внешняя анимация стала null, создаём внутренний контроллер
+          if (_controller == null) {
+            _controller = AnimationController(
+              duration: widget.duration,
+              vsync: this,
+            )..repeat();
+            _animation = _controller!;
+          }
+        }
       }
     }
 
-    // Update widget when debug mode changes
+    // Обновляем виджет при изменении режима отладки
     if (oldWidget.debugMode != widget.debugMode) {
       setState(() {});
     }
@@ -111,42 +158,40 @@ class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
 
   @override
   void dispose() {
-    // Release animation controller resources
-    if (_controller != null) {
-      _controller?.dispose();
-    }
+    // Освобождаем внутренний контроллер, если он был создан
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // If animation is disabled, return only the child without additional layers
-    if (!widget.isAnimated || _controller == null) {
+    // Если анимация не должна проигрываться, возвращаем только child
+    if (!_shouldAnimate) {
       return widget.child;
     }
 
     return RepaintBoundary(
       child: AnimatedBuilder(
-        animation: _controller!,
+        animation: _animation,
         builder: (context, child) {
           return CustomPaint(
             painter: ContourAnimationPainter(
-              _controller!.value,
+              _animation.value,
               debugPainter: widget.debugMode && widget.debugPainter != null
-                  ? widget.debugPainter!(_controller!.value)
+                  ? widget.debugPainter!(_animation.value)
                   : null,
               strokeWidth: widget.strokeWidthGenerator != null
-                  ? widget.strokeWidthGenerator!(_controller!.value)
+                  ? widget.strokeWidthGenerator!(_animation.value)
                   : widget.strokeWidth,
               color: widget.colorGenerator != null
-                  ? widget.colorGenerator!(_controller!.value)
+                  ? widget.colorGenerator!(_animation.value)
                   : widget.color,
               strokeCap: widget.strokeCap,
               cornerRadius: widget.cornerRadiusGenerator != null
-                  ? widget.cornerRadiusGenerator!(_controller!.value)
+                  ? widget.cornerRadiusGenerator!(_animation.value)
                   : widget.cornerRadius,
               visibleFraction: widget.visibleFractionGenerator != null
-                  ? widget.visibleFractionGenerator!(_controller!.value)
+                  ? widget.visibleFractionGenerator!(_animation.value)
                   : widget.visibleFraction,
               edgeOffsets: widget.edgeOffsets,
             ),
@@ -159,41 +204,45 @@ class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
   }
 }
 
-/// Custom painter for drawing animation along the contour of a widget.
+/// Кастомный художник для рисования анимации вдоль контура виджета.
 ///
-/// This class is responsible for drawing an animated line that moves around
-/// the perimeter of a rounded rectangle. It can be used to create a visual effect
-/// of outlining or highlighting a widget.
+/// Этот класс отвечает за отрисовку анимированной линии,
+/// которая перемещается по периметру прямоугольника с закругленными углами.
+/// Он может быть использован для создания визуального эффекта обводки или подсветки виджета.
 class ContourAnimationPainter extends CustomPainter {
-  /// Current animation progress value (from 0.0 to 1.0).
+  /// Текущее значение прогресса анимации (от 0.0 до 1.0).
   final double progress;
 
-  /// Optional painter for drawing additional elements (e.g., for debugging).
+  /// Опциональный пейнтер для отрисовки дополнительных элементов (например, для отладки).
   final CustomPainter? debugPainter;
 
-  /// Customizable line width.
+  /// Настраиваемая ширина линии.
   final double strokeWidth;
 
-  /// Customizable line color.
+  /// Настраиваемый цвет линии.
   final Color color;
 
-  /// Customizable line cap style (e.g., round or square).
+  /// Настраиваемый стиль кончиков линии (например, круглый или квадратный).
   final StrokeCap strokeCap;
 
-  /// Corner radius for rounded edges.
+  /// Радиус скругления углов.
   final double cornerRadius;
 
-  /// Length of the visible part of the line as a fraction of the total perimeter length.
+  /// Длина видимой части линии в доле от общей длины периметра.
   final double visibleFraction;
 
-  /// Parameters for adjusting the size of the rectangle for each side in pixels.
+  /// Параметры для изменения размера прямоугольника по каждой стороне в пикселях.
   final EdgeInsets edgeOffsets;
 
-  /// Constructor for the [ContourAnimationPainter] class.
+  /// Параметр для включения/отключения отрисовки.
+  final bool enabled;
+
+  /// Конструктор класса [ContourAnimationPainter].
   ///
-  /// Takes [progress] to control the animation and additional parameters for appearance customization.
+  /// Принимает [progress] для управления анимацией и дополнительные параметры для кастомизации внешнего вида.
   const ContourAnimationPainter(
     this.progress, {
+    this.enabled = true,
     this.debugPainter,
     this.strokeWidth = 6.0,
     this.color = Colors.white,
@@ -205,83 +254,87 @@ class ContourAnimationPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Get the rectangle coordinates considering edgeOffsets.
+    if (!enabled) {
+      return;
+    }
+
+    // Получаем координаты прямоугольника с учетом edgeOffsets.
     final left = edgeOffsets.left;
     final top = edgeOffsets.top;
     final right = size.width - edgeOffsets.right;
     final bottom = size.height - edgeOffsets.bottom;
 
-    // Calculate the total perimeter length of the rectangle considering rounded corners.
+    // Вычисляем общую длину периметра прямоугольника с учетом скругленных углов.
     //
-    // The formula consists of:
-    // - the total length of the sides without rounded corners: 2 * ((right - left) + (bottom - top) - 4 * cornerRadius)
-    // - the length of the rounded corners: 2 * π * cornerRadius
+    // Формула состоит из:
+    // - суммарной длины сторон без скругленных углов: 2 * ((right - left) + (bottom - top) - 4 * cornerRadius)
+    // - длины дуг скругленных углов: 2 * π * cornerRadius
     final perimeterLength =
         2 * ((right - left) + (bottom - top) - 4 * cornerRadius) + 2 * math.pi * cornerRadius;
 
-    // Determine the length of the visible segment of the line.
+    // Определяем длину видимого сегмента линии.
     final visibleLength = perimeterLength * visibleFraction;
 
-    // Calculate the current starting position of the visible segment on the perimeter.
+    // Вычисляем текущую позицию начала видимого сегмента на периметре.
     //
-    // Multiply [progress] by the total perimeter length and use modulo to loop the movement.
+    // Умножаем [progress] на общую длину периметра и используем модуль, чтобы зациклить движение.
     final currentProgress = (progress * perimeterLength) % perimeterLength;
 
-    // Create a rounded rectangle that the line will move around.
+    // Создаем прямоугольник с закругленными углами, по которому будет двигаться линия.
     final roundedRect = RRect.fromLTRBR(
-      left, // Left boundary coordinate.
-      top, // Top boundary coordinate.
-      right, // Right boundary coordinate.
-      bottom, // Bottom boundary coordinate.
-      Radius.circular(cornerRadius), // Corner radius.
+      left, // Координата левой границы.
+      top, // Координата верхней границы.
+      right, // Координата правой границы.
+      bottom, // Координата нижней границы.
+      Radius.circular(cornerRadius), // Радиус скругления углов.
     );
 
-    // Create a path based on the rounded rectangle.
+    // Создаем путь на основе прямоугольника с закругленными углами.
     final path = Path()..addRRect(roundedRect);
 
-    // Get path metrics for precise positioning on the path.
+    // Получаем метрики пути для точного позиционирования на нем.
     //
-    // Use an iterator for efficient access without creating a list.
+    // Используем итератор для эффективного доступа без создания списка.
     final iterator = path.computeMetrics().iterator;
 
-    // Check if the path contains any metrics.
+    // Проверяем, содержит ли путь какие-либо метрики.
     if (!iterator.moveNext()) {
-      return; // If not, exit the method.
+      return; // Если нет, выходим из метода.
     }
 
-    // Get the first metric of the path.
+    // Получаем первую метрику пути.
     final pathMetric = iterator.current;
 
-    // Determine the start and end points of the visible segment on the path.
-    final start = currentProgress; // Start point of the segment.
-    final end = start + visibleLength; // End point of the segment.
+    // Определяем начальную и конечную точки видимого сегмента на пути.
+    final start = currentProgress; // Начальная точка сегмента.
+    final end = start + visibleLength; // Конечная точка сегмента.
 
-    // Initialize a variable to store the extracted path segment.
+    // Инициализируем переменную для хранения извлеченного сегмента пути.
     Path extractPath;
 
-    // Check if the end of the segment exceeds the total path length.
+    // Проверяем, не превышает ли конец сегмента общую длину пути.
     if (end <= pathMetric.length) {
-      // If the end of the segment is within the path length,
-      // extract the segment directly.
+      // Если конец сегмента находится внутри длины пути,
+      // извлекаем сегмент напрямую.
       extractPath = pathMetric.extractPath(
         start,
         end,
       );
     } else {
-      // If the end of the segment exceeds the path,
-      // two segments need to be combined:
-      // 1. From the start point to the end of the path.
-      // 2. From the beginning of the path to the remaining part of the segment.
+      // Если конец сегмента выходит за пределы пути,
+      // необходимо объединить два сегмента:
+      // 1. От начальной точки до конца пути.
+      // 2. От начала пути до оставшейся части сегмента.
       extractPath = Path()
-        // Add the first segment from [start] to the end of the path.
+        // Добавляем первый сегмент от [start] до конца пути.
         ..addPath(
           pathMetric.extractPath(
             start,
             pathMetric.length,
           ),
-          Offset.zero, // No offset needed.
+          Offset.zero, // Смещение не требуется.
         )
-        // Add the second segment from the start of the path to [(end - path length)].
+        // Добавляем второй сегмент от начала пути до [(end - длина пути)].
         ..addPath(
           pathMetric.extractPath(
             0,
@@ -291,24 +344,25 @@ class ContourAnimationPainter extends CustomPainter {
         );
     }
 
-    // Static [Paint] object for configuring the drawing brush.
+    // Статический объект [Paint] для настройки кисти рисования.
     final paint = Paint()
-      ..strokeWidth = strokeWidth // Customizable line width.
-      ..color = color // Customizable line color.
-      ..style = PaintingStyle.stroke // Set to draw only the stroke.
-      ..strokeCap = strokeCap; // Customizable line ends.
+      ..strokeWidth = strokeWidth // Настраиваемая ширина линии.
+      ..color = color // Настраиваемый цвет линии.
+      ..style = PaintingStyle.stroke // Указываем, что рисуем только обводку.
+      ..strokeCap = strokeCap; // Настраиваемые концы линии.
 
-    // Draw the extracted path segment on the canvas using the configured brush.
+    // Рисуем извлеченный сегмент пути на холсте с использованием настроенной кисти.
     canvas.drawPath(extractPath, paint);
 
-    // If [debugPainter] is provided, call its paint method for additional drawing.
+    // Если предоставлен [debugPainter], вызываем его метод paint для дополнительной отрисовки.
     debugPainter?.paint(canvas, size);
   }
 
   @override
   bool shouldRepaint(covariant ContourAnimationPainter oldDelegate) {
-    // Indicate that repainting is necessary if [progress] or any of the customization parameters have changed.
-    return oldDelegate.progress != progress ||
+    // Указываем, что необходимо перерисовать, если изменился [progress] или любой из параметров кастомизации.
+    return oldDelegate.enabled != enabled ||
+        oldDelegate.progress != progress ||
         oldDelegate.debugPainter != debugPainter ||
         oldDelegate.strokeWidth != strokeWidth ||
         oldDelegate.color != color ||
