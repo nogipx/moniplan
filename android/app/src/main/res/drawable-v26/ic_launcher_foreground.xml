@@ -1,0 +1,11 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="center">
+        <inset
+            android:drawable="@drawable/moniplan_foreground"
+            android:insetTop="@dimen/inset_top_foreground"
+            android:insetLeft="@dimen/inset_left_foreground"
+            android:insetRight="@dimen/inset_right_foreground"
+            android:insetBottom="@dimen/inset_bottom_foreground"
+            />
+    </item>
+</layer-list>
