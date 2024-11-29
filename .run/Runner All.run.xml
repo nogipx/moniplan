@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Build Runner" type="ShConfigurationType">
+  <configuration default="false" name="Runner All" type="ShConfigurationType">
     <option name="SCRIPT_TEXT" value="fvm dart run packo runner -b moniplan_domain &amp;&amp; fvm flutter pub run packo runner -r" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />

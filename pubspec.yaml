@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-
   moniplan_core:
     path: moniplan_core
 
