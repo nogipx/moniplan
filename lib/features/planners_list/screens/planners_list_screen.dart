@@ -86,10 +86,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                 onDoubleTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => AppColorsDisplayScreen(
-                        appColors: context.color,
-                        colorScheme: context.theme.colorScheme,
-                      ),
+                      builder: (context) => AppColorsDisplayScreen(),
                     ),
                   );
                 },

@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class AppColorsDisplayScreen extends StatefulWidget {
-  final AppColors appColors;
-  final ColorScheme colorScheme;
-
-  AppColorsDisplayScreen({required this.appColors, required this.colorScheme});
+  AppColorsDisplayScreen();
 
   @override
   _AppColorsDisplayScreenState createState() => _AppColorsDisplayScreenState();
@@ -103,7 +100,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   // }
 
   List<Map<String, Color>> _extractColorSchemeColorsBackground() {
-    final colorScheme = widget.colorScheme;
+    final colorScheme = context.color.scheme;
     return [
       {'Surface': colorScheme.surface},
       {'On Surface': colorScheme.onSurface},
@@ -124,7 +121,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   }
 
   List<Map<String, Color>> _extractColorSchemeColorsTextColors() {
-    final colorScheme = widget.colorScheme;
+    final colorScheme = context.color.scheme;
     return [
       {'On Primary': colorScheme.onPrimary},
       {'On Primary Fixed': colorScheme.onPrimaryFixed},
@@ -143,7 +140,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   }
 
   List<Map<String, Color>> _extractColorSchemeColorsButtonColors() {
-    final colorScheme = widget.colorScheme;
+    final colorScheme = context.color.scheme;
     return [
       {'Primary': colorScheme.primary},
       {'Primary Fixed': colorScheme.primaryFixed},
@@ -161,7 +158,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   }
 
   List<Map<String, Color>> _extractColorSchemeColorsElementColors() {
-    final colorScheme = widget.colorScheme;
+    final colorScheme = context.color.scheme;
     return [
       {'Outline': colorScheme.outline},
       {'Outline Variant': colorScheme.outlineVariant},
@@ -171,7 +168,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   }
 
   List<Map<String, Color>> _extractColorSchemeColorsStateColors() {
-    final colorScheme = widget.colorScheme;
+    final colorScheme = context.color.scheme;
     return [
       {'Error': colorScheme.error},
       {'Error Container': colorScheme.errorContainer},
