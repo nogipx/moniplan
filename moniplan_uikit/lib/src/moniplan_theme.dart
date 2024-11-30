@@ -8,12 +8,12 @@ AppTheme moniplanTheme({
   FlexSchemeVariant? variant,
   ColorScheme? seedScheme,
   double contrast = 0,
-  bool monochrome = true,
-  bool expressive = false,
   ThemeDataGenerator? themeDataGenerator,
   bool rainbow = false,
   int? rainbowSeed,
   Color? rainbowColor,
+  bool respectMonochromeSeed = true,
+  bool useExpressiveOnLightContainerColors = true,
 }) {
   if (themeDataGenerator != null) {
     ThemeDataExtension.generator = themeDataGenerator;
@@ -24,7 +24,7 @@ AppTheme moniplanTheme({
   ColorScheme? effectiveScheme = seedScheme;
 
   if (rainbow) {
-    final random = Random(rainbowSeed);
+    final random = rainbowSeed != null ? Random(rainbowSeed) : Random.secure();
     final targetRainbowColor = rainbowColor ?? generateRainbowColor(random.nextDouble());
 
     final effectiveRainbowColor = changeColorSaturation(targetRainbowColor, 1);
@@ -43,16 +43,16 @@ AppTheme moniplanTheme({
 
   final scheme = SeedColorScheme.fromSeeds(
     brightness: brightness,
+    variant: variant,
     primaryKey: effectiveScheme?.primary ?? ExperimentColor.moniplanBrand,
     secondaryKey: effectiveScheme?.secondary,
     tertiaryKey: effectiveScheme?.tertiary,
     errorKey: effectiveScheme?.error,
     neutralKey: effectiveScheme?.surface,
     neutralVariantKey: effectiveScheme?.onSurfaceVariant,
-    variant: variant,
-    useExpressiveOnContainerColors: expressive,
-    respectMonochromeSeed: monochrome,
     contrastLevel: contrast,
+    useExpressiveOnContainerColors: useExpressiveOnLightContainerColors,
+    respectMonochromeSeed: respectMonochromeSeed,
   );
 
   var themeData = AppThemeData.fromStyles(

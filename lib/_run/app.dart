@@ -13,8 +13,6 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '_index.dart';
-
 class MoniplanApp extends StatefulWidget {
   const MoniplanApp({
     super.key,
@@ -39,13 +37,12 @@ class _MoniplanAppState extends State<MoniplanApp> {
     );
 
     return PeriodicThemeChanger(
-      isEnabled: true,
-      type: PeriodicThemeChangerType.dynamic,
+      type: PeriodicThemeChangerType.rainbow,
       initialTheme: widget.initialTheme,
-      themeProvider: moniplanThemeGeneratorDynamic,
+      isEnabled: true,
+      changePeriod: const Duration(seconds: 3),
       variants: FlexSchemeVariant.values,
-      changePeriod: const Duration(milliseconds: 300),
-      rainbowSeed: moniplanThemeRandomRainbow,
+      // rainbowSeed: DateTime.now().millisecondsSinceEpoch,
       builder: (context, theme) {
         return MultiRepositoryProvider(
           providers: [

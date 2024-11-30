@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -11,85 +9,107 @@ class PeriodicThemeRainbowChanger extends StatefulWidget {
     required this.builder,
     this.initialTheme,
     this.isEnabled = false,
-    this.changePeriod = const Duration(seconds: 2),
-    this.variants = FlexSchemeVariant.values,
+    this.changePeriod,
     this.rainbowSeed,
-    this.rainbowColor,
-    this.rainbowAngleOffset,
   });
 
-  /// Билдер нижележещих виджетов
   final Widget Function(BuildContext, AppTheme?) builder;
-
-  /// Изначальная неизмененная тема
   final AppTheme? initialTheme;
-
-  /// Генератор новой темы
-  final MoniplanThemeGenerator themeProvider;
+  final MoniplanThemeGeneratorRainbow themeProvider;
 
   final bool isEnabled;
-  final Duration changePeriod;
-
-  final List<FlexSchemeVariant> variants;
+  final Duration? changePeriod;
 
   final int? rainbowSeed;
-  final Color? rainbowColor;
-  final double? rainbowAngleOffset;
 
   @override
   State<PeriodicThemeRainbowChanger> createState() => _PeriodicThemeChangerState();
 }
 
-class _PeriodicThemeChangerState extends State<PeriodicThemeRainbowChanger> {
-  late final ValueNotifier<AppTheme?> _theme;
-  late final Timer? _ticker;
-  int counter = 0;
+class _PeriodicThemeChangerState extends State<PeriodicThemeRainbowChanger>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _controller;
+  late Animation<double> _animation;
+
+  static const _defaultPeriod = Duration(seconds: 10);
+
+  // Флаг, определяющий, должна ли анимация проигрываться
+  bool get _shouldAnimate => widget.isEnabled && widget.rainbowSeed == null;
 
   @override
   void initState() {
-    _theme = ValueNotifier(widget.initialTheme);
-    _ticker = widget.isEnabled && widget.variants.isNotEmpty
-        ? Timer.periodic(
-            widget.changePeriod,
-            (timer) async {
-              _theme.value = await widget.themeProvider(
-                variant: widget.variants[counter % widget.variants.length],
-                rainbowSeed: widget.rainbowSeed,
-              );
-              counter++;
-            },
-          )
-        : null;
-
     super.initState();
+
+    if (_shouldAnimate) {
+      final period = widget.changePeriod ?? _defaultPeriod;
+      // Создаём и запускаем внутренний контроллер анимации
+      _controller = AnimationController(
+        duration: period,
+        vsync: this,
+      )..repeat();
+      _animation = _controller!;
+    } else {
+      // Анимация отключена
+      _animation = const AlwaysStoppedAnimation(0);
+    }
   }
 
   @override
-  void didChangeDependencies() {
-    widget
-        .themeProvider(
-      rainbowSeed: widget.rainbowSeed,
-    )
-        .then((value) {
-      _theme.value = value;
-    });
-    super.didChangeDependencies();
+  void didUpdateWidget(covariant PeriodicThemeRainbowChanger oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.isEnabled != widget.isEnabled) {
+      if (widget.isEnabled) {
+        // Анимация была отключена, теперь включена
+        // Создаём и запускаем внутренний контроллер анимации
+        _controller = AnimationController(
+          duration: widget.changePeriod,
+          vsync: this,
+        )..repeat();
+        _animation = _controller!;
+      } else {
+        // Анимация была включена, теперь отключена
+        _controller?.stop();
+        _animation = const AlwaysStoppedAnimation(0);
+      }
+    } else if (_shouldAnimate) {
+      // Если внешняя анимация стала null, создаём внутренний контроллер
+      if (_controller == null) {
+        _controller = AnimationController(
+          duration: widget.changePeriod,
+          vsync: this,
+        )..repeat();
+        _animation = _controller!;
+      }
+    }
   }
 
   @override
   void dispose() {
-    _theme.dispose();
-    _ticker?.cancel();
+    // Освобождаем внутренний контроллер, если он был создан
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _theme,
-      builder: (context, theme, _) {
-        return widget.builder(context, theme);
-      },
+    // Если анимация не должна проигрываться, возвращаем только child
+    if (!_shouldAnimate) {
+      return widget.builder(context, widget.initialTheme);
+    }
+
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          final theme = widget.themeProvider(
+            rainbowSeed: widget.rainbowSeed,
+            rainbowColor:
+                widget.rainbowSeed == null ? generateRainbowColor(_animation.value) : null,
+          );
+          return widget.builder(context, theme);
+        },
+      ),
     );
   }
 }

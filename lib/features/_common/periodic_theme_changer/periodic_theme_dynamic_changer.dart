@@ -9,23 +9,18 @@ class PeriodicThemeDynamicChanger extends StatefulWidget {
     super.key,
     required this.themeProvider,
     required this.builder,
-    required this.changePeriod,
+    this.changePeriod,
     this.initialTheme,
     this.isEnabled = false,
     this.variants = FlexSchemeVariant.values,
   });
 
-  /// Билдер нижележещих виджетов
   final Widget Function(BuildContext, AppTheme?) builder;
-
-  /// Изначальная неизмененная тема
   final AppTheme? initialTheme;
-
-  /// Генератор новой темы
-  final MoniplanThemeGenerator themeProvider;
+  final MoniplanThemeGeneratorDynamic themeProvider;
 
   final bool isEnabled;
-  final Duration changePeriod;
+  final Duration? changePeriod;
 
   final List<FlexSchemeVariant> variants;
 
@@ -38,12 +33,16 @@ class _PeriodicThemeChangerState extends State<PeriodicThemeDynamicChanger> {
   late final Timer? _ticker;
   int counter = 0;
 
+  static const _defaultPeriod = Duration(seconds: 3);
+
   @override
   void initState() {
+    final period = widget.changePeriod ?? _defaultPeriod;
+
     _theme = ValueNotifier(widget.initialTheme);
     _ticker = widget.isEnabled && widget.variants.isNotEmpty
         ? Timer.periodic(
-            widget.changePeriod,
+            period,
             (timer) async {
               _theme.value = await widget.themeProvider(
                 variant: widget.variants[counter % widget.variants.length],
@@ -73,6 +72,10 @@ class _PeriodicThemeChangerState extends State<PeriodicThemeDynamicChanger> {
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.isEnabled) {
+      return widget.builder(context, widget.initialTheme);
+    }
+
     return ValueListenableBuilder(
       valueListenable: _theme,
       builder: (context, theme, _) {
