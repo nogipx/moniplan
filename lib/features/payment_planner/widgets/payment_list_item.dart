@@ -88,8 +88,7 @@ class PaymentListItem extends StatelessWidget {
                     Text(
                       payment.details.name,
                       style: context.theme.textTheme.bodyLarge?.copyWith(
-                        color: context.extra.moneyNegative,
-                        // color: payment.isEnabled ? null : context.color.scheme.onSurfaceVariant,
+                        color: payment.isEnabled ? null : context.color.scheme.onSurfaceVariant,
                         decoration: !payment.isEnabled ? TextDecoration.lineThrough : null,
                       ),
                     ),

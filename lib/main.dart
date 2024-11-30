@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:logging/logging.dart';
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan/_run/db/_index.dart';
 import 'package:moniplan/app_log_impl.dart';
 import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:logging/logging.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 Future<void> main() async {
@@ -43,6 +43,7 @@ Future<void> main() async {
 
         runApp(MoniplanApp(
           sharedPreferences: prefs,
+          initialTheme: await moniplanThemeGeneratorDynamic(),
         ));
       },
       (exception, stackTrace) {

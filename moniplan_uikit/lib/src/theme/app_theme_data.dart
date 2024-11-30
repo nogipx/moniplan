@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'models/_index.dart';
 
+typedef AppTheme = ({ThemeData themeData, AppThemeData appThemeData});
+
 /// Класс с данными для темы
 class AppThemeData extends ThemeExtension<AppThemeData> {
   /// Цвета

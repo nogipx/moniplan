@@ -3,20 +3,17 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
-final _random = Random();
-
-typedef CustomTheme = ({ThemeData themeData, AppThemeData appThemeData});
-
-CustomTheme moniplanTheme({
+AppTheme moniplanTheme({
   required Brightness brightness,
   FlexSchemeVariant? variant,
   ColorScheme? seedScheme,
-  // ColorScheme? baseScheme,
   double contrast = 0,
   bool monochrome = true,
   bool expressive = false,
   ThemeDataGenerator? themeDataGenerator,
   bool rainbow = false,
+  int? rainbowSeed,
+  Color? rainbowColor,
 }) {
   if (themeDataGenerator != null) {
     ThemeDataExtension.generator = themeDataGenerator;
@@ -24,71 +21,38 @@ CustomTheme moniplanTheme({
     ThemeDataExtension.generator = null;
   }
 
-  Color? rainbowColor;
+  ColorScheme? effectiveScheme = seedScheme;
+
   if (rainbow) {
-    rainbowColor = generateRainbowColor(_random.nextDouble());
+    final random = Random(rainbowSeed);
+    final targetRainbowColor = rainbowColor ?? generateRainbowColor(random.nextDouble());
+
+    final effectiveRainbowColor = changeColorSaturation(targetRainbowColor, 1);
+
+    final baseScheme = brightness == Brightness.dark ? ColorScheme.dark() : ColorScheme.light();
+
+    effectiveScheme = (seedScheme ?? baseScheme).copyWith(
+      primary: effectiveRainbowColor,
+      secondary: effectiveRainbowColor,
+      tertiary: effectiveRainbowColor,
+      error: effectiveRainbowColor,
+      surface: effectiveRainbowColor,
+      onSurfaceVariant: effectiveRainbowColor,
+    );
   }
 
   final scheme = SeedColorScheme.fromSeeds(
     brightness: brightness,
-    primaryKey: rainbowColor ?? seedScheme?.primary ?? ExperimentColor.moniplanBrand,
-    secondaryKey: seedScheme?.secondary ?? ExperimentColor.lightBrandColor,
-    tertiaryKey: seedScheme?.tertiary ?? ExperimentColor.paynesGray,
-    errorKey: seedScheme?.error ?? ExperimentColor.negativeMoneyColor,
-    neutralKey: seedScheme?.surface ?? ExperimentColor.jet,
-    neutralVariantKey: seedScheme?.onSurfaceVariant ?? ExperimentColor.darkBackgroundColor,
+    primaryKey: effectiveScheme?.primary ?? ExperimentColor.moniplanBrand,
+    secondaryKey: effectiveScheme?.secondary,
+    tertiaryKey: effectiveScheme?.tertiary,
+    errorKey: effectiveScheme?.error,
+    neutralKey: effectiveScheme?.surface,
+    neutralVariantKey: effectiveScheme?.onSurfaceVariant,
     variant: variant,
     useExpressiveOnContainerColors: expressive,
     respectMonochromeSeed: monochrome,
     contrastLevel: contrast,
-    // primary: baseScheme?.primary,
-    // onPrimary: baseScheme?.onPrimary,
-    // primaryContainer: baseScheme?.primaryContainer,
-    // onPrimaryContainer: baseScheme?.onPrimaryContainer,
-    // primaryFixed: baseScheme?.primaryFixed,
-    // primaryFixedDim: baseScheme?.primaryFixedDim,
-    // onPrimaryFixedVariant: baseScheme?.onPrimaryFixedVariant,
-    // secondary: baseScheme?.secondary,
-    // onSecondary: baseScheme?.onSecondary,
-    // secondaryContainer: baseScheme?.secondaryContainer,
-    // onSecondaryContainer: baseScheme?.onSecondaryContainer,
-    // secondaryFixed: baseScheme?.secondaryFixed,
-    // secondaryFixedDim: baseScheme?.secondaryFixedDim,
-    // onSecondaryFixed: baseScheme?.onSecondaryFixed,
-    // onSecondaryFixedVariant: baseScheme?.onSecondaryFixedVariant,
-    // tertiary: baseScheme?.tertiary,
-    // onTertiary: baseScheme?.onTertiary,
-    // tertiaryContainer: baseScheme?.tertiaryContainer,
-    // onTertiaryContainer: baseScheme?.onTertiaryContainer,
-    // tertiaryFixed: baseScheme?.tertiaryFixed,
-    // tertiaryFixedDim: baseScheme?.tertiaryFixedDim,
-    // onTertiaryFixed: baseScheme?.onTertiaryFixed,
-    // onTertiaryFixedVariant: baseScheme?.onTertiaryFixedVariant,
-    // error: baseScheme?.error,
-    // onError: baseScheme?.onError,
-    // errorContainer: baseScheme?.errorContainer,
-    // onErrorContainer: baseScheme?.onErrorContainer,
-    // surface: baseScheme?.surface,
-    // surfaceDim: baseScheme?.surfaceDim,
-    // surfaceBright: baseScheme?.surfaceBright,
-    // surfaceContainerLowest: baseScheme?.surfaceContainerLowest,
-    // surfaceContainerLow: baseScheme?.surfaceContainerLow,
-    // surfaceContainer: baseScheme?.surfaceContainer,
-    // surfaceContainerHigh: baseScheme?.surfaceContainerHigh,
-    // surfaceContainerHighest: baseScheme?.surfaceContainerHighest,
-    // onSurface: baseScheme?.onSurface,
-    // onSurfaceVariant: baseScheme?.onSurfaceVariant,
-    // outline: baseScheme?.outline,
-    // outlineVariant: baseScheme?.outlineVariant,
-    // shadow: baseScheme?.shadow,
-    // scrim: baseScheme?.scrim,
-    // inverseSurface: baseScheme?.inverseSurface,
-    // onInverseSurface: baseScheme?.onInverseSurface,
-    // inversePrimary: baseScheme?.inversePrimary,
-    // surfaceTint: baseScheme?.surfaceTint,
-    // background: baseScheme?.background,
-    // onBackground: baseScheme?.onBackground,
-    // surfaceVariant: baseScheme?.surfaceVariant,
   );
 
   var themeData = AppThemeData.fromStyles(
