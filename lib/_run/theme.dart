@@ -41,6 +41,7 @@ Future<AppTheme> moniplanThemeGeneratorDynamic({
   return moniplanTheme(
     seedScheme: await _getDynamicScheme(
       effectiveBrightness,
+      debug: true,
     ), // Fetch a dynamic color scheme.
     brightness: effectiveBrightness, // Apply the specified brightness.
     variant: variant ?? FlexSchemeVariant.vivid, // Default to the 'vivid' color scheme.

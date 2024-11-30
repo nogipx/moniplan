@@ -9,9 +9,9 @@ class PeriodicThemeDynamicChanger extends StatefulWidget {
     super.key,
     required this.themeProvider,
     required this.builder,
+    required this.changePeriod,
     this.initialTheme,
     this.isEnabled = false,
-    this.changePeriod = const Duration(seconds: 2),
     this.variants = FlexSchemeVariant.values,
   });
 

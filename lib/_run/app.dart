@@ -40,12 +40,12 @@ class _MoniplanAppState extends State<MoniplanApp> {
 
     return PeriodicThemeChanger(
       isEnabled: true,
-      type: PeriodicThemeChangerType.rainbow,
+      type: PeriodicThemeChangerType.dynamic,
       initialTheme: widget.initialTheme,
       themeProvider: moniplanThemeGeneratorDynamic,
-      rainbowSeed: moniplanThemeRandomRainbow,
       variants: FlexSchemeVariant.values,
       changePeriod: const Duration(milliseconds: 300),
+      rainbowSeed: moniplanThemeRandomRainbow,
       builder: (context, theme) {
         return MultiRepositoryProvider(
           providers: [

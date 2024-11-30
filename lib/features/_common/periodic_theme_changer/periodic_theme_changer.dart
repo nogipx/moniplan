@@ -17,7 +17,7 @@ class PeriodicThemeChanger extends StatelessWidget {
     required this.builder,
     this.initialTheme,
     this.isEnabled = false,
-    this.changePeriod = const Duration(seconds: 2),
+    this.changePeriod = const Duration(seconds: 3),
     this.variants = FlexSchemeVariant.values,
     this.rainbowSeed,
     this.rainbowColor,
