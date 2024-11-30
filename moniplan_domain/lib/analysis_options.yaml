@@ -14,6 +14,7 @@ analyzer:
     omit_local_variable_types: ignore
     avoid_relative_lib_imports: error
     avoid_void_async: warning
+    library_private_types_in_public_api: ignore
 
 linter:
   rules:

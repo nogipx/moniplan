@@ -2,6 +2,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/_run/db/_index.dart';
+import 'package:moniplan/features/_common/screens/app_colors_display_screen.dart';
 import 'package:moniplan/features/_common/widgets/periodic_theme_changer.dart';
 import 'package:moniplan/features/monisync/repo/monisync_repo_impl.dart';
 import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
@@ -12,8 +13,6 @@ import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'screen.dart';
 
 class MoniplanApp extends StatefulWidget {
   const MoniplanApp({

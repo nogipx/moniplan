@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:moniplan/features/_common/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
-import 'package:moniplan/features/_common/_index.dart';
 
 class PlannerItemWidget extends StatelessWidget {
   const PlannerItemWidget({
@@ -17,99 +17,77 @@ class PlannerItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final needToPay = planner.currentBudget;
 
-    return ContourAnimationWidget(
-      edgeOffsets: const EdgeInsets.all(4),
-      colorGenerator: (p) => generateRainbowColor(p, offset: gaussianFunction(p) / 2),
-      visibleFractionGenerator: (p) {
-        return (sinusoidalFunction(p) / 8) + p / 90;
-      },
-      isAnimated: true,
-      cornerRadius: 12,
-      visibleFraction: 1,
-      duration: const Duration(milliseconds: 6000),
-      child: ContourAnimationWidget(
-        edgeOffsets: const EdgeInsets.all(4),
-        colorGenerator: (p) => generateRainbowColor(p, offset: gaussianFunction(p) / 2),
-        visibleFractionGenerator: (p) {
-          return (sinusoidalFunction(p) / 8) + p / 90;
-        },
-        isAnimated: true,
-        cornerRadius: 12,
-        visibleFraction: 1,
-        duration: const Duration(milliseconds: 6000),
-        child: Card(
-          clipBehavior: Clip.hardEdge,
-          child: InkWell(
-            onTap: onPressed,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Card(
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: onPressed,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        DateFormat(plannerBoundDateFormat).format(planner.dateStart),
-                        style: context.theme.textTheme.bodyMedium,
-                      ),
-                      Text(
-                        DateFormat(plannerBoundDateFormat).format(planner.dateEnd),
-                        style: context.theme.textTheme.bodyMedium,
-                      ),
-                    ],
+                  Text(
+                    DateFormat(plannerBoundDateFormat).format(planner.dateStart),
+                    style: context.theme.textTheme.bodyMedium,
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Wrap(
-                          children: [
-                            _PlannerInfoItem(
-                              icon: Icons.done_all,
-                              value: planner.countDonePayments.toString(),
-                              iconColor: Colors.green,
-                            ),
-                            _PlannerInfoItem(
-                              icon: Icons.timelapse,
-                              value: planner.countWaitingPayments.toString(),
-                              iconColor: Colors.orange,
-                            ),
-                            _PlannerInfoItem(
-                              icon: Icons.disabled_visible,
-                              value: planner.countDisabledPayments.toString(),
-                              iconColor: Colors.grey,
-                            ),
-                          ],
-                        ),
-                      ),
-                      _PlannerInfoItem(
-                        icon: Icons.outbond_outlined,
-                        valueWidget: MoneyColoredWidget(
-                          value: needToPay,
-                          currency: AppCurrencies.ru,
-                          showPlusSign: false,
-                        ),
-                        iconColor: needToPay.toInt() == 0
-                            ? Colors.grey
-                            : needToPay > 0
-                                ? Colors.green
-                                : Colors.red,
-                      )
-                    ],
+                  Text(
+                    DateFormat(plannerBoundDateFormat).format(planner.dateEnd),
+                    style: context.theme.textTheme.bodyMedium,
                   ),
-                  if (planner.actualInfo != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      'Last compute: ${DateFormat(dateFormatWithTime).format(planner.actualInfo!.updatedAt)}',
-                      style: context.theme.textTheme.labelLarge,
-                      textAlign: TextAlign.start,
-                    ),
-                  ],
                 ],
               ),
-            ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Wrap(
+                      children: [
+                        _PlannerInfoItem(
+                          icon: Icons.done_all,
+                          value: planner.countDonePayments.toString(),
+                          iconColor: Colors.green,
+                        ),
+                        _PlannerInfoItem(
+                          icon: Icons.timelapse,
+                          value: planner.countWaitingPayments.toString(),
+                          iconColor: Colors.orange,
+                        ),
+                        _PlannerInfoItem(
+                          icon: Icons.disabled_visible,
+                          value: planner.countDisabledPayments.toString(),
+                          iconColor: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+                  _PlannerInfoItem(
+                    icon: Icons.outbond_outlined,
+                    valueWidget: MoneyColoredWidget(
+                      value: needToPay,
+                      currency: AppCurrencies.ru,
+                      showPlusSign: false,
+                    ),
+                    iconColor: needToPay.toInt() == 0
+                        ? Colors.grey
+                        : needToPay > 0
+                            ? Colors.green
+                            : Colors.red,
+                  )
+                ],
+              ),
+              if (planner.actualInfo != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Last compute: ${DateFormat(dateFormatWithTime).format(planner.actualInfo!.updatedAt)}',
+                  style: context.theme.textTheme.labelLarge,
+                  textAlign: TextAlign.start,
+                ),
+              ],
+            ],
           ),
         ),
       ),

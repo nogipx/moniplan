@@ -47,4 +47,10 @@ class MoniplanExtraColors extends ThemeExtension<MoniplanExtraColors> {
   ThemeExtension<MoniplanExtraColors> copyWith() {
     return MoniplanExtraColors.from(brightness);
   }
+
+  Map<String, Color> get names => {
+        'Brand': moniplanBrand,
+        'Money Positive': moneyPositive,
+        'Money Negative': moneyNegative,
+      };
 }
