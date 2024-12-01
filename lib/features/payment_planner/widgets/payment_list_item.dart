@@ -87,8 +87,8 @@ class PaymentListItem extends StatelessWidget {
                   children: [
                     Text(
                       payment.details.name,
-                      style: context.theme.textTheme.bodyLarge?.copyWith(
-                        color: payment.isEnabled ? null : context.color.onSurfaceVariant,
+                      style: context.theme.textTheme.bodyMedium?.copyWith(
+                        color: payment.isEnabled ? null : context.color.onSurface,
                         decoration: !payment.isEnabled ? TextDecoration.lineThrough : null,
                       ),
                     ),
@@ -103,6 +103,7 @@ class PaymentListItem extends StatelessWidget {
                         Icon(
                           Icons.arrow_right_alt_rounded,
                           size: 20,
+                          color: context.color.outline,
                         ),
                         const SizedBox(width: 4),
                         budgetPredictWidget,
@@ -117,7 +118,10 @@ class PaymentListItem extends StatelessWidget {
               children: [
                 controlsWidget,
                 const SizedBox(height: 4),
-                repeatWidget,
+                Grayscale(
+                  grayscale: !payment.isEnabled || payment.isDone,
+                  child: repeatWidget,
+                ),
               ],
             )
           ],

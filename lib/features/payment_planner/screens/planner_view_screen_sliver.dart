@@ -39,7 +39,7 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
           setState(() {
             _isFirstScrolled = true;
           });
-          // _moveToDate(DateTime.now(), jump: true);
+          _moveToDate(DateTime.now(), jump: true);
         }
       },
       builder: (context, state) {
@@ -151,33 +151,62 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
         return Scaffold(
           floatingActionButton: fab,
           appBar: appBar,
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          body: Stack(
             children: [
-              moneyFlow,
-              Expanded(
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.only(
-                        bottom: AppSpace.s100,
-                      ),
-                      sliver: SuperSliverList(
-                        listController: _listController,
-                        // delegate: SliverChildListDelegate(composedSliversList),
-                        delegate: SliverChildBuilderDelegate(
-                          childCount: paymentsByDateIndexed.length,
-                          (context, index) {
-                            final item = paymentsByDateIndexed[index];
-                            return getSliverList(item.$1, item.$2);
-                          },
-                        ),
+              Positioned.fill(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    moneyFlow,
+                    Expanded(
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        slivers: [
+                          SliverPadding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppSpace.s100,
+                            ),
+                            sliver: SuperSliverList(
+                              listController: _listController,
+                              // delegate: SliverChildListDelegate(composedSliversList),
+                              delegate: SliverChildBuilderDelegate(
+                                childCount: paymentsByDateIndexed.length,
+                                (context, index) {
+                                  final item = paymentsByDateIndexed[index];
+                                  return getSliverList(item.$1, item.$2);
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
+              Positioned(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          context.color.surface,
+                          context.color.surface.withOpacity(.7),
+                          context.color.surface.withOpacity(0),
+                        ],
+                        stops: [0, .8, 1],
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                      ),
+                    ),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 100,
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         );

@@ -20,12 +20,11 @@ class MoneyColoredWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = context.color.primary;
-    // final color = value == 0 || value == null
-    //     ? context.colors.content.onSurface
-    //     : (value ?? 0) > 0
-    //         ? context.colors.accent.primary
-    //         : context.colors.accent.secondary;
+    final color = value == 0 || value == null
+        ? context.color.onSurfaceVariant
+        : (value ?? 0) > 0
+            ? context.extra.moneyPositive
+            : context.extra.moneyNegative;
 
     final text =
         value != null ? (value! > 0 && showPlusSign ? '+ ' : '') + value!.currency(currency) : '-';
@@ -33,7 +32,7 @@ class MoneyColoredWidget extends StatelessWidget {
     return Text(
       text,
       textAlign: TextAlign.center,
-      style: (textStyle ?? Theme.of(context).textTheme.bodyLarge),
+      style: textStyle ?? context.text.bodyMedium?.copyWith(color: color),
     );
   }
 }

@@ -32,13 +32,12 @@ class PaymentListSeparator extends StatelessWidget {
             colors: [
               context.color.surface,
               context.color.surface.withOpacity(.7),
-              context.color.surface.withOpacity(.1)
+              context.color.surface.withOpacity(0),
             ],
             stops: [0, .8, 1],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
-          // color: isMonthEdge ? context.color.tertiaryFixedDim : context.color.surface,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
