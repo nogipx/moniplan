@@ -43,7 +43,6 @@ Future<void> main() async {
 
         runApp(MoniplanApp(
           sharedPreferences: prefs,
-          initialTheme: await moniplanThemeGeneratorDynamic(),
         ));
       },
       (exception, stackTrace) {

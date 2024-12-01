@@ -25,14 +25,15 @@ dependencies:
   draggable_scrollbar: 0.1.0
   permission_handler: 11.3.1
   sliver_tools: 0.2.12
-  share_plus: ^10.1.2
-  file_picker: ^8.1.4
+  share_plus: 10.1.2
+  file_picker: 8.1.4
   scrollable_positioned_list: 0.3.8
   stack_trace: 1.11.1
-  syncfusion_flutter_charts: ^27.2.3
+  syncfusion_flutter_charts: 27.2.3
   dynamic_color: 1.7.0
   receive_sharing_intent:
     git: https://github.com/nogipx/receive_sharing_intent
+  super_sliver_list: 0.4.1
 
   # Data management
   flutter_bloc: 8.1.6

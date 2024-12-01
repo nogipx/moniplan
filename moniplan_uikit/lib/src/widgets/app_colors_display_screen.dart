@@ -60,7 +60,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   }
 
   Map<String, Color> _extractPrimary() {
-    final colorScheme = context.color.scheme;
+    final colorScheme = context.color;
     return {
       'Primary': colorScheme.primary,
       'Inverse Primary': colorScheme.inversePrimary,
@@ -75,7 +75,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   }
 
   Map<String, Color> _extractSecondary() {
-    final colorScheme = context.color.scheme;
+    final colorScheme = context.color;
     return {
       'Secondary': colorScheme.secondary,
       'Secondary Fixed': colorScheme.secondaryFixed,
@@ -89,7 +89,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   }
 
   Map<String, Color> _extractTertiary() {
-    final colorScheme = context.color.scheme;
+    final colorScheme = context.color;
     return {
       'Tertiary': colorScheme.tertiary,
       'Tertiary Fixed': colorScheme.tertiaryFixed,
@@ -103,7 +103,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   }
 
   Map<String, Color> _extractSurface() {
-    final colorScheme = context.color.scheme;
+    final colorScheme = context.color;
     return {
       'Surface': colorScheme.surface,
       'Inverse Surface': colorScheme.inverseSurface,
@@ -122,7 +122,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   }
 
   Map<String, Color> _extractError() {
-    final colorScheme = context.color.scheme;
+    final colorScheme = context.color;
     return {
       'Error': colorScheme.error,
       'Error Container': colorScheme.errorContainer,
@@ -132,7 +132,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   }
 
   Map<String, Color> _extractOthers() {
-    final colorScheme = context.color.scheme;
+    final colorScheme = context.color;
     return {
       'Outline': colorScheme.outline,
       'Outline Variant': colorScheme.outlineVariant,

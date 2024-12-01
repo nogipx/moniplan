@@ -3,81 +3,49 @@ import 'package:moniplan/features/payment_planner/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 class PaymentListSeparator extends StatelessWidget {
-  final Payment? previousPayment;
-  final Payment? nextPayment;
+  final PaymentsDateGrouped datePayments;
+  final Widget child;
+  final DateTime? prevDate;
+  final DateTime? nextDate;
   final DateTime today;
 
   const PaymentListSeparator({
-    this.previousPayment,
-    this.nextPayment,
     required this.today,
+    required this.datePayments,
+    required this.child,
+    this.prevDate,
+    this.nextDate,
     super.key,
-  });
+  }) : assert(prevDate != null || nextDate != null);
 
   @override
   Widget build(BuildContext context) {
-    final prevDate = previousPayment?.date.dayBound ?? DateTime(0);
-    final nextDate = nextPayment?.date.dayBound;
+    final currDate = datePayments.date;
 
-    final isMonthEdge = previousPayment == null ||
-        (nextDate != null && prevDate != DateTime(0) && nextDate.month != prevDate.month);
-    final isNextDay = previousPayment == null ||
-        (nextDate != null && prevDate != DateTime(0) && nextDate.day != prevDate.day);
+    final isMonthEdge = () {
+      if (prevDate == null && nextDate != null) {
+        return true;
+      } else if (prevDate != null && nextDate == null) {
+        return false;
+      } else if (prevDate != null && prevDate!.month != currDate.month) {
+        return true;
+      }
 
-    final isTodayBetweenPrevAndNextDay = previousPayment == null ||
-        (nextDate != null &&
-            prevDate.compareTo(today) <= 0 &&
-            nextDate.compareTo(today) >= 0 &&
-            prevDate != today &&
-            nextDate != today);
+      return false;
+    }();
 
-    final isTodayBetweenPrevAndNextMonth = previousPayment == null ||
-        (nextDate != null &&
-            prevDate.monthBound.compareTo(today) <= 0 &&
-            nextDate.monthBound.compareTo(today) >= 0 &&
-            prevDate != today &&
-            nextDate != today);
-
-    Widget result = SizedBox.shrink();
-    final emptyToday = isTodayBetweenPrevAndNextDay
-        ? Column(
-            children: [
-              _daySeparator(today, today),
-              _noPaymentsDay(),
-            ],
-          )
-        : const SizedBox.shrink();
-
-    final month = isTodayBetweenPrevAndNextMonth || isMonthEdge
-        ? _monthSeparator(nextDate ?? today)
-        : const SizedBox.shrink();
-
-    if (previousPayment == null && nextDate != null) {
-      result = Column(
-        children: [
-          if (previousPayment == null) _monthSeparator(nextDate),
-          _daySeparator(nextDate, today),
-        ],
-      );
-    } else if (isMonthEdge) {
-      result = Column(
-        children: [
-          if (previousPayment == null) _monthSeparator(today),
-          month,
-          emptyToday,
-          _daySeparator(nextDate ?? today, today),
-        ],
-      );
-    } else if (isNextDay) {
-      result = Column(
-        children: [
-          if (previousPayment == null) _daySeparator(today, today),
-          emptyToday,
-          _daySeparator(nextDate ?? today, today),
-        ],
-      );
-    }
-    return result;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isMonthEdge) _monthSeparator(currDate),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: _daySeparator(currDate, today),
+        ),
+        if (datePayments.payments.isEmpty) _noPaymentsDay(),
+        child,
+      ],
+    );
   }
 
   Widget _daySeparator(DateTime date, DateTime today) {
@@ -89,13 +57,9 @@ class PaymentListSeparator extends StatelessWidget {
   }
 
   Widget _noPaymentsDay() {
-    return Builder(
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(8, 16, 8, 24),
-          child: Text('Нет платежей на сегодня'),
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 24),
+      child: Text('Нет платежей на сегодня'),
     );
   }
 }

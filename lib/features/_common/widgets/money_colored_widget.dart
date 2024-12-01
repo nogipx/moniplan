@@ -20,7 +20,7 @@ class MoneyColoredWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = context.color.scheme.primary;
+    final color = context.color.primary;
     // final color = value == 0 || value == null
     //     ? context.colors.content.onSurface
     //     : (value ?? 0) > 0

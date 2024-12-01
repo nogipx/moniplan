@@ -30,7 +30,7 @@ class AppContourAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = context.color.scheme.surfaceTint;
+    final themeColor = context.color.surfaceTint;
     final effectiveColor = customColor ?? themeColor;
 
     return ContourAnimationWidget(

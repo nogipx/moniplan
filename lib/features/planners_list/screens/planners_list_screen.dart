@@ -206,7 +206,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
               )..add(const PlannerEvent.computeBudget());
               return bloc;
             },
-            child: const PlannerViewScreen(),
+            child: const PlannerViewScreenSliver(),
           );
         },
       ),

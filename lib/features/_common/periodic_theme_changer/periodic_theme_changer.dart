@@ -18,7 +18,7 @@ class PeriodicThemeChanger extends StatelessWidget {
     this.isEnabled = false,
     this.changePeriod,
     this.variants = FlexSchemeVariant.values,
-    this.rainbowSeed,
+    this.rainbowSeedGenerator,
   });
 
   /* Общие параметры */
@@ -32,7 +32,7 @@ class PeriodicThemeChanger extends StatelessWidget {
   final List<FlexSchemeVariant> variants;
 
   /* Параметры только для [PeriodicThemeChangerType.rainbow] */
-  final RainbowSeedGenerator? rainbowSeed;
+  final RainbowSeedGenerator? rainbowSeedGenerator;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class PeriodicThemeChanger extends StatelessWidget {
           themeProvider: moniplanThemeGeneratorRainbow,
           isEnabled: isEnabled,
           changePeriod: changePeriod,
-          rainbowSeedGenerator: rainbowSeed,
+          rainbowSeedGenerator: rainbowSeedGenerator,
         ),
     };
   }

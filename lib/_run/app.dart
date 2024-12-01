@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/_run/_index.dart';
@@ -17,11 +18,9 @@ class MoniplanApp extends StatefulWidget {
   const MoniplanApp({
     super.key,
     required this.sharedPreferences,
-    required this.initialTheme,
   });
 
   final SharedPreferences sharedPreferences;
-  final AppTheme initialTheme;
 
   @override
   State<MoniplanApp> createState() => _MoniplanAppState();
@@ -29,6 +28,32 @@ class MoniplanApp extends StatefulWidget {
 
 class _MoniplanAppState extends State<MoniplanApp> {
   final _appKey = GlobalKey();
+  late Brightness _brightness;
+
+  Brightness get _platformBrigtness =>
+      WidgetsBinding.instance.platformDispatcher.platformBrightness;
+
+  @override
+  void initState() {
+    super.initState();
+    _brightness = _platformBrigtness;
+    WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged = _onBrightnessChanged;
+  }
+
+  void _onBrightnessChanged() {
+    final newBrightness = _platformBrigtness;
+    if (newBrightness != _brightness) {
+      setState(() {
+        _brightness = newBrightness;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged = null;
+    super.dispose();
+  }
 
   Widget app(AppTheme theme, Widget home) {
     return MultiRepositoryProvider(
@@ -98,18 +123,33 @@ class _MoniplanAppState extends State<MoniplanApp> {
 
   @override
   Widget build(BuildContext context) {
-    const home = ReceiveImportWrapper(
-      child: PlannersListScreen(),
-    );
-
-    return PeriodicThemeRainbowChanger(
-      isEnabled: true,
-      changePeriod: const Duration(seconds: 7),
-      initialTheme: widget.initialTheme,
-      themeProvider: moniplanThemeGeneratorRainbow,
-      rainbowSeedGenerator: () => DateTime.now().minuteBound.millisecondsSinceEpoch,
-      builder: (context, theme) {
-        return app(theme ?? widget.initialTheme, home);
+    return DynamicColorBuilder(
+      key: ValueKey(_brightness),
+      builder: (light, dark) {
+        return PeriodicThemeChanger(
+          type: PeriodicThemeChangerType.rainbow,
+          isEnabled: true,
+          changePeriod: const Duration(seconds: 7),
+          initialTheme: moniplanThemeGeneratorDynamicSync(
+            brightness: _brightness,
+            dark: dark,
+            light: light,
+          ),
+          rainbowSeedGenerator: () => DateTime.now().minuteBound.millisecondsSinceEpoch,
+          builder: (context, theme) {
+            return app(
+              theme ??
+                  moniplanThemeGeneratorDynamicSync(
+                    brightness: _brightness,
+                    dark: dark,
+                    light: light,
+                  ),
+              ReceiveImportWrapper(
+                child: PlannersListScreen(),
+              ),
+            );
+          },
+        );
       },
     );
   }

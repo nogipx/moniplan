@@ -136,6 +136,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
 
     final paymentsByDate = GroupPaymentsByDateUsecase(
       payments: constrainedPayments,
+      today: DateTime.now(),
     ).run();
 
     final actualInfo = ComputeActualPlannerInfo(

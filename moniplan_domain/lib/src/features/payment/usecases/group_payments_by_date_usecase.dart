@@ -2,9 +2,11 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 
 class GroupPaymentsByDateUsecase implements IUseCase<List<PaymentsDateGrouped>> {
   final List<Payment> payments;
+  final DateTime? today;
 
   const GroupPaymentsByDateUsecase({
     required this.payments,
+    this.today,
   });
 
   @override
@@ -13,6 +15,11 @@ class GroupPaymentsByDateUsecase implements IUseCase<List<PaymentsDateGrouped>> 
 
     for (final payment in payments) {
       mapped.putIfAbsent(payment.date.dayBound, () => []).add(payment);
+    }
+
+    final effectiveToday = today?.dayBound;
+    if (effectiveToday != null && !mapped.containsKey(effectiveToday)) {
+      mapped[effectiveToday] = [];
     }
 
     final entries = mapped.entries.toList();

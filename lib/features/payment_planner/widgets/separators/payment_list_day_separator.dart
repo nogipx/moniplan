@@ -23,7 +23,7 @@ class PaymentListDaySeparator extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
       child: AppContourAnimation(
         isAnimated: isSameDay,
-        customColor: context.color.scheme.surfaceTint,
+        customColor: context.color.surfaceTint,
         borderRadius: radius.value,
         duration: const Duration(seconds: 2),
         edgeInsets: const EdgeInsets.all(.4),
@@ -31,8 +31,7 @@ class PaymentListDaySeparator extends StatelessWidget {
         maxFraction: .25,
         child: Container(
           decoration: BoxDecoration(
-            color:
-                isSameDay ? context.color.scheme.surfaceTint : context.color.scheme.surfaceBright,
+            color: isSameDay ? context.color.surfaceTint : context.color.surfaceContainer,
             borderRadius: BorderRadius.all(radius),
           ),
           child: Row(
@@ -46,9 +45,7 @@ class PaymentListDaySeparator extends StatelessWidget {
                 child: Text(
                   DateFormat.MMMMd().format(date),
                   style: context.text.labelMedium?.copyWith(
-                    color: isSameDay
-                        ? context.color.scheme.onInverseSurface
-                        : context.color.scheme.onSurface,
+                    color: isSameDay ? context.color.onInverseSurface : context.color.onSurface,
                   ),
                 ),
               ),

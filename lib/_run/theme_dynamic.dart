@@ -27,6 +27,24 @@ Future<AppTheme> moniplanThemeGeneratorDynamic({
   );
 }
 
+AppTheme moniplanThemeGeneratorDynamicSync({
+  Brightness? brightness,
+  FlexSchemeVariant? variant,
+  ColorScheme? dark,
+  ColorScheme? light,
+}) {
+  final effectiveBrightness =
+      brightness ?? WidgetsBinding.instance.platformDispatcher.platformBrightness;
+
+  return moniplanTheme(
+    seedScheme: brightness == Brightness.dark ? dark : light,
+    brightness: effectiveBrightness,
+    variant: variant ?? FlexSchemeVariant.vivid,
+    rainbow: false,
+    contrast: 0,
+  );
+}
+
 Future<ColorScheme?> _getDynamicScheme(Brightness brightness, {bool debug = false}) async {
   void trace(String msg) => debug ? debugPrint(msg) : null;
 

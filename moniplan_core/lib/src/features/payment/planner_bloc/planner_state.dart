@@ -46,8 +46,9 @@ extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
   ({int index, double alignment})? getIndexOfDate(DateTime date) {
     final searchDay = date.dayBound;
 
-    final topAlignment = 0.15;
-    final centerAlignment = 0.55;
+    const topAlignment = 0.15;
+    const centerAlignment = 0.5;
+    const bottomAlignment = 0.75;
 
     ({int index, double alignment})? result;
 
@@ -72,7 +73,7 @@ extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
       } else if (nextDay.isSameDay(searchDay)) {
         result = (
           index: nextDayIndex,
-          alignment: topAlignment,
+          alignment: centerAlignment,
         );
       } else {
         result = (
@@ -83,5 +84,14 @@ extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
     }
 
     return result;
+  }
+
+  ({PaymentsDateGrouped? before, PaymentsDateGrouped? after})? getNeighbours(int index) {
+    final before = index == 0 ? null : elementAtOrNull(index - 1);
+    final after = index == length - 1 ? null : elementAtOrNull(index + 1);
+    return (
+      before: before,
+      after: after,
+    );
   }
 }
