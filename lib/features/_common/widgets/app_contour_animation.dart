@@ -8,13 +8,25 @@ class AppContourAnimation extends StatelessWidget {
     this.customColor,
     this.isAnimated = true,
     this.useRainbowColor = false,
+    this.borderRadius = 0,
+    this.edgeInsets = const EdgeInsets.all(0),
+    this.duration = Duration.zero,
+    this.maxFraction = .3,
+    this.minFraction = .1,
   });
 
   final Widget child;
   final bool isAnimated;
   final bool useRainbowColor;
+  final Duration duration;
+
+  final double borderRadius;
+  final EdgeInsets edgeInsets;
 
   final Color? customColor;
+
+  final double maxFraction;
+  final double minFraction;
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +34,17 @@ class AppContourAnimation extends StatelessWidget {
     final effectiveColor = customColor ?? themeColor;
 
     return ContourAnimationWidget(
-      edgeOffsets: const EdgeInsets.all(4),
+      edgeOffsets: edgeInsets,
       color: effectiveColor,
       colorGenerator:
           useRainbowColor ? (p) => generateRainbowColor(p, offset: gaussianFunction(p) / 2) : null,
       visibleFractionGenerator: (p) {
-        return scaleToRange(sinusoidalFunction(p), .05, .125);
+        return scaleToRange(sinusoidalFunction(p), minFraction, maxFraction);
       },
       isAnimated: isAnimated,
-      cornerRadius: 12,
+      cornerRadius: borderRadius,
       visibleFraction: 1,
-      duration: const Duration(milliseconds: 6000),
+      duration: duration,
       strokeWidth: 5,
       child: child,
     );

@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:moniplan_core/moniplan_core.dart';
 import 'dart:math' as math;
 
+import 'package:flutter/material.dart';
 import 'package:moniplan/features/payment_planner/widgets/_index.dart';
+import 'package:moniplan_core/moniplan_core.dart';
 
 typedef OnPaymentPressed = void Function(Payment payment);
 typedef _PaymentWidgetBuilder = Widget Function(BuildContext context, Payment payment);
@@ -76,7 +76,7 @@ class PaymentsListSliver extends SliverChildBuilderDelegate {
   ) {
     return (context, index) {
       return PaymentListSeparator(
-        currentPayment: operations[index],
+        previousPayment: operations[index],
         nextPayment: operations[index + 1],
         today: today,
       );

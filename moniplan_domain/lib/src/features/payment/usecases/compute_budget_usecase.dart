@@ -18,7 +18,7 @@ class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
   @override
   ComputeBudgetUseCaseResult run() {
     final budget = LinkedHashMap<Payment, num>();
-    final now = DateTime.now().onlyDate;
+    final now = DateTime.now().dayBound;
 
     var tempBudget = initialBudget;
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan/_run/db/_index.dart';
+import 'package:moniplan/features/_common/periodic_theme_changer/_index.dart';
 import 'package:moniplan/features/monisync/repo/monisync_repo_impl.dart';
 import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan/features/planners_list//_index.dart';
@@ -15,11 +17,11 @@ class MoniplanApp extends StatefulWidget {
   const MoniplanApp({
     super.key,
     required this.sharedPreferences,
-    this.initialTheme,
+    required this.initialTheme,
   });
 
   final SharedPreferences sharedPreferences;
-  final AppTheme? initialTheme;
+  final AppTheme initialTheme;
 
   @override
   State<MoniplanApp> createState() => _MoniplanAppState();
@@ -28,12 +30,7 @@ class MoniplanApp extends StatefulWidget {
 class _MoniplanAppState extends State<MoniplanApp> {
   final _appKey = GlobalKey();
 
-  @override
-  Widget build(BuildContext context) {
-    final home = ReceiveImportWrapper(
-      child: PlannersListScreen(),
-    );
-
+  Widget app(AppTheme theme, Widget home) {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<IMonisyncRepo>(
@@ -52,7 +49,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
             return MaterialApp(
               key: _appKey,
               debugShowCheckedModeBanner: false,
-              theme: widget.initialTheme?.themeData,
+              theme: theme.themeData,
               builder: (context, child) => ResponsiveBreakpoints.builder(
                 child: child!,
                 breakpoints: [
@@ -96,6 +93,24 @@ class _MoniplanAppState extends State<MoniplanApp> {
           },
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const home = ReceiveImportWrapper(
+      child: PlannersListScreen(),
+    );
+
+    return PeriodicThemeRainbowChanger(
+      isEnabled: true,
+      changePeriod: const Duration(seconds: 7),
+      initialTheme: widget.initialTheme,
+      themeProvider: moniplanThemeGeneratorRainbow,
+      rainbowSeedGenerator: () => DateTime.now().minuteBound.millisecondsSinceEpoch,
+      builder: (context, theme) {
+        return app(theme ?? widget.initialTheme, home);
+      },
     );
   }
 }

@@ -16,3 +16,7 @@ abstract class AppRadius {
   static const Radius r32 = Radius.circular(32.0);
   static const Radius r50 = Radius.circular(50.0);
 }
+
+extension RadiusExt on Radius {
+  double get value => x;
+}

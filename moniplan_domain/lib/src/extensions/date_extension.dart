@@ -1,5 +1,9 @@
 extension PeriodDateTime on DateTime {
-  DateTime get onlyDate => DateTime(year, month, day);
+  DateTime get monthBound => DateTime(year, month);
+
+  DateTime get dayBound => DateTime(year, month, day);
+
+  DateTime get minuteBound => DateTime(year, month, day, hour, minute);
 
   DateTime addTime({int year = 0, int month = 0, int day = 0}) {
     return DateTime(this.year + year, this.month + month, this.day + day, hour, minute, 0, 0, 0);

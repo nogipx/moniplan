@@ -17,11 +17,11 @@ class ConstrainItemsInPeriodUseCase<T> implements IUseCase<List<T>> {
 
   @override
   List<T> run() {
-    final start = dateStart.onlyDate;
-    final end = dateEnd.onlyDate;
+    final start = dateStart.dayBound;
+    final end = dateEnd.dayBound;
 
     final constrained = items.where((item) {
-      final itemDate = dateExtractor(item).onlyDate;
+      final itemDate = dateExtractor(item).dayBound;
 
       final startCompare = itemDate.compareTo(start);
       final endCompare = itemDate.compareTo(end);

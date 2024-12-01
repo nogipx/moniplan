@@ -1,6 +1,6 @@
-import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan/features/_common/_index.dart';
 import 'package:moniplan/features/payment_planner/_index.dart';
 import 'package:moniplan/features/payment_planner/dialogs/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
@@ -54,7 +54,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
         final titleWidget = Text('$dateStartString - $dateEndString');
 
         final paymentsByDate = state.getPaymentsByDate;
-        final today = DateTime.now().onlyDate;
+        final today = DateTime.now().dayBound;
 
         return Scaffold(
           floatingActionButton: Row(
@@ -69,20 +69,10 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                   },
                 ),
               ),
-              GestureDetector(
-                onLongPress: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => DriftDbViewer(AppDb().db),
-                    ),
-                  );
+              ExtendedAppFloatingButton(
+                onPressed: () {
+                  _updateDialog();
                 },
-                child: FloatingActionButton(
-                  child: const Icon(Icons.add),
-                  onPressed: () {
-                    _updateDialog();
-                  },
-                ),
               ),
             ],
           ),
@@ -122,7 +112,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
             children: [
               state is PlannerBudgetComputedState
                   ? MoneyFlowWidget(state: state.moneyFlow)
-                  : const SizedBox(),
+                  : const SizedBox.shrink(),
               Expanded(
                 child: ScrollablePositionedList.separated(
                   itemScrollController: _controller,
@@ -143,9 +133,20 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                       );
                     }).toList();
 
+                    // пусть следующий и предыдущий платежи буду необязательные
+                    // учти этот момент тоже.
+                    // считай что если нет currentPayment
+
                     return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: paymentsWidgets,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        if (index == 0)
+                          PaymentListSeparator(
+                            nextPayment: datePayments.payments.firstOrNull,
+                            today: today,
+                          ),
+                        ...paymentsWidgets,
+                      ],
                     );
                   },
                   separatorBuilder: (context, index) {
@@ -157,7 +158,7 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                     final nextDayPayments = paymentsByDate[index + 1];
 
                     return PaymentListSeparator(
-                      currentPayment: todayPayments.payments.first,
+                      previousPayment: todayPayments.payments.first,
                       nextPayment: nextDayPayments.payments.first,
                       today: today,
                     );

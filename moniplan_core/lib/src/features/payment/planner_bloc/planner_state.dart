@@ -44,7 +44,7 @@ class PlannerState with _$PlannerState {
 
 extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
   ({int index, double alignment})? getIndexOfDate(DateTime date) {
-    final searchDay = date.onlyDate;
+    final searchDay = date.dayBound;
 
     final topAlignment = 0.15;
     final centerAlignment = 0.55;
@@ -55,8 +55,8 @@ extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
       final prevDayIndex = i - 1;
       final nextDayIndex = i;
 
-      final prevDay = this[prevDayIndex].date.onlyDate;
-      final nextDay = this[nextDayIndex].date.onlyDate;
+      final prevDay = this[prevDayIndex].date.dayBound;
+      final nextDay = this[nextDayIndex].date.dayBound;
 
       final isDateInRange = prevDay.compareTo(date) <= 0 && nextDay.compareTo(date) >= 0;
 

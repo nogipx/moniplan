@@ -63,14 +63,14 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
     final colorScheme = context.color.scheme;
     return {
       'Primary': colorScheme.primary,
+      'Inverse Primary': colorScheme.inversePrimary,
       'Primary Fixed': colorScheme.primaryFixed,
       'Primary Fixed Dim': colorScheme.primaryFixedDim,
+      'Primary Container': colorScheme.primaryContainer,
       'On Primary': colorScheme.onPrimary,
       'On Primary Fixed': colorScheme.onPrimaryFixed,
       'On Primary Fixed Variant': colorScheme.onPrimaryFixedVariant,
-      'Primary Container': colorScheme.primaryContainer,
       'On Primary Container': colorScheme.onPrimaryContainer,
-      'Inverse Primary': colorScheme.inversePrimary,
     };
   }
 
@@ -80,10 +80,10 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
       'Secondary': colorScheme.secondary,
       'Secondary Fixed': colorScheme.secondaryFixed,
       'Secondary Fixed Dim': colorScheme.secondaryFixedDim,
+      'Secondary Container': colorScheme.secondaryContainer,
       'On Secondary': colorScheme.onSecondary,
       'On Secondary Fixed': colorScheme.onSecondaryFixed,
       'On Secondary Fixed Variant': colorScheme.onSecondaryFixedVariant,
-      'Secondary Container': colorScheme.secondaryContainer,
       'On Secondary Container': colorScheme.onSecondaryContainer,
     };
   }
@@ -94,10 +94,10 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
       'Tertiary': colorScheme.tertiary,
       'Tertiary Fixed': colorScheme.tertiaryFixed,
       'Tertiary Fixed Dim': colorScheme.tertiaryFixedDim,
+      'Tertiary Container': colorScheme.tertiaryContainer,
       'On Tertiary': colorScheme.onTertiary,
       'On Tertiary Fixed': colorScheme.onTertiaryFixed,
       'On Tertiary Fixed Variant': colorScheme.onTertiaryFixedVariant,
-      'Tertiary Container': colorScheme.tertiaryContainer,
       'On Tertiary Container': colorScheme.onTertiaryContainer,
     };
   }
@@ -106,18 +106,18 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
     final colorScheme = context.color.scheme;
     return {
       'Surface': colorScheme.surface,
+      'Inverse Surface': colorScheme.inverseSurface,
       'On Surface': colorScheme.onSurface,
       'On Surface Variant': colorScheme.onSurfaceVariant,
       'On Inverse Surface': colorScheme.onInverseSurface,
       'Surface Dim': colorScheme.surfaceDim,
       'Surface Bright': colorScheme.surfaceBright,
+      'Surface Tint': colorScheme.surfaceTint,
       'Surface Container Lowest': colorScheme.surfaceContainerLowest,
       'Surface Container Low': colorScheme.surfaceContainerLow,
       'Surface Container': colorScheme.surfaceContainer,
       'Surface Container High': colorScheme.surfaceContainerHigh,
       'Surface Container Highest': colorScheme.surfaceContainerHighest,
-      'Surface Tint': colorScheme.surfaceTint,
-      'Inverse Surface': colorScheme.inverseSurface,
     };
   }
 
@@ -134,10 +134,10 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
   Map<String, Color> _extractOthers() {
     final colorScheme = context.color.scheme;
     return {
-      'Shadow': colorScheme.shadow,
-      'Scrim': colorScheme.scrim,
       'Outline': colorScheme.outline,
       'Outline Variant': colorScheme.outlineVariant,
+      'Shadow': colorScheme.shadow,
+      'Scrim': colorScheme.scrim,
     };
   }
 

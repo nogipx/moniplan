@@ -12,7 +12,7 @@ class GroupPaymentsByDateUsecase implements IUseCase<List<PaymentsDateGrouped>> 
     final mapped = <DateTime, List<Payment>>{};
 
     for (final payment in payments) {
-      mapped.putIfAbsent(payment.date.onlyDate, () => []).add(payment);
+      mapped.putIfAbsent(payment.date.dayBound, () => []).add(payment);
     }
 
     final entries = mapped.entries.toList();
