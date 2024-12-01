@@ -55,7 +55,10 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
         final dateEndString =
             dateEndRaw != null ? DateFormat(plannerBoundDateFormat).format(dateEndRaw) : '';
 
-        final titleWidget = Text('$dateStartString - $dateEndString');
+        final titleWidget = Text(
+          '$dateStartString - $dateEndString',
+          style: context.text.displaySmall,
+        );
 
         final today = DateTime.now().dayBound;
         final paymentsByDate = state.getPaymentsByDate;

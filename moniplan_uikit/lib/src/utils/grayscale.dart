@@ -4,11 +4,13 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 class Grayscale extends StatelessWidget {
   final Widget child;
   final bool grayscale;
+  final Color? color;
 
   const Grayscale({
     required this.child,
     this.grayscale = false,
     super.key,
+    this.color,
   });
 
   @override
@@ -17,11 +19,11 @@ class Grayscale extends StatelessWidget {
       return child;
     }
 
-    final color = context.color.outline;
+    final targetColor = color ?? context.color.outline;
     // Нормализуем значения цветовых каналов (0.0 - 1.0)
-    final r = color.red / 255;
-    final g = color.green / 255;
-    final b = color.blue / 255;
+    final r = targetColor.red / 255;
+    final g = targetColor.green / 255;
+    final b = targetColor.blue / 255;
 
     return ColorFiltered(
       colorFilter: ColorFilter.matrix([

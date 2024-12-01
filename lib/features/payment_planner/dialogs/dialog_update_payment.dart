@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 Future<void> showUpdatePaymentDialog({
@@ -100,6 +101,12 @@ Future<void> showUpdatePaymentDialog({
                 type = paymentTypes.first;
               });
             },
+            style: SegmentedButton.styleFrom(
+              backgroundColor: context.color.surfaceContainerLow,
+              selectedBackgroundColor: context.color.surfaceContainerLow,
+              foregroundColor: context.color.onSurfaceVariant,
+              selectedForegroundColor: context.color.primary,
+            ),
           ),
         ],
       ),
@@ -120,12 +127,11 @@ Future<void> showUpdatePaymentDialog({
                   children: [
                     TextSpan(
                       text: 'Payment date: ',
+                      style: context.text.bodyMedium?.copyWith(),
                     ),
                     TextSpan(
                       text: date != null ? dateFormat.format(date!) : 'Not set',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                      style: context.text.bodyMedium?.copyWith(),
                     ),
                   ],
                 ),
@@ -191,6 +197,8 @@ Future<void> showUpdatePaymentDialog({
   }
 
   Widget buildControls(BuildContext context, StateSetter setState) {
+    final grayscaleColor = context.color.inverseSurface;
+
     return Row(
       children: [
         Expanded(
@@ -200,11 +208,21 @@ Future<void> showUpdatePaymentDialog({
                 isEnabled = !isEnabled;
               });
             },
-            icon: Icon(
-              Icons.power_settings_new_rounded,
-              size: 22,
+            icon: Grayscale(
+              grayscale: !isEnabled,
+              color: grayscaleColor,
+              child: Icon(
+                Icons.power_settings_new_rounded,
+                size: 22,
+              ),
             ),
-            label: Text(isEnabled ? 'Enabled' : 'Disabled'),
+            label: FittedBox(
+              child: Grayscale(
+                grayscale: !isEnabled,
+                color: grayscaleColor,
+                child: Text(isEnabled ? 'Enabled' : 'Disabled'),
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 16),
@@ -215,11 +233,21 @@ Future<void> showUpdatePaymentDialog({
                 isDone = !isDone;
               });
             },
-            icon: Icon(
-              Icons.done_rounded,
-              size: 22,
+            icon: Grayscale(
+              grayscale: !isDone,
+              color: grayscaleColor,
+              child: Icon(
+                Icons.done_rounded,
+                size: 22,
+              ),
             ),
-            label: Text(isDone ? 'Completed' : 'Not completed'),
+            label: FittedBox(
+              child: Grayscale(
+                grayscale: !isDone,
+                color: grayscaleColor,
+                child: Text(isDone ? 'Completed' : 'Not completed'),
+              ),
+            ),
           ),
         ),
       ],
@@ -257,9 +285,9 @@ Future<void> showUpdatePaymentDialog({
                                   ? 'initial repeated payment'
                                   : 'regular'
                               : 'repeated payment generation \n— you edit an original now',
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                fontStyle: FontStyle.italic,
-                              ),
+                          style: context.text.labelMedium?.copyWith(
+                            fontStyle: FontStyle.italic,
+                          ),
                         )
                     ],
                   ),
@@ -366,7 +394,9 @@ Future<void> showUpdatePaymentDialog({
                 },
                 child: Text(
                   targetPayment != null ? 'Save' : 'Create',
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  style: context.text.labelLarge?.copyWith(
+                    color: context.extra.moneyPositive,
+                  ),
                 ),
               ),
             ],

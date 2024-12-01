@@ -31,7 +31,7 @@ class PaymentListSeparator extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               context.color.surface,
-              context.color.surface.withOpacity(.7),
+              context.color.surface.withOpacity(.8),
               context.color.surface.withOpacity(0),
             ],
             stops: [0, .8, 1],
@@ -44,7 +44,7 @@ class PaymentListSeparator extends StatelessWidget {
           children: [
             if (isMonthEdge) const SizedBox(height: 16),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              padding: const EdgeInsets.fromLTRB(10, 16, 16, 0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -79,7 +79,7 @@ class PaymentListSeparator extends StatelessWidget {
             ),
             if (payments != null && payments!.isEmpty)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 8, 24),
+                padding: const EdgeInsets.fromLTRB(10, 16, 8, 24),
                 child: Text('Нет платежей на сегодня'),
               ),
           ],
