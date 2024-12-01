@@ -6,6 +6,7 @@ import 'package:moniplan/features/payment_planner/dialogs/_index.dart';
 import 'package:moniplan/features/payment_planner/screens/planner_charts_screen.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:sticky_headers/sticky_headers.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
 
 class PlannerViewScreenSliver extends StatefulWidget {
@@ -38,7 +39,7 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
           setState(() {
             _isFirstScrolled = true;
           });
-          _moveToDate(DateTime.now(), jump: true);
+          // _moveToDate(DateTime.now(), jump: true);
         }
       },
       builder: (context, state) {
@@ -58,36 +59,7 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
 
         final today = DateTime.now().dayBound;
         final paymentsByDate = state.getPaymentsByDate;
-
-        final sliverList = SuperSliverList.builder(
-          listController: _listController,
-          itemCount: paymentsByDate.length,
-          itemBuilder: (context, index) {
-            final datePayments = paymentsByDate[index];
-            final neighbours = paymentsByDate.getNeighbours(index);
-
-            return PaymentListSeparator(
-              datePayments: datePayments,
-              prevDate: neighbours?.before?.date,
-              nextDate: neighbours?.after?.date,
-              today: today,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: datePayments.payments.map((payment) {
-                  return PaymentListItem(
-                    payment: payment,
-                    mediateSummary: state.budget[payment],
-                    onPressed: () => updateDialog(
-                      context: context,
-                      paymentToEdit: payment,
-                      plannerRepo: _plannerRepo,
-                    ),
-                  );
-                }).toList(),
-              ),
-            );
-          },
-        );
+        final paymentsByDateIndexed = paymentsByDate.indexed.toList();
 
         final appBar = AppBar(
           title: titleWidget,
@@ -133,20 +105,78 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
         );
 
         final moneyFlow = state is PlannerBudgetComputedState
-            ? MoneyFlowWidget(state: state.moneyFlow)
+            ? ColoredBox(
+                child: MoneyFlowWidget(state: state.moneyFlow),
+                color: context.color.surface,
+              )
             : const SizedBox.shrink();
+
+        Widget getSliverList(int originalIndex, PaymentsDateGrouped group) {
+          final neighbours = paymentsByDate.getNeighbours(originalIndex);
+          final isMonthEdge = group.date.isMonthEdge(
+            prevDate: neighbours?.before?.date,
+            nextDate: neighbours?.after?.date,
+          );
+
+          return StickyHeaderBuilder(
+            builder: (BuildContext context, double stuckAmount) {
+              final normalizedAnimation = normalizeToRange(stuckAmount, -1, 1, 0, 1);
+
+              return PaymentListSeparator(
+                currDate: group.date,
+                isMonthEdge: isMonthEdge,
+                today: today,
+                payments: group.payments,
+                animationValue: normalizedAnimation,
+                stuckAmount: stuckAmount,
+              );
+            },
+            content: Column(
+              children: group.payments.map((e) {
+                final payment = e;
+                return PaymentListItem(
+                  payment: payment,
+                  mediateSummary: state.budget[payment],
+                  onPressed: () => updateDialog(
+                    context: context,
+                    paymentToEdit: payment,
+                    plannerRepo: _plannerRepo,
+                  ),
+                );
+              }).toList(),
+            ),
+          );
+        }
 
         return Scaffold(
           floatingActionButton: fab,
           appBar: appBar,
-          body: CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.only(
-                  bottom: AppSpace.s100,
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              moneyFlow,
+              Expanded(
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.only(
+                        bottom: AppSpace.s100,
+                      ),
+                      sliver: SuperSliverList(
+                        listController: _listController,
+                        // delegate: SliverChildListDelegate(composedSliversList),
+                        delegate: SliverChildBuilderDelegate(
+                          childCount: paymentsByDateIndexed.length,
+                          (context, index) {
+                            final item = paymentsByDateIndexed[index];
+                            return getSliverList(item.$1, item.$2);
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                sliver: sliverList,
               ),
             ],
           ),
@@ -177,5 +207,28 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
         curve: (estimatedDistance) => Curves.fastLinearToSlowEaseIn,
       );
     }
+  }
+}
+
+// Класс для кастомного Sticky Header
+class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+
+  _StickyHeaderDelegate({required this.child});
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return child;
+  }
+
+  @override
+  double get maxExtent => 110;
+
+  @override
+  double get minExtent => 110;
+
+  @override
+  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
+    return true;
   }
 }

@@ -27,7 +27,6 @@ class MoniplanApp extends StatefulWidget {
 }
 
 class _MoniplanAppState extends State<MoniplanApp> {
-  final _appKey = GlobalKey();
   late Brightness _brightness;
 
   Brightness get _platformBrigtness =>
@@ -72,7 +71,6 @@ class _MoniplanAppState extends State<MoniplanApp> {
           animation: AppDbImpl(),
           builder: (context, _) {
             return MaterialApp(
-              key: _appKey,
               debugShowCheckedModeBanner: false,
               theme: theme.themeData,
               builder: (context, child) => ResponsiveBreakpoints.builder(
@@ -128,7 +126,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
       builder: (light, dark) {
         return PeriodicThemeChanger(
           type: PeriodicThemeChangerType.rainbow,
-          isEnabled: true,
+          isEnabled: false,
           changePeriod: const Duration(seconds: 7),
           initialTheme: moniplanThemeGeneratorDynamicSync(
             brightness: _brightness,

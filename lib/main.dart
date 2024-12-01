@@ -24,6 +24,10 @@ Future<void> main() async {
         WidgetsFlutterBinding.ensureInitialized();
         Logger.root.level = Level.ALL;
         Logger.root.onRecord.listen((record) {
+          if (record.loggerName == 'SuperSliverList') {
+            return;
+          }
+
           print(
             '${record.level.name}: '
             '${record.time}: '

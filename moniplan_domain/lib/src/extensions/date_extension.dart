@@ -5,6 +5,21 @@ extension PeriodDateTime on DateTime {
 
   DateTime get minuteBound => DateTime(year, month, day, hour, minute);
 
+  bool isMonthEdge({
+    required DateTime? prevDate,
+    required DateTime? nextDate,
+  }) {
+    if (prevDate == null && nextDate != null) {
+      return true;
+    } else if (prevDate != null && nextDate == null) {
+      return false;
+    } else if (prevDate != null && prevDate.month != month) {
+      return true;
+    }
+
+    return false;
+  }
+
   DateTime addTime({int year = 0, int month = 0, int day = 0}) {
     return DateTime(this.year + year, this.month + month, this.day + day, hour, minute, 0, 0, 0);
   }

@@ -1,65 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan/features/payment_planner/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PaymentListSeparator extends StatelessWidget {
-  final PaymentsDateGrouped datePayments;
-  final Widget child;
-  final DateTime? prevDate;
-  final DateTime? nextDate;
+  final DateTime currDate;
+  final List<Payment>? payments;
   final DateTime today;
+  final double animationValue;
+  final double stuckAmount;
+  final bool isMonthEdge;
 
   const PaymentListSeparator({
     required this.today,
-    required this.datePayments,
-    required this.child,
-    this.prevDate,
-    this.nextDate,
+    required this.currDate,
+    this.payments,
+    this.animationValue = 0,
+    this.stuckAmount = 0,
+    this.isMonthEdge = false,
     super.key,
-  }) : assert(prevDate != null || nextDate != null);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final currDate = datePayments.date;
+    const shrink = SizedBox.shrink();
 
-    final isMonthEdge = () {
-      if (prevDate == null && nextDate != null) {
-        return true;
-      } else if (prevDate != null && nextDate == null) {
-        return false;
-      } else if (prevDate != null && prevDate!.month != currDate.month) {
-        return true;
-      }
-
-      return false;
-    }();
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (isMonthEdge) _monthSeparator(currDate),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: _daySeparator(currDate, today),
+    return RepaintBoundary(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              context.color.surface,
+              context.color.surface.withOpacity(.7),
+              context.color.surface.withOpacity(.1)
+            ],
+            stops: [0, .8, 1],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          // color: isMonthEdge ? context.color.tertiaryFixedDim : context.color.surface,
         ),
-        if (datePayments.payments.isEmpty) _noPaymentsDay(),
-        child,
-      ],
-    );
-  }
-
-  Widget _daySeparator(DateTime date, DateTime today) {
-    return PaymentListDaySeparator(date: date, today: today);
-  }
-
-  Widget _monthSeparator(DateTime date) {
-    return PaymentListMonthSeparator(date: date);
-  }
-
-  Widget _noPaymentsDay() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 16, 8, 24),
-      child: Text('Нет платежей на сегодня'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (isMonthEdge) const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (isMonthEdge)
+                    Expanded(
+                      child: Visibility(
+                        visible: isMonthEdge,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                '${DateFormat(DateFormat.MONTH).format(currDate).capitalize()} '
+                                '${currDate.year}',
+                                style: context.text.displaySmall?.copyWith(
+                                  color: context.color.surfaceTint,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    Expanded(child: shrink),
+                  PaymentListDaySeparator(date: currDate, today: today),
+                  Expanded(child: shrink),
+                ],
+              ),
+            ),
+            if (payments != null && payments!.isEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 8, 24),
+                child: Text('Нет платежей на сегодня'),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
