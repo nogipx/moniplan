@@ -71,7 +71,10 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
               ),
               ExtendedAppFloatingButton(
                 onPressed: () {
-                  _updateDialog();
+                  updateDialog(
+                    context: context,
+                    plannerRepo: _plannerRepo,
+                  );
                 },
               ),
             ],
@@ -129,7 +132,11 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
                       return PaymentListItem(
                         payment: payment,
                         mediateSummary: state.budget[payment],
-                        onPressed: () => _onTapPayment(payment),
+                        onPressed: () => updateDialog(
+                          context: context,
+                          paymentToEdit: payment,
+                          plannerRepo: _plannerRepo,
+                        ),
                       );
                     }).toList();
 
@@ -172,10 +179,6 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
     );
   }
 
-  void _onTapPayment(Payment payment) {
-    _updateDialog(payment);
-  }
-
   Future<void> _moveToDate(DateTime date, {bool jump = false}) async {
     await Future.delayed(const Duration(milliseconds: 100));
     final state = context.read<PlannerBloc>().state.getPaymentsByDate.getIndexOfDate(date);
@@ -196,92 +199,5 @@ class _PlannerViewScreenState extends State<PlannerViewScreen> {
         curve: Curves.fastLinearToSlowEaseIn,
       );
     }
-  }
-
-  Future<void> _updateDialog([Payment? paymentToEdit]) async {
-    Payment? targetPayment;
-    if (paymentToEdit != null) {
-      targetPayment = paymentToEdit;
-      if (targetPayment.isNotParent) {
-        final original = await _plannerRepo.getPaymentById(
-          plannerId: targetPayment.plannerId,
-          paymentId: targetPayment.originalPaymentId ?? '',
-        );
-        if (original != null) {
-          targetPayment = original;
-        }
-      }
-    }
-
-    void save(Payment newPayment, {bool? create}) => context.read<PlannerBloc>().add(
-          PlannerEvent.updatePayment(
-            newPayment: newPayment,
-            create: create ?? paymentToEdit == null,
-          ),
-        );
-
-    void delete() {
-      if (paymentToEdit == null) {
-        return;
-      }
-
-      showDeletePaymentDialog(
-        context,
-        () {
-          if (targetPayment == null) {
-            return;
-          }
-
-          context.read<PlannerBloc>().add(
-                PlannerEvent.deletePayment(
-                  paymentId: targetPayment.paymentId,
-                ),
-              );
-        },
-      );
-    }
-
-    void duplicate() {
-      if (paymentToEdit == null || targetPayment == null) {
-        return;
-      }
-
-      final duplicationPayment = targetPayment.copyWith(
-        paymentId: const Uuid().v4(),
-        repeat: DateTimeRepeat.noRepeat,
-        dateStart: null,
-        dateEnd: null,
-      );
-
-      showUpdatePaymentDialog(
-        context: context,
-        targetPayment: duplicationPayment,
-        onSave: (p) => save(p, create: true),
-      );
-    }
-
-    void fixate() {
-      if (paymentToEdit == null || targetPayment == null) {
-        return;
-      }
-
-      context.read<PlannerBloc>().add(
-            PlannerEvent.fixateRepeatedPayment(
-              paymentId: targetPayment.paymentId,
-            ),
-          );
-    }
-
-    showUpdatePaymentDialog(
-      context: context,
-      paymentWhichTapped: paymentToEdit,
-      targetPayment: targetPayment,
-      onSave: save,
-      onDelete: delete,
-      onDuplicate: duplicate,
-      onFixation: fixate,
-    ).then((_) {
-      context.read<PlannerBloc>().add(PlannerEvent.computeBudget());
-    });
   }
 }
