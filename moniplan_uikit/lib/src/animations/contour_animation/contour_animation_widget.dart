@@ -102,53 +102,13 @@ class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
       }
     } else {
       // Анимация отключена
-      _animation = const AlwaysStoppedAnimation(0);
+      _animation = const AlwaysStoppedAnimation(-1);
     }
   }
 
   @override
   void didUpdateWidget(covariant ContourAnimationWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.isAnimated != widget.isAnimated) {
-      if (widget.isAnimated) {
-        // Анимация была отключена, теперь включена
-        if (widget.animation != null) {
-          // Используем внешний контроллер анимации
-          _animation = widget.animation!;
-        } else {
-          // Создаём и запускаем внутренний контроллер анимации
-          _controller = AnimationController(
-            duration: widget.duration,
-            vsync: this,
-          )..repeat();
-          _animation = _controller!;
-        }
-      } else {
-        // Анимация была включена, теперь отключена
-        _controller?.stop();
-        _animation = const AlwaysStoppedAnimation(0);
-      }
-    } else if (_shouldAnimate) {
-      // Если анимация включена, проверяем изменения внешней анимации
-      if (oldWidget.animation != widget.animation) {
-        if (widget.animation != null) {
-          // Используем новый внешний контроллер анимации
-          _controller?.dispose();
-          _controller = null;
-          _animation = widget.animation!;
-        } else {
-          // Если внешняя анимация стала null, создаём внутренний контроллер
-          if (_controller == null) {
-            _controller = AnimationController(
-              duration: widget.duration,
-              vsync: this,
-            )..repeat();
-            _animation = _controller!;
-          }
-        }
-      }
-    }
 
     // Обновляем виджет при изменении режима отладки
     if (oldWidget.debugMode != widget.debugMode) {
@@ -177,6 +137,7 @@ class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
           return CustomPaint(
             painter: ContourAnimationPainter(
               _animation.value,
+              enabled: _animation.value >= 0,
               debugPainter: widget.debugMode && widget.debugPainter != null
                   ? widget.debugPainter!(_animation.value)
                   : null,
@@ -250,7 +211,7 @@ class ContourAnimationPainter extends CustomPainter {
     this.cornerRadius = 10.0,
     this.visibleFraction = 1 / 12,
     this.edgeOffsets = EdgeInsets.zero,
-  });
+  }) : assert(progress >= 0 && progress <= 1, 'Progress should be in range from 0 to 1');
 
   @override
   void paint(Canvas canvas, Size size) {

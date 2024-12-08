@@ -37,6 +37,15 @@ Future<void> main() async {
           );
         });
 
+        // init WidgetsFlutterBinding if not yet
+        // final config = PostHogConfig('phc_zbkYjD7Fjn1YgHf9GiC3r9MXeRl4XtAnCOvkTB4tKOf');
+        // config.debug = true;
+        // config.captureApplicationLifecycleEvents = true;
+        // config.host = 'https://us.i.posthog.com';
+        // await Posthog().setup(config);
+        // await Posthog().enable();
+        // await Posthog().flush();
+
         await AppDb().openDefault();
 
         initializeDateFormatting('ru');
