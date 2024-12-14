@@ -27,6 +27,7 @@ dependencies:
   dynamic_color: 1.7.0
   receive_sharing_intent:
     git: https://github.com/nogipx/receive_sharing_intent
+  oktoast: 3.4.0
 
   # Sliver
   sliver_tools: 0.2.12

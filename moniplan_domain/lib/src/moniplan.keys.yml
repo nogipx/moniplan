@@ -6,7 +6,6 @@ payments:
   error:
     done_with_repeat: Ошибка, нельзя отметить выполненным повторяющийся платеж
     required_date: Нужно ввести дату
-    required_money: Нужно ввсети сумму
 
 planner:
   _doc_: Скоуп ключей для планнеров

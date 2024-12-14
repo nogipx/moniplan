@@ -11,6 +11,7 @@ import 'package:moniplan/features/receive_import_sharing/bloc/_index.dart';
 import 'package:moniplan/features/receive_import_sharing/receive_import_wrapper.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -78,51 +79,53 @@ class _MoniplanAppState extends State<MoniplanApp> {
         child: AnimatedBuilder(
           animation: AppDbImpl(),
           builder: (context, _) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: theme.themeData,
-              navigatorObservers: [
-                // The PosthogObserver records screen views automatically
-                PosthogObserver(),
-              ],
-              builder: (context, child) => ResponsiveBreakpoints.builder(
-                child: child!,
-                breakpoints: [
-                  const Breakpoint(
-                    start: 0,
-                    end: 450,
-                    name: MOBILE,
-                  ),
-                  const Breakpoint(
-                    start: 451,
-                    end: 800,
-                    name: TABLET,
-                  ),
-                  const Breakpoint(
-                    start: 801,
-                    end: 1920,
-                    name: DESKTOP,
-                  ),
-                  const Breakpoint(
-                    start: 1921,
-                    end: double.infinity,
-                    name: '4K',
-                  ),
+            return OKToast(
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                theme: theme.themeData,
+                navigatorObservers: [
+                  // The PosthogObserver records screen views automatically
+                  PosthogObserver(),
                 ],
-              ),
-              home: Builder(
-                builder: (context) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => AppColorsDisplayScreen(),
-                        ),
-                      );
-                    },
-                    child: home,
-                  );
-                },
+                builder: (context, child) => ResponsiveBreakpoints.builder(
+                  child: child!,
+                  breakpoints: [
+                    const Breakpoint(
+                      start: 0,
+                      end: 450,
+                      name: MOBILE,
+                    ),
+                    const Breakpoint(
+                      start: 451,
+                      end: 800,
+                      name: TABLET,
+                    ),
+                    const Breakpoint(
+                      start: 801,
+                      end: 1920,
+                      name: DESKTOP,
+                    ),
+                    const Breakpoint(
+                      start: 1921,
+                      end: double.infinity,
+                      name: '4K',
+                    ),
+                  ],
+                ),
+                home: Builder(
+                  builder: (context) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => AppColorsDisplayScreen(),
+                          ),
+                        );
+                      },
+                      child: home,
+                    );
+                  },
+                ),
               ),
             );
           },

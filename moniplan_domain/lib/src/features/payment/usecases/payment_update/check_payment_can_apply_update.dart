@@ -1,6 +1,6 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-typedef CheckPaymentCanApplyUpdateResult = ({bool canUpdate, String errorKey});
+typedef CheckPaymentCanApplyUpdateResult = ({bool canUpdate, Set<String> errorKeys});
 
 class CheckPaymentCanApplyUpdate implements IUseCase<CheckPaymentCanApplyUpdateResult> {
   final Payment updatedPayment;
@@ -9,13 +9,19 @@ class CheckPaymentCanApplyUpdate implements IUseCase<CheckPaymentCanApplyUpdateR
 
   @override
   CheckPaymentCanApplyUpdateResult run() {
+    final errorKeys = <String>[];
+
     if (updatedPayment.isRepeat && updatedPayment.isDone) {
-      return (
-        canUpdate: false,
-        errorKey: MoniplanKeys.i.payments.error.doneWithRepeat,
-      );
+      errorKeys.add(MoniplanKeys.i.payments.error.doneWithRepeat);
     }
 
-    return (canUpdate: true, errorKey: '');
+    if (updatedPayment.date == DateTime(0)) {
+      errorKeys.add(MoniplanKeys.i.payments.error.requiredDate);
+    }
+
+    return (
+      canUpdate: !errorKeys.contains(MoniplanKeys.i.payments.error.requiredDate),
+      errorKeys: errorKeys.toSet(),
+    );
   }
 }

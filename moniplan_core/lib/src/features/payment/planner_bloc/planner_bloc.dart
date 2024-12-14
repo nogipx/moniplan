@@ -55,6 +55,13 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     Emitter<PlannerState> emit,
   ) async {
     try {
+      final canApplyUpdate = CheckPaymentCanApplyUpdate(updatedPayment: event.newPayment).run();
+      if (!canApplyUpdate.canUpdate) {
+        emit(state.copyWith(
+          errors: canApplyUpdate.errorKeys,
+        ));
+      }
+
       final result = await _plannerRepo.savePayment(
         plannerId: plannerId,
         payment: event.newPayment.copyWith(

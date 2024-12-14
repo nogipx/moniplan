@@ -9,6 +9,7 @@ class PlannerState with _$PlannerState {
 
   const factory PlannerState.initial({
     @Default('') String plannerId,
+    @Default({}) Set<String> errors,
   }) = PlannerInitialState;
 
   const factory PlannerState.budgetComputed({
@@ -19,11 +20,13 @@ class PlannerState with _$PlannerState {
     @Default([]) List<PaymentsDateGrouped> paymentsByDate,
     @Default({}) Map<Payment, num> budget,
     @Default(MoneyFlowUseCaseResult()) MoneyFlowUseCaseResult moneyFlow,
+    @Default({}) Set<String> errors,
   }) = PlannerBudgetComputedState;
 
   const factory PlannerState.error({
     @Default('') String plannerId,
     @Default([]) List<Payment> payments,
+    @Default({}) Set<String> errors,
   }) = PlannerErrorState;
 
   List<Payment> get getPayments => maybeMap<List<Payment>>(

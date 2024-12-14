@@ -6,8 +6,6 @@ extension BuildContextThemeExtension on BuildContext {
 
   AppThemeData get extension => theme.appExtension;
 
-  AppColors get appColors => extension.colors;
-
   ColorScheme get color => extension.colors.scheme;
 
   AppTextTheme get text => extension.text;
