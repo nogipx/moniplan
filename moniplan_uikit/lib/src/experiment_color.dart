@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+@Deprecated('Чтобы не потерять старые цвета, не исопльзовать в проде')
 abstract interface class ExperimentColor {
   static const moniplanBrand = Color(0xff0C82D8);
   static const paynesGray = Color(0xff4F5D75);

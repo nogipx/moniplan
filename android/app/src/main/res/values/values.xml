@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="inset_top_foreground">40dp</dimen>
-    <dimen name="inset_left_foreground">20dp</dimen>
-    <dimen name="inset_right_foreground">20dp</dimen>
-    <dimen name="inset_bottom_foreground">40dp</dimen>
+    <dimen name="inset_top_foreground">0dp</dimen>
+    <dimen name="inset_left_foreground">0dp</dimen>
+    <dimen name="inset_right_foreground">0dp</dimen>
+    <dimen name="inset_bottom_foreground">0dp</dimen>
 
     <dimen name="inset_top_monochrome">0dp</dimen>
     <dimen name="inset_left_monochrome">0dp</dimen>

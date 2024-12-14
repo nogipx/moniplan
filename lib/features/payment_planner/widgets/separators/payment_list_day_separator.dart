@@ -16,20 +16,19 @@ class PaymentListDaySeparator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSameDay = today.isSameDay(date);
-    const radius = AppRadius.r10;
 
     return AppContourAnimation(
       isAnimated: isSameDay,
       customColor: context.color.surfaceTint,
-      borderRadius: radius.value,
+      borderRadius: AppRadius.r8.value,
       duration: const Duration(seconds: 2),
-      edgeInsets: const EdgeInsets.all(.4),
-      minFraction: .05,
-      maxFraction: .25,
+      edgeInsets: const EdgeInsets.all(1.4),
+      minFraction: .39,
+      maxFraction: .45,
       child: Container(
         decoration: BoxDecoration(
           color: isSameDay ? context.color.surfaceTint : context.color.surfaceContainer,
-          borderRadius: BorderRadius.all(radius),
+          borderRadius: BorderRadius.all(AppRadius.r10),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

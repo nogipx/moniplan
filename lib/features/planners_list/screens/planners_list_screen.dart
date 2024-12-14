@@ -10,6 +10,7 @@ import 'package:moniplan/features/planners_list/widgets/dialog_delete_planner.da
 import 'package:moniplan/features/planners_list/widgets/dialog_update_planner.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class PlannersListScreen extends StatefulWidget {
   const PlannersListScreen({super.key});
@@ -38,24 +39,24 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
             child: Scaffold(
               appBar: AppBar(
                 actions: [
-                  StreamBuilder(
-                    stream: AppDb.instance.db.managers.globalLastUpdate
-                        .filter((f) => f.lastUpdateId.equals(GlobalLastUpdate.entityId))
-                        .watchSingleOrNull(),
-                    builder: (context, snapshot) {
-                      final updateDate = snapshot.data?.updatedAt;
-                      if (updateDate == null) {
-                        return const SizedBox();
-                      }
+                  const SizedBox(width: AppSpace.s20),
+                  Flexible(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: FutureBuilder(
+                        future: PackageInfo.fromPlatform(),
+                        builder: (context, snap) {
+                          if (!snap.hasData) {
+                            return const SizedBox.shrink();
+                          }
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'Last update: ${DateFormat(dateFormatWithTime).format(updateDate)}',
-                          style: context.theme.textTheme.titleLarge,
-                        ),
-                      );
-                    },
+                          return Text(
+                            'v${snap.data?.version}',
+                            style: context.theme.textTheme.titleLarge,
+                          );
+                        },
+                      ),
+                    ),
                   ),
                   ElevatedButton.icon(
                     icon: Icon(
@@ -71,7 +72,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                       );
                     },
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: AppSpace.s20),
                 ],
               ),
               floatingActionButton: GestureDetector(
