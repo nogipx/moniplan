@@ -5,7 +5,7 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 class MoneyColoredWidget extends StatelessWidget {
   final num? value;
   final TextStyle? textStyle;
-  final Currency currency;
+  final CurrencyData currency;
   final Color? overrideColor;
   final bool showPlusSign;
 

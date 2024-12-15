@@ -1,5 +1,4 @@
 import 'package:moniplan_core/moniplan_core.dart';
-
 import 'package:moniplan_core/src/features/payment_reference/repo/mock/_tags.dart';
 
 String get newUuid => const Uuid().v4();
@@ -41,7 +40,7 @@ abstract class D {
     // money: 23000,
     money: 30000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.longTimeDebt,
       Tags.required,
@@ -55,7 +54,7 @@ abstract class D {
     // money: 37000,
     money: 40000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.longTimeDebt,
       Tags.required,
@@ -68,7 +67,7 @@ abstract class D {
     name: 'Кредит Альфа',
     money: 26000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
       Tags.everyMonth,
@@ -80,7 +79,7 @@ abstract class D {
     name: 'Вернуть заем на Ташкент',
     money: 110000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.singleTime,
       Tags.required,
@@ -92,7 +91,7 @@ abstract class D {
     name: 'Кредитка Тинькофф',
     money: 18000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
       Tags.everyMonth,
@@ -104,7 +103,7 @@ abstract class D {
     name: 'Кредитка Альфа',
     money: 16000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
       Tags.everyMonth,
@@ -116,7 +115,7 @@ abstract class D {
     name: 'Сплит пиксель',
     money: 14000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
     },
@@ -126,7 +125,7 @@ abstract class D {
   static final kubishkaFullfill = PaymentDetails(
     name: 'Погашение кубышки',
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     money: 37000,
     tags: {
       Tags.singleTime,
@@ -141,7 +140,7 @@ abstract class D {
     name: 'Содержанка Даша',
     money: 90000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.dasya,
       Tags.soderzhanki,
@@ -152,7 +151,7 @@ abstract class D {
     name: 'Автокредит',
     money: 30000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.dasya,
       Tags.required,
@@ -165,7 +164,7 @@ abstract class D {
     name: 'Содержанка Наташа',
     money: 60000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.soderzhanki,
       Tags.everyMonth,
@@ -177,7 +176,7 @@ abstract class D {
     money: 340000,
     tax: 0.01,
     type: PaymentType.income,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.income,
     },
@@ -188,7 +187,7 @@ abstract class D {
     name: 'ЗП Узум',
     money: 120000,
     type: PaymentType.income,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.income,
     },
@@ -201,7 +200,7 @@ abstract class D {
     money: 250000,
     tax: 0.01,
     type: PaymentType.income,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.income,
     },
@@ -213,7 +212,7 @@ abstract class D {
     name: 'Аренда Суворова',
     money: 43000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
       Tags.everyMonth,
@@ -225,7 +224,7 @@ abstract class D {
     name: 'Коммуналка Суворова',
     money: 5500,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
       Tags.everyMonth,
@@ -235,7 +234,7 @@ abstract class D {
     name: 'Коммуналка Беличенко',
     money: 2600,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
       Tags.everyMonth,
@@ -245,7 +244,7 @@ abstract class D {
     name: 'Коммуналка Гондаря',
     money: 2600,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
       Tags.everyMonth,
@@ -259,7 +258,7 @@ abstract class D {
             // впн (сербия)
             (600),
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
       Tags.everyMonth,
@@ -269,7 +268,7 @@ abstract class D {
     name: 'Все для котов',
     money: 10000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
       Tags.everyMonth,
@@ -279,7 +278,7 @@ abstract class D {
     name: 'Импланон Даше',
     money: 20000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.dasya,
       Tags.singleTime,
@@ -290,7 +289,7 @@ abstract class D {
     name: 'Коррекция волос',
     money: 20000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.dasya,
       Tags.required,
@@ -301,7 +300,7 @@ abstract class D {
       name: 'Уходовая косметика',
       money: 16000,
       type: PaymentType.expense,
-      currency: AppCurrencies.ru,
+      currency: CurrencyDataCommon.rub,
       tags: {
         Tags.dasya,
         Tags.irregular,
@@ -311,7 +310,7 @@ abstract class D {
     name: 'Абонемент качалка Даше',
     money: 25000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.dasya,
       Tags.singleTime,
@@ -322,7 +321,7 @@ abstract class D {
     name: 'Погасить кредитку Альфа',
     money: 243000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.singleTime,
     },
@@ -331,7 +330,7 @@ abstract class D {
     name: 'Погасить кредитку Мтсбанк',
     money: 20000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.singleTime,
     },
@@ -340,7 +339,7 @@ abstract class D {
     name: 'Новый макбук 2023 16 дюймов',
     money: 360000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.singleTime,
     },
@@ -349,7 +348,7 @@ abstract class D {
     name: 'Погасить кредитку Тинькоф',
     money: 230000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.singleTime,
     },
@@ -358,7 +357,7 @@ abstract class D {
     name: 'Инвестирование в машину',
     money: 0,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.singleTime,
     },
@@ -367,7 +366,7 @@ abstract class D {
     name: 'Отдать Арсению за тачку',
     money: 450000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.singleTime,
     },
@@ -376,7 +375,7 @@ abstract class D {
     name: 'Ремонт Гондаря 103',
     money: 120000,
     type: PaymentType.expense,
-    currency: AppCurrencies.ru,
+    currency: CurrencyDataCommon.rub,
     tags: {
       Tags.required,
       Tags.everyMonth,

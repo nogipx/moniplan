@@ -18,7 +18,7 @@ class PaymentBuilder {
       name: name,
       money: money,
       type: money <= 0 ? PaymentType.expense : PaymentType.income,
-      currency: AppCurrencies.ru,
+      currency: CurrencyDataCommon.rub,
     );
     return this;
   }

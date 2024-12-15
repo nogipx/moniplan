@@ -20,7 +20,7 @@ class PaymentMapperDrift implements IMapper<Payment, PaymentsComposedDriftTableD
       name: data.paymentName,
       note: data.paymentNote,
       type: PaymentType.from(data.paymentTypeId),
-      currency: Currency.create(currencyCode, currencyPrecision),
+      currency: CurrencyData.create(currencyCode, currencyPrecision),
       money: data.paymentMoney,
       tax: data.paymentTax,
       tags: Set.from(data.paymentTags.split(_tagsSplitSeparator)),

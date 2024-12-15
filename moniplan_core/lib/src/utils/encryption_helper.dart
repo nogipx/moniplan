@@ -1,5 +1,6 @@
-import 'package:encrypt/encrypt.dart';
 import 'dart:typed_data';
+
+import 'package:encrypt/encrypt.dart';
 
 class EncryptionHelper {
   final Encrypter _encrypter;

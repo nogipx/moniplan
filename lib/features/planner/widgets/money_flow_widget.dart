@@ -43,7 +43,7 @@ class MoneyFlowWidget extends StatelessWidget {
                 ),
                 MoneyColoredWidget(
                   value: state.initialBalance,
-                  currency: AppCurrencies.ru,
+                  currency: CurrencyDataCommon.rub,
                   showPlusSign: false,
                   textStyle: textStyle,
                 ),
@@ -59,7 +59,7 @@ class MoneyFlowWidget extends StatelessWidget {
                 ),
                 MoneyColoredWidget(
                   value: state.totalIncome,
-                  currency: AppCurrencies.ru,
+                  currency: CurrencyDataCommon.rub,
                   textStyle: textStyle,
                 ),
               ],
@@ -73,7 +73,7 @@ class MoneyFlowWidget extends StatelessWidget {
                 ),
                 MoneyColoredWidget(
                   value: state.totalOutcome,
-                  currency: AppCurrencies.ru,
+                  currency: CurrencyDataCommon.rub,
                   textStyle: textStyle,
                 ),
               ],
@@ -88,7 +88,7 @@ class MoneyFlowWidget extends StatelessWidget {
                 ),
                 MoneyColoredWidget(
                   value: state.balance,
-                  currency: AppCurrencies.ru,
+                  currency: CurrencyDataCommon.rub,
                   showPlusSign: false,
                   textStyle: textStyle,
                 ),

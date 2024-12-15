@@ -386,7 +386,7 @@ Future<void> showUpdatePaymentDialog({
                             details: PaymentDetails(
                               name: titleController.text,
                               type: newType,
-                              currency: AppCurrencies.ru,
+                              currency: CurrencyDataCommon.rub,
                             ),
                             date: date ?? DateTime(0),
                           );

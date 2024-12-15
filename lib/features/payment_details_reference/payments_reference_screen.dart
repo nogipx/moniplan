@@ -93,7 +93,7 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
           builder: (context, sum, _) {
             return MoneyColoredWidget(
               value: sum,
-              currency: AppCurrencies.ru,
+              currency: CurrencyDataCommon.rub,
               showPlusSign: true,
             );
           },
@@ -185,7 +185,7 @@ class _PaymentsReferenceScreenState extends State<PaymentsReferenceScreen> {
                                         children: [
                                           MoneyColoredWidget(
                                             value: payment.normalizedMoney,
-                                            currency: AppCurrencies.ru,
+                                            currency: CurrencyDataCommon.rub,
                                             showPlusSign: true,
                                           ),
                                           if (payment.tax > 0)

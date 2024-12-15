@@ -4,48 +4,17 @@ import 'package:intl/intl.dart';
 import 'package:intl/locale.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
-import 'package:json_annotation/json_annotation.dart';
-import 'package:money2/money2.dart';
-
-abstract class AppCurrencies {
-  static final ru = CommonCurrencies().rub;
-}
-
-class CurrencyConverter implements JsonConverter<Currency, Map<dynamic, dynamic>?> {
-  const CurrencyConverter();
-
-  @override
-  Currency fromJson(Map<dynamic, dynamic>? json) {
-    final code = json?['code'];
-    final precision = json?['precision'];
-    if (json != null && code is String && precision is int) {
-      return Currency.create(
-        json['code'] as String,
-        json['precision'] as int,
-      );
-    } else {
-      return CommonCurrencies().usd;
-    }
-  }
-
-  @override
-  Map<String, dynamic> toJson(Currency object) {
-    return <String, dynamic>{
-      'code': object.isoCode,
-      'precision': object.decimalDigits,
-    };
-  }
-}
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 extension CurrencyDouble on num {
   bool get isWhole => this % 1 == 0;
 
-  String currency(Currency currency, {Locale? locale}) {
+  String currency(CurrencyData currencyData, {Locale? locale}) {
     final localeTag = locale?.toLanguageTag();
     final value = NumberFormat.currency(
-      symbol: currency.intlSymbol,
-      decimalDigits: this % 1 == 0 ? 0 : currency.decimalDigits,
-      locale: localeTag ?? currency.getLocale()?.toLanguageTag(),
+      symbol: currencyData.intlSymbol,
+      decimalDigits: this % 1 == 0 ? 0 : currencyData.decimalDigits,
+      locale: localeTag ?? currencyData.getLocale()?.toLanguageTag(),
     ).format(abs());
     if (this >= 0) {
       return value;
@@ -55,7 +24,7 @@ extension CurrencyDouble on num {
   }
 }
 
-extension CurrencyExt on Currency {
+extension CurrencyExt on CurrencyData {
   static final _format = NumberFormat();
 
   static const _overrideSimpleCurrency = <String, String>{

@@ -3,8 +3,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-part 'payment_details.g.dart';
 part 'payment_details.freezed.dart';
+part 'payment_details.g.dart';
 
 /// Payment details.
 ///
@@ -20,7 +20,7 @@ class PaymentDetails with _$PaymentDetails {
     required String name,
     @Default('') String note,
     required PaymentType type,
-    required Currency currency,
+    required CurrencyData currency,
     @Default(0) num money,
     @Default({}) Set<String> tags,
     @Default(0.0) double tax,

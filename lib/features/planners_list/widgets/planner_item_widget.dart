@@ -68,7 +68,7 @@ class PlannerItemWidget extends StatelessWidget {
                     icon: Icons.outbond_outlined,
                     valueWidget: MoneyColoredWidget(
                       value: needToPay,
-                      currency: AppCurrencies.ru,
+                      currency: CurrencyDataCommon.rub,
                       showPlusSign: false,
                     ),
                     iconColor: needToPay.toInt() == 0
