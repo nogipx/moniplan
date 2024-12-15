@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:share_plus/share_plus.dart';
 
 const mockEncryptionKey = 'J33L06KoJbO1okTNJ1sHNV1DS5UiVtLPLmWn0RZbxGk=';
 
@@ -49,26 +48,26 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     );
   }
 
-  Future<void> _exportShareFile() async {
-    final now = DateTime.now();
-    final exportResult = await _monisyncRepo.exportDataToFile(now: now);
-
-    if (exportResult != null) {
-      try {
-        final bytes = await exportResult.file.readAsBytes();
-        final xfile = XFile.fromData(bytes);
-
-        final result = Share.shareXFiles(
-          [xfile],
-          subject: 'Share Moniplan data',
-        );
-        print(result);
-      } on Object catch (error, trace) {
-        _log.error('Failed to export', error: error, trace: trace);
-        rethrow;
-      }
-    }
-  }
+  // Future<void> _exportShareFile() async {
+  //   final now = DateTime.now();
+  //   final exportResult = await _monisyncRepo.exportDataToFile(now: now);
+  //
+  //   if (exportResult != null) {
+  //     try {
+  //       final bytes = await exportResult.file.readAsBytes();
+  //       final xfile = XFile.fromData(bytes);
+  //
+  //       final result = Share.shareXFiles(
+  //         [xfile],
+  //         subject: 'Share Moniplan data',
+  //       );
+  //       print(result);
+  //     } on Object catch (error, trace) {
+  //       _log.error('Failed to export', error: error, trace: trace);
+  //       rethrow;
+  //     }
+  //   }
+  // }
 
   Future<void> _exportFilePicker() async {
     final now = DateTime.now();

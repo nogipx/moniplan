@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/_common/_index.dart';
-import 'package:moniplan/features/payment_planner/_index.dart';
-import 'package:moniplan/features/payment_planner/dialogs/_index.dart';
-import 'package:moniplan/features/payment_planner/screens/planner_charts_screen.dart';
+import 'package:moniplan/features/planner/_index.dart';
+import 'package:moniplan/features/planner_statistics/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:sticky_headers/sticky_headers.dart';
@@ -239,28 +238,5 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
         curve: (estimatedDistance) => Curves.fastLinearToSlowEaseIn,
       );
     }
-  }
-}
-
-// Класс для кастомного Sticky Header
-class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-
-  _StickyHeaderDelegate({required this.child});
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return child;
-  }
-
-  @override
-  double get maxExtent => 110;
-
-  @override
-  double get minExtent => 110;
-
-  @override
-  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
   }
 }

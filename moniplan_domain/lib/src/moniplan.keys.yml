@@ -12,5 +12,9 @@ planner:
   list:
     last_computed: Когда в последний раз подсчитан планер
 
+stats:
+  error:
+    - loading
+
 db:
   last_updated: Когда в последний раз обновлена бд

@@ -4,7 +4,7 @@ import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
-import 'package:moniplan/features/payment_planner/_index.dart';
+import 'package:moniplan/features/planner/_index.dart';
 import 'package:moniplan/features/planners_list/_index.dart';
 import 'package:moniplan/features/planners_list/widgets/dialog_delete_planner.dart';
 import 'package:moniplan/features/planners_list/widgets/dialog_update_planner.dart';

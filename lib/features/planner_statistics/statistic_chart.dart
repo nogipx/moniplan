@@ -124,7 +124,13 @@ class _StatisticChartState extends State<StatisticChart> {
               ),
             ],
           );
-        } on RangeError {}
+        } on Object catch (e) {
+          return Center(
+            child: Text(
+              MoniplanKeys.i.stats.error.loading,
+            ),
+          );
+        }
         return const SizedBox();
       },
     );

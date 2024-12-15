@@ -2,23 +2,22 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
-part 'state.dart';
-part 'event.dart';
+part 'receive_import_sharing_event.dart';
+part 'receive_import_sharing_state.dart';
 
 /// Handles receiving opening backup files. Passes files to business logic.
 /// Because it depends on platform it could depend on library.
 class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportState> {
-  final AppLog _log;
+  final _log = AppLog('ReceiveImportSharingBloc');
   final IMonisyncRepo _monisyncRepo;
 
   ReceiveImportSharingBloc({
     required IMonisyncRepo monisyncRepo,
     AppLog? log,
-  })  : _log = log ?? AppLog('ReceiveImportSharingBloc'),
-        _monisyncRepo = monisyncRepo,
+  })  : _monisyncRepo = monisyncRepo,
         super(ReceiveImportInitialState()) {
     on<ReceiveImportStartReceiveEvent>(_onStartReceive);
     on<ReceiveImportStopReceiveEvent>(_onStopReceive);

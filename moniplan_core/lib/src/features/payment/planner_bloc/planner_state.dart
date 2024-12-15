@@ -51,7 +51,6 @@ extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
 
     const topAlignment = 0.15;
     const centerAlignment = 0.5;
-    const bottomAlignment = 0.75;
 
     ({int index, double alignment})? result;
 

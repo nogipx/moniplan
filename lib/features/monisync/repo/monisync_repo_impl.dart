@@ -1,18 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-
 import 'package:path_provider/path_provider.dart';
-
-String generateEncryptionKey() {
-  final random = Random.secure();
-  final values = List<int>.generate(32, (i) => random.nextInt(256));
-  return base64Url.encode(values);
-}
 
 class MonisyncRepoImpl implements IMonisyncRepo {
   final String encryptKey;

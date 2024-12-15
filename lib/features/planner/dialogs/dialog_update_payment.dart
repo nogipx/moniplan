@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:responsive_framework/responsive_framework.dart';
