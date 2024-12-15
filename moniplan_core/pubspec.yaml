@@ -21,9 +21,6 @@ dependencies:
   json_annotation: 4.9.0
   freezed_annotation: 2.4.1
 
-  # Localization
-  slang: 4.4.0
-
 dev_dependencies:
   # Code Quality
   bloc_test: 9.1.7
