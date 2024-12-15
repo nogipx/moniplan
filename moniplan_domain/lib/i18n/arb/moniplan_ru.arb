@@ -1,12 +1,12 @@
 {
-  "@@locale": "",
-  "moniplan.title": "",
+  "@@locale": "ru",
+  "moniplan.title": "moniplan",
   "@moniplan.title": {
     "description": "Название приложения"
   },
   "moniplan.payments.someSnakeGroup.test1": "",
   "moniplan.payments.someSnakeGroup.test2": "",
-  "moniplan.payments.error.requiredDate": "",
+  "moniplan.payments.error.requiredDate": "Нужно ввести дату",
   "@moniplan.payments.error.requiredDate": {
     "description": "Нужно ввести дату"
   },
@@ -18,7 +18,7 @@
   "@moniplan.planner.list.lastComputed": {
     "description": "Когда в последний раз подсчитан планер"
   },
-  "moniplan.stats.error.loading": "",
+  "moniplan.stats.error.loading": "Ошибка при составлении графика",
   "moniplan.db.lastUpdated": "",
   "@moniplan.db.lastUpdated": {
     "description": "Когда в последний раз обновлена бд"

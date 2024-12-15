@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Generate ARB" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="fvm dart run keys_generator:to_arb -f lib/src/moniplan.keys.yml -o i18n/arb/moniplan_ru.arb &amp;&amp; fvm dart run keys_generator:to_arb -f lib/src/moniplan.keys.yml -o i18n/arb/moniplan_en.arb" />
+    <option name="SCRIPT_TEXT" value="fvm dart run keys_generator:to_arb -f lib/i18n/moniplan.keys.yml -o lib/i18n/arb/moniplan_ru.arb &amp;&amp; fvm dart run keys_generator:to_arb -f lib/i18n/moniplan.keys.yml -o lib/i18n/arb/moniplan_en.arb" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />

@@ -1,12 +1,12 @@
 {
-  "@@locale": "",
-  "moniplan.title": "",
+  "@@locale": "en",
+  "moniplan.title": "moniplan",
   "@moniplan.title": {
     "description": "Название приложения"
   },
   "moniplan.payments.someSnakeGroup.test1": "",
   "moniplan.payments.someSnakeGroup.test2": "",
-  "moniplan.payments.error.requiredDate": "",
+  "moniplan.payments.error.requiredDate": "Payment date is required",
   "@moniplan.payments.error.requiredDate": {
     "description": "Нужно ввести дату"
   },
