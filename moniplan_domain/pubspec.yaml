@@ -18,6 +18,4 @@ dev_dependencies:
   build_runner: 2.4.13
   freezed: 2.5.7
   json_serializable: 6.9.0
-#  keys_generator: 1.1.1
-  keys_generator:
-    path: /Users/nogipx/Documents/Projects/nogipx/projects_personal_public/keys_generator
+  keys_generator: 1.1.2
