@@ -13,12 +13,12 @@ runner_domain:
     fvm dart run packo runner -b moniplan_domain
 
 generate_arb:
-    fvm dart run packo pubget -g moniplan_domain
+    fvm dart run packo runner -b moniplan_domain
 
     cd moniplan_domain && fvm dart run keys_generator:to_arb \
       -f lib/keys/moniplan.keys.yml \
-      -o ../moniplan_core/lib/i18n/arb/moniplan_ru.arb
+      -o ../lib/i18n/arb/intl_ru.arb
 
     cd moniplan_domain && fvm dart run keys_generator:to_arb \
       -f lib/keys/moniplan.keys.yml \
-      -o ../moniplan_core/lib/i18n/arb/moniplan_en.arb
+      -o ../lib/i18n/arb/intl_en.arb

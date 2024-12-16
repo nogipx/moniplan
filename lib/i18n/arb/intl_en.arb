@@ -1,0 +1,24 @@
+{
+  "@@locale": "",
+  "moniplan_title": "",
+  "@moniplan_title": {
+    "description": "Название приложения"
+  },
+  "moniplan_payments_error_requiredDate": "Date required",
+  "@moniplan_payments_error_requiredDate": {
+    "description": "Нужно ввести дату"
+  },
+  "moniplan_payments_error_doneWithRepeat": "",
+  "@moniplan_payments_error_doneWithRepeat": {
+    "description": "Ошибка, нельзя отметить выполненным повторяющийся платеж"
+  },
+  "moniplan_planner_list_lastComputed": "",
+  "@moniplan_planner_list_lastComputed": {
+    "description": "Когда в последний раз подсчитан планер"
+  },
+  "moniplan_stats_errorLoading": "",
+  "moniplan_db_lastUpdated": "",
+  "@moniplan_db_lastUpdated": {
+    "description": "Когда в последний раз обновлена бд"
+  }
+}

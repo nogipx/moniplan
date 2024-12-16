@@ -1,6 +1,7 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan/_run/db/_index.dart';
 import 'package:moniplan/features/_common/periodic_theme_changer/_index.dart';
@@ -9,6 +10,7 @@ import 'package:moniplan/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan/features/planners_list//_index.dart';
 import 'package:moniplan/features/receive_import_sharing/bloc/_index.dart';
 import 'package:moniplan/features/receive_import_sharing/receive_import_wrapper.dart';
+import 'package:moniplan/i18n/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
@@ -83,6 +85,14 @@ class _MoniplanAppState extends State<MoniplanApp> {
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 theme: theme.themeData,
+                localizationsDelegates: [
+                  S.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: S.delegate.supportedLocales,
+                locale: const Locale('ru'), // Укажите текущую локаль
                 navigatorObservers: [
                   // The PosthogObserver records screen views automatically
                   PosthogObserver(),
