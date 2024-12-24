@@ -1,7 +1,7 @@
 #!/usr/bin/env just --justfile
 
 pubget_all:
-    fvm dart run packo pubget -r
+    fvm dart run packo pubget -g moniplan
 
 runner_all:
     fvm dart run packo runner -r

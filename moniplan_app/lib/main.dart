@@ -20,9 +20,9 @@ Future<void> main() async {
 
   final zoneLog = AppLog('ZoneGuarded');
 
-  await MdnsRegistrarExt.availableLocalAddresses.then((e) async {
+  await MDnsRegistrarExt.availableLocalAddresses.then((e) async {
     print(e);
-    await MdnsRegistrar(
+    await MDnsRegistrar(
       serviceName: 'MoniplanPixel8',
       serviceType: '_moniplan._tcp',
       targetPort: 42034,
