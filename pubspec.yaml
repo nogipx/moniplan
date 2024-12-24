@@ -14,9 +14,12 @@ dependencies:
 
   moniplan_core:
     path: moniplan_core
-
   moniplan_uikit:
     path: moniplan_uikit
+
+  nsd: 4.0.3
+  lan_messaging:
+    path: /Users/nogipx/nogipx_vault/Projects/nogipx/experiments/lan_messaging
 
   # UI
   responsive_framework: ^1.5.1

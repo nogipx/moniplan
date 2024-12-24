@@ -514,6 +514,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.9.0"
+  lan_messaging:
+    dependency: "direct main"
+    description:
+      path: "/Users/nogipx/nogipx_vault/Projects/nogipx/experiments/lan_messaging"
+      relative: false
+    source: path
+    version: "0.0.1"
   leak_tracker:
     dependency: transitive
     description:
@@ -623,6 +630,14 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  multicast_dns:
+    dependency: transitive
+    description:
+      name: multicast_dns
+      sha256: "982c4cc4cda5f98dd477bddfd623e8e4bd1014e7dbf9e7b05052e14a5b550b99"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.2+7"
   nested:
     dependency: transitive
     description:
@@ -639,6 +654,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  nsd:
+    dependency: "direct main"
+    description:
+      name: nsd
+      sha256: cae71ee9c23ea7f75d4610efe7ff335b1f575fb93ef7b7f9a5c6183a091cbb74
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.3"
+  nsd_android:
+    dependency: transitive
+    description:
+      name: nsd_android
+      sha256: "1309cd47d02c99bd305219f0a226644f9f4a964d341c3d6730cebb906bb1ec78"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.2"
+  nsd_ios:
+    dependency: transitive
+    description:
+      name: nsd_ios
+      sha256: "562fffe753543a65190344d3acd0ed80d96c571ac1a05bf10780c5584b5055ac"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
+  nsd_macos:
+    dependency: transitive
+    description:
+      name: nsd_macos
+      sha256: "47cd355d84009befe02710c72bf1c1999b24d5f3fb3a3d914f8b77bcaca42542"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
+  nsd_platform_interface:
+    dependency: transitive
+    description:
+      name: nsd_platform_interface
+      sha256: "7220c8e0beeacd06c180fefcd6bb708415ed889c76f656e75ac633d09ceaa761"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
+  nsd_windows:
+    dependency: transitive
+    description:
+      name: nsd_windows
+      sha256: "68b4a256b0be258dbbad0ae789f2e8838d0935a353dac86b17c14c1a05df4ecd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
   oktoast:
     dependency: "direct main"
     description:
@@ -647,6 +710,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.0"
+  p2plib:
+    dependency: transitive
+    description:
+      name: p2plib
+      sha256: "851f4f3a9b490323508bd96876eb998079b6012c24f508ac4dd08e73d5d9fd77"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.2+1"
   package_config:
     dependency: transitive
     description:
@@ -1013,6 +1084,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.12"
+  sodium:
+    dependency: transitive
+    description:
+      name: sodium
+      sha256: "62f64039ba431a34f360cab02086eb9bdfe6a40cf6157ea2bc8f0cd000c164c9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.4.3"
   source_gen:
     dependency: transitive
     description:

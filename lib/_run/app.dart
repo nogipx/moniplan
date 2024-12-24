@@ -2,6 +2,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+// import 'package:local_messaging/local_messaging.dart';
 import 'package:moniplan/_run/_index.dart';
 import 'package:moniplan/_run/db/_index.dart';
 import 'package:moniplan/features/_common/periodic_theme_changer/_index.dart';
@@ -39,6 +40,15 @@ class _MoniplanAppState extends State<MoniplanApp> {
   @override
   void initState() {
     super.initState();
+
+    // register(
+    //   Service(
+    //     name: 'Moniplan',
+    //     type: '_moniplan._tcp',
+    //     port: 12344,
+    //   ),
+    // );
+
     Posthog().capture(eventName: 'testEvent', properties: {'msg': 'hi'});
     _brightness = _platformBrigtness;
 
