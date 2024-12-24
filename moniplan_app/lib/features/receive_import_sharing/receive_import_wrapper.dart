@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan/features/receive_import_sharing/bloc/_index.dart';
+import 'package:moniplan_app/features/receive_import_sharing/bloc/_index.dart';
 
 class ReceiveImportWrapper extends StatefulWidget {
   final Widget child;

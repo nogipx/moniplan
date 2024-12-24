@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:moniplan/_run/_index.dart';
-import 'package:moniplan/_run/db/drift_open_temporary_connection.dart';
+import 'package:moniplan_app/_run/_index.dart';
+import 'package:moniplan_app/_run/db/drift_open_temporary_connection.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_core/moniplan_db.dart';
 

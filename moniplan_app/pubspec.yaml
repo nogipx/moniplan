@@ -63,7 +63,7 @@ dev_dependencies:
     sdk: flutter
 
   # Codegen
-  build_runner: ^2.4.13
+  build_runner: 2.4.13
   freezed: ^2.5.7
   json_serializable: ^6.9.0
 

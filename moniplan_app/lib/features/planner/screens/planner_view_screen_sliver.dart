@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan/features/_common/_index.dart';
-import 'package:moniplan/features/planner/_index.dart';
-import 'package:moniplan/features/planner_statistics/_index.dart';
+import 'package:moniplan_app/features/_common/_index.dart';
+import 'package:moniplan_app/features/planner/_index.dart';
+import 'package:moniplan_app/features/planner_statistics/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:sticky_headers/sticky_headers.dart';

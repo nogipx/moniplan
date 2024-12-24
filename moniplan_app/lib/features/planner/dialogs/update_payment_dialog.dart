@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan/features/planner/_index.dart';
+import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 
 Future<void> updateDialog({

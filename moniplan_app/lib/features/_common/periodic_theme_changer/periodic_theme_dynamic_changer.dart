@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:moniplan/_run/_index.dart';
+import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PeriodicThemeDynamicChanger extends StatefulWidget {
