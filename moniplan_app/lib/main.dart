@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:lan_messaging/lan_messaging.dart';
 import 'package:logging/logging.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
@@ -19,17 +18,6 @@ Future<void> main() async {
   AppDb.initializeFactory(() => AppDbImpl(encryptKey: mockEncryptionKey));
 
   final zoneLog = AppLog('ZoneGuarded');
-
-  await MDnsRegistrarExt.availableLocalAddresses.then((e) async {
-    print(e);
-    await MDnsRegistrar(
-      serviceName: 'MoniplanPixel8',
-      serviceType: '_moniplan._tcp',
-      targetPort: 42034,
-      targetHostname: 'moniplanPixel',
-      targetHost: e.first,
-    ).start();
-  });
 
   unawaited(
     runZonedGuarded(
@@ -49,15 +37,6 @@ Future<void> main() async {
             '${record.stackTrace != null ? '\n${Trace.from(record.stackTrace!)}' : ''}\n',
           );
         });
-
-        // init WidgetsFlutterBinding if not yet
-        // final config = PostHogConfig('phc_zbkYjD7Fjn1YgHf9GiC3r9MXeRl4XtAnCOvkTB4tKOf');
-        // config.debug = true;
-        // config.captureApplicationLifecycleEvents = true;
-        // config.host = 'https://us.i.posthog.com';
-        // await Posthog().setup(config);
-        // await Posthog().enable();
-        // await Posthog().flush();
 
         await AppDb().openDefault();
 

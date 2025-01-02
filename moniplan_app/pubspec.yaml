@@ -13,12 +13,9 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  # Modules
   moniplan_core:
   moniplan_uikit:
-  lan_messaging:
-    path: /Users/nogipx/nogipx_vault/Projects/nogipx/experiments/lan_messaging
-
-  nsd: 4.0.3
 
   # UI
   responsive_framework: ^1.5.1
@@ -43,6 +40,7 @@ dependencies:
   logging: any
   intl: ^0.19.0
   package_info_plus: 8.1.2
+  device_info_plus: 11.2.0
 
   # Persistent
   shared_preferences: ^2.3.3
