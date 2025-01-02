@@ -95,9 +95,10 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                   onPressed: () {
                     showDialogUpdatePlanner(
                       context,
-                      onSave: (start, end, money) async {
+                      onSave: (start, end, money, name) async {
                         final newPlanner = Planner(
                           id: const Uuid().v4(),
+                          name: name,
                           dateStart: start,
                           dateEnd: end,
                           initialBudget: num.tryParse(money) ?? 0,
@@ -146,10 +147,11 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                             showDialogUpdatePlanner(
                               context,
                               planner: planner,
-                              onSave: (start, end, money) async {
+                              onSave: (start, end, money, name) async {
                                 final newPlanner = planner.copyWith(
                                   dateStart: start,
                                   dateEnd: end,
+                                  name: name,
                                   initialBudget: num.tryParse(money) ?? 0,
                                 );
                                 await _plannerRepo.savePlanner(newPlanner).then(

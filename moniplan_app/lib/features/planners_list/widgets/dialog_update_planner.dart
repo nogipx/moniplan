@@ -5,11 +5,13 @@ import 'package:moniplan_core/moniplan_core.dart';
 void showDialogUpdatePlanner(
   BuildContext context, {
   Planner? planner,
-  required Function(DateTime, DateTime, String) onSave,
+  required Function(DateTime, DateTime, String, String) onSave,
   Function()? onDelete,
 }) {
   final TextEditingController numberController = TextEditingController()
     ..text = planner?.initialBudget.toString() ?? '';
+  final TextEditingController nameController = TextEditingController()
+    ..text = planner?.name.toString() ?? '';
   DateTime startDate = planner?.dateStart ?? DateTime.now();
   DateTime endDate = planner?.dateEnd ?? DateTime.now().monthEnd;
   bool isStartDateValid = true;
@@ -64,6 +66,14 @@ void showDialogUpdatePlanner(
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
+                TextField(
+                  controller: nameController,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    labelText: 'Enter a name',
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Row(
                   children: <Widget>[
                     Text('Start date: ${dateFormat.format(startDate)}'),
@@ -115,7 +125,8 @@ void showDialogUpdatePlanner(
                 onPressed: isStartDateValid
                     ? () {
                         final enteredNumber = numberController.text;
-                        onSave(startDate, endDate, enteredNumber); // Вызываем функцию сохранения
+                        onSave(startDate, endDate, enteredNumber,
+                            nameController.text); // Вызываем функцию сохранения
                         Navigator.of(context).pop(); // Закрываем диалог
                       }
                     : null,

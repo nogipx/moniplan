@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-import '_index.dart';
+import '../_index.dart';
 
 part 'planner.freezed.dart';
 part 'planner.g.dart';
@@ -15,6 +15,7 @@ class Planner with _$Planner {
     required final DateTime dateStart,
     required final DateTime dateEnd,
     required final bool isGenerationAllowed,
+    @Default('') final String name,
     @Default([]) final List<Payment> payments,
     @Default(0) final num initialBudget,
     final PlannerActualInfo? actualInfo,

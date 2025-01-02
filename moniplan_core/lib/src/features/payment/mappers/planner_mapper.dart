@@ -15,6 +15,7 @@ class PlannerMapperDrift implements IMapper<Planner, PaymentPlannersDriftTableDa
 
     return Planner(
       id: paymentId,
+      name: data.plannerName,
       dateStart: start,
       dateEnd: end,
       initialBudget: data.initialBudget,
@@ -26,6 +27,7 @@ class PlannerMapperDrift implements IMapper<Planner, PaymentPlannersDriftTableDa
   PaymentPlannersDriftTableData toDto(Planner data) {
     final dto = PaymentPlannersDriftTableData(
       plannerId: data.id,
+      plannerName: data.name,
       dateStart: data.dateStart,
       dateEnd: data.dateEnd,
       initialBudget: data.initialBudget.toDouble(),

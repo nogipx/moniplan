@@ -3,8 +3,8 @@ import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-part 'payment.g.dart';
 part 'payment.freezed.dart';
+part 'payment.g.dart';
 
 @freezed
 class Payment with _$Payment, EquatableMixin {

@@ -8,6 +8,7 @@ class PaymentPlannersDriftTable extends Table {
   /// Id section
   ///
   TextColumn get plannerId => text()();
+  TextColumn get plannerName => text().withDefault(const Constant(''))();
 
   /// Money section
   ///

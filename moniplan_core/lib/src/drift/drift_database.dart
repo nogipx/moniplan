@@ -19,7 +19,7 @@ class MoniplanDriftDb extends _$MoniplanDriftDb {
   MoniplanDriftDb({required this.dbExecutor}) : super(dbExecutor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -50,6 +50,9 @@ class MoniplanDriftDb extends _$MoniplanDriftDb {
         }
         if (from < 6) {
           await m.createTable(globalLastUpdate);
+        }
+        if (from < 7) {
+          await m.addColumn(paymentPlannersDriftTable, paymentPlannersDriftTable.plannerName);
         }
       },
     );

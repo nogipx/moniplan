@@ -27,6 +27,13 @@ class PlannerItemWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (planner.name.isNotEmpty) ...[
+                Text(
+                  planner.name,
+                  style: context.text.titleLarge,
+                ),
+                const SizedBox(height: 8),
+              ],
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
