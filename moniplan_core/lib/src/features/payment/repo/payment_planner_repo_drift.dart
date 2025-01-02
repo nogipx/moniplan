@@ -101,66 +101,12 @@ final class PlannerRepoDrift implements IPlannerRepo {
         }
 
         final plannerDao = _plannerMapper.toDto(planner);
-        final paymentsDao = planner.payments
-            .map((e) => e.copyWith(plannerId: planner.id))
-            .map(_paymentMapper.toDto)
-            .toList();
-
-        final existingPaymentsDao = await db.db.managers.paymentsComposedDriftTable
-            .filter((f) => f.plannerId.equals(planner.id))
-            .get();
-
-        final existingPaymentsIds = existingPaymentsDao.map((e) => e.paymentId).toSet();
-        final newPaymentsIds = planner.payments.map((e) => e.paymentId).toSet();
-
-        final paymentsMap = <String, PaymentsComposedDriftTableData>{};
-        final combinedPayments = [
-          ...existingPaymentsDao,
-          ...paymentsDao,
-        ];
-
-        for (final payment in combinedPayments) {
-          paymentsMap[payment.paymentId] = payment;
-        }
-
-        final toReplace = existingPaymentsIds.intersection(newPaymentsIds);
-        final toCreate = newPaymentsIds.difference(existingPaymentsIds);
-        final toDelete = existingPaymentsIds.difference(newPaymentsIds);
-        final combinedIds = {
-          ...toReplace,
-          ...toCreate,
-          ...toDelete,
-        };
-
-        final toInsertItems = <PaymentsComposedDriftTableData>[];
-        final toDeleteItems = <PaymentsComposedDriftTableData>[];
-        for (final id in combinedIds) {
-          final updatedPayment = paymentsMap[id];
-          if (updatedPayment == null) {
-            continue;
-          }
-
-          if (toReplace.contains(id) || toCreate.contains(id)) {
-            toInsertItems.add(updatedPayment);
-          } else if (toDelete.contains(id)) {
-            toDeleteItems.add(updatedPayment);
-          }
-        }
 
         return db.db.transaction(() async {
           await db.db.managers.paymentPlannersDriftTable.create(
             (o) => plannerDao,
             mode: InsertMode.insertOrReplace,
           );
-
-          await db.db.managers.paymentsComposedDriftTable.bulkCreate(
-            (o) => toInsertItems,
-            mode: InsertMode.insertOrReplace,
-          );
-
-          await db.db.managers.paymentsComposedDriftTable
-              .filter((f) => f.paymentId.isIn(toDelete))
-              .delete();
 
           return planner;
         });
