@@ -24,7 +24,7 @@ Future<void> showUpdatePaymentDialog({
     text: ((targetPayment?.details.tax ?? 0) * 100).toInt().toString(),
   );
 
-  DateTime? date = targetPayment?.date;
+  DateTime? date = targetPayment?.date ?? DateTime.now();
   DateTime? startDate = targetPayment?.dateStart;
   DateTime? endDate = targetPayment?.dateEnd;
   bool isEnabled = targetPayment?.isEnabled ?? true;
@@ -155,7 +155,11 @@ Future<void> showUpdatePaymentDialog({
                       style: context.text.bodyMedium?.copyWith(),
                     ),
                     TextSpan(
-                      text: date != null ? dateFormat.format(date!) : 'Not set',
+                      text: date != null
+                          ? date!.dayBound == DateTime.now().dayBound
+                              ? 'Today'
+                              : dateFormat.format(date!)
+                          : 'Not set',
                       style: context.text.bodyMedium?.copyWith(),
                     ),
                   ],
