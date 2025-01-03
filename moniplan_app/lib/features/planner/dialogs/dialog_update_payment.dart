@@ -85,15 +85,15 @@ Future<void> showUpdatePaymentDialog({
               icon: Icon(Icons.attach_money),
             ),
           ),
-          TextField(
-            controller: taxController,
-            keyboardType: TextInputType.number,
-            decoration: inputDecoration.copyWith(
-              labelText: 'Tax',
-              icon: Icon(Icons.percent_rounded),
+          if (type == PaymentType.income)
+            TextField(
+              controller: taxController,
+              keyboardType: TextInputType.number,
+              decoration: inputDecoration.copyWith(
+                labelText: 'Tax',
+                icon: Icon(Icons.percent_rounded),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
           SegmentedButton<PaymentType>(
             selected: {type},
             segments: [

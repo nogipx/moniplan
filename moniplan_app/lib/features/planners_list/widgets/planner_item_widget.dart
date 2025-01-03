@@ -49,26 +49,28 @@ class PlannerItemWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Wrap(
                       children: [
-                        _PlannerInfoItem(
-                          icon: Icons.done_all,
-                          value: planner.countDonePayments.toString(),
-                          iconColor: Colors.green,
-                        ),
-                        _PlannerInfoItem(
-                          icon: Icons.timelapse,
-                          value: planner.countWaitingPayments.toString(),
-                          iconColor: Colors.orange,
-                        ),
-                        _PlannerInfoItem(
-                          icon: Icons.disabled_visible,
-                          value: planner.countDisabledPayments.toString(),
-                          iconColor: Colors.grey,
-                        ),
+                        if (planner.countDonePayments > 0)
+                          _PlannerInfoItem(
+                            icon: Icons.done_all,
+                            value: planner.countDonePayments.toString(),
+                            iconColor: Colors.green,
+                          ),
+                        if (planner.countWaitingPayments > 0)
+                          _PlannerInfoItem(
+                            icon: Icons.timelapse,
+                            value: planner.countWaitingPayments.toString(),
+                            iconColor: Colors.orange,
+                          ),
+                        if (planner.countDisabledPayments > 0)
+                          _PlannerInfoItem(
+                            icon: Icons.disabled_visible,
+                            value: planner.countDisabledPayments.toString(),
+                            iconColor: Colors.grey,
+                          ),
                       ],
                     ),
                   ),
@@ -87,14 +89,6 @@ class PlannerItemWidget extends StatelessWidget {
                   )
                 ],
               ),
-              if (planner.actualInfo != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  'Last compute: ${DateFormat(dateFormatWithTime).format(planner.actualInfo!.updatedAt)}',
-                  style: context.theme.textTheme.labelLarge,
-                  textAlign: TextAlign.start,
-                ),
-              ],
             ],
           ),
         ),
