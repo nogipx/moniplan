@@ -7,14 +7,16 @@ class MoneyColoredWidget extends StatelessWidget {
   final num? value;
   final TextStyle? textStyle;
   final CurrencyData currency;
-  final Color? overrideColor;
+  final Color? overridePositiveColor;
+  final Color? overrideNegativeColor;
   final bool showPlusSign;
 
   const MoneyColoredWidget({
     required this.value,
     required this.currency,
     this.textStyle,
-    this.overrideColor,
+    this.overridePositiveColor,
+    this.overrideNegativeColor,
     this.showPlusSign = true,
     super.key,
   });
@@ -24,8 +26,8 @@ class MoneyColoredWidget extends StatelessWidget {
     final color = value == 0 || value == null
         ? context.color.onSurfaceVariant
         : (value ?? 0) > 0
-            ? context.extra.moneyPositive
-            : context.extra.moneyNegative;
+            ? overridePositiveColor ?? context.extra.moneyPositive
+            : overrideNegativeColor ?? context.extra.moneyNegative;
 
     final text =
         value != null ? (value! > 0 && showPlusSign ? '+ ' : '') + value!.currency(currency) : '-';

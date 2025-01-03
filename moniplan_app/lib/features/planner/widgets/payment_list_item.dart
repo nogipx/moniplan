@@ -17,11 +17,14 @@ class PaymentListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final shouldGrayscale = !payment.isEnabled || payment.isDone;
+
     final budgetPredictWidget = mediateSummary != null
         ? MoneyColoredWidget(
             value: mediateSummary,
             currency: payment.details.currency,
             showPlusSign: false,
+            overridePositiveColor: context.color.tertiary,
           )
         : const SizedBox();
 
@@ -44,29 +47,23 @@ class PaymentListItem extends StatelessWidget {
           : const SizedBox(),
     );
 
-    final controlsWidget = SizedBox(
-      width: 50,
+    final controlsWidget = Padding(
+      padding: EdgeInsets.only(right: shouldGrayscale ? 4 : 0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           if (payment.isDone)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Icon(
-                Icons.done_outlined,
-                size: 16,
-                color: context.ext<MoniplanExtraColors>()?.moneyPositive,
-              ),
+            Icon(
+              Icons.done_outlined,
+              size: 16,
+              color: context.ext<MoniplanExtraColors>()?.moneyPositive,
             ),
           if (!payment.isEnabled)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Icon(
-                Icons.power_settings_new_rounded,
-                size: 16,
-                color: context.ext<MoniplanExtraColors>()?.moneyNegative,
-              ),
+            Icon(
+              Icons.power_settings_new_rounded,
+              size: 16,
+              color: context.ext<MoniplanExtraColors>()?.moneyNegative,
             ),
         ],
       ),
@@ -76,53 +73,56 @@ class PaymentListItem extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
           children: [
-            Expanded(
-              child: Grayscale(
-                grayscale: !payment.isEnabled || payment.isDone,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: controlsWidget,
+                ),
+                Expanded(
+                  child: Grayscale(
+                    grayscale: shouldGrayscale,
+                    child: Text(
                       payment.details.name,
                       style: context.theme.textTheme.bodyMedium?.copyWith(
                         color: payment.isEnabled ? null : context.color.onSurface,
-                        decoration: !payment.isEnabled ? TextDecoration.lineThrough : null,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        MoneyColoredWidget(
-                          value: payment.normalizedMoney,
-                          currency: payment.details.currency,
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_right_alt_rounded,
-                          size: 20,
-                          color: context.color.outline,
-                        ),
-                        const SizedBox(width: 4),
-                        budgetPredictWidget,
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                controlsWidget,
-                const SizedBox(height: 4),
                 Grayscale(
-                  grayscale: !payment.isEnabled || payment.isDone,
-                  child: repeatWidget,
+                  grayscale: shouldGrayscale,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: repeatWidget,
+                  ),
                 ),
               ],
+            ),
+            const SizedBox(height: 6),
+            Grayscale(
+              grayscale: shouldGrayscale,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: MoneyColoredWidget(
+                        value: payment.normalizedMoney,
+                        currency: payment.details.currency,
+                      ),
+                    ),
+                  ),
+                  if (payment.isEnabled)
+                    Expanded(
+                      child: budgetPredictWidget,
+                    ),
+                  Expanded(child: const SizedBox())
+                ],
+              ),
             )
           ],
         ),

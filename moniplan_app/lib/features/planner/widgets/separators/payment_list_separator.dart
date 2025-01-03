@@ -45,7 +45,7 @@ class PaymentListSeparator extends StatelessWidget {
           children: [
             if (isMonthEdge) const SizedBox(height: 16),
             Padding(
-              padding: const EdgeInsets.fromLTRB(10, 16, 16, 0),
+              padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
