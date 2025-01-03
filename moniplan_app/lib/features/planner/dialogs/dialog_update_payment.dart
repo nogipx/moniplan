@@ -20,6 +20,9 @@ Future<void> showUpdatePaymentDialog({
   final TextEditingController amountController = TextEditingController(
     text: targetPayment?.details.money.toInt().toString() ?? '',
   );
+  final TextEditingController taxController = TextEditingController(
+    text: ((targetPayment?.details.tax ?? 0) * 100).toInt().toString(),
+  );
 
   DateTime? date = targetPayment?.date;
   DateTime? startDate = targetPayment?.dateStart;
@@ -80,6 +83,14 @@ Future<void> showUpdatePaymentDialog({
             decoration: inputDecoration.copyWith(
               labelText: 'Money',
               icon: Icon(Icons.attach_money),
+            ),
+          ),
+          TextField(
+            controller: taxController,
+            keyboardType: TextInputType.number,
+            decoration: inputDecoration.copyWith(
+              labelText: 'Tax',
+              icon: Icon(Icons.percent_rounded),
             ),
           ),
           const SizedBox(height: 16),
@@ -378,6 +389,7 @@ Future<void> showUpdatePaymentDialog({
                   ignore: date == null,
                   child: ElevatedButton(
                     onPressed: () {
+                      final newTax = (num.tryParse(taxController.text) ?? 0.0) / 100;
                       final newMoney = num.tryParse(amountController.text) ?? 0.0;
                       final newType = type;
 
@@ -388,6 +400,7 @@ Future<void> showUpdatePaymentDialog({
                               name: titleController.text,
                               type: newType,
                               currency: CurrencyDataCommon.rub,
+                              tax: newTax,
                             ),
                             date: date ?? DateTime(0),
                           );
@@ -403,6 +416,7 @@ Future<void> showUpdatePaymentDialog({
                           name: titleController.text,
                           money: newMoney.abs(),
                           type: newType,
+                          tax: newTax,
                         ),
                       );
 
