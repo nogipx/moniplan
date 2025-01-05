@@ -54,14 +54,14 @@ extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
 
     ({int index, double alignment})? result;
 
-    for (var i = 1; i < length - 1; i++) {
+    for (var i = 1; i <= length - 1; i++) {
       final prevDayIndex = i - 1;
       final nextDayIndex = i;
 
       final prevDay = this[prevDayIndex].date.dayBound;
       final nextDay = this[nextDayIndex].date.dayBound;
 
-      final isDateInRange = prevDay.compareTo(date) <= 0 && nextDay.compareTo(date) >= 0;
+      final isDateInRange = prevDay.compareTo(searchDay) <= 0 && nextDay.compareTo(searchDay) >= 0;
 
       if (!isDateInRange) {
         continue;

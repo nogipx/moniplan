@@ -171,7 +171,6 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
                             ),
                             sliver: SuperSliverList(
                               listController: _listController,
-                              // delegate: SliverChildListDelegate(composedSliversList),
                               delegate: SliverChildBuilderDelegate(
                                 childCount: paymentsByDateIndexed.length,
                                 (context, index) {
