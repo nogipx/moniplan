@@ -13,22 +13,19 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   static const _reopenWaitDuration = Duration(milliseconds: 500);
 
   MoniplanDriftDb? _db;
-  String? _encryptKey;
   StreamSubscription? _listenChanges;
 
   @override
   MoniplanDriftDb get db => _db!;
 
-  AppDbImpl._(this._encryptKey);
+  AppDbImpl._();
 
-  factory AppDbImpl({
-    String? encryptKey,
-  }) {
+  factory AppDbImpl() {
     _log ??= AppLog('AppDbImpl');
     if (_instance != null) {
       return _instance!;
     }
-    _instance = AppDbImpl._(encryptKey);
+    _instance = AppDbImpl._();
     return _instance!;
   }
 
@@ -64,7 +61,10 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   @override
-  Future<void> openFromFile(File dbFile) async {
+  Future<void> openTemporaryFromFile({
+    required File dbFile,
+    String encryptKey = '',
+  }) async {
     try {
       final cleanedPath = dbFile.path.replaceAll('file://', '');
       final file = File(cleanedPath);
@@ -77,8 +77,8 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       final newBytes = await file.readAsBytes();
       Uint8List tempBytes = newBytes;
 
-      if (_encryptKey != null && _encryptKey!.isNotEmpty) {
-        final encryptionHelper = EncryptionHelper(_encryptKey!);
+      if (encryptKey.isNotEmpty) {
+        final encryptionHelper = EncryptionHelper(encryptKey);
         tempBytes = encryptionHelper.decryptBytes(newBytes);
       }
 
@@ -97,7 +97,10 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   @override
-  Future<void> overrideDefaultFromFile(File newDbFile) async {
+  Future<void> overrideDefaultFromFile({
+    required File newDbFile,
+    String encryptKey = '',
+  }) async {
     try {
       final cleanedPath = newDbFile.path.replaceAll('file://', '');
       final file = File(cleanedPath);
@@ -110,8 +113,8 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       final newBytes = await file.readAsBytes();
       Uint8List tempBytes = newBytes;
 
-      if (_encryptKey != null && _encryptKey!.isNotEmpty) {
-        final encryptionHelper = EncryptionHelper(_encryptKey!);
+      if (encryptKey.isNotEmpty) {
+        final encryptionHelper = EncryptionHelper(encryptKey);
         tempBytes = encryptionHelper.decryptBytes(newBytes);
       }
 
@@ -125,7 +128,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     }
   }
 
-  Future<void> updateLastActionDate() async {
+  Future<void> _updateLastActionDate() async {
     if (_db == null) {
       throw Exception('Database not opened');
     }
@@ -149,7 +152,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     ]);
 
     _listenChanges = _db!.tableUpdates(query).listen((updates) {
-      updateLastActionDate();
+      _updateLastActionDate();
     });
   }
 

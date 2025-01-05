@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/_index.dart';
+import 'package:moniplan_app/core/app_di_impl.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -59,7 +60,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final file = File(filePath);
 
     if (await file.exists()) {
-      await appDb.overrideDefaultFromFile(file);
+      await appDb.overrideDefaultFromFile(
+        newDbFile: file,
+        encryptKey: mockEncryptionKey,
+      );
     }
   }
 
@@ -78,7 +82,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
-    await appDb.openFromFile(file);
+    await appDb.openTemporaryFromFile(
+      dbFile: file,
+      encryptKey: mockEncryptionKey,
+    );
 
     final planners = await AppDi.instance.getPlannerRepo().getPlanners();
     final lastUpdate = await appDb.db.managers.globalLastUpdate

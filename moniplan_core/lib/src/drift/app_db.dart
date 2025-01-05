@@ -25,7 +25,13 @@ abstract class AppDb {
 
   Future<void> openDefault();
 
-  Future<void> openFromFile(File dbFile);
+  Future<void> overrideDefaultFromFile({
+    required File newDbFile,
+    String encryptKey = '',
+  });
 
-  Future<void> overrideDefaultFromFile(File newDbFile);
+  Future<void> openTemporaryFromFile({
+    required File dbFile,
+    String encryptKey = '',
+  });
 }

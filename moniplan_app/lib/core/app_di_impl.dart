@@ -10,7 +10,7 @@ class GetItAppDI implements AppDi {
 
   @override
   Future<void> setup() async {
-    AppDb.factory = () => AppDbImpl(encryptKey: mockEncryptionKey);
+    AppDb.factory = () => AppDbImpl();
     final db = AppDb();
     await db.openDefault();
 
