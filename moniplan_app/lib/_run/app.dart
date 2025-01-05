@@ -5,9 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
 import 'package:moniplan_app/features/_common/periodic_theme_changer/_index.dart';
-import 'package:moniplan_app/features/monisync/repo/monisync_repo_impl.dart';
-import 'package:moniplan_app/features/monisync/screens/monisync_screen.dart';
-import 'package:moniplan_app/features/planners_list//_index.dart';
+import 'package:moniplan_app/features/planners_list/_index.dart';
 import 'package:moniplan_app/features/receive_import_sharing/bloc/_index.dart';
 import 'package:moniplan_app/features/receive_import_sharing/receive_import_wrapper.dart';
 import 'package:moniplan_app/i18n/_index.dart';
@@ -75,80 +73,75 @@ class _MoniplanAppState extends State<MoniplanApp> {
   }
 
   Widget app(AppTheme theme, Widget home) {
-    return MultiRepositoryProvider(
+    return MultiBlocProvider(
       providers: [
-        RepositoryProvider<IMonisyncRepo>(
-          create: (_) => MonisyncRepoImpl(encryptKey: mockEncryptionKey),
+        BlocProvider(
+          create: (context) => ReceiveImportSharingBloc(
+            monisyncRepo: AppDi.instance.getMonisyncRepo(),
+          ),
         )
       ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => ReceiveImportSharingBloc(monisyncRepo: context.read()),
-          )
-        ],
-        child: AnimatedBuilder(
-          animation: AppDbImpl(),
-          builder: (context, _) {
-            return OKToast(
-              child: MaterialApp(
-                debugShowCheckedModeBanner: false,
-                theme: theme.themeData,
-                localizationsDelegates: [
-                  S.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
+      child: AnimatedBuilder(
+        animation: AppDbImpl(),
+        builder: (context, _) {
+          return OKToast(
+            child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: theme.themeData,
+              localizationsDelegates: [
+                S.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: S.delegate.supportedLocales,
+              locale: const Locale('ru'), // Укажите текущую локаль
+              navigatorObservers: [
+                // The PosthogObserver records screen views automatically
+                PosthogObserver(),
+              ],
+              builder: (context, child) => ResponsiveBreakpoints.builder(
+                child: child!,
+                breakpoints: [
+                  const Breakpoint(
+                    start: 0,
+                    end: 450,
+                    name: MOBILE,
+                  ),
+                  const Breakpoint(
+                    start: 451,
+                    end: 800,
+                    name: TABLET,
+                  ),
+                  const Breakpoint(
+                    start: 801,
+                    end: 1920,
+                    name: DESKTOP,
+                  ),
+                  const Breakpoint(
+                    start: 1921,
+                    end: double.infinity,
+                    name: '4K',
+                  ),
                 ],
-                supportedLocales: S.delegate.supportedLocales,
-                locale: const Locale('ru'), // Укажите текущую локаль
-                navigatorObservers: [
-                  // The PosthogObserver records screen views automatically
-                  PosthogObserver(),
-                ],
-                builder: (context, child) => ResponsiveBreakpoints.builder(
-                  child: child!,
-                  breakpoints: [
-                    const Breakpoint(
-                      start: 0,
-                      end: 450,
-                      name: MOBILE,
-                    ),
-                    const Breakpoint(
-                      start: 451,
-                      end: 800,
-                      name: TABLET,
-                    ),
-                    const Breakpoint(
-                      start: 801,
-                      end: 1920,
-                      name: DESKTOP,
-                    ),
-                    const Breakpoint(
-                      start: 1921,
-                      end: double.infinity,
-                      name: '4K',
-                    ),
-                  ],
-                ),
-                home: Builder(
-                  builder: (context) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => AppColorsDisplayScreen(),
-                          ),
-                        );
-                      },
-                      child: home,
-                    );
-                  },
-                ),
               ),
-            );
-          },
-        ),
+              home: Builder(
+                builder: (context) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => AppColorsDisplayScreen(),
+                        ),
+                      );
+                    },
+                    child: home,
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }

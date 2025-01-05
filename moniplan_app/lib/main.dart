@@ -5,9 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:logging/logging.dart';
 import 'package:moniplan_app/_run/_index.dart';
-import 'package:moniplan_app/_run/db/_index.dart';
+import 'package:moniplan_app/core/app_di_impl.dart';
 import 'package:moniplan_app/core/app_log_impl.dart';
-import 'package:moniplan_app/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan_app/i18n/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,7 +14,7 @@ import 'package:stack_trace/stack_trace.dart';
 
 Future<void> main() async {
   AppLog.factory = (name) => MoniplanLog(logger: Logger(name));
-  AppDb.initializeFactory(() => AppDbImpl(encryptKey: mockEncryptionKey));
+  AppDi.instance = GetItAppDI();
 
   final zoneLog = AppLog('ZoneGuarded');
 
@@ -37,8 +36,7 @@ Future<void> main() async {
             '${record.stackTrace != null ? '\n${Trace.from(record.stackTrace!)}' : ''}\n',
           );
         });
-
-        await AppDb().openDefault();
+        await AppDi.instance.setup();
 
         initializeMessages('ru');
         initializeDateFormatting('ru');

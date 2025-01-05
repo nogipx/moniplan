@@ -8,7 +8,7 @@ abstract class AppDb {
   static late AppDbFactory _factory;
   static AppDb? _instance;
 
-  static void initializeFactory(AppDbFactory newFactory) {
+  static set factory(AppDbFactory newFactory) {
     _factory = newFactory;
     _instance = _factory();
   }

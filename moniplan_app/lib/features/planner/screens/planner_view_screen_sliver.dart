@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
+import 'package:moniplan_app/features/planner/screens/payments_sliver_list.dart';
 import 'package:moniplan_app/features/planner_statistics/_index.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
-import 'package:sticky_headers/sticky_headers.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
 
 class PlannerViewScreenSliver extends StatefulWidget {
@@ -17,17 +17,10 @@ class PlannerViewScreenSliver extends StatefulWidget {
 }
 
 class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
-  late final IPlannerRepo _plannerRepo;
   final _listController = ListController();
   final _scrollController = ScrollController();
 
   bool _isFirstScrolled = false;
-
-  @override
-  void initState() {
-    _plannerRepo = PlannerRepoDrift(db: AppDb());
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +55,6 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
 
         final today = DateTime.now().dayBound;
         final paymentsByDate = state.getPaymentsByDate;
-        final paymentsByDateIndexed = paymentsByDate.indexed.toList();
 
         final appBar = AppBar(
           title: titleWidget,
@@ -100,7 +92,7 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
               onPressed: () {
                 updateDialog(
                   context: context,
-                  plannerRepo: _plannerRepo,
+                  plannerRepo: AppDi.instance.getPlannerRepo(),
                 );
               },
             ),
@@ -113,43 +105,6 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
                 color: context.color.surface,
               )
             : const SizedBox.shrink();
-
-        Widget getSliverList(int originalIndex, PaymentsDateGrouped group) {
-          final neighbours = paymentsByDate.getNeighbours(originalIndex);
-          final isMonthEdge = group.date.isMonthEdge(
-            prevDate: neighbours?.before?.date,
-            nextDate: neighbours?.after?.date,
-          );
-
-          return StickyHeaderBuilder(
-            builder: (BuildContext context, double stuckAmount) {
-              final normalizedAnimation = normalizeToRange(stuckAmount, -1, 1, 0, 1);
-
-              return PaymentListSeparator(
-                currDate: group.date,
-                isMonthEdge: isMonthEdge,
-                today: today,
-                payments: group.payments,
-                animationValue: normalizedAnimation,
-                stuckAmount: stuckAmount,
-              );
-            },
-            content: Column(
-              children: group.payments.map((e) {
-                final payment = e;
-                return PaymentListItem(
-                  payment: payment,
-                  mediateSummary: state.budget[payment],
-                  onPressed: () => updateDialog(
-                    context: context,
-                    paymentToEdit: payment,
-                    plannerRepo: _plannerRepo,
-                  ),
-                );
-              }).toList(),
-            ),
-          );
-        }
 
         return Scaffold(
           floatingActionButton: fab,
@@ -169,15 +124,11 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
                             padding: const EdgeInsets.only(
                               bottom: AppSpace.s100,
                             ),
-                            sliver: SuperSliverList(
+                            sliver: PaymentsSliverList(
                               listController: _listController,
-                              delegate: SliverChildBuilderDelegate(
-                                childCount: paymentsByDateIndexed.length,
-                                (context, index) {
-                                  final item = paymentsByDateIndexed[index];
-                                  return getSliverList(item.$1, item.$2);
-                                },
-                              ),
+                              today: today,
+                              budget: state.budget,
+                              paymentsByDate: paymentsByDate,
                             ),
                           ),
                         ],
@@ -194,8 +145,8 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
                       gradient: LinearGradient(
                         colors: [
                           context.color.surface,
-                          context.color.surface.withOpacity(.7),
-                          context.color.surface.withOpacity(0),
+                          context.color.surface.withValues(alpha: .7),
+                          context.color.surface.withValues(alpha: 0),
                         ],
                         stops: [0, .8, 1],
                         begin: Alignment.bottomCenter,

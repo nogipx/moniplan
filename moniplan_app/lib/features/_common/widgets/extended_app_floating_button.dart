@@ -17,7 +17,7 @@ class ExtendedAppFloatingButton extends StatelessWidget {
       onLongPress: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => DriftDbViewer(AppDb().db),
+            builder: (context) => DriftDbViewer(AppDi.instance.getDb().db),
           ),
         );
       },

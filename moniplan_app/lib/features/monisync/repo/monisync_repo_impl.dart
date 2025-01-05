@@ -8,8 +8,12 @@ import 'package:path_provider/path_provider.dart';
 
 class MonisyncRepoImpl implements IMonisyncRepo {
   final String encryptKey;
+  final AppDb appDb;
 
-  MonisyncRepoImpl({this.encryptKey = ''});
+  MonisyncRepoImpl({
+    required this.appDb,
+    this.encryptKey = '',
+  });
 
   @override
   Future<ExportResult?> exportDataToFile({
@@ -55,7 +59,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final file = File(filePath);
 
     if (await file.exists()) {
-      await AppDb().overrideDefaultFromFile(file);
+      await appDb.overrideDefaultFromFile(file);
     }
   }
 
@@ -74,17 +78,14 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
-    await AppDb().openFromFile(file);
+    await appDb.openFromFile(file);
 
-    final planners = await PlannerRepoDrift(db: AppDb()).getPlanners();
-    final lastUpdate = await AppDb()
-        .db
-        .managers
-        .globalLastUpdate
+    final planners = await AppDi.instance.getPlannerRepo().getPlanners();
+    final lastUpdate = await appDb.db.managers.globalLastUpdate
         .filter((f) => f.lastUpdateId.equals(GlobalLastUpdate.entityId))
         .getSingleOrNull();
 
-    await AppDb().openDefault();
+    await appDb.openDefault();
 
     return BackupInfo(
       file: File(filePath),

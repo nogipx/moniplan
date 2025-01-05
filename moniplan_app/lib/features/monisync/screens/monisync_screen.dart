@@ -2,10 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_core/moniplan_core.dart';
-
-const mockEncryptionKey = 'J33L06KoJbO1okTNJ1sHNV1DS5UiVtLPLmWn0RZbxGk=';
 
 class MonisyncScreen extends StatefulWidget {
   const MonisyncScreen({super.key});
@@ -15,14 +12,7 @@ class MonisyncScreen extends StatefulWidget {
 }
 
 class _MonisyncScreenState extends State<MonisyncScreen> {
-  late final IMonisyncRepo _monisyncRepo;
-
-  @override
-  void initState() {
-    _monisyncRepo = context.read();
-    super.initState();
-  }
-
+  final _monisyncRepo = AppDi.instance.getMonisyncRepo();
   final _log = AppLog('MoniSync');
 
   @override

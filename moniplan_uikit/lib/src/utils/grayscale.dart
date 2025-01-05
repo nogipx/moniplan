@@ -26,9 +26,9 @@ class Grayscale extends StatelessWidget {
 
     final targetColor = color ?? context.color.outline;
     // Нормализуем значения цветовых каналов (0.0 - 1.0)
-    final r = targetColor.red / 255;
-    final g = targetColor.green / 255;
-    final b = targetColor.blue / 255;
+    final r = targetColor.r;
+    final g = targetColor.g;
+    final b = targetColor.b;
 
     return IgnorePointer(
       ignoring: ignore,

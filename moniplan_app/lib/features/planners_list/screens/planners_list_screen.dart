@@ -20,7 +20,7 @@ class PlannersListScreen extends StatefulWidget {
 }
 
 class _PlannersListScreenState extends State<PlannersListScreen> {
-  IPlannerRepo get _plannerRepo => PlannerRepoDrift(db: AppDb());
+  IPlannerRepo get _plannerRepo => AppDi.instance.getPlannerRepo();
   final _actualPlanners = ValueNotifier<List<Planner>>([]);
 
   @override
@@ -79,7 +79,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                 onLongPress: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => DriftDbViewer(AppDb().db),
+                      builder: (context) => DriftDbViewer(AppDi.instance.getDb().db),
                     ),
                   );
                 },
