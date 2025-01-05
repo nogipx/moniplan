@@ -1,37 +1,19 @@
-import 'dart:io';
-
 import 'package:moniplan_core/moniplan_core.dart';
 
-typedef AppDbFactory = AppDb Function();
-
-abstract class AppDb {
-  static late AppDbFactory _factory;
+abstract class AppDb extends IAppDb {
+  static late IAppDbFactory _factory;
   static AppDb? _instance;
 
-  static set factory(AppDbFactory newFactory) {
+  static set factory(IAppDbFactory newFactory) {
     _factory = newFactory;
-    _instance = _factory();
+    _instance = _factory() as AppDb;
   }
 
   factory AppDb() {
-    return _instance ??= _factory();
+    return _instance ??= _factory() as AppDb;
   }
 
-  static AppDb get instance => _instance ??= _factory();
+  static IAppDb get instance => _instance ??= _factory() as AppDb;
 
   MoniplanDriftDb get db;
-
-  Future<void> close();
-
-  Future<void> openDefault();
-
-  Future<void> overrideDefaultFromFile({
-    required File newDbFile,
-    String encryptKey = '',
-  });
-
-  Future<void> openTemporaryFromFile({
-    required File dbFile,
-    String encryptKey = '',
-  });
 }
