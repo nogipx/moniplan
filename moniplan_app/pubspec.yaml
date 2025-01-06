@@ -27,6 +27,7 @@ dependencies:
   receive_sharing_intent:
     git: https://github.com/nogipx/receive_sharing_intent
   oktoast: 3.4.0
+  fl_chart: ^0.70.0
 
   # Sliver
   sliver_tools: 0.2.12

@@ -1,10 +1,8 @@
-import 'dart:developer' show log;
-
 import 'package:intl/intl.dart';
 import 'package:intl/locale.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_core/moniplan_core.dart';
 
 extension CurrencyDouble on num {
   bool get isWhole => this % 1 == 0;
@@ -44,9 +42,8 @@ extension CurrencyExt on CurrencyData {
   Locale? getLocale() {
     final locale = Locale.tryParse(numberSymbols?.NAME ?? '');
     if (locale == null) {
-      log(
+      AppLog('getLocale()').warning(
         'No found locale for Currency($isoCode, $symbol)',
-        name: 'CurrencyDouble',
       );
     }
     return locale;
