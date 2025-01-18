@@ -1,0 +1,12 @@
+{
+  "@@locale": "",
+  "moniplan_title": "",
+  "@moniplan_title": {
+    "description": "Название приложения"
+  },
+  "moniplan_payments_error_requiredDate": "",
+  "moniplan_payments_error_doneWithRepeat": "",
+  "moniplan_planner_list_lastComputed": "",
+  "moniplan_monisync_export": "",
+  "moniplan_monisync_import": ""
+}

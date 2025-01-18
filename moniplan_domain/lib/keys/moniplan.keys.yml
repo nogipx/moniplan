@@ -1,20 +1,44 @@
 _doc_: Ключи приложения Moniplan
 title: Название приложения
+modules:
+  - moniplan
+  - monisync
+
+common:
+  - cancel
+  - delete
+  - duplicate
+  - fixate
+  - enabled
+  - disabled
+  - completed
+  - notCompleted
+
+entity:
+  planner:
+    - single
+    - plural
+  payment:
+    - single
+    - plural
 
 payments:
-  _doc_: Скоуп ключей для платежей
+  actions:
+    create:
+    update:
+    delete:
   error:
     required_date:
     done_with_repeat:
 
 planner:
-  _doc_: Скоуп ключей для планнеров
   list:
     last_computed:
 
-stats:
-  error:
-    - loading
-
-db:
-  last_updated:
+monisync:
+  export:
+    buttonAction:
+    error:
+  import:
+    buttonAction:
+    error:
