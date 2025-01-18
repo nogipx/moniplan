@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:intl/intl.dart';
 import 'package:intl/locale.dart';
 import 'package:intl/number_symbols.dart';

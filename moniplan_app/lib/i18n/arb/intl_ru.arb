@@ -20,5 +20,26 @@
   "moniplan_db_lastUpdated": "",
   "@moniplan_db_lastUpdated": {
     "description": "Когда в последний раз обновлена бд"
-  }
+  },
+  "moniplan_modulesMoniplan": "",
+  "moniplan_modulesMonisync": "",
+  "moniplan_commonCancel": "",
+  "moniplan_commonDelete": "",
+  "moniplan_commonDuplicate": "",
+  "moniplan_commonFixate": "",
+  "moniplan_commonEnabled": "",
+  "moniplan_commonDisabled": "",
+  "moniplan_commonCompleted": "",
+  "moniplan_commonNotcompleted": "",
+  "moniplan_entity_plannerSingle": "",
+  "moniplan_entity_plannerPlural": "",
+  "moniplan_entity_paymentSingle": "",
+  "moniplan_entity_paymentPlural": "",
+  "moniplan_payments_actions_create": "",
+  "moniplan_payments_actions_update": "",
+  "moniplan_payments_actions_delete": "",
+  "moniplan_monisync_export_buttonaction": "",
+  "moniplan_monisync_export_error": "",
+  "moniplan_monisync_import_buttonaction": "",
+  "moniplan_monisync_import_error": ""
 }

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 library moniplan_uikit;
 
 export 'package:flex_seed_scheme/flex_seed_scheme.dart';

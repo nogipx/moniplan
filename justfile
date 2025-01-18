@@ -17,8 +17,14 @@ generate_arb:
 
     cd moniplan_domain && fvm dart run keys_generator:to_arb \
       -f lib/keys/moniplan.keys.yml \
-      -o ../lib/i18n/arb/intl_ru.arb
+      -o ../moniplan_app/lib/i18n/arb/intl_ru.arb
 
     cd moniplan_domain && fvm dart run keys_generator:to_arb \
       -f lib/keys/moniplan.keys.yml \
-      -o ../lib/i18n/arb/intl_en.arb
+      -o ../moniplan_app/lib/i18n/arb/intl_en.arb
+
+license:
+    reuse annotate -c "Karim \"nogipx\" Mamatkazin <nogipx@gmail.com>" -l "GPL-3.0-or-later" --skip-unrecognised -r moniplan_app/lib
+    reuse annotate -c "Karim \"nogipx\" Mamatkazin <nogipx@gmail.com>" -l "GPL-3.0-or-later" --skip-unrecognised -r moniplan_core/lib
+    reuse annotate -c "Karim \"nogipx\" Mamatkazin <nogipx@gmail.com>" -l "GPL-3.0-or-later" --skip-unrecognised -r moniplan_domain/lib
+    reuse annotate -c "Karim \"nogipx\" Mamatkazin <nogipx@gmail.com>" -l "GPL-3.0-or-later" --skip-unrecognised -r moniplan_uikit/lib

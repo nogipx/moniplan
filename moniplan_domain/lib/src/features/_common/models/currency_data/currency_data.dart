@@ -1,8 +1,7 @@
-/* Copyright (C) S. Brett Sutton - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
- */
+// Copyright (C) S. Brett Sutton - All Rights Reserved
+// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:math';
 

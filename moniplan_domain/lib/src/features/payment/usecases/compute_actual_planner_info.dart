@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // ignore_for_file: prefer_collection_literals
 
 import 'package:moniplan_domain/moniplan_domain.dart';

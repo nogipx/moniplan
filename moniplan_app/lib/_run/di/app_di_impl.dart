@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
 import 'package:moniplan_app/features/monisync/repo/monisync_repo_impl.dart';
