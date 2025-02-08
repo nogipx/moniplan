@@ -51,31 +51,38 @@ class PlannerStatisticsView extends StatelessWidget {
             loading: (_) => const Center(
               child: CircularProgressIndicator(),
             ),
-            loaded: (loaded) => SingleChildScrollView(
-              child: Column(
-                children: [
-                  _PeriodSelector(
-                    onPeriodChanged: (start, end) {
-                      context.read<StatisticsBloc>().add(
-                            StatisticsEvent.periodChanged(
-                              startDate: start,
-                              endDate: end,
-                            ),
-                          );
-                    },
-                  ),
-                  if (loaded.statistics.isEmpty)
-                    const Center(
-                      child: Text('Нет данных за выбранный период'),
-                    )
-                  else
-                    PlannerChart(
-                      totalBudget: loaded.statistics.totalBudget,
-                      incomes: loaded.statistics.incomes,
-                      expenses: loaded.statistics.expenses,
+            loaded: (loaded) => Column(
+              children: [
+                _PeriodSelector(
+                  onPeriodChanged: (start, end) {
+                    context.read<StatisticsBloc>().add(
+                          StatisticsEvent.periodChanged(
+                            startDate: start,
+                            endDate: end,
+                          ),
+                        );
+                  },
+                ),
+                if (loaded.statistics.isEmpty)
+                  const Center(
+                    child: Text('Нет данных за выбранный период'),
+                  )
+                else
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        height: MediaQuery.sizeOf(context).height * .8,
+                        width: 1000,
+                        child: PlannerChart(
+                          totalBudget: loaded.statistics.totalBudget,
+                          incomes: loaded.statistics.incomes,
+                          expenses: loaded.statistics.expenses,
+                        ),
+                      ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
             error: (error) => Center(
               child: Text('Ошибка: ${error.message}'),
@@ -88,7 +95,7 @@ class PlannerStatisticsView extends StatelessWidget {
 }
 
 class _PeriodSelector extends StatelessWidget {
-  final void Function(DateTime startDate, DateTime endDate) onPeriodChanged;
+  final void Function(DateTime? startDate, DateTime? endDate) onPeriodChanged;
 
   const _PeriodSelector({
     required this.onPeriodChanged,
@@ -113,12 +120,20 @@ class _PeriodSelector extends StatelessWidget {
             title: 'Год',
             onTap: () => _selectPeriod(Days.year),
           ),
+          _PeriodButton(
+            title: 'Все',
+            onTap: () => _selectPeriod(null),
+          ),
         ],
       ),
     );
   }
 
-  void _selectPeriod(int days) {
+  void _selectPeriod(int? days) {
+    if (days == null) {
+      onPeriodChanged(null, null);
+      return;
+    }
     final end = DateTime.now();
     final start = end.subtract(Duration(days: days));
     onPeriodChanged(start, end);

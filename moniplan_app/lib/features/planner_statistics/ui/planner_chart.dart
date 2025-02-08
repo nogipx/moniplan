@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PlannerChart extends StatelessWidget {
   final Map<DateTime, double> totalBudget;
@@ -19,19 +20,19 @@ class PlannerChart extends StatelessWidget {
       return const Center(child: Text('Нет данных для отображения графика'));
     }
 
-    final theme = Theme.of(context);
-    final primaryColor = theme.primaryColor;
-    final textColor = theme.textTheme.bodyLarge?.color ?? Colors.black;
+    final primaryColor = context.color.tertiary;
+    final textColor = context.color.onSurface;
 
     // Получаем все уникальные даты
-    final allDates = {...totalBudget.keys, ...incomes.keys, ...expenses.keys}.toList()..sort();
+    final allDates = {...incomes.keys, ...expenses.keys}.toList()..sort();
 
     // Создаем точки для линии общего бюджета
     final List<FlSpot> lineSpots = allDates
-        .map((date) => FlSpot(
-              date.millisecondsSinceEpoch.toDouble(),
-              totalBudget[date] ?? 0,
-            ))
+        .map((date) {
+          final yValue = totalBudget[date] ?? 0;
+          return yValue.isFinite ? FlSpot(date.millisecondsSinceEpoch.toDouble(), yValue) : null;
+        })
+        .whereType<FlSpot>()
         .toList();
 
     // Создаем группы столбцов для доходов и расходов
@@ -45,7 +46,7 @@ class PlannerChart extends StatelessWidget {
             width: 8,
           ),
           BarChartRodData(
-            toY: (expenses[date] ?? 0).abs() * -1, // Отрицательные значения для расходов
+            toY: (expenses[date] ?? 0).abs() * -1,
             color: Colors.red.withOpacity(0.7),
             width: 8,
           ),
@@ -60,108 +61,60 @@ class PlannerChart extends StatelessWidget {
       ...totalBudget.values,
     ].reduce((max, value) => value > max ? value : max);
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Статистика бюджета', style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _LegendItem(color: Colors.green, label: 'Доходы'),
-                  const SizedBox(width: 16),
-                  _LegendItem(color: Colors.red, label: 'Расходы'),
-                  const SizedBox(width: 16),
-                  _LegendItem(color: primaryColor, label: 'Общий баланс'),
-                ],
-              ),
-              const SizedBox(height: 16),
-              AspectRatio(
-                aspectRatio: 1.7,
-                child: Stack(
-                  children: [
-                    BarChart(
-                      BarChartData(
-                        alignment: BarChartAlignment.spaceAround,
-                        maxY: maxY * 1.2,
-                        minY: maxY * -0.5,
-                        barTouchData: BarTouchData(
-                          touchTooltipData: BarTouchTooltipData(
-                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                              final date = DateTime.fromMillisecondsSinceEpoch(group.x);
-                              final value = rod.toY.abs();
-                              final type = rodIndex == 0 ? 'Доход' : 'Расход';
-                              return BarTooltipItem(
-                                '$type\n${date.day}.${date.month}\n${value.toStringAsFixed(2)}',
-                                TextStyle(color: textColor),
-                              );
-                            },
-                          ),
-                        ),
-                        titlesData: FlTitlesData(
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (value, meta) {
-                                final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 8),
-                                  child: Text(
-                                    '${date.day}.${date.month}',
-                                    style: TextStyle(fontSize: 10, color: textColor),
-                                  ),
-                                );
-                              },
-                              reservedSize: 30,
-                            ),
-                          ),
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (value, meta) {
-                                return Text(
-                                  value.toInt().toString(),
-                                  style: TextStyle(fontSize: 10, color: textColor),
-                                );
-                              },
-                              reservedSize: 40,
-                            ),
-                          ),
-                        ),
-                        gridData: FlGridData(show: true),
-                        borderData: FlBorderData(show: true),
-                        barGroups: barGroups,
-                      ),
-                    ),
-                    LineChart(
-                      LineChartData(
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: lineSpots,
-                            isCurved: true,
-                            color: primaryColor,
-                            barWidth: 3,
-                            isStrokeCapRound: true,
-                            dotData: FlDotData(show: false),
-                            belowBarData: BarAreaData(show: false),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Статистика бюджета', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _LegendItem(color: Colors.green, label: 'Доходы'),
+            const SizedBox(width: 16),
+            _LegendItem(color: Colors.red, label: 'Расходы'),
+            const SizedBox(width: 16),
+            _LegendItem(color: primaryColor, label: 'Общий баланс'),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Expanded(
+          child: LineChart(
+            LineChartData(
+              lineBarsData: [
+                LineChartBarData(
+                  spots: lineSpots,
+                  isCurved: false,
+                  color: primaryColor,
+                  barWidth: 2,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(show: true),
+                  belowBarData: BarAreaData(show: true),
+                ),
+              ],
+              titlesData: FlTitlesData(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 40,
+                    getTitlesWidget: (value, meta) {
+                      if (!value.isFinite) return const SizedBox.shrink();
+                      final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                      return Text(
+                        '${date.day}/${date.month}',
+                        style: TextStyle(color: textColor),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ],
+              gridData: FlGridData(show: false),
+              borderData: FlBorderData(show: false),
+              // minY: 0,
+              // maxY: maxY,
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

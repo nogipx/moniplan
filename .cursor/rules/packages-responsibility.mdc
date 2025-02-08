@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+---
+
+# Что где должно находиться
+
+- клиентское приложение на flutter находится в папке moniplan_apps. все ui изменения должны быть там такие как менеджеры состояния (bloc) и виджеты
+  - папка исходников - moniplan_app/lib
+  - папка фичей - moniplan_app/lib/features
+
+- все изменения доменного слоя, такие как интерфейсы, модели данных и usecases, должны быть в moniplan_domain
+  - папка исходников - moniplan_domain/lib/src
+  - папка фичей - moniplan_domain/lib/src/features
+
+- все рализации интерфейсов, репозитории должны быть в moniplan_core для переиспользования на других платформах
+  - папка исходников - moniplan_core/lib/src
+  - папка фичей - moniplan_core/lib/src/features
+
+- все переиспользуемые компоненты интерфейса должны быть в moniplan_uikit
+  - папка исходников - moniplan_uikit/lib/src

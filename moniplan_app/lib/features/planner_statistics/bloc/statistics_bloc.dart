@@ -34,10 +34,15 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
   Future<void> _onPeriodChanged(_PeriodChanged event, Emitter<StatisticsState> emit) async {
     emit(const StatisticsState.loading());
     try {
+      if (event.startDate == null || event.endDate == null) {
+        final statistics = await repository.getStatistics(plannerId: plannerId);
+        emit(StatisticsState.loaded(statistics));
+        return;
+      }
       final statistics = await repository.getStatisticsForPeriod(
         plannerId: plannerId,
-        start: event.startDate,
-        end: event.endDate,
+        start: event.startDate!,
+        end: event.endDate!,
       );
       emit(StatisticsState.loaded(statistics));
     } catch (e) {
@@ -59,8 +64,8 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
 class StatisticsEvent with _$StatisticsEvent {
   const factory StatisticsEvent.started() = _Started;
   const factory StatisticsEvent.periodChanged({
-    required DateTime startDate,
-    required DateTime endDate,
+    DateTime? startDate,
+    DateTime? endDate,
   }) = _PeriodChanged;
   const factory StatisticsEvent.refreshRequested() = _RefreshRequested;
 }
