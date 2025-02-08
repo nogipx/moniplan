@@ -19,6 +19,7 @@ class PlannerStatisticsScreen extends StatelessWidget {
       create: (context) => StatisticsBloc(
         repository: AppDi.instance.getStatisticsRepo(),
         plannerId: plannerId,
+        log: AppLog('StatisticsBloc'),
       )..add(const StatisticsEvent.started()),
       child: const PlannerStatisticsView(),
     );
@@ -51,39 +52,34 @@ class PlannerStatisticsView extends StatelessWidget {
             loading: (_) => const Center(
               child: CircularProgressIndicator(),
             ),
-            loaded: (loaded) => Column(
-              children: [
-                _PeriodSelector(
-                  onPeriodChanged: (start, end) {
-                    context.read<StatisticsBloc>().add(
-                          StatisticsEvent.periodChanged(
-                            startDate: start,
-                            endDate: end,
-                          ),
-                        );
-                  },
-                ),
-                if (loaded.statistics.isEmpty)
-                  const Center(
-                    child: Text('Нет данных за выбранный период'),
-                  )
-                else
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        height: MediaQuery.sizeOf(context).height * .8,
-                        width: 1000,
-                        child: PlannerChart(
-                          totalBudget: loaded.statistics.totalBudget,
-                          incomes: loaded.statistics.incomes,
-                          expenses: loaded.statistics.expenses,
-                        ),
+            loaded: (loaded) {
+              return Column(
+                children: [
+                  _PeriodSelector(
+                    onPeriodChanged: (start, end) {
+                      context.read<StatisticsBloc>().add(
+                            StatisticsEvent.periodChanged(
+                              startDate: start,
+                              endDate: end,
+                            ),
+                          );
+                    },
+                  ),
+                  if (loaded.statistics.isEmpty)
+                    const Center(
+                      child: Text('Нет данных за выбранный период'),
+                    )
+                  else
+                    Expanded(
+                      child: PlannerChart(
+                        totalBudget: loaded.statistics.totalBudget,
+                        incomes: loaded.statistics.incomes,
+                        expenses: loaded.statistics.expenses,
                       ),
                     ),
-                  ),
-              ],
-            ),
+                ],
+              );
+            },
             error: (error) => Center(
               child: Text('Ошибка: ${error.message}'),
             ),

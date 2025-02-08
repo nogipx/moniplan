@@ -1,0 +1,48 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter: Debug Dev",
+      "request": "launch",
+      "type": "dart",
+      "program": "moniplan_app/lib/main.dart",
+      "args": []
+    },
+    {
+      "name": "Flutter: Debug IOS Dev",
+      "request": "launch",
+      "type": "dart",
+      "program": "moniplan_app/lib/main.dart",
+      "args": ["--flavor", "Runner"]
+    },
+    {
+      "name": "Flutter: Profile Dev",
+      "request": "launch",
+      "type": "dart",
+      "program": "moniplan_app/lib/main.dart",
+      "args": ["--profile"]
+    },
+    {
+      "name": "Flutter: Release Dev",
+      "request": "launch",
+      "type": "dart",
+      "program": "moniplan_app/lib/main.dart",
+      "args": ["--release"]
+    },
+    {
+      "name": "Flutter: Release APK",
+      "request": "launch",
+      "type": "dart",
+      "program": "moniplan_app/lib/main.dart",
+      "args": ["build", "apk", "--release"],
+      "cwd": "moniplan_app"
+    },
+    {
+      "name": "Create .dmg",
+      "type": "shell",
+      "request": "launch",
+      "command": "create-dmg 'build/macos/Build/Products/Release/moniplan.app' --out '~/Desktop/moniplan.dmg' --overwrite --dmg-title 'moniplan'",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

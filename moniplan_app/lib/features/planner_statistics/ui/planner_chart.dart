@@ -3,16 +3,16 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PlannerChart extends StatelessWidget {
-  final Map<DateTime, double> totalBudget;
-  final Map<DateTime, double> incomes;
-  final Map<DateTime, double> expenses;
+  final Map<DateTime, num> totalBudget;
+  final Map<DateTime, num> incomes;
+  final Map<DateTime, num> expenses;
 
   const PlannerChart({
-    Key? key,
     required this.totalBudget,
     required this.incomes,
     required this.expenses,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,48 +24,80 @@ class PlannerChart extends StatelessWidget {
     final textColor = context.color.onSurface;
 
     // Получаем все уникальные даты
-    final allDates = {...incomes.keys, ...expenses.keys}.toList()..sort();
+    final allDates = {...totalBudget.keys}.toList()..sort((a, b) => a.compareTo(b));
 
     // Создаем точки для линии общего бюджета
     final List<FlSpot> lineSpots = allDates
         .map((date) {
-          final yValue = totalBudget[date] ?? 0;
+          final yValue = (totalBudget[date] ?? 0).toDouble();
           return yValue.isFinite ? FlSpot(date.millisecondsSinceEpoch.toDouble(), yValue) : null;
         })
         .whereType<FlSpot>()
         .toList();
 
-    // Создаем группы столбцов для доходов и расходов
-    final List<BarChartGroupData> barGroups = allDates.map((date) {
-      return BarChartGroupData(
-        x: date.millisecondsSinceEpoch.toInt(),
-        barRods: [
-          BarChartRodData(
-            toY: incomes[date] ?? 0,
-            color: Colors.green.withOpacity(0.7),
-            width: 8,
-          ),
-          BarChartRodData(
-            toY: (expenses[date] ?? 0).abs() * -1,
-            color: Colors.red.withOpacity(0.7),
-            width: 8,
+    final maxY = totalBudget.values.reduce((max, value) => value > max ? value : max);
+    final minY = totalBudget.values.reduce((min, value) => value < min ? value : min);
+    const dotArea = 30.0;
+
+    var lineChart = LineChart(
+      transformationConfig: FlTransformationConfig(
+        scaleAxis: FlScaleAxis.horizontal,
+      ),
+      LineChartData(
+        lineBarsData: [
+          LineChartBarData(
+            isStepLineChart: true,
+            spots: lineSpots,
+            isCurved: false,
+            color: primaryColor,
+            barWidth: 2,
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+            ),
+            aboveBarData: BarAreaData(
+              show: true,
+              applyCutOffY: true,
+              color: context.extra.moneyNegative.withAlpha(50),
+            ),
+            belowBarData: BarAreaData(
+              show: true,
+              applyCutOffY: true,
+              color: context.extra.moneyPositive.withAlpha(50),
+            ),
           ),
         ],
-      );
-    }).toList();
-
-    // Находим максимальные значения для масштабирования
-    final maxY = [
-      ...incomes.values,
-      ...expenses.values.map((e) => e.abs()),
-      ...totalBudget.values,
-    ].reduce((max, value) => value > max ? value : max);
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(),
+          rightTitles: AxisTitles(),
+          bottomTitles: AxisTitles(),
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: dotArea,
+              getTitlesWidget: (value, meta) {
+                if (!value.isFinite) return const SizedBox.shrink();
+                final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                return Text(
+                  '${date.month}/${date.year}',
+                  style: TextStyle(color: textColor),
+                );
+              },
+            ),
+          ),
+        ),
+        gridData: FlGridData(
+          show: true,
+        ),
+        borderData: FlBorderData(show: false),
+        minY: minY.toDouble(),
+        maxY: maxY.toDouble(),
+      ),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Статистика бюджета', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -78,39 +110,16 @@ class PlannerChart extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: LineChart(
-            LineChartData(
-              lineBarsData: [
-                LineChartBarData(
-                  spots: lineSpots,
-                  isCurved: false,
-                  color: primaryColor,
-                  barWidth: 2,
-                  isStrokeCapRound: true,
-                  dotData: FlDotData(show: true),
-                  belowBarData: BarAreaData(show: true),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    getTitlesWidget: (value, meta) {
-                      if (!value.isFinite) return const SizedBox.shrink();
-                      final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                      return Text(
-                        '${date.day}/${date.month}',
-                        style: TextStyle(color: textColor),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              gridData: FlGridData(show: false),
-              borderData: FlBorderData(show: false),
-              // minY: 0,
-              // maxY: maxY,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
+            scrollDirection: Axis.horizontal,
+            // child: const SizedBox.shrink(),
+            child: SizedBox(
+              width: totalBudget.length * dotArea,
+              child: lineChart,
             ),
           ),
         ),

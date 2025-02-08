@@ -9,13 +9,13 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 /// Конструктор:
 /// - [plannerRepo]: Репозиторий, используемый для получения данных о планировщике и платежах.
 /// - [plannerId]: Идентификатор планировщика, для которого будет сгенерирована статистика.
-/// - [startDate]: (необязательно) Начальная дата для ограничения периода выборки платежей.
-/// - [endDate]: (необязательно) Конечная дата для ограничения периода выборки платежей.
+/// - [dateStart]: (необязательно) Начальная дата для ограничения периода выборки платежей.
+/// - [dateEnd]: (необязательно) Конечная дата для ограничения периода выборки платежей.
 ///
 /// Метод [run]:
 /// - Возвращает объект [BudgetStatistics], содержащий общую сумму бюджета, доходы и расходы
 ///   за указанный период.
-/// - Если [startDate] или [endDate] указаны, они используются для дополнительного ограничения
+/// - Если [dateStart] или [dateEnd] указаны, они используются для дополнительного ограничения
 ///   периода выборки платежей. Эти даты должны находиться в рамках дат планировщика.
 ///
 /// Исключения:
@@ -23,66 +23,80 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics> {
   final IPlannerRepo plannerRepo;
   final String plannerId;
-  final DateTime? startDate;
-  final DateTime? endDate;
+  final DateTime? dateStart;
+  final DateTime? dateEnd;
 
   GenerateBudgetStatisticsUseCase({
     required this.plannerRepo,
     required this.plannerId,
-    this.startDate,
-    this.endDate,
+    this.dateStart,
+    this.dateEnd,
   });
 
   @override
   Future<BudgetStatistics> run() async {
-    final payments = await plannerRepo.getPaymentsByPlannerId(plannerId: plannerId);
-    final planner = await plannerRepo.getPlannerById(plannerId);
-
+    final planner = await plannerRepo.getPlannerById(plannerId, withActualInfo: false);
     if (planner == null) {
       throw Exception('Planner not found');
     }
 
-    var constrainedPayments = ConstrainItemsInPeriodUseCase(
-      items: payments,
-      dateStart: planner.dateStart,
-      dateEnd: planner.dateEnd,
-      dateExtractor: (payment) => payment.date,
-    ).run();
-
-    if (startDate != null || endDate != null) {
-      constrainedPayments = ConstrainItemsInPeriodUseCase(
-        items: constrainedPayments,
-        dateStart: startDate ?? planner.dateStart,
-        dateEnd: endDate ?? planner.dateEnd,
-        dateExtractor: (payment) => payment.date,
-      ).run();
+    final payments = await plannerRepo.getPaymentsByPlannerId(plannerId: plannerId);
+    if (payments.isEmpty) {
+      return BudgetStatistics(totalBudget: {}, incomes: {}, expenses: {});
     }
 
-    final computedBudget = ComputeBudgetUseCase(
-      payments: constrainedPayments,
+    final targetPlanner = GenerateNewPlannerUseCase(
+      customPlannerId: planner.id,
+      payments: payments,
+      dateStart: dateStart ?? planner.dateStart,
+      dateEnd: dateEnd ?? planner.dateEnd,
       initialBudget: planner.initialBudget,
-    ).run();
+    ).run().planner;
 
     final paymentsByDate = GroupPaymentsByDateUsecase(
-      payments: constrainedPayments,
       today: DateTime.now(),
+      payments: ConstrainItemsInPeriodUseCase(
+        items: targetPlanner.payments,
+        dateStart: targetPlanner.dateStart,
+        dateEnd: targetPlanner.dateEnd,
+        dateExtractor: (item) => item.date.dayBound,
+      ).run(),
     ).run();
 
-    final Map<DateTime, double> totalBudget = Map.from(computedBudget.budget);
-    final Map<DateTime, double> incomes = {};
-    final Map<DateTime, double> expenses = {};
+    final Map<DateTime, num> totalBudget = {};
+    final Map<DateTime, num> incomes = {};
+    final Map<DateTime, num> expenses = {};
 
-    for (var entry in paymentsByDate) {
-      final date = entry.date;
-      final payments = entry.payments;
-      for (var payment in payments) {
-        final money = payment.normalizedMoney;
+    num runningTotal = planner.initialBudget;
 
-        if (money > 0) {
-          incomes[date] = (incomes[date] ?? 0) + money;
-        } else {
-          expenses[date] = (expenses[date] ?? 0) + money.abs();
+    for (var i = 0; i < paymentsByDate.length; i++) {
+      final group = paymentsByDate[i];
+
+      final dayDate = group.date;
+      final dayPayments = group.payments;
+
+      double dailyIncome = 0;
+      double dailyExpense = 0;
+
+      for (final payment in dayPayments) {
+        if (payment.isEnabled) {
+          final normalizedMoney = payment.normalizedMoney.toDouble();
+          if (payment.type == PaymentType.income) {
+            dailyIncome += normalizedMoney;
+          } else if (payment.type == PaymentType.expense) {
+            dailyExpense += normalizedMoney.abs();
+          }
         }
+      }
+
+      final dailyTotal = dailyIncome - dailyExpense;
+      runningTotal += dailyTotal;
+      totalBudget[dayDate] = runningTotal;
+      if (dailyIncome > 0) {
+        incomes[dayDate] = dailyIncome;
+      }
+      if (dailyExpense > 0) {
+        expenses[dayDate] = dailyExpense;
       }
     }
 

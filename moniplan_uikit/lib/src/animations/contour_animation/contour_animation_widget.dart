@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -28,6 +24,9 @@ class ContourAnimationWidget extends StatefulWidget {
 
   /// Настраиваемый цвет линии.
   final Color color;
+
+  /// Настраиваемый цвет обводки
+  final Color? borderColor;
 
   /// Настраиваемый стиль кончиков линии (например, круглый или квадратный).
   final StrokeCap strokeCap;
@@ -64,6 +63,7 @@ class ContourAnimationWidget extends StatefulWidget {
     this.debugPainter,
     this.strokeWidth = 6.0,
     this.color = Colors.white,
+    this.borderColor,
     this.strokeCap = StrokeCap.round,
     this.cornerRadius = 10.0,
     this.visibleFraction = 1 / 12,
@@ -80,8 +80,7 @@ class ContourAnimationWidget extends StatefulWidget {
   _ContourAnimationWidgetState createState() => _ContourAnimationWidgetState();
 }
 
-class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
-    with SingleTickerProviderStateMixin {
+class _ContourAnimationWidgetState extends State<ContourAnimationWidget> with SingleTickerProviderStateMixin {
   AnimationController? _controller;
   late Animation<double> _animation;
 
@@ -90,8 +89,6 @@ class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
 
   @override
   void initState() {
-    super.initState();
-
     if (_shouldAnimate) {
       if (widget.animation != null) {
         // Используем внешний контроллер анимации
@@ -108,16 +105,19 @@ class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
       // Анимация отключена
       _animation = const AlwaysStoppedAnimation(-1);
     }
+
+    super.initState();
   }
 
   @override
   void didUpdateWidget(covariant ContourAnimationWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
+    // Обновляем виджет при изменении состояния включено/выключено
     // Обновляем виджет при изменении режима отладки
-    if (oldWidget.debugMode != widget.debugMode) {
+    if (oldWidget.isAnimated != widget.isAnimated || oldWidget.debugMode != widget.debugMode) {
       setState(() {});
     }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -142,15 +142,13 @@ class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
             painter: ContourAnimationPainter(
               _animation.value,
               enabled: _animation.value >= 0,
-              debugPainter: widget.debugMode && widget.debugPainter != null
-                  ? widget.debugPainter!(_animation.value)
-                  : null,
+              debugPainter:
+                  widget.debugMode && widget.debugPainter != null ? widget.debugPainter!(_animation.value) : null,
               strokeWidth: widget.strokeWidthGenerator != null
                   ? widget.strokeWidthGenerator!(_animation.value)
                   : widget.strokeWidth,
-              color: widget.colorGenerator != null
-                  ? widget.colorGenerator!(_animation.value)
-                  : widget.color,
+              color: widget.colorGenerator != null ? widget.colorGenerator!(_animation.value) : widget.color,
+              borderColor: widget.borderColor,
               strokeCap: widget.strokeCap,
               cornerRadius: widget.cornerRadiusGenerator != null
                   ? widget.cornerRadiusGenerator!(_animation.value)
@@ -187,6 +185,9 @@ class ContourAnimationPainter extends CustomPainter {
   /// Настраиваемый цвет линии.
   final Color color;
 
+  /// Настраиваемый цвет обводки
+  final Color? borderColor;
+
   /// Настраиваемый стиль кончиков линии (например, круглый или квадратный).
   final StrokeCap strokeCap;
 
@@ -211,11 +212,12 @@ class ContourAnimationPainter extends CustomPainter {
     this.debugPainter,
     this.strokeWidth = 6.0,
     this.color = Colors.white,
+    this.borderColor,
     this.strokeCap = StrokeCap.round,
     this.cornerRadius = 10.0,
     this.visibleFraction = 1 / 12,
     this.edgeOffsets = EdgeInsets.zero,
-  }) : assert(progress >= 0 && progress <= 1, 'Progress should be in range from 0 to 1');
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -234,8 +236,7 @@ class ContourAnimationPainter extends CustomPainter {
     // Формула состоит из:
     // - суммарной длины сторон без скругленных углов: 2 * ((right - left) + (bottom - top) - 4 * cornerRadius)
     // - длины дуг скругленных углов: 2 * π * cornerRadius
-    final perimeterLength =
-        2 * ((right - left) + (bottom - top) - 4 * cornerRadius) + 2 * math.pi * cornerRadius;
+    final perimeterLength = 2 * ((right - left) + (bottom - top) - 4 * cornerRadius) + 2 * math.pi * cornerRadius;
 
     // Определяем длину видимого сегмента линии.
     final visibleLength = perimeterLength * visibleFraction;
@@ -307,6 +308,17 @@ class ContourAnimationPainter extends CustomPainter {
           ),
           Offset.zero,
         );
+    }
+
+    if (borderColor != null) {
+      canvas.drawPath(
+        path,
+        Paint()
+          ..strokeWidth = strokeWidth
+          ..color = borderColor!
+          ..style = PaintingStyle.stroke
+          ..strokeCap = strokeCap,
+      );
     }
 
     // Статический объект [Paint] для настройки кисти рисования.

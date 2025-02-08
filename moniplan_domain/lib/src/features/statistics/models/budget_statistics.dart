@@ -1,7 +1,7 @@
 class BudgetStatistics {
-  final Map<DateTime, double> totalBudget;
-  final Map<DateTime, double> incomes;
-  final Map<DateTime, double> expenses;
+  final Map<DateTime, num> totalBudget;
+  final Map<DateTime, num> incomes;
+  final Map<DateTime, num> expenses;
 
   const BudgetStatistics({
     required this.totalBudget,
