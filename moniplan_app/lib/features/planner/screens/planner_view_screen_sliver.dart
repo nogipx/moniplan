@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/planner/screens/payments_sliver_list.dart';
-import 'package:moniplan_app/features/planner_statistics/_index.dart';
+import 'package:moniplan_app/features/planner_statistics/ui/planner_statistics_screen.dart';
 import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
@@ -30,9 +30,7 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
   Widget build(BuildContext context) {
     return BlocConsumer<PlannerBloc, PlannerState>(
       listener: (context, state) {
-        if (state is PlannerBudgetComputedState &&
-            state.getPaymentsByDate.isNotEmpty &&
-            !_isFirstScrolled) {
+        if (state is PlannerBudgetComputedState && state.getPaymentsByDate.isNotEmpty && !_isFirstScrolled) {
           setState(() {
             _isFirstScrolled = true;
           });
@@ -43,14 +41,12 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
         final dateStartRaw = state.mapOrNull(
           budgetComputed: (s) => s.dateStart,
         );
-        final dateStartString =
-            dateStartRaw != null ? DateFormat(plannerBoundDateFormat).format(dateStartRaw) : '';
+        final dateStartString = dateStartRaw != null ? DateFormat(plannerBoundDateFormat).format(dateStartRaw) : '';
 
         final dateEndRaw = state.mapOrNull(
           budgetComputed: (s) => s.dateEnd,
         );
-        final dateEndString =
-            dateEndRaw != null ? DateFormat(plannerBoundDateFormat).format(dateEndRaw) : '';
+        final dateEndString = dateEndRaw != null ? DateFormat(plannerBoundDateFormat).format(dateEndRaw) : '';
 
         final titleWidget = Text(
           '$dateStartString - $dateEndString',
@@ -66,12 +62,10 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
             IconButton(
               icon: const Icon(Icons.ssid_chart),
               onPressed: () {
-                final bloc = context.read<PlannerBloc>();
                 Navigator.of(context).push<void>(
                   MaterialPageRoute(
-                    builder: (context) => BlocProvider.value(
-                      value: bloc,
-                      child: PlannerChartsScreen(),
+                    builder: (context) => PlannerStatisticsScreen(
+                      plannerId: state.plannerId,
                     ),
                   ),
                 );

@@ -24,12 +24,20 @@ class GetItAppDI implements AppDi {
       appDb: db,
       encryptKey: mockEncryptionKey,
     ));
+    _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(
+      plannerRepo: getPlannerRepo(),
+    ));
   }
 
   @override
   AppDb getDb() => _getIt.get();
+
   @override
   IPlannerRepo getPlannerRepo() => _getIt.get();
+
   @override
   IMonisyncRepo getMonisyncRepo() => _getIt.get();
+
+  @override
+  IStatisticsRepo getStatisticsRepo() => _getIt.get();
 }

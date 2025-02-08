@@ -12,4 +12,6 @@ abstract interface class IAppDi {
   IPlannerRepo getPlannerRepo();
 
   IMonisyncRepo getMonisyncRepo();
+
+  IStatisticsRepo getStatisticsRepo();
 }
