@@ -1,5 +1,7 @@
+typedef BudgetStatisticsTotal = Map<DateTime, ({num totalBudget, bool allCompleted})>;
+
 class BudgetStatistics {
-  final Map<DateTime, num> totalBudget;
+  final BudgetStatisticsTotal totalBudget;
   final Map<DateTime, num> incomes;
   final Map<DateTime, num> expenses;
 

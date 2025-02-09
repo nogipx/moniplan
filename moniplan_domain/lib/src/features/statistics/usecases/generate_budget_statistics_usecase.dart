@@ -63,7 +63,7 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
       ).run(),
     ).run();
 
-    final Map<DateTime, num> totalBudget = {};
+    final BudgetStatisticsTotal totalBudget = {};
     final Map<DateTime, num> incomes = {};
     final Map<DateTime, num> expenses = {};
 
@@ -77,6 +77,7 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
 
       double dailyIncome = 0;
       double dailyExpense = 0;
+      bool allCompleted = true;
 
       for (final payment in dayPayments) {
         if (payment.isEnabled) {
@@ -87,11 +88,18 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
             dailyExpense += normalizedMoney.abs();
           }
         }
+        if (payment.isEnabled && !payment.isDone) {
+          allCompleted = false;
+        }
       }
 
       final dailyTotal = dailyIncome - dailyExpense;
+      if (dailyTotal == 0 && dailyIncome == 0 && dailyExpense == 0) {
+        continue;
+      }
+
       runningTotal += dailyTotal;
-      totalBudget[dayDate] = runningTotal;
+      totalBudget[dayDate] = (totalBudget: runningTotal, allCompleted: allCompleted);
       if (dailyIncome > 0) {
         incomes[dayDate] = dailyIncome;
       }
