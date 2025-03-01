@@ -39,7 +39,10 @@ extension PeriodDateTime on DateTime {
   bool isSameDay(DateTime other) {
     return year == other.year && month == other.month && day == other.day;
   }
+}
 
+// Расширение для статических методов DateTime
+extension DateTimeStatic on DateTime {
   static DateTime currentYear({
     required int day,
     int? month,

@@ -10,9 +10,7 @@ class AppColors {
 
   Brightness get brightness => scheme.brightness;
 
-  AppColors({
-    required this.scheme,
-  });
+  AppColors({required this.scheme});
 
   /// Набор цветов для [Brightness.dark]
   AppColors.dark() : scheme = ColorScheme.dark();
@@ -20,10 +18,10 @@ class AppColors {
   /// Набор цветов для [Brightness.light]
   AppColors.light() : scheme = ColorScheme.light();
 
-  static AppColors get(Brightness _) => switch (_) {
-        Brightness.light => AppColors.light(),
-        _ => AppColors.dark(),
-      };
+  static AppColors get(Brightness brightness) => switch (brightness) {
+    Brightness.light => AppColors.light(),
+    _ => AppColors.dark(),
+  };
 
   /// Интерполяция для анимированных переходов между [AppColors]
   AppColors lerp(AppColors? b, double t) {
@@ -31,17 +29,11 @@ class AppColors {
       return this;
     }
 
-    return AppColors(
-      scheme: ColorSchemeLerp(scheme).lerp(b?.scheme, t),
-    );
+    return AppColors(scheme: ColorSchemeLerp(scheme).lerp(b?.scheme, t));
   }
 
   /// Метод копирования [AppColors]
-  AppColors copyWith({
-    ColorScheme? scheme,
-  }) {
-    return AppColors(
-      scheme: scheme ?? this.scheme,
-    );
+  AppColors copyWith({ColorScheme? scheme}) {
+    return AppColors(scheme: scheme ?? this.scheme);
   }
 }

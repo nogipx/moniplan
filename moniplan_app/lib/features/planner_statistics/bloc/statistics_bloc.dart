@@ -10,11 +10,8 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
   final String plannerId;
   final AppLog? log;
 
-  StatisticsBloc({
-    required this.repository,
-    required this.plannerId,
-    this.log,
-  }) : super(const StatisticsState.initial()) {
+  StatisticsBloc({required this.repository, required this.plannerId, this.log})
+    : super(const StatisticsState.initial()) {
     on<StatisticsEvent>((event, emit) async {
       await event.map(
         started: (e) => _onStarted(e, emit),
@@ -38,7 +35,9 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
   }
 
   Future<void> _onPeriodChanged(_PeriodChanged event, Emitter<StatisticsState> emit) async {
-    log?.debug('Loading statistics for plannerId: $plannerId from ${event.startDate} to ${event.endDate}');
+    log?.debug(
+      'Loading statistics for plannerId: $plannerId from ${event.startDate} to ${event.endDate}',
+    );
     emit(const StatisticsState.loading());
     try {
       if (event.startDate == null || event.endDate == null) {
@@ -52,11 +51,14 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
         end: event.endDate!,
       );
       log?.debug(
-          'Statistics loaded successfully for plannerId: $plannerId from ${event.startDate} to ${event.endDate}');
+        'Statistics loaded successfully for plannerId: $plannerId from ${event.startDate} to ${event.endDate}',
+      );
       emit(StatisticsState.loaded(statistics));
     } catch (e) {
-      log?.error('Failed to load statistics for plannerId: $plannerId from ${event.startDate} to ${event.endDate}',
-          error: e);
+      log?.error(
+        'Failed to load statistics for plannerId: $plannerId from ${event.startDate} to ${event.endDate}',
+        error: e,
+      );
       emit(StatisticsState.error(e.toString()));
     }
   }
@@ -74,10 +76,8 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
 @freezed
 class StatisticsEvent with _$StatisticsEvent {
   const factory StatisticsEvent.started() = _Started;
-  const factory StatisticsEvent.periodChanged({
-    DateTime? startDate,
-    DateTime? endDate,
-  }) = _PeriodChanged;
+  const factory StatisticsEvent.periodChanged({DateTime? startDate, DateTime? endDate}) =
+      _PeriodChanged;
   const factory StatisticsEvent.refreshRequested() = _RefreshRequested;
 }
 

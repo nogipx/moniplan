@@ -1,13 +1,7 @@
 name: moniplan_workspace
 publish_to: none
 environment:
-  sdk: ^3.6.0
-
-workspace:
-  - moniplan_domain
-  - moniplan_core
-  - moniplan_uikit
-  - moniplan_app
+  sdk: ^3.7.0
 
 dev_dependencies:
-  build_runner: 2.4.13
+  packo: any

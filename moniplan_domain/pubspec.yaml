@@ -2,21 +2,22 @@ name: moniplan_domain
 description: A starting point for Dart libraries or applications.
 version: 1.0.0
 publish_to: none
-resolution: workspace
 
 environment:
-  sdk: '>=3.6.0 <4.0.0'
+  sdk: '>=3.7.0 <4.0.0'
 
 dependencies:
-  feature_core: 2.0.0
-  freezed_annotation: 2.4.4
-  uuid: 4.5.1
-  equatable: 2.0.7
+  feature_core: ^2.0.0
+  freezed_annotation: ^2.4.4
+  uuid: ^4.5.1
+  equatable: ^2.0.7
+  data_manage: ^3.0.2
 
 dev_dependencies:
-  lints: 5.0.0
+  lints: ^5.1.1
   test: any
-  build_runner: 2.4.13
-  freezed: 2.5.7
-  json_serializable: 6.9.0
-  keys_generator: 1.1.2
+  build_runner: ^2.4.15
+  freezed: ^2.5.7
+  json_serializable: ^6.9.0
+  keys_generator: ^1.1.2
+  packo: any

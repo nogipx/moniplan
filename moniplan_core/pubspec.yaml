@@ -2,10 +2,9 @@ name: moniplan_core
 description: A starting point for Dart libraries or applications.
 version: 1.0.0
 publish_to: none
-resolution: workspace
 
 environment:
-  sdk: '>=3.6.0 <4.0.0'
+  sdk: '>=3.7.0 <4.0.0'
 
 dependencies:
   moniplan_domain:
@@ -15,23 +14,20 @@ dependencies:
   drift: ^2.22.1
 
   # State
-  bloc: 8.1.4
-  bloc_concurrency: 0.2.5
+  bloc: ^9.0.0
+  bloc_concurrency: ^0.3.0
 
   # Codegen
-  json_annotation: 4.9.0
-  freezed_annotation: ^2.4.4
-
   encrypt: 5.0.3
 
 dev_dependencies:
   # Code Quality
-  bloc_test: 9.1.7
+  bloc_test: ^10.0.0
   lints: ^5.0.0
   test: any
 
   # Codegen
   build_runner: ^2.4.13
-  freezed: ^2.5.7
+  freezed: ^2.5.8
   json_serializable: ^6.9.0
   drift_dev: ^2.22.1
