@@ -5,15 +5,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PlannerItemWidget extends StatelessWidget {
-  const PlannerItemWidget({
-    super.key,
-    required this.planner,
-    this.onPressed,
-  });
+  const PlannerItemWidget({super.key, required this.planner, this.onPressed});
 
   final Planner planner;
   final VoidCallback? onPressed;
@@ -32,10 +29,7 @@ class PlannerItemWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (planner.name.isNotEmpty) ...[
-                Text(
-                  planner.name,
-                  style: context.text.titleLarge,
-                ),
+                Text(planner.name, style: context.text.titleLarge),
                 const SizedBox(height: 8),
               ],
               Row(
@@ -85,12 +79,13 @@ class PlannerItemWidget extends StatelessWidget {
                       currency: CurrencyDataCommon.rub,
                       showPlusSign: false,
                     ),
-                    iconColor: needToPay.toInt() == 0
-                        ? Colors.grey
-                        : needToPay > 0
+                    iconColor:
+                        needToPay.toInt() == 0
+                            ? Colors.grey
+                            : needToPay > 0
                             ? Colors.green
                             : Colors.red,
-                  )
+                  ),
                 ],
               ),
             ],
@@ -117,24 +112,13 @@ class _PlannerInfoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: iconColor,
-          ),
+          Icon(icon, size: 20, color: iconColor),
           const SizedBox(width: 4),
-          valueWidget ??
-              Text(
-                value,
-                style: context.theme.textTheme.bodyLarge,
-              )
+          valueWidget ?? Text(value, style: context.theme.textTheme.bodyLarge),
         ],
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_core/src/features/statistic/statistics_repository.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import '../bloc/statistics_bloc.dart';
 import 'planner_chart.dart';
 

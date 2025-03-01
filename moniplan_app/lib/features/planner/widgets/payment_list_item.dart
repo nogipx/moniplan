@@ -4,16 +4,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PaymentListItem extends StatelessWidget {
-  const PaymentListItem({
-    super.key,
-    required this.payment,
-    this.mediateSummary,
-    this.onPressed,
-  });
+  const PaymentListItem({super.key, required this.payment, this.mediateSummary, this.onPressed});
 
   final Payment payment;
   final num? mediateSummary;
@@ -23,32 +18,28 @@ class PaymentListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final shouldGrayscale = !payment.isEnabled || payment.isDone;
 
-    final budgetPredictWidget = mediateSummary != null
-        ? MoneyColoredWidget(
-            value: mediateSummary,
-            currency: payment.details.currency,
-            showPlusSign: false,
-            overridePositiveColor: context.color.tertiary,
-          )
-        : const SizedBox();
+    final budgetPredictWidget =
+        mediateSummary != null
+            ? MoneyColoredWidget(
+              value: mediateSummary,
+              currency: payment.details.currency,
+              showPlusSign: false,
+              overridePositiveColor: context.color.tertiary,
+            )
+            : const SizedBox();
 
     final repeatWidget = SizedBox(
-      child: payment.isRepeat
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  payment.repeat.shortName,
-                  style: context.theme.textTheme.labelMedium,
-                ),
-                const SizedBox(width: 2),
-                Icon(
-                  Icons.refresh_rounded,
-                  size: 18,
-                ),
-              ],
-            )
-          : const SizedBox(),
+      child:
+          payment.isRepeat
+              ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(payment.repeat.shortName, style: context.theme.textTheme.labelMedium),
+                  const SizedBox(width: 2),
+                  Icon(Icons.refresh_rounded, size: 18),
+                ],
+              )
+              : const SizedBox(),
     );
 
     final controlsWidget = Padding(
@@ -82,10 +73,7 @@ class PaymentListItem extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: controlsWidget,
-                ),
+                Padding(padding: const EdgeInsets.only(top: 4), child: controlsWidget),
                 Expanded(
                   child: Grayscale(
                     grayscale: shouldGrayscale,
@@ -99,10 +87,7 @@ class PaymentListItem extends StatelessWidget {
                 ),
                 Grayscale(
                   grayscale: shouldGrayscale,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: repeatWidget,
-                  ),
+                  child: Padding(padding: const EdgeInsets.only(top: 2), child: repeatWidget),
                 ),
               ],
             ),
@@ -120,14 +105,11 @@ class PaymentListItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (payment.isEnabled)
-                    Expanded(
-                      child: budgetPredictWidget,
-                    ),
-                  Expanded(child: const SizedBox())
+                  if (payment.isEnabled) Expanded(child: budgetPredictWidget),
+                  Expanded(child: const SizedBox()),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

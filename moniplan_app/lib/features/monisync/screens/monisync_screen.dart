@@ -6,7 +6,8 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 class MonisyncScreen extends StatefulWidget {
   const MonisyncScreen({super.key});
@@ -27,15 +28,9 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: _exportFilePicker,
-              child: Text('Export Data'),
-            ),
+            ElevatedButton(onPressed: _exportFilePicker, child: Text('Export Data')),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _importFilePicker,
-              child: Text('Import Data'),
-            ),
+            ElevatedButton(onPressed: _importFilePicker, child: Text('Import Data')),
           ],
         ),
       ),

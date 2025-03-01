@@ -4,7 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -63,15 +64,11 @@ Future<void> showUpdatePaymentDialog({
   }
 
   final dateFormat = DateFormat(plannerBoundDateFormat);
-  final inputDecoration = InputDecoration(
-    border: InputBorder.none,
-  );
+  final inputDecoration = InputDecoration(border: InputBorder.none);
 
   final boxDecoration = BoxDecoration(
     borderRadius: BorderRadius.all(Radius.circular(16)),
-    border: Border.all(
-      width: .5,
-    ),
+    border: Border.all(width: .5),
   );
 
   Widget buildMoneySection(BuildContext context, StateSetter setState) {
@@ -112,9 +109,7 @@ Future<void> showUpdatePaymentDialog({
                 icon: Icon(Icons.add),
               ),
             ],
-            selectedIcon: Icon(
-              type == PaymentType.expense ? Icons.remove : Icons.add,
-            ),
+            selectedIcon: Icon(type == PaymentType.expense ? Icons.remove : Icons.add),
             onSelectionChanged: (paymentTypes) {
               setState(() {
                 type = paymentTypes.first;
@@ -144,26 +139,19 @@ Future<void> showUpdatePaymentDialog({
               RichText(
                 text: TextSpan(
                   children: [
-                    TextSpan(
-                      text: 'Payment date',
-                      style: context.text.bodyMedium?.copyWith(),
-                    ),
+                    TextSpan(text: 'Payment date', style: context.text.bodyMedium?.copyWith()),
                     TextSpan(
                       text: '*',
-                      style: context.text.displaySmall?.copyWith(
-                        color: context.color.primary,
-                      ),
+                      style: context.text.displaySmall?.copyWith(color: context.color.primary),
                     ),
+                    TextSpan(text: ': ', style: context.text.bodyMedium?.copyWith()),
                     TextSpan(
-                      text: ': ',
-                      style: context.text.bodyMedium?.copyWith(),
-                    ),
-                    TextSpan(
-                      text: date != null
-                          ? date!.dayBound == DateTime.now().dayBound
-                              ? 'Today'
-                              : dateFormat.format(date!)
-                          : 'Not set',
+                      text:
+                          date != null
+                              ? date!.dayBound == DateTime.now().dayBound
+                                  ? 'Today'
+                                  : dateFormat.format(date!)
+                              : 'Not set',
                       style: context.text.bodyMedium?.copyWith(),
                     ),
                   ],
@@ -188,22 +176,24 @@ Future<void> showUpdatePaymentDialog({
                     repeatPeriod = newValue!;
                   });
                 },
-                items: DateTimeRepeat.values
-                    .map<DropdownMenuItem<DateTimeRepeat>>((DateTimeRepeat value) {
-                  return DropdownMenuItem<DateTimeRepeat>(
-                    value: value,
-                    child: Text(value == DateTimeRepeat.noRepeat ? 'No repeat' : value.shortName),
-                  );
-                }).toList(),
+                items:
+                    DateTimeRepeat.values.map<DropdownMenuItem<DateTimeRepeat>>((
+                      DateTimeRepeat value,
+                    ) {
+                      return DropdownMenuItem<DateTimeRepeat>(
+                        value: value,
+                        child: Text(
+                          value == DateTimeRepeat.noRepeat ? 'No repeat' : value.shortName,
+                        ),
+                      );
+                    }).toList(),
               ),
             ],
           ),
           if (repeatPeriod != DateTimeRepeat.noRepeat) ...[
             Row(
               children: <Widget>[
-                Text(
-                  'End date: ${endDate != null ? dateFormat.format(endDate!) : 'Not set'}',
-                ),
+                Text('End date: ${endDate != null ? dateFormat.format(endDate!) : 'Not set'}'),
                 IconButton(
                   icon: Icon(Icons.calendar_today),
                   onPressed: () async {
@@ -244,10 +234,7 @@ Future<void> showUpdatePaymentDialog({
             icon: Grayscale(
               grayscale: !isEnabled,
               color: grayscaleColor,
-              child: Icon(
-                Icons.power_settings_new_rounded,
-                size: 22,
-              ),
+              child: Icon(Icons.power_settings_new_rounded, size: 22),
             ),
             label: FittedBox(
               child: Grayscale(
@@ -270,10 +257,7 @@ Future<void> showUpdatePaymentDialog({
               icon: Grayscale(
                 grayscale: !isDone,
                 color: grayscaleColor,
-                child: Icon(
-                  Icons.done_rounded,
-                  size: 22,
-                ),
+                child: Icon(Icons.done_rounded, size: 22),
               ),
               label: FittedBox(
                 child: Grayscale(
@@ -284,7 +268,7 @@ Future<void> showUpdatePaymentDialog({
               ),
             ),
           ),
-        ]
+        ],
       ],
     );
   }
@@ -321,10 +305,8 @@ Future<void> showUpdatePaymentDialog({
                                     ? 'initial repeated payment'
                                     : 'regular'
                                 : 'repeated payment generation \n— you edit an original now',
-                            style: context.text.labelMedium?.copyWith(
-                              fontStyle: FontStyle.italic,
-                            ),
-                          )
+                            style: context.text.labelMedium?.copyWith(fontStyle: FontStyle.italic),
+                          ),
                       ],
                     ),
                   ),
@@ -340,9 +322,10 @@ Future<void> showUpdatePaymentDialog({
               ),
               insetPadding: EdgeInsets.symmetric(horizontal: 8),
               content: SizedBox(
-                width: ResponsiveBreakpoints.of(context).isDesktop
-                    ? MediaQuery.of(context).size.width * .5
-                    : MediaQuery.of(context).size.width,
+                width:
+                    ResponsiveBreakpoints.of(context).isDesktop
+                        ? MediaQuery.of(context).size.width * .5
+                        : MediaQuery.of(context).size.width,
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -376,11 +359,12 @@ Future<void> showUpdatePaymentDialog({
                               Navigator.of(context).pop();
                               onFixation();
                             },
-                            child: paymentWhichTapped.isRepeatParent
-                                ? Text('Fixate this payment')
-                                : Text('Fixate original payment'),
+                            child:
+                                paymentWhichTapped.isRepeatParent
+                                    ? Text('Fixate this payment')
+                                    : Text('Fixate original payment'),
                           ),
-                        ]
+                        ],
                       ],
                     ],
                   ),
@@ -401,7 +385,8 @@ Future<void> showUpdatePaymentDialog({
                       final newMoney = num.tryParse(amountController.text) ?? 0.0;
                       final newType = type;
 
-                      final resultPayment = targetPayment ??
+                      final resultPayment =
+                          targetPayment ??
                           Payment(
                             paymentId: const Uuid().v4(),
                             details: PaymentDetails(
@@ -431,9 +416,8 @@ Future<void> showUpdatePaymentDialog({
                       final canApplyUpdate =
                           CheckPaymentCanApplyUpdate(updatedPayment: updated).run();
                       if (!canApplyUpdate.canUpdate) {
-                        final canApplyUpdate = CheckPaymentCanApplyUpdate(
-                          updatedPayment: resultPayment,
-                        ).run();
+                        final canApplyUpdate =
+                            CheckPaymentCanApplyUpdate(updatedPayment: resultPayment).run();
 
                         final firstError = canApplyUpdate.errorKeys.firstOrNull;
                         var error = '';

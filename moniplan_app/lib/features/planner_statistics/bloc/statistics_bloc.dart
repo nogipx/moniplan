@@ -1,6 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:moniplan_core/moniplan_core.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 part 'statistics_bloc.freezed.dart';

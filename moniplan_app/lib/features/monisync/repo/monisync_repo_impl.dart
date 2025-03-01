@@ -7,17 +7,15 @@ import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/_index.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MonisyncRepoImpl implements IMonisyncRepo {
   final String encryptKey;
   final AppDb appDb;
 
-  MonisyncRepoImpl({
-    required this.appDb,
-    this.encryptKey = '',
-  });
+  MonisyncRepoImpl({required this.appDb, this.encryptKey = ''});
 
   @override
   Future<ExportResult?> exportDataToFile({
@@ -50,9 +48,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
       await exportFile.writeAsBytes(bytesToWrite);
 
-      return ExportResult(
-        file: exportFile,
-      );
+      return ExportResult(file: exportFile);
     }
 
     return null;
@@ -63,10 +59,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final file = File(filePath);
 
     if (await file.exists()) {
-      await appDb.overrideDefaultFromFile(
-        newDbFile: file,
-        encryptKey: mockEncryptionKey,
-      );
+      await appDb.overrideDefaultFromFile(newDbFile: file, encryptKey: mockEncryptionKey);
     }
   }
 
@@ -85,15 +78,13 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
-    await appDb.openTemporaryFromFile(
-      dbFile: file,
-      encryptKey: mockEncryptionKey,
-    );
+    await appDb.openTemporaryFromFile(dbFile: file, encryptKey: mockEncryptionKey);
 
     final planners = await AppDi.instance.getPlannerRepo().getPlanners();
-    final lastUpdate = await appDb.db.managers.globalLastUpdate
-        .filter((f) => f.lastUpdateId.equals(GlobalLastUpdate.entityId))
-        .getSingleOrNull();
+    final lastUpdate =
+        await appDb.db.managers.globalLastUpdate
+            .filter((f) => f.lastUpdateId.equals(GlobalLastUpdate.entityId))
+            .getSingleOrNull();
 
     await appDb.openDefault();
 

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:moniplan_app/features/_common/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PlannerChart extends StatefulWidget {
@@ -53,33 +52,41 @@ class _PlannerChartState extends State<PlannerChart> {
     }
 
     // Создаем точки для линии выполненных дат
-    allDoneDatesSpots = allDoneDates
-        .map((date) {
-          final budgetData = widget.totalBudget[date];
-          final yValue = (budgetData?.totalBudget ?? 0).toDouble();
-          return yValue.isFinite ? FlSpot(date.dayBound.millisecondsSinceEpoch.toDouble(), yValue) : null;
-        })
-        .whereType<FlSpot>()
-        .toList();
+    allDoneDatesSpots =
+        allDoneDates
+            .map((date) {
+              final budgetData = widget.totalBudget[date];
+              final yValue = (budgetData?.totalBudget ?? 0).toDouble();
+              return yValue.isFinite
+                  ? FlSpot(date.dayBound.millisecondsSinceEpoch.toDouble(), yValue)
+                  : null;
+            })
+            .whereType<FlSpot>()
+            .toList();
 
     // Создаем точки для линии оставшихся дат
-    remainingDatesSpots = remainingDates
-        .map((date) {
-          final budgetData = widget.totalBudget[date];
-          final yValue = (budgetData?.totalBudget ?? 0).toDouble();
-          return yValue.isFinite ? FlSpot(date.dayBound.millisecondsSinceEpoch.toDouble(), yValue) : null;
-        })
-        .whereType<FlSpot>()
-        .toList();
+    remainingDatesSpots =
+        remainingDates
+            .map((date) {
+              final budgetData = widget.totalBudget[date];
+              final yValue = (budgetData?.totalBudget ?? 0).toDouble();
+              return yValue.isFinite
+                  ? FlSpot(date.dayBound.millisecondsSinceEpoch.toDouble(), yValue)
+                  : null;
+            })
+            .whereType<FlSpot>()
+            .toList();
 
-    maxY = widget.totalBudget.values
-        .reduce((max, value) => value.totalBudget > max.totalBudget ? value : max)
-        .totalBudget
-        .toDouble();
-    minY = widget.totalBudget.values
-        .reduce((min, value) => value.totalBudget < min.totalBudget ? value : min)
-        .totalBudget
-        .toDouble();
+    maxY =
+        widget.totalBudget.values
+            .reduce((max, value) => value.totalBudget > max.totalBudget ? value : max)
+            .totalBudget
+            .toDouble();
+    minY =
+        widget.totalBudget.values
+            .reduce((min, value) => value.totalBudget < min.totalBudget ? value : min)
+            .totalBudget
+            .toDouble();
   }
 
   @override
@@ -117,9 +124,7 @@ class _PlannerChartState extends State<PlannerChart> {
     );
 
     var lineChart = LineChart(
-      transformationConfig: FlTransformationConfig(
-        trackpadScrollCausesScale: true,
-      ),
+      transformationConfig: FlTransformationConfig(trackpadScrollCausesScale: true),
       LineChartData(
         lineBarsData: [
           // Линия общего бюджета
@@ -180,17 +185,11 @@ class _PlannerChartState extends State<PlannerChart> {
                 final moneyText = (value > 0 ? '+ ' : '-') + value.currency(CurrencyDataCommon.rub);
                 return LineTooltipItem(
                   '',
-                  context.text.bodyMedium!.copyWith(
-                    color: context.color.onSecondaryContainer,
-                  ),
+                  context.text.bodyMedium!.copyWith(color: context.color.onSecondaryContainer),
                   textAlign: TextAlign.center,
                   children: [
-                    TextSpan(
-                      text: '${date.day}.${date.month}.${date.year}\n',
-                    ),
-                    TextSpan(
-                      text: moneyText,
-                    ),
+                    TextSpan(text: '${date.day}.${date.month}.${date.year}\n'),
+                    TextSpan(text: moneyText),
                   ],
                 );
               }).toList();
@@ -203,11 +202,7 @@ class _PlannerChartState extends State<PlannerChart> {
           leftTitles: AxisTitles(sideTitles: moneySideTitles),
           rightTitles: AxisTitles(sideTitles: moneySideTitles),
         ),
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          verticalInterval: 86400000,
-        ),
+        gridData: FlGridData(show: true, drawVerticalLine: false, verticalInterval: 86400000),
         borderData: FlBorderData(show: false),
         minY: minY,
         maxY: maxY + maxY * 0.1,
@@ -229,17 +224,9 @@ class _PlannerChartState extends State<PlannerChart> {
           const SizedBox(height: 16),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 8,
-                bottom: 24,
-              ),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 24),
               scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: MediaQuery.sizeOf(context).width * 3,
-                child: lineChart,
-              ),
+              child: SizedBox(width: MediaQuery.sizeOf(context).width * 3, child: lineChart),
             ),
           ),
         ],
@@ -261,10 +248,7 @@ class _LegendItem extends StatelessWidget {
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 4),
         Text(label, style: Theme.of(context).textTheme.bodySmall),

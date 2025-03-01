@@ -9,7 +9,8 @@ import 'package:moniplan_app/features/_common/_index.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/planner/screens/payments_sliver_list.dart';
 import 'package:moniplan_app/features/planner_statistics/ui/planner_statistics_screen.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
 
@@ -30,7 +31,9 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
   Widget build(BuildContext context) {
     return BlocConsumer<PlannerBloc, PlannerState>(
       listener: (context, state) {
-        if (state is PlannerBudgetComputedState && state.getPaymentsByDate.isNotEmpty && !_isFirstScrolled) {
+        if (state is PlannerBudgetComputedState &&
+            state.getPaymentsByDate.isNotEmpty &&
+            !_isFirstScrolled) {
           setState(() {
             _isFirstScrolled = true;
           });
@@ -38,15 +41,13 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
         }
       },
       builder: (context, state) {
-        final dateStartRaw = state.mapOrNull(
-          budgetComputed: (s) => s.dateStart,
-        );
-        final dateStartString = dateStartRaw != null ? DateFormat(plannerBoundDateFormat).format(dateStartRaw) : '';
+        final dateStartRaw = state.mapOrNull(budgetComputed: (s) => s.dateStart);
+        final dateStartString =
+            dateStartRaw != null ? DateFormat(plannerBoundDateFormat).format(dateStartRaw) : '';
 
-        final dateEndRaw = state.mapOrNull(
-          budgetComputed: (s) => s.dateEnd,
-        );
-        final dateEndString = dateEndRaw != null ? DateFormat(plannerBoundDateFormat).format(dateEndRaw) : '';
+        final dateEndRaw = state.mapOrNull(budgetComputed: (s) => s.dateEnd);
+        final dateEndString =
+            dateEndRaw != null ? DateFormat(plannerBoundDateFormat).format(dateEndRaw) : '';
 
         final titleWidget = Text(
           '$dateStartString - $dateEndString',
@@ -64,9 +65,7 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
               onPressed: () {
                 Navigator.of(context).push<void>(
                   MaterialPageRoute(
-                    builder: (context) => PlannerStatisticsScreen(
-                      plannerId: state.plannerId,
-                    ),
+                    builder: (context) => PlannerStatisticsScreen(plannerId: state.plannerId),
                   ),
                 );
               },
@@ -88,21 +87,19 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
             ),
             ExtendedAppFloatingButton(
               onPressed: () {
-                updateDialog(
-                  context: context,
-                  plannerRepo: AppDi.instance.getPlannerRepo(),
-                );
+                updateDialog(context: context, plannerRepo: AppDi.instance.getPlannerRepo());
               },
             ),
           ],
         );
 
-        final moneyFlow = state is PlannerBudgetComputedState
-            ? ColoredBox(
-                child: MoneyFlowWidget(state: state.moneyFlow),
-                color: context.color.surface,
-              )
-            : const SizedBox.shrink();
+        final moneyFlow =
+            state is PlannerBudgetComputedState
+                ? ColoredBox(
+                  child: MoneyFlowWidget(state: state.moneyFlow),
+                  color: context.color.surface,
+                )
+                : const SizedBox.shrink();
 
         return Scaffold(
           floatingActionButton: fab,
@@ -119,9 +116,7 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
                         controller: _scrollController,
                         slivers: [
                           SliverPadding(
-                            padding: const EdgeInsets.only(
-                              bottom: AppSpace.s100,
-                            ),
+                            padding: const EdgeInsets.only(bottom: AppSpace.s100),
                             sliver: PaymentsSliverList(
                               listController: _listController,
                               today: today,
@@ -151,13 +146,10 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
                         end: Alignment.topCenter,
                       ),
                     ),
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 100,
-                    ),
+                    child: SizedBox(width: MediaQuery.of(context).size.width, height: 100),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         );

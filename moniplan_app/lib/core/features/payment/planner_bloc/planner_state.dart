@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 part 'planner_state.freezed.dart';
 
@@ -33,20 +32,16 @@ class PlannerState with _$PlannerState {
     @Default({}) Set<String> errors,
   }) = PlannerErrorState;
 
-  List<Payment> get getPayments => maybeMap<List<Payment>>(
-        budgetComputed: (v) => v.payments,
-        orElse: () => const [],
-      );
+  List<Payment> get getPayments =>
+      maybeMap<List<Payment>>(budgetComputed: (v) => v.payments, orElse: () => const []);
 
   List<PaymentsDateGrouped> get getPaymentsByDate => maybeMap<List<PaymentsDateGrouped>>(
-        budgetComputed: (v) => v.paymentsByDate,
-        orElse: () => const [],
-      );
+    budgetComputed: (v) => v.paymentsByDate,
+    orElse: () => const [],
+  );
 
-  Map<Payment, num> get budget => maybeMap<Map<Payment, num>>(
-        budgetComputed: (v) => v.budget,
-        orElse: () => const {},
-      );
+  Map<Payment, num> get budget =>
+      maybeMap<Map<Payment, num>>(budgetComputed: (v) => v.budget, orElse: () => const {});
 }
 
 extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
@@ -72,20 +67,11 @@ extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
       }
 
       if (prevDay.isSameDay(searchDay)) {
-        result = (
-          index: prevDayIndex,
-          alignment: topAlignment,
-        );
+        result = (index: prevDayIndex, alignment: topAlignment);
       } else if (nextDay.isSameDay(searchDay)) {
-        result = (
-          index: nextDayIndex,
-          alignment: centerAlignment,
-        );
+        result = (index: nextDayIndex, alignment: centerAlignment);
       } else {
-        result = (
-          index: nextDayIndex,
-          alignment: centerAlignment,
-        );
+        result = (index: nextDayIndex, alignment: centerAlignment);
       }
     }
 
@@ -95,9 +81,6 @@ extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
   ({PaymentsDateGrouped? before, PaymentsDateGrouped? after})? getNeighbours(int index) {
     final before = index == 0 ? null : elementAtOrNull(index - 1);
     final after = index == length - 1 ? null : elementAtOrNull(index + 1);
-    return (
-      before: before,
-      after: after,
-    );
+    return (before: before, after: after);
   }
 }

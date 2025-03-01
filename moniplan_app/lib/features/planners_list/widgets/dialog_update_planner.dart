@@ -4,7 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 void showDialogUpdatePlanner(
   BuildContext context, {
@@ -12,10 +13,10 @@ void showDialogUpdatePlanner(
   required Function(DateTime, DateTime, String, String) onSave,
   Function()? onDelete,
 }) {
-  final TextEditingController numberController = TextEditingController()
-    ..text = planner?.initialBudget.toString() ?? '';
-  final TextEditingController nameController = TextEditingController()
-    ..text = planner?.name.toString() ?? '';
+  final TextEditingController numberController =
+      TextEditingController()..text = planner?.initialBudget.toString() ?? '';
+  final TextEditingController nameController =
+      TextEditingController()..text = planner?.name.toString() ?? '';
   DateTime startDate = planner?.dateStart ?? DateTime.now();
   DateTime endDate = planner?.dateEnd ?? DateTime.now().monthEnd;
   bool isStartDateValid = true;
@@ -73,9 +74,7 @@ void showDialogUpdatePlanner(
                 TextField(
                   controller: nameController,
                   keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    labelText: 'Enter a name',
-                  ),
+                  decoration: InputDecoration(labelText: 'Enter a name'),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -104,17 +103,12 @@ void showDialogUpdatePlanner(
                     ),
                   ],
                 ),
-                if (!isStartDateValid)
-                  Text(
-                    'Start date cannot be after end date',
-                  ),
+                if (!isStartDateValid) Text('Start date cannot be after end date'),
                 SizedBox(height: 16),
                 TextField(
                   controller: numberController,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Enter a initial budget',
-                  ),
+                  decoration: InputDecoration(labelText: 'Enter a initial budget'),
                 ),
               ],
             ),
@@ -126,14 +120,19 @@ void showDialogUpdatePlanner(
                 child: Text('Cancel'),
               ),
               TextButton(
-                onPressed: isStartDateValid
-                    ? () {
-                        final enteredNumber = numberController.text;
-                        onSave(startDate, endDate, enteredNumber,
-                            nameController.text); // Вызываем функцию сохранения
-                        Navigator.of(context).pop(); // Закрываем диалог
-                      }
-                    : null,
+                onPressed:
+                    isStartDateValid
+                        ? () {
+                          final enteredNumber = numberController.text;
+                          onSave(
+                            startDate,
+                            endDate,
+                            enteredNumber,
+                            nameController.text,
+                          ); // Вызываем функцию сохранения
+                          Navigator.of(context).pop(); // Закрываем диалог
+                        }
+                        : null,
                 child: Text(planner != null ? 'Save' : 'Create'),
               ),
             ],

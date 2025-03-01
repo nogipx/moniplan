@@ -4,33 +4,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class MoneyFlowWidget extends StatelessWidget {
   final MoneyFlowUseCaseResult state;
 
-  const MoneyFlowWidget({
-    super.key,
-    required this.state,
-  });
+  const MoneyFlowWidget({super.key, required this.state});
 
   @override
   Widget build(BuildContext context) {
     final textStyle = context.theme.textTheme.labelSmall;
-    final divider = SizedBox(
-      height: 30,
-      child: VerticalDivider(
-        thickness: 1,
-        width: 1,
-      ),
-    );
+    final divider = SizedBox(height: 30, child: VerticalDivider(thickness: 1, width: 1));
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: SizedBox(
         height: 30,
         child: Wrap(
@@ -41,10 +29,7 @@ class MoneyFlowWidget extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Start',
-                  style: textStyle,
-                ),
+                Text('Start', style: textStyle),
                 MoneyColoredWidget(
                   value: state.initialBalance,
                   currency: CurrencyDataCommon.rub,
@@ -57,10 +42,7 @@ class MoneyFlowWidget extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Income',
-                  style: textStyle,
-                ),
+                Text('Income', style: textStyle),
                 MoneyColoredWidget(
                   value: state.totalIncome,
                   currency: CurrencyDataCommon.rub,
@@ -71,10 +53,7 @@ class MoneyFlowWidget extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Expense',
-                  style: textStyle,
-                ),
+                Text('Expense', style: textStyle),
                 MoneyColoredWidget(
                   value: state.totalOutcome,
                   currency: CurrencyDataCommon.rub,
@@ -86,10 +65,7 @@ class MoneyFlowWidget extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Result',
-                  style: textStyle,
-                ),
+                Text('Result', style: textStyle),
                 MoneyColoredWidget(
                   value: state.balance,
                   currency: CurrencyDataCommon.rub,

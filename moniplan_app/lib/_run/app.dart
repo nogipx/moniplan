@@ -13,7 +13,8 @@ import 'package:moniplan_app/features/planners_list/_index.dart';
 import 'package:moniplan_app/features/receive_import_sharing/bloc/_index.dart';
 import 'package:moniplan_app/features/receive_import_sharing/receive_import_wrapper.dart';
 import 'package:moniplan_app/i18n/_index.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
@@ -21,10 +22,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MoniplanApp extends StatefulWidget {
-  const MoniplanApp({
-    super.key,
-    required this.sharedPreferences,
-  });
+  const MoniplanApp({super.key, required this.sharedPreferences});
 
   final SharedPreferences sharedPreferences;
 
@@ -80,10 +78,9 @@ class _MoniplanAppState extends State<MoniplanApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => ReceiveImportSharingBloc(
-            monisyncRepo: AppDi.instance.getMonisyncRepo(),
-          ),
-        )
+          create:
+              (context) => ReceiveImportSharingBloc(monisyncRepo: AppDi.instance.getMonisyncRepo()),
+        ),
       ],
       child: AnimatedBuilder(
         animation: AppDbImpl(),
@@ -104,40 +101,23 @@ class _MoniplanAppState extends State<MoniplanApp> {
                 // The PosthogObserver records screen views automatically
                 PosthogObserver(),
               ],
-              builder: (context, child) => ResponsiveBreakpoints.builder(
-                child: child!,
-                breakpoints: [
-                  const Breakpoint(
-                    start: 0,
-                    end: 450,
-                    name: MOBILE,
+              builder:
+                  (context, child) => ResponsiveBreakpoints.builder(
+                    child: child!,
+                    breakpoints: [
+                      const Breakpoint(start: 0, end: 450, name: MOBILE),
+                      const Breakpoint(start: 451, end: 800, name: TABLET),
+                      const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                      const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+                    ],
                   ),
-                  const Breakpoint(
-                    start: 451,
-                    end: 800,
-                    name: TABLET,
-                  ),
-                  const Breakpoint(
-                    start: 801,
-                    end: 1920,
-                    name: DESKTOP,
-                  ),
-                  const Breakpoint(
-                    start: 1921,
-                    end: double.infinity,
-                    name: '4K',
-                  ),
-                ],
-              ),
               home: Builder(
                 builder: (context) {
                   return GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => AppColorsDisplayScreen(),
-                        ),
-                      );
+                      Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
                     },
                     child: home,
                   );
@@ -173,9 +153,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
                     dark: dark,
                     light: light,
                   ),
-              ReceiveImportWrapper(
-                child: PlannersListScreen(),
-              ),
+              ReceiveImportWrapper(child: PlannersListScreen()),
             );
           },
         );

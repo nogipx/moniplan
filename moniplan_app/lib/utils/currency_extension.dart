@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/locale.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 extension CurrencyDouble on num {
   bool get isWhole => this % 1 == 0;
@@ -29,26 +29,19 @@ extension CurrencyDouble on num {
 extension CurrencyExt on CurrencyData {
   static final _format = NumberFormat();
 
-  static const _overrideSimpleCurrency = <String, String>{
-    'RUB': '₽',
-  };
+  static const _overrideSimpleCurrency = <String, String>{'RUB': '₽'};
 
-  static final currencies =
-      (numberFormatSymbols as Map<String, NumberSymbols>).map<String, NumberSymbols>(
-    (key, value) => MapEntry<String, NumberSymbols>(
-      value.DEF_CURRENCY_CODE,
-      value,
-    ),
-  );
+  static final currencies = (numberFormatSymbols as Map<String, NumberSymbols>)
+      .map<String, NumberSymbols>(
+        (key, value) => MapEntry<String, NumberSymbols>(value.DEF_CURRENCY_CODE, value),
+      );
 
   NumberSymbols? get numberSymbols => currencies[isoCode];
 
   Locale? getLocale() {
     final locale = Locale.tryParse(numberSymbols?.NAME ?? '');
     if (locale == null) {
-      AppLog('getLocale()').warning(
-        'No found locale for Currency($isoCode, $symbol)',
-      );
+      AppLog('getLocale()').warning('No found locale for Currency($isoCode, $symbol)');
     }
     return locale;
   }

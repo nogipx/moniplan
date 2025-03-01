@@ -7,7 +7,7 @@
 //
 // import 'package:device_info_plus/device_info_plus.dart';
 // import 'package:lan_messaging/lan_messaging.dart';
-// import 'package:moniplan_core/moniplan_core.dart';
+// import 'package:moniplan_app/core/_index.dart';
 //
 // Future<MDnsRegisterPacket?> registerMDns({
 //   int? customTargetPort,

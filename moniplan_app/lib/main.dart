@@ -11,7 +11,8 @@ import 'package:logging/logging.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/log/app_log_impl.dart';
 import 'package:moniplan_app/i18n/_index.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stack_trace/stack_trace.dart';
 
@@ -43,14 +44,10 @@ Future<void> main() async {
 
         initializeMessages('ru');
         initializeDateFormatting('ru');
-        await SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-        ]);
+        await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
         final prefs = await SharedPreferences.getInstance();
 
-        runApp(MoniplanApp(
-          sharedPreferences: prefs,
-        ));
+        runApp(MoniplanApp(sharedPreferences: prefs));
       },
       (exception, stackTrace) {
         zoneLog.critical("Global error", error: exception, trace: stackTrace);

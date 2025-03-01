@@ -5,18 +5,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PaymentListDaySeparator extends StatelessWidget {
   final DateTime date;
   final DateTime today;
 
-  const PaymentListDaySeparator({
-    required this.date,
-    required this.today,
-    super.key,
-  });
+  const PaymentListDaySeparator({required this.date, required this.today, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +35,7 @@ class PaymentListDaySeparator extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 2,
-                horizontal: 8,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
               child: Text(
                 DateFormat.MMMMd().format(date),
                 style: context.text.labelMedium?.copyWith(

@@ -1,4 +1,4 @@
-name: moniplan_workspace
+name: moniplan
 publish_to: none
 environment:
   sdk: ^3.7.0

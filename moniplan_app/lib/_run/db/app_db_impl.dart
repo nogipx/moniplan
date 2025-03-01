@@ -5,11 +5,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/db/drift_open_temporary_connection.dart';
-import 'package:moniplan_core/moniplan_core.dart';
-import 'package:moniplan_core/moniplan_db.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 class AppDbImpl extends ChangeNotifier implements AppDb {
   static AppDbImpl? _instance;
@@ -65,10 +66,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   @override
-  Future<void> openTemporaryFromFile({
-    required File dbFile,
-    String encryptKey = '',
-  }) async {
+  Future<void> openTemporaryFromFile({required File dbFile, String encryptKey = ''}) async {
     try {
       final cleanedPath = dbFile.path.replaceAll('file://', '');
       final file = File(cleanedPath);
@@ -88,9 +86,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
       final connection = driftOpenTemporary(bytes: tempBytes);
 
-      final tempDb = MoniplanDriftDb(
-        dbExecutor: connection,
-      );
+      final tempDb = MoniplanDriftDb(dbExecutor: connection);
       _db = tempDb;
 
       notifyListeners();
@@ -101,10 +97,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   @override
-  Future<void> overrideDefaultFromFile({
-    required File newDbFile,
-    String encryptKey = '',
-  }) async {
+  Future<void> overrideDefaultFromFile({required File newDbFile, String encryptKey = ''}) async {
     try {
       final cleanedPath = newDbFile.path.replaceAll('file://', '');
       final file = File(cleanedPath);

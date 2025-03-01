@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/utils/_index.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class MoneyColoredWidget extends StatelessWidget {
@@ -27,9 +27,10 @@ class MoneyColoredWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = value == 0 || value == null
-        ? context.color.onSurfaceVariant
-        : (value ?? 0) > 0
+    final color =
+        value == 0 || value == null
+            ? context.color.onSurfaceVariant
+            : (value ?? 0) > 0
             ? overridePositiveColor ?? context.extra.moneyPositive
             : overrideNegativeColor ?? context.extra.moneyNegative;
 

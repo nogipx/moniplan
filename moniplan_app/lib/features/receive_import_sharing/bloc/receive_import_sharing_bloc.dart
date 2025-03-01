@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
@@ -18,11 +18,9 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
   final _log = AppLog('ReceiveImportSharingBloc');
   final IMonisyncRepo _monisyncRepo;
 
-  ReceiveImportSharingBloc({
-    required IMonisyncRepo monisyncRepo,
-    AppLog? log,
-  })  : _monisyncRepo = monisyncRepo,
-        super(ReceiveImportInitialState()) {
+  ReceiveImportSharingBloc({required IMonisyncRepo monisyncRepo, AppLog? log})
+    : _monisyncRepo = monisyncRepo,
+      super(ReceiveImportInitialState()) {
     on<ReceiveImportStartReceiveEvent>(_onStartReceive);
     on<ReceiveImportStopReceiveEvent>(_onStopReceive);
     on<ReceiveImportOnDataEvent>(_onData);
@@ -63,10 +61,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     emit(ReceiveImportActiveState(isActive: false));
   }
 
-  Future<void> _onData(
-    ReceiveImportOnDataEvent event,
-    Emitter<ReceiveImportState> emit,
-  ) async {
+  Future<void> _onData(ReceiveImportOnDataEvent event, Emitter<ReceiveImportState> emit) async {
     if (event.receivedValues.isEmpty) {
       return;
     }

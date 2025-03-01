@@ -3,14 +3,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:logging/logging.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 class MoniplanLog implements AppLog {
   final Logger _logger;
 
-  MoniplanLog({
-    required Logger logger,
-  }) : _logger = logger;
+  MoniplanLog({required Logger logger}) : _logger = logger;
 
   @override
   void business(Object? msg) {

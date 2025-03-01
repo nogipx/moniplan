@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:drift/drift.dart';
-import 'package:moniplan_core/moniplan_db.dart';
 
 class GlobalLastUpdate extends Table {
   static const entityId = 'global_last_update';

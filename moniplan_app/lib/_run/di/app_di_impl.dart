@@ -5,7 +5,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
 import 'package:moniplan_app/features/monisync/repo/monisync_repo_impl.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 const mockEncryptionKey = 'J33L06KoJbO1okTNJ1sHNV1DS5UiVtLPLmWn0RZbxGk=';
 
@@ -20,13 +21,10 @@ class GetItAppDI implements AppDi {
 
     _getIt.registerSingleton<AppDb>(db);
     _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: db));
-    _getIt.registerSingleton<IMonisyncRepo>(MonisyncRepoImpl(
-      appDb: db,
-      encryptKey: mockEncryptionKey,
-    ));
-    _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(
-      plannerRepo: getPlannerRepo(),
-    ));
+    _getIt.registerSingleton<IMonisyncRepo>(
+      MonisyncRepoImpl(appDb: db, encryptKey: mockEncryptionKey),
+    );
+    _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
   }
 
   @override

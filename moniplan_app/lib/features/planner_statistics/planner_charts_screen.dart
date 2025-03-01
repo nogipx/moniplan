@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_core/moniplan_core.dart';
+import 'package:moniplan_app/core/_index.dart';
 
 class PlannerChartsScreen extends StatelessWidget {
   const PlannerChartsScreen({super.key});
@@ -16,10 +16,7 @@ class PlannerChartsScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(),
           body: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 4,
-              vertical: 24,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
             child: Center(
               child: RotatedBox(
                 quarterTurns: 1,
