@@ -14,69 +14,170 @@ class MoneyFlowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = context.theme.textTheme.labelSmall;
-    final divider = SizedBox(height: 30, child: VerticalDivider(thickness: 1, width: 1));
+    // Определяем тренд баланса (положительный или отрицательный)
+    final balanceTrend = state.balance >= state.initialBalance;
+    final trendIcon = balanceTrend ? Icons.trending_up : Icons.trending_down;
+    final trendColor =
+        balanceTrend
+            ? context.ext<MoniplanExtraColors>()?.moneyPositive
+            : context.ext<MoniplanExtraColors>()?.moneyNegative;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: SizedBox(
-        height: 30,
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          alignment: WrapAlignment.spaceBetween,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            balanceTrend
+                ? context.color.surfaceContainerHighest
+                : context.color.errorContainer.withOpacity(0.3),
+            balanceTrend
+                ? context.color.surfaceContainerHigh
+                : context.color.errorContainer.withOpacity(0.1),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color:
+                balanceTrend
+                    ? context.color.shadow.withOpacity(0.1)
+                    : context.color.error.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
+            // Верхний ряд: Начальный баланс и Итоговый баланс
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Start', style: textStyle),
-                MoneyColoredWidget(
-                  value: state.initialBalance,
-                  currency: CurrencyDataCommon.rub,
+                _buildItem(
+                  context,
+                  'Start',
+                  state.initialBalance,
+                  CurrencyDataCommon.rub,
                   showPlusSign: false,
-                  textStyle: textStyle,
+                  isHighlighted: false,
+                ),
+                Row(
+                  children: [
+                    _buildItem(
+                      context,
+                      'Result',
+                      state.balance,
+                      CurrencyDataCommon.rub,
+                      showPlusSign: false,
+                      isHighlighted: true,
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(trendIcon, color: trendColor, size: 16),
+                  ],
                 ),
               ],
             ),
-            divider,
-            Column(
-              mainAxisSize: MainAxisSize.min,
+            const SizedBox(height: 8),
+            // Нижний ряд: Доходы и Расходы
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Income', style: textStyle),
-                MoneyColoredWidget(
-                  value: state.totalIncome,
-                  currency: CurrencyDataCommon.rub,
-                  textStyle: textStyle,
+                Expanded(
+                  child: _buildItem(
+                    context,
+                    'Income',
+                    state.totalIncome,
+                    CurrencyDataCommon.rub,
+                    showPlusSign: true,
+                    isIncome: true,
+                  ),
                 ),
-              ],
-            ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Expense', style: textStyle),
-                MoneyColoredWidget(
-                  value: state.totalOutcome,
-                  currency: CurrencyDataCommon.rub,
-                  textStyle: textStyle,
+                Container(
+                  height: 24,
+                  width: 1,
+                  color: context.color.outlineVariant,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
                 ),
-              ],
-            ),
-            divider,
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Result', style: textStyle),
-                MoneyColoredWidget(
-                  value: state.balance,
-                  currency: CurrencyDataCommon.rub,
-                  showPlusSign: false,
-                  textStyle: textStyle,
+                Expanded(
+                  child: _buildItem(
+                    context,
+                    'Expense',
+                    state.totalOutcome,
+                    CurrencyDataCommon.rub,
+                    showPlusSign: false,
+                    isIncome: false,
+                  ),
                 ),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildItem(
+    BuildContext context,
+    String label,
+    num value,
+    CurrencyData currency, {
+    bool showPlusSign = false,
+    bool isHighlighted = false,
+    bool? isIncome,
+  }) {
+    final textStyle = context.theme.textTheme.labelMedium;
+    final valueStyle = context.theme.textTheme.titleMedium?.copyWith(
+      fontWeight: isHighlighted ? FontWeight.bold : FontWeight.w500,
+      color: isHighlighted ? context.color.primary : null,
+    );
+
+    Color? overrideColor;
+    if (isIncome != null) {
+      overrideColor =
+          isIncome
+              ? context.ext<MoniplanExtraColors>()?.moneyPositive
+              : context.ext<MoniplanExtraColors>()?.moneyNegative;
+    }
+
+    final moneyWidget = MoneyColoredWidget(
+      value: value,
+      currency: currency,
+      showPlusSign: showPlusSign,
+      textStyle: valueStyle,
+      overridePositiveColor: overrideColor,
+      overrideNegativeColor: isHighlighted && value < 0 ? context.color.error : overrideColor,
+    );
+
+    // Если это выделенный элемент (Result), добавляем анимацию
+    if (isHighlighted) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label, style: textStyle?.copyWith(color: context.color.primary)),
+          const SizedBox(height: 2),
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0.95, end: 1.05),
+            duration: const Duration(milliseconds: 1500),
+            curve: Curves.easeInOut,
+            builder: (context, scale, child) {
+              return Transform.scale(scale: scale, child: moneyWidget);
+            },
+          ),
+        ],
+      );
+    }
+
+    // Для обычных элементов
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label, style: textStyle?.copyWith(color: context.color.onSurfaceVariant)),
+        const SizedBox(height: 2),
+        moneyWidget,
+      ],
     );
   }
 }

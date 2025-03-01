@@ -17,6 +17,7 @@ class PaymentListSeparator extends StatelessWidget {
   final double animationValue;
   final double stuckAmount;
   final bool isMonthEdge;
+  final bool showDaySeparator;
 
   const PaymentListSeparator({
     required this.today,
@@ -25,6 +26,7 @@ class PaymentListSeparator extends StatelessWidget {
     this.animationValue = 0,
     this.stuckAmount = 0,
     this.isMonthEdge = false,
+    this.showDaySeparator = true,
     super.key,
   });
 
@@ -34,117 +36,84 @@ class PaymentListSeparator extends StatelessWidget {
 
     return RepaintBoundary(
       child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              context.color.surface,
-              context.color.surface.withOpacity(.9),
-              context.color.surface.withOpacity(0.7),
-            ],
-            stops: const [0, .85, 1],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        color: context.color.surface,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (isMonthEdge) const SizedBox(height: 24),
+            if (isMonthEdge) const SizedBox(height: 16),
             if (isMonthEdge)
-              Container(
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      context.color.primaryContainer,
-                      context.color.primary.withOpacity(0.1),
-                    ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: context.color.primary.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_month_outlined, color: context.color.primary, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      DateFormat(DateFormat.MONTH).format(currDate).capitalize(),
+                      style: context.text.titleLarge?.copyWith(
+                        color: context.color.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      currDate.year.toString(),
+                      style: context.text.titleMedium?.copyWith(
+                        color: context.color.onSurfaceVariant,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: context.color.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${currDate.month}/12',
+                        style: context.text.labelSmall?.copyWith(
+                          color: context.color.onPrimaryContainer,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: context.color.primary.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.calendar_today_rounded,
-                          color: context.color.primary,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              DateFormat(DateFormat.MONTH).format(currDate).capitalize(),
-                              style: context.text.headlineSmall?.copyWith(
-                                color: context.color.onPrimaryContainer,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              currDate.year.toString(),
-                              style: context.text.titleMedium?.copyWith(
-                                color: context.color.onPrimaryContainer.withOpacity(0.8),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
+            if (isMonthEdge)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Divider(color: context.color.outlineVariant),
+              ),
+            if (showDaySeparator)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(child: shrink),
+                    PaymentListDaySeparator(date: currDate, today: today),
+                    Expanded(child: shrink),
+                  ],
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(child: shrink),
-                  PaymentListDaySeparator(date: currDate, today: today),
-                  Expanded(child: shrink),
-                ],
-              ),
-            ),
             if (payments != null && payments!.isEmpty)
-              Container(
-                margin: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: context.color.surfaceContainerLowest,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: context.color.outlineVariant, width: 0.5),
-                ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.info_outline_rounded,
-                      size: 18,
-                      color: context.color.onSurfaceVariant,
+                      Icons.remove_circle_outline,
+                      size: 14,
+                      color: context.color.outlineVariant,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     Text(
-                      'Нет платежей на этот день',
-                      style: context.text.bodyMedium?.copyWith(
-                        color: context.color.onSurfaceVariant,
+                      'Нет платежей',
+                      style: context.text.bodySmall?.copyWith(
+                        color: context.color.outlineVariant,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   ],

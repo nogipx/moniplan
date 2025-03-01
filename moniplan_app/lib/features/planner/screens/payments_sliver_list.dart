@@ -42,30 +42,78 @@ class PaymentsSliverList extends StatelessWidget {
       nextDate: neighbours?.after?.date,
     );
 
-    return StickyHeaderBuilder(
-      builder: (BuildContext context, double stuckAmount) {
-        final normalizedAnimation = normalizeToRange(stuckAmount, -1, 1, 0, 1);
+    // Если это начало месяца, показываем разделитель месяца отдельно (не sticky)
+    if (isMonthEdge) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Разделитель месяца (не sticky)
+          PaymentListSeparator(
+            currDate: group.date,
+            isMonthEdge: true,
+            today: today,
+            payments: group.payments,
+            animationValue: 0,
+            stuckAmount: 0,
+            showDaySeparator: false, // Не показываем разделитель дня в месячном разделителе
+          ),
 
-        return PaymentListSeparator(
-          currDate: group.date,
-          isMonthEdge: isMonthEdge,
-          today: today,
-          payments: group.payments,
-          animationValue: normalizedAnimation,
-          stuckAmount: stuckAmount,
-        );
-      },
-      content: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child:
-            group.payments.isEmpty
-                ? const SizedBox(height: 8) // Если платежей нет, просто добавляем небольшой отступ
-                : Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _buildPaymentsList(context, group.payments),
-                ),
-      ),
-    );
+          // Разделитель дня (sticky)
+          StickyHeaderBuilder(
+            builder: (BuildContext context, double stuckAmount) {
+              final normalizedAnimation = normalizeToRange(stuckAmount, -1, 1, 0, 1);
+
+              return PaymentListSeparator(
+                currDate: group.date,
+                isMonthEdge: false, // Уже показали разделитель месяца выше
+                today: today,
+                payments: group.payments,
+                animationValue: normalizedAnimation,
+                stuckAmount: stuckAmount,
+                showDaySeparator: true, // Показываем только разделитель дня
+              );
+            },
+            content: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child:
+                  group.payments.isEmpty
+                      ? const SizedBox(height: 8)
+                      : Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _buildPaymentsList(context, group.payments),
+                      ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      // Обычный день (не начало месяца) - показываем только разделитель дня (sticky)
+      return StickyHeaderBuilder(
+        builder: (BuildContext context, double stuckAmount) {
+          final normalizedAnimation = normalizeToRange(stuckAmount, -1, 1, 0, 1);
+
+          return PaymentListSeparator(
+            currDate: group.date,
+            isMonthEdge: false,
+            today: today,
+            payments: group.payments,
+            animationValue: normalizedAnimation,
+            stuckAmount: stuckAmount,
+            showDaySeparator: true, // Показываем только разделитель дня
+          );
+        },
+        content: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child:
+              group.payments.isEmpty
+                  ? const SizedBox(height: 8)
+                  : Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _buildPaymentsList(context, group.payments),
+                  ),
+        ),
+      );
+    }
   }
 
   Widget _buildPaymentsList(BuildContext context, List<Payment> payments) {

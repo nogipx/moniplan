@@ -94,14 +94,6 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
           ],
         );
 
-        final moneyFlow =
-            state is PlannerBudgetComputedState
-                ? ColoredBox(
-                  child: MoneyFlowWidget(state: state.moneyFlow),
-                  color: context.color.surface,
-                )
-                : const SizedBox.shrink();
-
         return Scaffold(
           floatingActionButton: fab,
           appBar: appBar,
@@ -111,7 +103,6 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    moneyFlow,
                     Expanded(
                       child: CustomScrollView(
                         controller: _scrollController,

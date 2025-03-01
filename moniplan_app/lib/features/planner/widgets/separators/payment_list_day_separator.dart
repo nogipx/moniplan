@@ -34,19 +34,16 @@ class _PaymentListDaySeparatorState extends State<PaymentListDaySeparator> {
     final isWeekend =
         widget.date.weekday == DateTime.saturday || widget.date.weekday == DateTime.sunday;
 
-    // Определяем цвета в зависимости от типа дня (убираем подсветку проблемных дней)
-    Color backgroundColor;
+    // Упрощаем цветовую схему - только сегодняшний день выделяем
     Color textColor;
+    Color? indicatorColor;
 
     if (isSameDay) {
-      backgroundColor = context.color.primaryContainer;
-      textColor = context.color.onPrimaryContainer;
-    } else if (isWeekend) {
-      backgroundColor = context.color.surfaceContainerHighest.withOpacity(0.7);
-      textColor = context.color.onSurface;
+      textColor = context.color.primary;
+      indicatorColor = context.color.primaryContainer;
     } else {
-      backgroundColor = context.color.surfaceContainerHigh;
       textColor = context.color.onSurface;
+      indicatorColor = null;
     }
 
     return Material(
@@ -54,58 +51,43 @@ class _PaymentListDaySeparatorState extends State<PaymentListDaySeparator> {
       child: InkWell(
         onLongPress: () => _showDaysInfo(context),
         onTap: () => _showDaySummary(context),
-        borderRadius: BorderRadius.all(AppRadius.r10),
+        borderRadius: BorderRadius.circular(20),
         child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.all(AppRadius.r10),
+            color: indicatorColor,
+            borderRadius: BorderRadius.circular(20),
             border:
                 isSameDay
                     ? Border.all(color: context.color.primary.withOpacity(0.5), width: 0.5)
                     : null,
-            boxShadow:
-                isSameDay
-                    ? [
-                      BoxShadow(
-                        color: context.color.primary.withOpacity(0.2),
-                        blurRadius: 4,
-                        offset: const Offset(0, 1),
-                      ),
-                    ]
-                    : null,
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isSameDay)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: Icon(Icons.today_rounded, size: 16, color: textColor),
-                  ),
-                Text(
-                  isSameYear
-                      ? DateFormat.MMMMd().format(widget.date)
-                      : DateFormat('d MMMM y').format(widget.date),
-                  style: context.text.labelMedium?.copyWith(
-                    color: textColor,
-                    fontWeight: isSameDay ? FontWeight.w600 : FontWeight.w500,
-                  ),
-                ),
-                // Добавляем индикатор дня недели
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isSameDay)
                 Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: Text(
-                    _getWeekdayShort(widget.date),
-                    style: context.text.labelSmall?.copyWith(
-                      color: textColor.withOpacity(0.8),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(Icons.today_rounded, size: 14, color: textColor),
                 ),
-              ],
-            ),
+              Text(
+                isSameYear
+                    ? DateFormat.MMMMd().format(widget.date)
+                    : DateFormat('d MMMM y').format(widget.date),
+                style: context.text.labelMedium?.copyWith(
+                  color: textColor,
+                  fontWeight: isSameDay ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                _getWeekdayShort(widget.date),
+                style: context.text.labelSmall?.copyWith(
+                  color: textColor.withOpacity(0.8),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
           ),
         ),
       ),

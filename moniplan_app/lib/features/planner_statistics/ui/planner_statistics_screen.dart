@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/features/planner/widgets/money_flow_widget.dart';
 import '../bloc/statistics_bloc.dart';
-import 'planner_chart.dart';
+import '_index.dart';
 
 class PlannerStatisticsScreen extends StatelessWidget {
   final String plannerId;
@@ -56,6 +57,13 @@ class PlannerStatisticsView extends StatelessWidget {
                       );
                     },
                   ),
+                  if (!loaded.statistics.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: MoneyFlowWidget(
+                        state: StatisticsMoneyFlowAdapter.fromStatistics(loaded.statistics),
+                      ),
+                    ),
                   if (loaded.statistics.isEmpty)
                     const Center(child: Text('Нет данных за выбранный период'))
                   else
