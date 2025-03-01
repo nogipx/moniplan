@@ -19,6 +19,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
   final Function(Payment)? onToggleEnabled;
   final Function(Payment)? onToggleDone;
   final PlannerBloc? plannerBloc;
+  final bool isVirtualPaymentSelected;
 
   const PaymentActionsBottomSheet({
     required this.payment,
@@ -28,6 +29,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
     this.onToggleEnabled,
     this.onToggleDone,
     this.plannerBloc,
+    this.isVirtualPaymentSelected = false,
     super.key,
   });
 
@@ -39,6 +41,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
     Function()? onFixation,
     Function(Payment)? onToggleEnabled,
     Function(Payment)? onToggleDone,
+    bool isVirtualPaymentSelected = false,
   }) async {
     final plannerBloc = BlocProvider.of<PlannerBloc>(context, listen: false);
 
@@ -55,6 +58,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
             onToggleEnabled: onToggleEnabled,
             onToggleDone: onToggleDone,
             plannerBloc: plannerBloc,
+            isVirtualPaymentSelected: isVirtualPaymentSelected,
           ),
     );
   }
@@ -68,8 +72,8 @@ class PaymentActionsBottomSheet extends StatelessWidget {
     final moneySign = isIncome ? '+' : '-';
     final moneyValue = moneyFormat.format(payment.normalizedMoney.abs());
 
-    // Получаем текущую дату для расчета разницы дней
-    final today = DateTime.now();
+    // Определяем, является ли платеж реальным (не виртуальным)
+    final isRealPayment = payment.isParent;
 
     return SafeArea(
       child: Container(
@@ -113,6 +117,43 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                     style: context.text.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                     overflow: TextOverflow.visible,
                   ),
+
+                  // Индикатор виртуального платежа
+                  if (payment.isNotParent) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.auto_awesome, size: 16, color: context.color.tertiary),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Виртуальный платеж из повторяющейся серии',
+                          style: context.text.bodySmall?.copyWith(
+                            color: context.color.tertiary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else if (isVirtualPaymentSelected) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.info_outline, size: 16, color: context.color.tertiary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Родительский платеж для выбранного виртуального платежа',
+                            style: context.text.bodySmall?.copyWith(
+                              color: context.color.tertiary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            overflow: TextOverflow.visible,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                  ],
 
                   const SizedBox(height: 8),
 
@@ -196,41 +237,47 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                     ],
                   ],
 
-                  // Статус платежа
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Icon(
-                        payment.isEnabled ? Icons.check_circle_outline : Icons.cancel_outlined,
-                        size: 16,
-                        color: payment.isEnabled ? context.color.primary : context.color.error,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        payment.isEnabled ? 'Активен' : 'Отключен',
-                        style: context.text.bodySmall?.copyWith(
+                  // Статус платежа (только для реальных платежей)
+                  if (isRealPayment) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(
+                          payment.isEnabled ? Icons.check_circle_outline : Icons.cancel_outlined,
+                          size: 16,
                           color: payment.isEnabled ? context.color.primary : context.color.error,
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Icon(
-                        payment.isDone ? Icons.task_alt : Icons.pending_outlined,
-                        size: 16,
-                        color:
-                            payment.isDone ? context.color.primary : context.color.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        payment.isDone ? 'Выполнен' : 'Не выполнен',
-                        style: context.text.bodySmall?.copyWith(
-                          color:
-                              payment.isDone
-                                  ? context.color.primary
-                                  : context.color.onSurfaceVariant,
+                        const SizedBox(width: 8),
+                        Text(
+                          payment.isEnabled ? 'Активен' : 'Отключен',
+                          style: context.text.bodySmall?.copyWith(
+                            color: payment.isEnabled ? context.color.primary : context.color.error,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 16),
+                        if (!payment.isRepeat) ...[
+                          Icon(
+                            payment.isDone ? Icons.task_alt : Icons.pending_outlined,
+                            size: 16,
+                            color:
+                                payment.isDone
+                                    ? context.color.primary
+                                    : context.color.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            payment.isDone ? 'Выполнен' : 'Не выполнен',
+                            style: context.text.bodySmall?.copyWith(
+                              color:
+                                  payment.isDone
+                                      ? context.color.primary
+                                      : context.color.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
 
                   // Примечание к платежу (если есть)
                   if (payment.details.note.isNotEmpty) ...[
@@ -276,7 +323,8 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                       },
                     ),
 
-                  if (onToggleEnabled != null)
+                  // Кнопки включения/выключения и выполнения только для реальных платежей
+                  if (isRealPayment && onToggleEnabled != null)
                     _buildCircleButton(
                       context,
                       icon:
@@ -298,8 +346,18 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                       label: !payment.isDone ? 'Не выполнено' : 'Выполнено',
                       color: !payment.isDone ? context.color.tertiary : context.color.primary,
                       onTap: () {
-                        onToggleDone?.call(payment.copyWith(isDone: !payment.isDone));
-                        Navigator.pop(context);
+                        // Показываем диалог о необходимости фиксации перед выполнением платежа
+                        // в двух случаях:
+                        // 1. Если был выбран виртуальный платеж (даже если отображается родительский)
+                        // 2. Если платеж реальный и является родителем повторяющихся платежей
+                        if (!payment.isDone &&
+                            payment.isRepeat &&
+                            (isVirtualPaymentSelected || payment.isRepeatParent)) {
+                          _showFixationBeforeCompletionDialog(context);
+                        } else {
+                          onToggleDone?.call(payment.copyWith(isDone: !payment.isDone));
+                          Navigator.pop(context);
+                        }
                       },
                     ),
 
@@ -362,8 +420,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                 margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: TextButton.icon(
                   onPressed: () {
-                    onFixation?.call();
-                    Navigator.pop(context);
+                    _showFixationDialog(context);
                   },
                   icon: const Icon(Icons.lock_clock),
                   label: const Text('Зафиксировать повторяющийся платеж'),
@@ -376,6 +433,143 @@ class PaymentActionsBottomSheet extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  // Показывает диалог с пояснением о фиксации повторяющегося платежа
+  void _showFixationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Фиксация повторяющегося платежа'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'При фиксации повторяющегося платежа произойдет следующее:',
+                style: context.text.bodyMedium,
+              ),
+              const SizedBox(height: 16),
+              _buildFixationInfoItem(
+                context,
+                icon: Icons.repeat_one,
+                text: 'Текущий платеж станет обычным (не повторяющимся)',
+              ),
+              const SizedBox(height: 8),
+              _buildFixationInfoItem(
+                context,
+                icon: Icons.calendar_today,
+                text: 'Будущие повторения останутся в календаре',
+              ),
+              const SizedBox(height: 8),
+              _buildFixationInfoItem(
+                context,
+                icon: Icons.edit_calendar,
+                text: 'Вы сможете редактировать этот платеж отдельно от других повторений',
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Закрываем диалог
+              },
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Закрываем диалог
+                onFixation?.call(); // Вызываем функцию фиксации
+                Navigator.of(context).pop(); // Закрываем нижний лист
+              },
+              child: const Text('Зафиксировать'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Показывает диалог о необходимости фиксации перед выполнением платежа
+  void _showFixationBeforeCompletionDialog(BuildContext context) {
+    final String titleText =
+        isVirtualPaymentSelected
+            ? 'Необходима фиксация виртуального платежа'
+            : 'Необходима фиксация повторяющегося платежа';
+
+    final String messageText =
+        isVirtualPaymentSelected
+            ? 'Вы пытаетесь отметить как выполненный виртуальный платеж из повторяющейся серии.'
+            : 'Вы пытаетесь отметить как выполненный повторяющийся платеж.';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(titleText),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(messageText, style: context.text.bodyMedium),
+              const SizedBox(height: 12),
+              Text(
+                'Чтобы отметить его как выполненный, необходимо сначала зафиксировать его, отделив от других повторений.',
+                style: context.text.bodyMedium,
+              ),
+              const SizedBox(height: 16),
+              _buildFixationInfoItem(
+                context,
+                icon: Icons.info_outline,
+                text:
+                    'Фиксация создаст отдельный платеж, который можно будет отметить как выполненный',
+              ),
+              const SizedBox(height: 8),
+              _buildFixationInfoItem(
+                context,
+                icon: Icons.calendar_today,
+                text: 'Остальные повторения в серии останутся без изменений',
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Закрываем диалог
+              },
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Закрываем диалог
+                if (onFixation != null) {
+                  onFixation?.call(); // Вызываем функцию фиксации
+                  Navigator.of(context).pop(); // Закрываем нижний лист
+                }
+              },
+              child: const Text('Зафиксировать'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Вспомогательный метод для создания элемента в диалоге фиксации
+  Widget _buildFixationInfoItem(
+    BuildContext context, {
+    required IconData icon,
+    required String text,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: context.color.primary),
+        const SizedBox(width: 12),
+        Expanded(child: Text(text, style: context.text.bodyMedium)),
+      ],
     );
   }
 
@@ -452,39 +646,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
 
   // Возвращает текстовое описание периода повторения
   String _getRepeatText(DateTimeRepeat repeat) {
-    switch (repeat) {
-      case DateTimeRepeat.day:
-        return 'Ежедневно';
-      case DateTimeRepeat.twoDays:
-        return 'Каждые 2 дня';
-      case DateTimeRepeat.threeDays:
-        return 'Каждые 3 дня';
-      case DateTimeRepeat.fourDays:
-        return 'Каждые 4 дня';
-      case DateTimeRepeat.fiveDays:
-        return 'Каждые 5 дней';
-      case DateTimeRepeat.sixDays:
-        return 'Каждые 6 дней';
-      case DateTimeRepeat.week:
-        return 'Еженедельно';
-      case DateTimeRepeat.twoWeek:
-        return 'Каждые 2 недели';
-      case DateTimeRepeat.threeWeek:
-        return 'Каждые 3 недели';
-      case DateTimeRepeat.fourWeek:
-        return 'Каждые 4 недели';
-      case DateTimeRepeat.month:
-        return 'Ежемесячно';
-      case DateTimeRepeat.threeMonths:
-        return 'Ежеквартально';
-      case DateTimeRepeat.sixMonths:
-        return 'Раз в полгода';
-      case DateTimeRepeat.year:
-        return 'Ежегодно';
-      case DateTimeRepeat.noRepeat:
-      default:
-        return 'Без повторения';
-    }
+    return repeat.displayName;
   }
 
   // Возвращает текстовое описание периода повторения платежа

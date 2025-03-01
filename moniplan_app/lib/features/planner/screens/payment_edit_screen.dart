@@ -9,6 +9,7 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:expressions/expressions.dart';
+import 'package:moniplan_app/features/planner/widgets/repeat_period_selector.dart';
 
 class PaymentEditScreen extends StatefulWidget {
   final Payment? payment;
@@ -278,26 +279,16 @@ class _PaymentEditScreenState extends State<PaymentEditScreen> {
             // Повторение платежа
             Text('Повторение', style: context.text.titleMedium),
             const SizedBox(height: 8),
-            DropdownButtonFormField<DateTimeRepeat>(
-              value: _repeatPeriod,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
-              items:
-                  DateTimeRepeat.values.map((repeat) {
-                    return DropdownMenuItem<DateTimeRepeat>(
-                      value: repeat,
-                      child: Text(repeat.name),
-                    );
-                  }).toList(),
+            RepeatPeriodSelector(
+              initialValue: _repeatPeriod,
               onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _repeatPeriod = value;
-                  });
-                }
+                setState(() {
+                  _repeatPeriod = value;
+                });
               },
             ),
 
-            if (_repeatPeriod != DateTimeRepeat.noRepeat) ...[
+            if (_repeatPeriod.type != DateTimeRepeatType.none) ...[
               const SizedBox(height: 16),
 
               // Дата начала повторений

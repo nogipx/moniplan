@@ -57,7 +57,7 @@ class Payment with _$Payment, EquatableMixin {
     /// Field for repeated payments.
     /// It shows which period payment will be repeated.
     /// No repeat, by default.
-    @Default(DateTimeRepeat.noRepeat) DateTimeRepeat repeat,
+    @Default(DateTimeRepeat.noRepeat) @DateTimeRepeatConverter() DateTimeRepeat repeat,
   }) = _Payment;
 
   factory Payment.fromJson(Map<String, dynamic> json) => _$PaymentFromJson(json);
@@ -75,13 +75,13 @@ class Payment with _$Payment, EquatableMixin {
 
   @override
   List<Object?> get props => [
-        paymentId,
-        originalPaymentId,
-        isEnabled,
-        isDone,
-        details,
-        date,
-        dateStart,
-        dateEnd,
-      ];
+    paymentId,
+    originalPaymentId,
+    isEnabled,
+    isDone,
+    details,
+    date,
+    dateStart,
+    dateEnd,
+  ];
 }

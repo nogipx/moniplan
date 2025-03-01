@@ -46,7 +46,7 @@ Future<void> updateDialog({
       context.read<PlannerBloc>().add(
         PlannerEvent.deletePayment(paymentId: targetPayment.paymentId),
       );
-    });
+    }, payment: targetPayment);
   }
 
   void duplicate() {
@@ -92,6 +92,9 @@ Future<void> updateDialog({
       ),
     );
   } else {
+    // Проверяем, был ли изначально выбран виртуальный платеж
+    final wasVirtualPaymentSelected = paymentToEdit.isNotParent;
+
     // Просмотр существующего платежа
     PaymentActionsBottomSheet.show(
       context: context,
@@ -101,6 +104,7 @@ Future<void> updateDialog({
       onFixation: targetPayment.isRepeat ? fixate : null,
       onToggleEnabled: (payment) => save(payment),
       onToggleDone: (payment) => save(payment),
+      isVirtualPaymentSelected: wasVirtualPaymentSelected,
     );
   }
 

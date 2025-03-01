@@ -3,89 +3,335 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-enum DateTimeRepeat {
-  noRepeat('', 0),
-  day('1d', 1),
-  twoDays('2d', 2),
-  threeDays('3d', 3),
-  fourDays('4d', 4),
-  fiveDays('5d', 5),
-  sixDays('6d', 6),
-  week('1w', 7),
-  twoWeek('2w', 8),
-  threeWeek('3w', 9),
-  fourWeek('4w', 10),
-  month('1m', 11),
-  threeMonths('3m', 13),
-  sixMonths('6m', 16),
-  year('1y', 22);
+/// Конвертер для сериализации/десериализации DateTimeRepeat
+class DateTimeRepeatConverter implements JsonConverter<DateTimeRepeat, int> {
+  const DateTimeRepeatConverter();
 
-  final String shortName;
+  @override
+  DateTimeRepeat fromJson(int json) => DateTimeRepeat.from(json);
+
+  @override
+  int toJson(DateTimeRepeat object) => object.id;
+}
+
+enum DateTimeRepeatType { none, day, week, month, year }
+
+class DateTimeRepeat {
+  final DateTimeRepeatType type;
+  final int value;
   final int id;
+  final String shortName;
 
-  const DateTimeRepeat(this.shortName, this.id);
+  const DateTimeRepeat._({
+    required this.type,
+    required this.value,
+    required this.id,
+    required this.shortName,
+  });
+
+  // Предопределенные периоды повторения
+  static const noRepeat = DateTimeRepeat._(
+    type: DateTimeRepeatType.none,
+    value: 0,
+    id: 0,
+    shortName: '',
+  );
+
+  // Дни
+  static const day = DateTimeRepeat._(
+    type: DateTimeRepeatType.day,
+    value: 1,
+    id: 1,
+    shortName: '1d',
+  );
+  static const twoDays = DateTimeRepeat._(
+    type: DateTimeRepeatType.day,
+    value: 2,
+    id: 2,
+    shortName: '2d',
+  );
+  static const threeDays = DateTimeRepeat._(
+    type: DateTimeRepeatType.day,
+    value: 3,
+    id: 3,
+    shortName: '3d',
+  );
+  static const fourDays = DateTimeRepeat._(
+    type: DateTimeRepeatType.day,
+    value: 4,
+    id: 4,
+    shortName: '4d',
+  );
+  static const fiveDays = DateTimeRepeat._(
+    type: DateTimeRepeatType.day,
+    value: 5,
+    id: 5,
+    shortName: '5d',
+  );
+  static const sixDays = DateTimeRepeat._(
+    type: DateTimeRepeatType.day,
+    value: 6,
+    id: 6,
+    shortName: '6d',
+  );
+
+  // Недели
+  static const week = DateTimeRepeat._(
+    type: DateTimeRepeatType.week,
+    value: 1,
+    id: 7,
+    shortName: '1w',
+  );
+  static const twoWeek = DateTimeRepeat._(
+    type: DateTimeRepeatType.week,
+    value: 2,
+    id: 8,
+    shortName: '2w',
+  );
+  static const threeWeek = DateTimeRepeat._(
+    type: DateTimeRepeatType.week,
+    value: 3,
+    id: 9,
+    shortName: '3w',
+  );
+  static const fourWeek = DateTimeRepeat._(
+    type: DateTimeRepeatType.week,
+    value: 4,
+    id: 10,
+    shortName: '4w',
+  );
+
+  // Месяцы
+  static const month = DateTimeRepeat._(
+    type: DateTimeRepeatType.month,
+    value: 1,
+    id: 11,
+    shortName: '1m',
+  );
+  static const threeMonths = DateTimeRepeat._(
+    type: DateTimeRepeatType.month,
+    value: 3,
+    id: 13,
+    shortName: '3m',
+  );
+  static const sixMonths = DateTimeRepeat._(
+    type: DateTimeRepeatType.month,
+    value: 6,
+    id: 16,
+    shortName: '6m',
+  );
+
+  // Годы
+  static const year = DateTimeRepeat._(
+    type: DateTimeRepeatType.year,
+    value: 1,
+    id: 22,
+    shortName: '1y',
+  );
+
+  // Список всех предопределенных периодов
+  static const List<DateTimeRepeat> values = [
+    noRepeat,
+    day,
+    twoDays,
+    threeDays,
+    fourDays,
+    fiveDays,
+    sixDays,
+    week,
+    twoWeek,
+    threeWeek,
+    fourWeek,
+    month,
+    threeMonths,
+    sixMonths,
+    year,
+  ];
+
+  // Создание пользовательского периода повторения
+  static DateTimeRepeat custom({required DateTimeRepeatType type, required int value}) {
+    if (type == DateTimeRepeatType.none || value <= 0) {
+      return noRepeat;
+    }
+
+    // Проверяем, есть ли предопределенный период с такими параметрами
+    for (final preset in values) {
+      if (preset.type == type && preset.value == value) {
+        return preset;
+      }
+    }
+
+    // Генерируем уникальный ID для пользовательского периода
+    // Базовый ID для каждого типа + значение
+    int id;
+    String shortName;
+
+    switch (type) {
+      case DateTimeRepeatType.day:
+        id = 100 + value;
+        shortName = '${value}d';
+      case DateTimeRepeatType.week:
+        id = 200 + value;
+        shortName = '${value}w';
+      case DateTimeRepeatType.month:
+        id = 300 + value;
+        shortName = '${value}m';
+      case DateTimeRepeatType.year:
+        id = 400 + value;
+        shortName = '${value}y';
+      case DateTimeRepeatType.none:
+        return noRepeat;
+    }
+
+    return DateTimeRepeat._(type: type, value: value, id: id, shortName: shortName);
+  }
 
   DateTime previous(DateTime base) {
-    final result = switch (this) {
-      DateTimeRepeat.noRepeat => base,
-      DateTimeRepeat.day => base.subtractTime(day: 1),
-      DateTimeRepeat.twoDays => base.subtractTime(day: 2),
-      DateTimeRepeat.threeDays => base.subtractTime(day: 3),
-      DateTimeRepeat.fourDays => base.subtractTime(day: 4),
-      DateTimeRepeat.fiveDays => base.subtractTime(day: 5),
-      DateTimeRepeat.sixDays => base.subtractTime(day: 6),
-      DateTimeRepeat.week => base.subtractTime(day: 7),
-      DateTimeRepeat.twoWeek => base.subtractTime(day: 14),
-      DateTimeRepeat.threeWeek => base.subtractTime(day: 21),
-      DateTimeRepeat.fourWeek => base.subtractTime(day: 28),
-      DateTimeRepeat.month => base.subtractTime(month: 1),
-      DateTimeRepeat.threeMonths => base.subtractTime(month: 3),
-      DateTimeRepeat.sixMonths => base.subtractTime(month: 6),
-      DateTimeRepeat.year => base.subtractTime(year: 1),
-    };
-    return result;
+    if (type == DateTimeRepeatType.none) {
+      return base;
+    }
+
+    switch (type) {
+      case DateTimeRepeatType.day:
+        return base.subtractTime(day: value);
+      case DateTimeRepeatType.week:
+        return base.subtractTime(day: value * 7);
+      case DateTimeRepeatType.month:
+        return base.subtractTime(month: value);
+      case DateTimeRepeatType.year:
+        return base.subtractTime(year: value);
+      case DateTimeRepeatType.none:
+        return base;
+    }
   }
 
   DateTime next(DateTime base) {
-    final result = switch (this) {
-      DateTimeRepeat.noRepeat => base,
-      DateTimeRepeat.day => base.addTime(day: 1),
-      DateTimeRepeat.twoDays => base.addTime(day: 2),
-      DateTimeRepeat.threeDays => base.addTime(day: 3),
-      DateTimeRepeat.fourDays => base.addTime(day: 4),
-      DateTimeRepeat.fiveDays => base.addTime(day: 5),
-      DateTimeRepeat.sixDays => base.addTime(day: 6),
-      DateTimeRepeat.week => base.addTime(day: 7),
-      DateTimeRepeat.twoWeek => base.addTime(day: 14),
-      DateTimeRepeat.threeWeek => base.addTime(day: 21),
-      DateTimeRepeat.fourWeek => base.addTime(day: 28),
-      DateTimeRepeat.month => base.addTime(month: 1),
-      DateTimeRepeat.threeMonths => base.addTime(month: 3),
-      DateTimeRepeat.sixMonths => base.addTime(month: 6),
-      DateTimeRepeat.year => base.addTime(year: 1),
-    };
-    return result;
+    if (type == DateTimeRepeatType.none) {
+      return base;
+    }
+
+    switch (type) {
+      case DateTimeRepeatType.day:
+        return base.addTime(day: value);
+      case DateTimeRepeatType.week:
+        return base.addTime(day: value * 7);
+      case DateTimeRepeatType.month:
+        return base.addTime(month: value);
+      case DateTimeRepeatType.year:
+        return base.addTime(year: value);
+      case DateTimeRepeatType.none:
+        return base;
+    }
   }
 
-  static from(int? id) {
-    return switch (id) {
-      0 => DateTimeRepeat.noRepeat,
-      1 => DateTimeRepeat.day,
-      2 => DateTimeRepeat.twoDays,
-      3 => DateTimeRepeat.threeDays,
-      4 => DateTimeRepeat.fourDays,
-      5 => DateTimeRepeat.fiveDays,
-      6 => DateTimeRepeat.sixDays,
-      7 => DateTimeRepeat.week,
-      8 => DateTimeRepeat.twoWeek,
-      9 => DateTimeRepeat.threeWeek,
-      10 => DateTimeRepeat.fourWeek,
-      11 => DateTimeRepeat.month,
-      13 => DateTimeRepeat.threeMonths,
-      16 => DateTimeRepeat.sixMonths,
-      22 => DateTimeRepeat.year,
-      _ => DateTimeRepeat.noRepeat,
-    };
+  // Получение периода по ID
+  static DateTimeRepeat from(int? id) {
+    if (id == null) return noRepeat;
+
+    // Проверяем предопределенные периоды
+    for (final preset in values) {
+      if (preset.id == id) {
+        return preset;
+      }
+    }
+
+    // Если ID не найден среди предопределенных, пытаемся восстановить пользовательский период
+    if (id >= 100 && id < 200) {
+      // Дни
+      return custom(type: DateTimeRepeatType.day, value: id - 100);
+    } else if (id >= 200 && id < 300) {
+      // Недели
+      return custom(type: DateTimeRepeatType.week, value: id - 200);
+    } else if (id >= 300 && id < 400) {
+      // Месяцы
+      return custom(type: DateTimeRepeatType.month, value: id - 300);
+    } else if (id >= 400 && id < 500) {
+      // Годы
+      return custom(type: DateTimeRepeatType.year, value: id - 400);
+    }
+
+    return noRepeat;
   }
+
+  // Получение человекочитаемого названия периода
+  String get displayName {
+    if (type == DateTimeRepeatType.none) {
+      return 'Без повторения';
+    }
+
+    switch (type) {
+      case DateTimeRepeatType.day:
+        if (value == 1) return 'Ежедневно';
+        return 'Каждые $value ${_getDaysForm(value)}';
+      case DateTimeRepeatType.week:
+        if (value == 1) return 'Еженедельно';
+        return 'Каждые $value ${_getWeeksForm(value)}';
+      case DateTimeRepeatType.month:
+        if (value == 1) {
+          return 'Ежемесячно';
+        } else if (value == 3) {
+          return 'Ежеквартально';
+        } else if (value == 6) {
+          return 'Раз в полгода';
+        }
+        return 'Каждые $value ${_getMonthsForm(value)}';
+      case DateTimeRepeatType.year:
+        if (value == 1) return 'Ежегодно';
+        return 'Каждые $value ${_getYearsForm(value)}';
+      case DateTimeRepeatType.none:
+        return 'Без повторения';
+    }
+  }
+
+  // Вспомогательные методы для склонения слов
+  String _getDaysForm(int days) {
+    if (days % 10 == 1 && days % 100 != 11) {
+      return 'день';
+    } else if ([2, 3, 4].contains(days % 10) && ![12, 13, 14].contains(days % 100)) {
+      return 'дня';
+    } else {
+      return 'дней';
+    }
+  }
+
+  String _getWeeksForm(int weeks) {
+    if (weeks % 10 == 1 && weeks % 100 != 11) {
+      return 'неделю';
+    } else if ([2, 3, 4].contains(weeks % 10) && ![12, 13, 14].contains(weeks % 100)) {
+      return 'недели';
+    } else {
+      return 'недель';
+    }
+  }
+
+  String _getMonthsForm(int months) {
+    if (months % 10 == 1 && months % 100 != 11) {
+      return 'месяц';
+    } else if ([2, 3, 4].contains(months % 10) && ![12, 13, 14].contains(months % 100)) {
+      return 'месяца';
+    } else {
+      return 'месяцев';
+    }
+  }
+
+  String _getYearsForm(int years) {
+    if (years % 10 == 1 && years % 100 != 11) {
+      return 'год';
+    } else if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100)) {
+      return 'года';
+    } else {
+      return 'лет';
+    }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is DateTimeRepeat && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
