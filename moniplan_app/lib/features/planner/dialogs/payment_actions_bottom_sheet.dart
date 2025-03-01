@@ -1,0 +1,535 @@
+// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/features/planner/dialogs/day_summary_dialog.dart';
+import 'package:moniplan_app/features/planner/screens/payment_edit_screen.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
+
+class PaymentActionsBottomSheet extends StatelessWidget {
+  final Payment payment;
+  final Function()? onDelete;
+  final Function()? onDuplicate;
+  final Function()? onFixation;
+  final Function(Payment)? onToggleEnabled;
+  final Function(Payment)? onToggleDone;
+  final PlannerBloc? plannerBloc;
+
+  const PaymentActionsBottomSheet({
+    required this.payment,
+    this.onDelete,
+    this.onDuplicate,
+    this.onFixation,
+    this.onToggleEnabled,
+    this.onToggleDone,
+    this.plannerBloc,
+    super.key,
+  });
+
+  static Future<void> show({
+    required BuildContext context,
+    required Payment payment,
+    Function()? onDelete,
+    Function()? onDuplicate,
+    Function()? onFixation,
+    Function(Payment)? onToggleEnabled,
+    Function(Payment)? onToggleDone,
+  }) async {
+    final plannerBloc = BlocProvider.of<PlannerBloc>(context, listen: false);
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => PaymentActionsBottomSheet(
+            payment: payment,
+            onDelete: onDelete,
+            onDuplicate: onDuplicate,
+            onFixation: onFixation,
+            onToggleEnabled: onToggleEnabled,
+            onToggleDone: onToggleDone,
+            plannerBloc: plannerBloc,
+          ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final moneyFormat = NumberFormat.currency(locale: 'ru_RU', symbol: '₽', decimalDigits: 0);
+
+    final isIncome = payment.type == PaymentType.income;
+    final moneyColor = isIncome ? context.color.primary : context.color.error;
+    final moneySign = isIncome ? '+' : '-';
+    final moneyValue = moneyFormat.format(payment.normalizedMoney.abs());
+
+    // Получаем текущую дату для расчета разницы дней
+    final today = DateTime.now();
+
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.color.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: context.color.shadow.withOpacity(0.2),
+              blurRadius: 10,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Верхняя полоска для перетаскивания
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: context.color.onSurfaceVariant.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+
+            // Заголовок с названием и суммой
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Название платежа
+                  Text(
+                    payment.details.name,
+                    style: context.text.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.visible,
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Дата платежа (обычный текст без возможности тапа)
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 16, color: context.color.onSurfaceVariant),
+                      const SizedBox(width: 8),
+                      Text(
+                        DateFormat('d MMMM y').format(payment.date),
+                        style: context.text.bodyMedium?.copyWith(
+                          color: context.color.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Сумма платежа (перемещена влево)
+                  Text(
+                    '$moneySign$moneyValue',
+                    style: context.text.headlineMedium?.copyWith(
+                      color: moneyColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  // Налог (только для доходов)
+                  if (isIncome && payment.details.tax > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.percent, size: 16, color: context.color.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Налог: ${(payment.details.tax * 100).toInt()}%',
+                          style: context.text.bodySmall?.copyWith(
+                            color: context.color.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
+                  // Информация о повторении платежа
+                  if (payment.isRepeat) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.repeat, size: 16, color: context.color.onSurfaceVariant),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Повторяется: ${_getRepeatText(payment.repeat)}',
+                            style: context.text.bodySmall?.copyWith(
+                              color: context.color.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Период повторения
+                    if (payment.dateStart != null || payment.dateEnd != null) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.date_range, size: 16, color: context.color.onSurfaceVariant),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _getRepeatPeriodText(payment),
+                              style: context.text.bodySmall?.copyWith(
+                                color: context.color.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+
+                  // Статус платежа
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(
+                        payment.isEnabled ? Icons.check_circle_outline : Icons.cancel_outlined,
+                        size: 16,
+                        color: payment.isEnabled ? context.color.primary : context.color.error,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        payment.isEnabled ? 'Активен' : 'Отключен',
+                        style: context.text.bodySmall?.copyWith(
+                          color: payment.isEnabled ? context.color.primary : context.color.error,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Icon(
+                        payment.isDone ? Icons.task_alt : Icons.pending_outlined,
+                        size: 16,
+                        color:
+                            payment.isDone ? context.color.primary : context.color.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        payment.isDone ? 'Выполнен' : 'Не выполнен',
+                        style: context.text.bodySmall?.copyWith(
+                          color:
+                              payment.isDone
+                                  ? context.color.primary
+                                  : context.color.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Примечание к платежу (если есть)
+                  if (payment.details.note.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.note, size: 16, color: context.color.onSurfaceVariant),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            payment.details.note,
+                            style: context.text.bodySmall?.copyWith(
+                              color: context.color.onSurfaceVariant,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            const Divider(height: 1),
+
+            // Основные кнопки действий
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  if (onDuplicate != null)
+                    _buildCircleButton(
+                      context,
+                      icon: Icons.copy,
+                      label: 'Дублировать',
+                      color: context.color.secondary,
+                      onTap: () {
+                        onDuplicate?.call();
+                        Navigator.pop(context);
+                      },
+                    ),
+
+                  if (onToggleEnabled != null)
+                    _buildCircleButton(
+                      context,
+                      icon:
+                          !payment.isEnabled
+                              ? Icons.power_settings_new_rounded
+                              : Icons.power_settings_new_outlined,
+                      label: !payment.isEnabled ? 'Выключено' : 'Включено',
+                      color: !payment.isEnabled ? context.color.tertiary : context.color.primary,
+                      onTap: () {
+                        onToggleEnabled?.call(payment.copyWith(isEnabled: !payment.isEnabled));
+                        Navigator.pop(context);
+                      },
+                    ),
+
+                  if (onToggleDone != null)
+                    _buildCircleButton(
+                      context,
+                      icon: !payment.isDone ? Icons.remove_done : Icons.done,
+                      label: !payment.isDone ? 'Не выполнено' : 'Выполнено',
+                      color: !payment.isDone ? context.color.tertiary : context.color.primary,
+                      onTap: () {
+                        onToggleDone?.call(payment.copyWith(isDone: !payment.isDone));
+                        Navigator.pop(context);
+                      },
+                    ),
+
+                  if (onDelete != null)
+                    _buildCircleButton(
+                      context,
+                      icon: Icons.delete_outline,
+                      label: 'Удалить',
+                      color: context.color.error,
+                      onTap: () {
+                        Navigator.pop(context);
+                        onDelete?.call();
+                      },
+                    ),
+                ],
+              ),
+            ),
+
+            // Кнопка редактирования внизу
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => PaymentEditScreen(
+                            payment: payment,
+                            onSave: (updatedPayment) {
+                              final bloc =
+                                  plannerBloc ??
+                                  BlocProvider.of<PlannerBloc>(context, listen: false);
+                              bloc.add(
+                                PlannerEvent.updatePayment(
+                                  newPayment: updatedPayment,
+                                  create: false,
+                                ),
+                              );
+                            },
+                          ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.edit),
+                label: const Text('Изменить'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: context.color.primaryContainer,
+                  foregroundColor: context.color.onPrimaryContainer,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+
+            // Кнопка фиксации для повторяющихся платежей
+            if (payment.isRepeat && onFixation != null)
+              Container(
+                margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: TextButton.icon(
+                  onPressed: () {
+                    onFixation?.call();
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.lock_clock),
+                  label: const Text('Зафиксировать повторяющийся платеж'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: context.color.tertiary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Показывает информацию о разнице дней между текущей датой и датой платежа
+  void _showDaysInfo(BuildContext context, DateTime today) {
+    final difference = payment.date.difference(today).inDays;
+    final absValue = difference.abs();
+
+    String message;
+    if (difference == 0) {
+      message = 'Сегодня';
+    } else if (difference > 0) {
+      message = 'Через $absValue ${_getDaysForm(absValue)}';
+    } else {
+      message = '$absValue ${_getDaysForm(absValue)} назад';
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  // Показывает диалог с информацией о дне
+  void _showDaySummary(BuildContext context) {
+    final plannerState = context.read<PlannerBloc>().state;
+
+    if (plannerState is! PlannerBudgetComputedState) {
+      return;
+    }
+
+    // Находим платежи за выбранный день
+    final dayPayments = plannerState.payments.where((p) => p.date.isSameDay(payment.date)).toList();
+
+    // Вычисляем доходы и расходы за день
+    num dayIncome = 0;
+    num dayOutcome = 0;
+
+    for (final payment in dayPayments) {
+      if (payment.type == PaymentType.income) {
+        dayIncome += payment.normalizedMoney;
+      } else if (payment.type == PaymentType.expense) {
+        dayOutcome += payment.normalizedMoney.abs();
+      }
+    }
+
+    final dayBalance = dayIncome - dayOutcome;
+    final totalBalance = plannerState.moneyFlow.balance;
+
+    DaySummaryDialog.show(
+      context: context,
+      date: payment.date,
+      payments: dayPayments,
+      dayIncome: dayIncome,
+      dayOutcome: dayOutcome,
+      dayBalance: dayBalance,
+      totalBalance: totalBalance,
+    );
+  }
+
+  // Возвращает правильную форму слова "день" в зависимости от числа
+  String _getDaysForm(int days) {
+    if (days % 10 == 1 && days % 100 != 11) {
+      return 'день';
+    } else if ([2, 3, 4].contains(days % 10) && ![12, 13, 14].contains(days % 100)) {
+      return 'дня';
+    } else {
+      return 'дней';
+    }
+  }
+
+  // Возвращает текстовое описание периода повторения
+  String _getRepeatText(DateTimeRepeat repeat) {
+    switch (repeat) {
+      case DateTimeRepeat.day:
+        return 'Ежедневно';
+      case DateTimeRepeat.twoDays:
+        return 'Каждые 2 дня';
+      case DateTimeRepeat.threeDays:
+        return 'Каждые 3 дня';
+      case DateTimeRepeat.fourDays:
+        return 'Каждые 4 дня';
+      case DateTimeRepeat.fiveDays:
+        return 'Каждые 5 дней';
+      case DateTimeRepeat.sixDays:
+        return 'Каждые 6 дней';
+      case DateTimeRepeat.week:
+        return 'Еженедельно';
+      case DateTimeRepeat.twoWeek:
+        return 'Каждые 2 недели';
+      case DateTimeRepeat.threeWeek:
+        return 'Каждые 3 недели';
+      case DateTimeRepeat.fourWeek:
+        return 'Каждые 4 недели';
+      case DateTimeRepeat.month:
+        return 'Ежемесячно';
+      case DateTimeRepeat.threeMonths:
+        return 'Ежеквартально';
+      case DateTimeRepeat.sixMonths:
+        return 'Раз в полгода';
+      case DateTimeRepeat.year:
+        return 'Ежегодно';
+      case DateTimeRepeat.noRepeat:
+      default:
+        return 'Без повторения';
+    }
+  }
+
+  // Возвращает текстовое описание периода повторения платежа
+  String _getRepeatPeriodText(Payment payment) {
+    final dateFormat = DateFormat('d MMM y');
+    final startText = payment.dateStart != null ? 'с ${dateFormat.format(payment.dateStart!)}' : '';
+    final endText = payment.dateEnd != null ? 'по ${dateFormat.format(payment.dateEnd!)}' : '';
+
+    if (startText.isNotEmpty && endText.isNotEmpty) {
+      return '$startText $endText';
+    } else if (startText.isNotEmpty) {
+      return startText;
+    } else if (endText.isNotEmpty) {
+      return endText;
+    } else {
+      return 'Бессрочно';
+    }
+  }
+
+  Widget _buildCircleButton(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(30),
+          child: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(color: color.withOpacity(0.12), shape: BoxShape.circle),
+            child: Center(child: Icon(icon, color: color, size: 28)),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: context.text.labelSmall?.copyWith(color: context.color.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+}

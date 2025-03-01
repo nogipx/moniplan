@@ -12,6 +12,7 @@
 assets/testicon/*
 *.keys.dart
 devtools_options.yaml
+.cxx
 
 # IntelliJ related
 *.iml

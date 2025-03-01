@@ -5,6 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
+import 'package:moniplan_app/features/planner/dialogs/payment_actions_bottom_sheet.dart';
+import 'package:moniplan_app/features/planner/screens/payment_edit_screen.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
@@ -59,10 +61,15 @@ Future<void> updateDialog({
       dateEnd: null,
     );
 
-    showUpdatePaymentDialog(
-      context: context,
-      targetPayment: duplicationPayment,
-      onSave: (p) => save(p, create: true),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => PaymentEditScreen(
+              payment: duplicationPayment,
+              onSave: (p) => save(p, create: true),
+            ),
+      ),
     );
   }
 
@@ -76,15 +83,27 @@ Future<void> updateDialog({
     );
   }
 
-  showUpdatePaymentDialog(
-    context: context,
-    paymentWhichTapped: paymentToEdit,
-    targetPayment: targetPayment,
-    onSave: save,
-    onDelete: delete,
-    onDuplicate: duplicate,
-    onFixation: fixate,
-  ).then((_) {
-    context.read<PlannerBloc>().add(PlannerEvent.computeBudget());
-  });
+  if (paymentToEdit == null) {
+    // Создание нового платежа
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentEditScreen(onSave: (p) => save(p, create: true)),
+      ),
+    );
+  } else {
+    // Просмотр существующего платежа
+    PaymentActionsBottomSheet.show(
+      context: context,
+      payment: targetPayment!,
+      onDelete: delete,
+      onDuplicate: duplicate,
+      onFixation: targetPayment.isRepeat ? fixate : null,
+      onToggleEnabled: (payment) => save(payment),
+      onToggleDone: (payment) => save(payment),
+    );
+  }
+
+  // Обновляем бюджет после всех операций
+  context.read<PlannerBloc>().add(PlannerEvent.computeBudget());
 }
