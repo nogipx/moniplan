@@ -14,10 +14,7 @@ class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
   final num initialBudget;
   final Iterable<Payment> payments;
 
-  const ComputeBudgetUseCase({
-    this.initialBudget = 0,
-    required this.payments,
-  });
+  const ComputeBudgetUseCase({this.initialBudget = 0, required this.payments});
 
   @override
   ComputeBudgetUseCaseResult run() {
@@ -29,7 +26,32 @@ class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
     num lastUpdatedBudget = 0;
     bool shouldIncludeCurrent = true;
 
-    for (final item in payments) {
+    // Сортируем платежи по дате и статусу выполнения
+    final sortedPayments = List<Payment>.from(payments);
+    sortedPayments.sort((a, b) {
+      // Сначала сортируем по дате
+      final dateComparison = a.date.compareTo(b.date);
+      if (dateComparison != 0) {
+        return dateComparison;
+      }
+
+      // Если даты одинаковые, сортируем по статусу выполнения
+      // Выполненные платежи идут первыми в рамках одного дня
+      if (a.isDone != b.isDone) {
+        return a.isDone ? -1 : 1;
+      }
+
+      // Если и статусы выполнения одинаковые, сортируем по типу платежа
+      if (a.type != b.type) {
+        return a.type == PaymentType.income ? -1 : 1;
+      }
+
+      // Наконец, сортируем по сумме (от большей к меньшей)
+      return b.normalizedMoney.abs().compareTo(a.normalizedMoney.abs());
+    });
+
+    for (final item in sortedPayments) {
+      // Учитываем только активные платежи при расчете бюджета
       final value = item.isEnabled ? item.normalizedMoney : 0;
 
       tempBudget += value;
@@ -44,10 +66,7 @@ class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
       }
     }
 
-    final result = ComputeBudgetUseCaseResult(
-      budget: budget,
-      lastUpdatedBudget: lastUpdatedBudget,
-    );
+    final result = ComputeBudgetUseCaseResult(budget: budget, lastUpdatedBudget: lastUpdatedBudget);
 
     return result;
   }
@@ -57,8 +76,5 @@ class ComputeBudgetUseCaseResult {
   final LinkedHashMap<Payment, num> budget;
   final num lastUpdatedBudget;
 
-  const ComputeBudgetUseCaseResult({
-    required this.budget,
-    this.lastUpdatedBudget = 0,
-  });
+  const ComputeBudgetUseCaseResult({required this.budget, this.lastUpdatedBudget = 0});
 }

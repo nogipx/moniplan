@@ -8,10 +8,7 @@ class GroupPaymentsByDateUsecase implements IUseCase<List<PaymentsDateGrouped>> 
   final List<Payment> payments;
   final DateTime? today;
 
-  const GroupPaymentsByDateUsecase({
-    required this.payments,
-    this.today,
-  });
+  const GroupPaymentsByDateUsecase({required this.payments, this.today});
 
   @override
   List<PaymentsDateGrouped> run() {
@@ -29,12 +26,27 @@ class GroupPaymentsByDateUsecase implements IUseCase<List<PaymentsDateGrouped>> 
     final entries = mapped.entries.toList();
     entries.sort((a, b) => a.key.compareTo(b.key));
 
-    final result = entries.map((e) {
-      return PaymentsDateGrouped(
-        date: e.key,
-        payments: e.value,
-      );
-    }).toList();
+    final result =
+        entries.map((e) {
+          // Сортируем платежи в рамках дня: выполненные платежи перемещаются вверх
+          final sortedPayments = List<Payment>.from(e.value);
+          sortedPayments.sort((a, b) {
+            // Сначала сортируем по статусу выполнения (выполненные вверху)
+            if (a.isDone != b.isDone) {
+              return a.isDone ? -1 : 1;
+            }
+
+            // Затем по типу платежа (доходы перед расходами)
+            if (a.type != b.type) {
+              return a.type == PaymentType.income ? -1 : 1;
+            }
+
+            // Затем по сумме (от большей к меньшей)
+            return b.normalizedMoney.abs().compareTo(a.normalizedMoney.abs());
+          });
+
+          return PaymentsDateGrouped(date: e.key, payments: sortedPayments);
+        }).toList();
 
     return result;
   }
