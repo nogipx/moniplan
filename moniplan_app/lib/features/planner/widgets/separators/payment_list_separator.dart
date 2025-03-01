@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan_app/core/_index.dart';
 
 class PaymentListSeparator extends StatelessWidget {
   final DateTime currDate;
@@ -31,15 +33,15 @@ class PaymentListSeparator extends StatelessWidget {
     const shrink = SizedBox.shrink();
 
     return RepaintBoundary(
-      child: DecoratedBox(
+      child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
               context.color.surface,
-              context.color.surface.withOpacity(.8),
-              context.color.surface.withOpacity(0),
+              context.color.surface.withOpacity(.9),
+              context.color.surface.withOpacity(0.7),
             ],
-            stops: [0, .8, 1],
+            stops: const [0, .85, 1],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -47,46 +49,108 @@ class PaymentListSeparator extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (isMonthEdge) const SizedBox(height: 16),
+            if (isMonthEdge) const SizedBox(height: 24),
+            if (isMonthEdge)
+              Container(
+                margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      context.color.primaryContainer,
+                      context.color.primary.withOpacity(0.1),
+                    ],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: context.color.primary.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: context.color.primary.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.calendar_today_rounded,
+                          color: context.color.primary,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              DateFormat(DateFormat.MONTH).format(currDate).capitalize(),
+                              style: context.text.headlineSmall?.copyWith(
+                                color: context.color.onPrimaryContainer,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              currDate.year.toString(),
+                              style: context.text.titleMedium?.copyWith(
+                                color: context.color.onPrimaryContainer.withOpacity(0.8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (isMonthEdge)
-                    Expanded(
-                      child: Visibility(
-                        visible: isMonthEdge,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                '${DateFormat(DateFormat.MONTH).format(currDate).capitalize()} '
-                                '${currDate.year}',
-                                style: context.text.displaySmall?.copyWith(
-                                  color: context.color.surfaceTint,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    Expanded(child: shrink),
+                  Expanded(child: shrink),
                   PaymentListDaySeparator(date: currDate, today: today),
                   Expanded(child: shrink),
                 ],
               ),
             ),
             if (payments != null && payments!.isEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 16, 8, 24),
-                child: Text('Нет платежей на сегодня'),
+              Container(
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: context.color.surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: context.color.outlineVariant, width: 0.5),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      size: 18,
+                      color: context.color.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Нет платежей на этот день',
+                      style: context.text.bodyMedium?.copyWith(
+                        color: context.color.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            const SizedBox(height: 8),
           ],
         ),
       ),

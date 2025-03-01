@@ -8,8 +8,9 @@ import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'dart:math' as math;
 
-class DaySummaryDialog extends StatelessWidget {
+class DaySummaryDialog extends StatefulWidget {
   final DateTime date;
   final List<Payment> payments;
   final num dayIncome;
@@ -51,50 +52,104 @@ class DaySummaryDialog extends StatelessWidget {
   }
 
   @override
+  State<DaySummaryDialog> createState() => _DaySummaryDialogState();
+}
+
+class _DaySummaryDialogState extends State<DaySummaryDialog> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('d MMMM y');
     final moneyFormat = NumberFormat.currency(locale: 'ru_RU', symbol: '₽', decimalDigits: 0);
 
+    final hasDayNegativeBalance = widget.dayBalance < 0;
+    final hasTotalNegativeBalance = widget.totalBalance < 0;
+
     return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side:
+            hasTotalNegativeBalance
+                ? BorderSide(color: context.color.error.withOpacity(0.5), width: 2)
+                : BorderSide.none,
+      ),
+      backgroundColor:
+          hasTotalNegativeBalance ? context.color.errorContainer.withOpacity(0.1) : null,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Сводка за ${dateFormat.format(date)}',
-              style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Сводка за ${dateFormat.format(widget.date)}',
+                    style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                if (hasDayNegativeBalance || hasTotalNegativeBalance)
+                  AnimatedBuilder(
+                    animation: _animationController,
+                    builder: (context, child) {
+                      return Transform.rotate(
+                        angle: math.pi / 12 * math.sin(_animationController.value * math.pi),
+                        child: Icon(
+                          Icons.warning_amber_rounded,
+                          color: context.color.error,
+                          size: 24,
+                        ),
+                      );
+                    },
+                  ),
+              ],
             ),
             const SizedBox(height: 16),
             _buildSummaryItem(
               context,
               'Доходы за день:',
-              moneyFormat.format(dayIncome),
-              color: Colors.green,
+              moneyFormat.format(widget.dayIncome),
+              color: context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green,
             ),
             _buildSummaryItem(
               context,
               'Расходы за день:',
-              moneyFormat.format(dayOutcome),
-              color: Colors.red,
+              moneyFormat.format(widget.dayOutcome),
+              color: context.ext<MoniplanExtraColors>()?.moneyNegative ?? Colors.red,
             ),
-            _buildSummaryItem(
+            _buildBalanceItem(
               context,
               'Баланс за день:',
-              moneyFormat.format(dayBalance),
-              color: dayBalance >= 0 ? Colors.green : Colors.red,
+              moneyFormat.format(widget.dayBalance),
+              isNegative: hasDayNegativeBalance,
             ),
             const Divider(height: 24),
-            _buildSummaryItem(
+            _buildBalanceItem(
               context,
               'Общий баланс:',
-              moneyFormat.format(totalBalance),
-              color: totalBalance >= 0 ? Colors.green : Colors.red,
+              moneyFormat.format(widget.totalBalance),
+              isNegative: hasTotalNegativeBalance,
               isBold: true,
             ),
             const SizedBox(height: 16),
-            if (payments.isEmpty)
+            if (widget.payments.isEmpty)
               const Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -107,7 +162,7 @@ class DaySummaryDialog extends StatelessWidget {
                 children: [
                   Text('Платежи:', style: context.text.titleMedium),
                   const SizedBox(height: 8),
-                  ...payments.map((payment) => _buildPaymentItem(context, payment)),
+                  ...widget.payments.map((payment) => _buildPaymentItem(context, payment)),
                 ],
               ),
             const SizedBox(height: 16),
@@ -149,11 +204,76 @@ class DaySummaryDialog extends StatelessWidget {
     );
   }
 
+  Widget _buildBalanceItem(
+    BuildContext context,
+    String label,
+    String value, {
+    required bool isNegative,
+    bool isBold = false,
+  }) {
+    final color =
+        isNegative
+            ? context.ext<MoniplanExtraColors>()?.moneyNegative ?? Colors.red
+            : context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green;
+
+    if (isNegative) {
+      return AnimatedBuilder(
+        animation: _animationController,
+        builder: (context, child) {
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: context.color.errorContainer.withOpacity(
+                0.1 + 0.1 * _animationController.value,
+              ),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: color.withOpacity(0.3 + 0.3 * _animationController.value),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  label,
+                  style: context.text.bodyLarge?.copyWith(
+                    fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: color, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      value,
+                      style: context.text.bodyLarge?.copyWith(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                        fontSize: isBold ? 18 : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } else {
+      return _buildSummaryItem(context, label, value, color: color, isBold: isBold);
+    }
+  }
+
   Widget _buildPaymentItem(BuildContext context, Payment payment) {
     final moneyFormat = NumberFormat.currency(locale: 'ru_RU', symbol: '₽', decimalDigits: 0);
 
     final isIncome = payment.type == PaymentType.income;
-    final color = isIncome ? Colors.green : Colors.red;
+    final color =
+        isIncome
+            ? context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green
+            : context.ext<MoniplanExtraColors>()?.moneyNegative ?? Colors.red;
     final sign = isIncome ? '+' : '-';
     final amount = moneyFormat.format(payment.normalizedMoney.abs());
 
@@ -161,6 +281,12 @@ class DaySummaryDialog extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
+          Icon(
+            isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+            size: 16,
+            color: color,
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               payment.details.name,
@@ -168,7 +294,10 @@ class DaySummaryDialog extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Text('$sign$amount', style: context.text.bodyMedium?.copyWith(color: color)),
+          Text(
+            '$sign$amount',
+            style: context.text.bodyMedium?.copyWith(color: color, fontWeight: FontWeight.w500),
+          ),
         ],
       ),
     );

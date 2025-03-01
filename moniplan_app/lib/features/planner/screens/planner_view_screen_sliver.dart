@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/planner/screens/payments_sliver_list.dart';
+import 'package:moniplan_app/features/planner/widgets/money_flow_widget.dart';
 import 'package:moniplan_app/features/planner_statistics/ui/planner_statistics_screen.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';

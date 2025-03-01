@@ -1,6 +1,6 @@
 ---
 description: 
-globs: *.dart
+globs: *_test.dart
 ---
 # [Принципы Unit-тестирования](mdc:https:/gist.githubusercontent.com/nogipx/0e74f2071fdab674cdeb516aaaf3bc6f/raw/51903e5eeed44cfce9735434399cc17e058b41de/unit-test-book.md)
 
