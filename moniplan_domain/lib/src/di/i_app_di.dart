@@ -14,4 +14,6 @@ abstract interface class IAppDi {
   IMonisyncRepo getMonisyncRepo();
 
   IStatisticsRepo getStatisticsRepo();
+
+  InsightGenerator getInsightGenerator();
 }

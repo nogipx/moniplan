@@ -10,4 +10,6 @@ abstract class AppDi implements IAppDi {
 
   @override
   AppDb getDb();
+
+  T get<T extends Object>();
 }

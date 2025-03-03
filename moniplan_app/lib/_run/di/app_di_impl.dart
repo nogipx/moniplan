@@ -25,6 +25,7 @@ class GetItAppDI implements AppDi {
       MonisyncRepoImpl(appDb: db, encryptKey: mockEncryptionKey),
     );
     _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
+    _getIt.registerSingleton<InsightGenerator>(InsightGeneratorImpl());
   }
 
   @override
@@ -38,4 +39,9 @@ class GetItAppDI implements AppDi {
 
   @override
   IStatisticsRepo getStatisticsRepo() => _getIt.get();
+
+  @override
+  InsightGenerator getInsightGenerator() => _getIt.get();
+
+  T get<T extends Object>() => _getIt.get<T>();
 }

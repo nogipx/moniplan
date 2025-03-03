@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
+import 'package:moniplan_app/features/planner/insights/insights_screen.dart';
 import 'package:moniplan_app/features/planner/screens/payments_sliver_list.dart';
 import 'package:moniplan_app/features/planner/widgets/money_flow_widget.dart';
 import 'package:moniplan_app/features/planner_statistics/ui/planner_statistics_screen.dart';
@@ -62,7 +63,20 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
           title: titleWidget,
           actions: [
             IconButton(
+              icon: const Icon(Icons.lightbulb_outline),
+              tooltip: 'Умные инсайты',
+              onPressed: () async {
+                final planner = state.resultingPlanner;
+                if (context.mounted) {
+                  Navigator.of(context).push<void>(
+                    MaterialPageRoute(builder: (context) => InsightsScreen(planner: planner)),
+                  );
+                }
+              },
+            ),
+            IconButton(
               icon: const Icon(Icons.ssid_chart),
+              tooltip: 'Статистика',
               onPressed: () {
                 Navigator.of(context).push<void>(
                   MaterialPageRoute(

@@ -42,6 +42,45 @@ class PlannerState with _$PlannerState {
 
   Map<Payment, num> get budget =>
       maybeMap<Map<Payment, num>>(budgetComputed: (v) => v.budget, orElse: () => const {});
+
+  Planner get resultingPlanner => maybeMap<Planner>(
+    budgetComputed:
+        (state) => Planner(
+          id: state.plannerId,
+          dateStart: state.dateStart ?? DateTime.now(),
+          dateEnd: state.dateEnd ?? DateTime.now().add(const Duration(days: 30)),
+          payments: state.payments,
+          initialBudget: state.moneyFlow.initialBalance,
+          isGenerationAllowed: true,
+        ),
+    initial:
+        (state) => Planner(
+          id: state.plannerId,
+          dateStart: DateTime.now(),
+          dateEnd: DateTime.now().add(const Duration(days: 30)),
+          payments: const [],
+          initialBudget: 0,
+          isGenerationAllowed: true,
+        ),
+    error:
+        (state) => Planner(
+          id: state.plannerId,
+          dateStart: DateTime.now(),
+          dateEnd: DateTime.now().add(const Duration(days: 30)),
+          payments: state.payments,
+          initialBudget: 0,
+          isGenerationAllowed: true,
+        ),
+    orElse:
+        () => Planner(
+          id: '',
+          dateStart: DateTime.now(),
+          dateEnd: DateTime.now().add(const Duration(days: 30)),
+          payments: const [],
+          initialBudget: 0,
+          isGenerationAllowed: true,
+        ),
+  );
 }
 
 extension ListPaymentsByDateExt on List<PaymentsDateGrouped> {
