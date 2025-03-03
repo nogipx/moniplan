@@ -23,45 +23,39 @@ class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
 
     var tempBudget = initialBudget;
 
-    num lastUpdatedBudget = 0;
-    bool shouldIncludeCurrent = true;
+    num lastUpdatedBudget = initialBudget;
 
-    // Сортируем платежи по дате и статусу выполнения
-    final sortedPayments = List<Payment>.from(payments);
-    sortedPayments.sort((a, b) {
-      // Сначала сортируем по дате
-      final dateComparison = a.date.compareTo(b.date);
-      if (dateComparison != 0) {
-        return dateComparison;
-      }
+    // Сначала группируем платежи по дате
+    final paymentsByDate = <DateTime, List<Payment>>{};
+    for (final payment in payments) {
+      paymentsByDate.putIfAbsent(payment.date.dayBound, () => []).add(payment);
+    }
 
-      // Если даты одинаковые, сортируем по статусу выполнения
-      // Выполненные платежи идут первыми в рамках одного дня
-      if (a.isDone != b.isDone) {
-        return a.isDone ? -1 : 1;
-      }
+    // Сортируем даты
+    final sortedDates = paymentsByDate.keys.toList()..sort();
 
-      // Если и статусы выполнения одинаковые, сортируем по типу платежа
-      if (a.type != b.type) {
-        return a.type == PaymentType.income ? -1 : 1;
-      }
+    // Создаем список платежей в правильном порядке
+    final sortedPayments = <Payment>[];
+    for (final date in sortedDates) {
+      // Для каждой даты сортируем платежи с помощью SortPaymentsUsecase
+      // Это обеспечит единый порядок платежей во всем приложении
+      final paymentsForDate = SortPaymentsUsecase(payments: paymentsByDate[date]!).run();
 
-      // Наконец, сортируем по сумме (от большей к меньшей)
-      return b.normalizedMoney.abs().compareTo(a.normalizedMoney.abs());
-    });
+      sortedPayments.addAll(paymentsForDate);
+    }
 
     for (final item in sortedPayments) {
-      // Учитываем только активные платежи при расчете бюджета
-      final value = item.isEnabled ? item.normalizedMoney : 0;
+      // Учитываем платежи в зависимости от их статуса
+      // Если платеж выключен (isEnabled == false), не учитываем его в расчете
+      // Если платеж включен (isEnabled == true), учитываем его
+      final shouldCountInBudget = item.isEnabled;
+      final value = shouldCountInBudget ? item.normalizedMoney : 0;
 
       tempBudget += value;
       budget[item] = tempBudget;
 
-      if (item.date.isAfter(now)) {
-        shouldIncludeCurrent = false;
-      }
-
-      if (shouldIncludeCurrent) {
+      // Обновляем lastUpdatedBudget только для текущих и прошедших дат
+      if (item.date.compareTo(now) <= 0) {
         lastUpdatedBudget = tempBudget;
       }
     }

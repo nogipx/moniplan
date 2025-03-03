@@ -80,7 +80,7 @@ class PaymentsSliverList extends StatelessWidget {
                       ? const SizedBox(height: 8)
                       : Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: _buildPaymentsList(context, group.payments),
+                        child: _buildPaymentsList(group.payments),
                       ),
             ),
           ),
@@ -109,27 +109,16 @@ class PaymentsSliverList extends StatelessWidget {
                   ? const SizedBox(height: 8)
                   : Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: _buildPaymentsList(context, group.payments),
+                    child: _buildPaymentsList(group.payments),
                   ),
         ),
       );
     }
   }
 
-  Widget _buildPaymentsList(BuildContext context, List<Payment> payments) {
-    // Сортируем платежи: сначала активные, потом неактивные и выполненные
-    final sortedPayments = [...payments]..sort((a, b) {
-      // Сначала сортируем по статусу (активные в начале)
-      if (a.isEnabled && !a.isDone && (!b.isEnabled || b.isDone)) return -1;
-      if ((!a.isEnabled || a.isDone) && b.isEnabled && !b.isDone) return 1;
-
-      // Затем сортируем по типу (доходы в начале)
-      if (a.type == PaymentType.income && b.type == PaymentType.expense) return -1;
-      if (a.type == PaymentType.expense && b.type == PaymentType.income) return 1;
-
-      // Наконец, сортируем по сумме (по убыванию)
-      return b.normalizedMoney.abs().compareTo(a.normalizedMoney.abs());
-    });
+  Widget _buildPaymentsList(List<Payment> payments) {
+    // Используем юзкейс для сортировки платежей
+    final sortedPayments = SortPaymentsUsecase(payments: payments.toList()).run();
 
     return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),

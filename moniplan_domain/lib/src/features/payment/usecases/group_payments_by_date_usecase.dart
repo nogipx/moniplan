@@ -28,23 +28,8 @@ class GroupPaymentsByDateUsecase implements IUseCase<List<PaymentsDateGrouped>> 
 
     final result =
         entries.map((e) {
-          // Сортируем платежи в рамках дня: выполненные платежи перемещаются вверх
-          final sortedPayments = List<Payment>.from(e.value);
-          sortedPayments.sort((a, b) {
-            // Сначала сортируем по статусу выполнения (выполненные вверху)
-            if (a.isDone != b.isDone) {
-              return a.isDone ? -1 : 1;
-            }
-
-            // Затем по типу платежа (доходы перед расходами)
-            if (a.type != b.type) {
-              return a.type == PaymentType.income ? -1 : 1;
-            }
-
-            // Затем по сумме (от большей к меньшей)
-            return b.normalizedMoney.abs().compareTo(a.normalizedMoney.abs());
-          });
-
+          // Используем юзкейс для сортировки платежей в рамках дня
+          final sortedPayments = SortPaymentsUsecase(payments: e.value).run();
           return PaymentsDateGrouped(date: e.key, payments: sortedPayments);
         }).toList();
 

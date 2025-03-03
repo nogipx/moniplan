@@ -70,17 +70,17 @@ class PaymentListItem extends StatelessWidget {
             : const SizedBox();
 
     final statusIcon =
-        payment.isDone
-            ? Icon(
-              Icons.check_circle_outline_rounded,
-              size: 18,
-              color: context.ext<MoniplanExtraColors>()?.moneyPositive,
-            )
-            : !payment.isEnabled
+        !payment.isEnabled
             ? Icon(
               Icons.power_settings_new_rounded,
               size: 18,
               color: context.ext<MoniplanExtraColors>()?.moneyNegative,
+            )
+            : payment.isDone
+            ? Icon(
+              Icons.check_circle_outline_rounded,
+              size: 18,
+              color: context.ext<MoniplanExtraColors>()?.moneyPositive,
             )
             : null;
 

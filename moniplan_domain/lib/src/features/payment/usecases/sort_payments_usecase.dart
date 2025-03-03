@@ -1,0 +1,58 @@
+// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import 'package:moniplan_domain/moniplan_domain.dart';
+
+/// Юзкейс для сортировки платежей по единому алгоритму
+///
+/// Порядок сортировки:
+/// 1. По дате (если указано sortByDate = true)
+/// 2. По приоритету:
+///    - Выполненные платежи (isDone == true)
+///    - Выключенные платежи (isEnabled == false)
+///    - Активные незавершенные платежи (isDone == false && isEnabled == true)
+/// 3. По типу (доходы перед расходами)
+/// 4. По сумме (от большей к меньшей)
+class SortPaymentsUsecase implements IUseCase<List<Payment>> {
+  final List<Payment> payments;
+
+  const SortPaymentsUsecase({required this.payments});
+
+  @override
+  List<Payment> run() {
+    final sortedPayments = List<Payment>.from(payments);
+
+    sortedPayments.sort((a, b) {
+      // Создаем приоритет для каждого платежа:
+      // 1 - выполненные (isDone == true)
+      // 2 - выключенные (isEnabled == false)
+      // 3 - активные незавершенные (isDone == false && isEnabled == true)
+      int getPriority(Payment p) {
+        if (p.isDone && p.isEnabled) return 1;
+        if (p.isDone && !p.isEnabled) return 2;
+        if (!p.isDone && !p.isEnabled) return 3;
+        if (!p.isDone && p.isEnabled) return 4;
+        return 5;
+      }
+
+      final priorityA = getPriority(a);
+      final priorityB = getPriority(b);
+
+      // Сортируем по приоритету
+      if (priorityA != priorityB) {
+        return priorityA.compareTo(priorityB);
+      }
+
+      // Затем сортируем по типу (доходы в начале)
+      if (a.type != b.type) {
+        return a.type == PaymentType.income ? -1 : 1;
+      }
+
+      // Наконец, сортируем по сумме (по убыванию)
+      return b.normalizedMoney.abs().compareTo(a.normalizedMoney.abs());
+    });
+
+    return sortedPayments;
+  }
+}
