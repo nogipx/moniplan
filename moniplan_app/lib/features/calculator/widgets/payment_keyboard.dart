@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_app/features/planner/payment_edit_bloc/_index.dart';
+import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
-import 'package:moniplan_app/features/planner/calculator/_index.dart';
+import 'package:moniplan_app/features/calculator/_index.dart';
 
 /// Кастомная клавиатура для ввода платежей
 class PaymentKeyboard extends StatefulWidget {
@@ -277,7 +277,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
   @override
   Widget build(BuildContext context) {
     return CalculatorBlocProvider(
-      controller: _internalAmountController,
+      initialValue: _internalAmountController.text,
       child: BlocBuilder<CalculatorBloc, CalculatorState>(
         builder: (context, state) {
           return _buildKeyboard(context, state);

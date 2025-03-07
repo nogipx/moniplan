@@ -4,7 +4,7 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:expressions/expressions.dart';
-import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_operator.dart';
+import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_operator.dart';
 
 /// Состояние калькулятора
 class CalculatorState extends Equatable {

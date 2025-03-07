@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_bloc.dart';
-import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_event.dart';
-import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_operator.dart';
+import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_bloc.dart';
+import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_event.dart';
+import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_operator.dart';
 
 /// Ряд с операциями калькулятора
 class OperationsRow extends StatelessWidget {

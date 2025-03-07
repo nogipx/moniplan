@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_app/features/planner/calculator/_index.dart';
+import 'package:moniplan_app/features/calculator/_index.dart';
 
 /// Провайдер для CalculatorBloc, который проверяет наличие блока в контексте
 /// и при необходимости создает новый
 class CalculatorBlocProvider extends StatefulWidget {
   final Widget child;
-  final TextEditingController controller;
+  final String initialValue;
 
-  const CalculatorBlocProvider({Key? key, required this.child, required this.controller})
-    : super(key: key);
+  const CalculatorBlocProvider({super.key, required this.child, this.initialValue = ''});
 
   @override
   State<CalculatorBlocProvider> createState() => _CalculatorBlocProviderState();
@@ -38,9 +37,8 @@ class _CalculatorBlocProviderState extends State<CalculatorBlocProvider> {
       _calculatorBloc = CalculatorBloc();
 
       // Инициализируем блок
-      final initialValue = widget.controller.text;
-      if (initialValue.isNotEmpty) {
-        _calculatorBloc.add(SetInitialValue(initialValue));
+      if (widget.initialValue.isNotEmpty) {
+        _calculatorBloc.add(SetInitialValue(widget.initialValue));
       }
 
       print('Создан новый CalculatorBloc');

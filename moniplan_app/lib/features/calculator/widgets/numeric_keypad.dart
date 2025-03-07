@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan_app/features/planner/calculator/_index.dart';
+import 'package:moniplan_app/features/calculator/_index.dart';
 
 /// Цифровая клавиатура
 class NumericKeypad extends StatelessWidget {
