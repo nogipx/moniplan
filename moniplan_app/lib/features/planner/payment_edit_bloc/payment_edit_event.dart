@@ -125,5 +125,15 @@ class PaymentEditNextStep extends PaymentEditEvent {}
 /// Переход к предыдущему шагу редактирования
 class PaymentEditPreviousStep extends PaymentEditEvent {}
 
+/// Прямой переход на указанный шаг редактирования
+class PaymentEditGoToStep extends PaymentEditEvent {
+  final int step;
+
+  const PaymentEditGoToStep(this.step);
+
+  @override
+  List<Object> get props => [step];
+}
+
 /// Сохранение платежа
 class PaymentEditSave extends PaymentEditEvent {}

@@ -26,6 +26,7 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
     on<PaymentEditNextStep>(_onNextStep);
     on<PaymentEditPreviousStep>(_onPreviousStep);
     on<PaymentEditSave>(_onSave);
+    on<PaymentEditGoToStep>(_onGoToStep);
   }
 
   /// Обработчик инициализации редактирования платежа
@@ -167,5 +168,24 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
       );
       showToast('Ошибка при сохранении платежа');
     }
+  }
+
+  /// Обработчик прямого перехода на указанный шаг
+  void _onGoToStep(PaymentEditGoToStep event, Emitter<PaymentEditState> emit) {
+    // Проверяем, что шаг находится в допустимом диапазоне
+    if (event.step < 0 || event.step > 2) return;
+
+    // Если переходим на первый шаг, показываем клавиатуру
+    final showKeyboard = event.step == 0;
+
+    // Обновляем состояние
+    emit(
+      state.copyWith(
+        currentStep: event.step,
+        showKeyboard: showKeyboard,
+        keyboardType: showKeyboard ? KeyboardType.amount : state.keyboardType,
+        clearErrorMessage: true,
+      ),
+    );
   }
 }

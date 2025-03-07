@@ -13,6 +13,7 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:moniplan_app/features/planner/payment_edit_bloc/_index.dart' as edit;
 import 'package:moniplan_app/features/planner/calculator/widgets/payment_keyboard.dart' as keyboard;
+import 'dart:math' as math;
 
 class PaymentEditScreen extends StatelessWidget {
   final Payment? payment;
@@ -44,61 +45,68 @@ class _PaymentEditView extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              state.payment != null ? 'Редактирование платежа' : 'Новый платеж',
-              style: context.text.headlineSmall,
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed:
-                  () => context.read<edit.PaymentEditBloc>().add(edit.PaymentEditPreviousStep()),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.check),
-                onPressed: () => context.read<edit.PaymentEditBloc>().add(edit.PaymentEditSave()),
-                tooltip: 'Сохранить',
+        return WillPopScope(
+          onWillPop: () async {
+            // Показываем диалог подтверждения при попытке выйти
+            _showCancelConfirmationDialog(context);
+            // Возвращаем false, чтобы предотвратить автоматический выход
+            return false;
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(
+                state.payment != null ? 'Редактирование платежа' : 'Новый платеж',
+                style: context.text.headlineSmall,
               ),
-            ],
-          ),
-          body: _buildBody(context, state),
-          bottomNavigationBar:
-              state.showKeyboard && state.currentStep != 0
-                  ? _buildKeyboard(context, state)
-                  : _buildBottomBar(context, state),
-          resizeToAvoidBottomInset: false, // Отключаем изменение размера при появлении клавиатуры
-          // Добавляем кнопки над системной клавиатурой
-          bottomSheet:
-              MediaQuery.of(context).viewInsets.bottom > 0
-                  ? Container(
-                    color: Theme.of(context).colorScheme.surface,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton.icon(
-                            onPressed: () {
-                              FocusScope.of(context).unfocus();
-                            },
-                            icon: const Icon(Icons.keyboard_hide),
-                            label: const Text('Скрыть клавиатуру'),
-                          ),
-                          FilledButton.icon(
-                            onPressed:
-                                () => context.read<edit.PaymentEditBloc>().add(
-                                  edit.PaymentEditSave(),
-                                ),
-                            icon: const Icon(Icons.check),
-                            label: const Text('Сохранить'),
-                          ),
-                        ],
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => _showCancelConfirmationDialog(context),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.check),
+                  onPressed: () => context.read<edit.PaymentEditBloc>().add(edit.PaymentEditSave()),
+                  tooltip: 'Сохранить',
+                ),
+              ],
+            ),
+            body: _buildBody(context, state),
+            bottomNavigationBar:
+                state.showKeyboard && state.currentStep != 0
+                    ? _buildKeyboard(context, state)
+                    : _buildBottomBar(context, state),
+            resizeToAvoidBottomInset: false, // Отключаем изменение размера при появлении клавиатуры
+            // Добавляем кнопки над системной клавиатурой
+            bottomSheet:
+                MediaQuery.of(context).viewInsets.bottom > 0
+                    ? Container(
+                      color: Theme.of(context).colorScheme.surface,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextButton.icon(
+                              onPressed: () {
+                                FocusScope.of(context).unfocus();
+                              },
+                              icon: const Icon(Icons.keyboard_hide),
+                              label: const Text('Скрыть клавиатуру'),
+                            ),
+                            FilledButton.icon(
+                              onPressed:
+                                  () => context.read<edit.PaymentEditBloc>().add(
+                                    edit.PaymentEditSave(),
+                                  ),
+                              icon: const Icon(Icons.check),
+                              label: const Text('Сохранить'),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                  : null,
+                    )
+                    : null,
+          ),
         );
       },
     );
@@ -108,13 +116,6 @@ class _PaymentEditView extends StatelessWidget {
   Widget _buildBody(BuildContext context, edit.PaymentEditState state) {
     return Column(
       children: [
-        // Индикатор прогресса
-        LinearProgressIndicator(
-          value: (state.currentStep + 1) / 3,
-          backgroundColor: context.color.surface,
-          color: context.color.primary,
-        ),
-
         // Основное содержимое в зависимости от текущего шага
         Expanded(
           child:
@@ -543,30 +544,154 @@ class _PaymentEditView extends StatelessWidget {
 
   // Нижняя панель с кнопками навигации
   Widget _buildBottomBar(BuildContext context, edit.PaymentEditState state) {
-    return BottomAppBar(
-      padding: EdgeInsets.zero,
-      child: Row(
-        children: [
-          // Кнопка "Назад"
-          Expanded(
-            child: TextButton.icon(
-              onPressed:
-                  () => context.read<edit.PaymentEditBloc>().add(edit.PaymentEditPreviousStep()),
-              icon: const Icon(Icons.arrow_back),
-              label: const Text('Назад'),
-            ),
-          ),
+    final theme = Theme.of(context);
+    final steps = ['Сумма', 'Название', 'Повторение'];
 
-          // Кнопка "Далее" или "Сохранить"
-          Expanded(
-            child: FilledButton.icon(
-              onPressed: () => context.read<edit.PaymentEditBloc>().add(edit.PaymentEditNextStep()),
-              icon: Icon(state.currentStep < 2 ? Icons.arrow_forward : Icons.check),
-              label: Text(state.currentStep < 2 ? 'Далее' : 'Сохранить'),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Индикатор прогресса
+        LinearProgressIndicator(
+          value: (state.currentStep + 1) / 3,
+          backgroundColor: theme.colorScheme.surface,
+          color: theme.colorScheme.primary,
+        ),
+
+        // Навигация по этапам
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            border: Border(
+              top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1), width: 1),
             ),
           ),
-        ],
-      ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(steps.length, (index) {
+              final isActive = state.currentStep == index;
+              final isCompleted = state.currentStep > index;
+
+              return InkWell(
+                onTap: () {
+                  // Проверяем, можно ли перейти на этот шаг
+                  if (_canNavigateToStep(state, index)) {
+                    context.read<edit.PaymentEditBloc>().add(edit.PaymentEditGoToStep(index));
+                  } else {
+                    // Показываем сообщение, что нужно заполнить предыдущие шаги
+                    showToast('Сначала заполните предыдущие шаги');
+                  }
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: isActive ? theme.colorScheme.primaryContainer : Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Иконка статуса шага
+                      if (isCompleted)
+                        Icon(Icons.check_circle, size: 16, color: theme.colorScheme.primary)
+                      else
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color:
+                                isActive
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.outline.withOpacity(0.3),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${index + 1}',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color:
+                                    isActive
+                                        ? theme.colorScheme.onPrimary
+                                        : theme.colorScheme.onSurface,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(width: 8),
+                      // Название шага
+                      Text(
+                        steps[index],
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color:
+                              isActive
+                                  ? theme.colorScheme.primary
+                                  : theme.colorScheme.onSurface.withOpacity(0.7),
+                          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+
+        // Кнопки действий
+        BottomAppBar(
+          padding: EdgeInsets.zero,
+          child: Row(
+            children: [
+              // Кнопка "Отменить"
+              Expanded(
+                child: TextButton.icon(
+                  onPressed: () => _showCancelConfirmationDialog(context),
+                  icon: const Icon(Icons.close),
+                  label: const Text('Отменить'),
+                ),
+              ),
+
+              // Кнопка "Сохранить"
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () => context.read<edit.PaymentEditBloc>().add(edit.PaymentEditSave()),
+                  icon: const Icon(Icons.check),
+                  label: const Text('Сохранить'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Показывает диалог подтверждения при отмене редактирования
+  void _showCancelConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Отменить изменения?'),
+            content: const Text(
+              'Все внесенные изменения будут потеряны. Вы уверены, что хотите выйти без сохранения?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(), // Закрываем диалог
+                child: const Text('Продолжить редактирование'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Закрываем диалог
+                  Navigator.of(context).pop(); // Закрываем экран редактирования
+                },
+                child: const Text('Выйти без сохранения'),
+              ),
+            ],
+          ),
     );
   }
 
@@ -625,5 +750,25 @@ class _PaymentEditView extends StatelessWidget {
     } else {
       return 'лет';
     }
+  }
+
+  // Проверяем, можно ли перейти на указанный шаг
+  bool _canNavigateToStep(edit.PaymentEditState state, int step) {
+    // На первый шаг можно перейти всегда
+    if (step == 0) return true;
+
+    // На второй шаг можно перейти, если заполнена сумма
+    if (step == 1) {
+      return state.amount.isNotEmpty && num.tryParse(state.amount) != null;
+    }
+
+    // На третий шаг можно перейти, если заполнены сумма и название
+    if (step == 2) {
+      return state.amount.isNotEmpty &&
+          num.tryParse(state.amount) != null &&
+          state.title.isNotEmpty;
+    }
+
+    return false;
   }
 }
