@@ -18,6 +18,12 @@ class NumericKeypad extends StatelessWidget {
   /// Показывать ли колонку быстрых значений
   final bool showQuickButtons;
 
+  /// Находимся ли мы в режиме редактирования существующего платежа
+  final bool isEditing;
+
+  /// Callback для сброса значения на изначальное
+  final VoidCallback? onResetPressed;
+
   const NumericKeypad({
     Key? key,
     required this.onDigitPressed,
@@ -28,6 +34,8 @@ class NumericKeypad extends StatelessWidget {
     required this.calculatorState,
     this.quickButtons,
     this.showQuickButtons = true,
+    this.isEditing = false,
+    this.onResetPressed,
   }) : super(key: key);
 
   @override
@@ -70,11 +78,11 @@ class NumericKeypad extends StatelessWidget {
             children: [_buildDigitButton('7'), _buildDigitButton('8'), _buildDigitButton('9')],
           ),
         ),
-        // Ряд с 0, точкой и бэкспейсом
+        // Ряд с кнопкой сброса, 0 и бэкспейсом
         Expanded(
           child: Row(
             children: [
-              // _buildDigitButton('.'),
+              _buildResetButton(),
               _buildDigitButton('0'),
               _buildFunctionButton(Icons.backspace_outlined, onBackspacePressed),
             ],
@@ -241,6 +249,59 @@ class NumericKeypad extends StatelessWidget {
             highlightColor: theme.colorScheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(KeyboardConstants.buttonBorderRadius),
             child: Center(child: Icon(icon, color: iconColor, size: 28)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Создает кнопку сброса значения
+  Widget _buildResetButton() {
+    // Если мы не в режиме редактирования, кнопка неактивна
+    final isEnabled = isEditing && onResetPressed != null;
+
+    return Expanded(
+      child: Visibility(
+        visible: isEnabled,
+        child: Container(
+          margin: const EdgeInsets.all(3.0),
+          decoration: BoxDecoration(
+            color:
+                isEnabled
+                    ? theme.colorScheme.error.withOpacity(0.15)
+                    : theme.colorScheme.surfaceVariant.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(KeyboardConstants.buttonBorderRadius),
+            boxShadow:
+                isEnabled
+                    ? [
+                      BoxShadow(
+                        color: theme.shadowColor.withOpacity(0.1),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ]
+                    : null,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: isEnabled ? onResetPressed : null,
+              splashColor:
+                  isEnabled ? theme.colorScheme.error.withOpacity(0.3) : Colors.transparent,
+              highlightColor:
+                  isEnabled ? theme.colorScheme.error.withOpacity(0.2) : Colors.transparent,
+              borderRadius: BorderRadius.circular(KeyboardConstants.buttonBorderRadius),
+              child: Center(
+                child: Icon(
+                  Icons.refresh,
+                  color:
+                      isEnabled
+                          ? theme.colorScheme.error
+                          : theme.colorScheme.onSurfaceVariant.withOpacity(0.3),
+                  size: 24,
+                ),
+              ),
+            ),
           ),
         ),
       ),

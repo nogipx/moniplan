@@ -26,6 +26,12 @@ class PaymentKeyboard extends StatefulWidget {
   /// Показывать ли колонку быстрых кнопок
   final bool showQuickButtons;
 
+  /// Находимся ли мы в режиме редактирования существующего платежа
+  final bool isEditing;
+
+  /// Начальное значение для сброса (используется только при isEditing = true)
+  final String? initialValue;
+
   const PaymentKeyboard({
     Key? key,
     required this.amountController,
@@ -34,6 +40,8 @@ class PaymentKeyboard extends StatefulWidget {
     this.taxRate = 0.0,
     this.amountQuickButtons,
     this.showQuickButtons = true,
+    this.isEditing = false,
+    this.initialValue,
   }) : super(key: key);
 
   @override
@@ -196,6 +204,27 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     }
   }
 
+  /// Сбрасывает значение на изначальное
+  void _resetValue() {
+    HapticFeedback.mediumImpact();
+
+    try {
+      if (widget.initialValue != null && widget.initialValue!.isNotEmpty) {
+        // Устанавливаем изначальное значение в контроллер
+        _internalAmountController.text = widget.initialValue!;
+        _internalAmountController.selection = TextSelection.collapsed(
+          offset: widget.initialValue!.length,
+        );
+
+        // Обновляем состояние калькулятора
+        final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
+        calculatorBloc.add(SetInitialValue(widget.initialValue!));
+      }
+    } catch (e) {
+      print('Ошибка при сбросе значения: $e');
+    }
+  }
+
   /// Обрабатывает нажатие кнопки "Готово" или "Дальше"
   void _handleDonePressed(CalculatorState calculatorState) {
     // Сначала применяем операцию "=" для вычисления результата
@@ -312,6 +341,8 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
                 onDigitPressed: _addDigit,
                 onBackspacePressed: _backspace,
                 onQuickValuePressed: _setValue,
+                isEditing: widget.isEditing,
+                onResetPressed: widget.isEditing ? _resetValue : null,
                 theme: theme,
                 isDarkMode: isDarkMode,
                 calculatorState: state,

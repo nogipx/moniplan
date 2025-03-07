@@ -248,6 +248,8 @@ class _PaymentEditView extends StatelessWidget {
           amountController: amountController,
           paymentType: paymentType,
           taxRate: taxRate,
+          isEditing: state.payment != null,
+          initialValue: state.payment != null ? amount : null,
           onPaymentTypeChanged: (newType) {
             context.read<edit.PaymentEditBloc>().add(edit.PaymentEditTypeChanged(newType));
           },
@@ -371,11 +373,11 @@ class _PaymentEditView extends StatelessWidget {
   Widget _buildRepeatStep(BuildContext context, edit.PaymentEditState state) {
     final theme = Theme.of(context);
 
-    // Используем данные из черновика платежа, если он доступен
-    final repeatPeriod = state.payment != null ? state.payment!.repeat : state.repeatPeriod;
-    final startDate = state.payment != null ? state.payment!.dateStart : state.startDate;
-    final endDate = state.payment != null ? state.payment!.dateEnd : state.endDate;
-    final date = state.payment != null ? state.payment!.date : state.date;
+    // Всегда используем данные из state, а не из payment
+    final repeatPeriod = state.repeatPeriod;
+    final startDate = state.startDate;
+    final endDate = state.endDate;
+    final date = state.date;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,6 +664,8 @@ class _PaymentEditView extends StatelessWidget {
       amountController: amountController,
       paymentType: paymentType,
       taxRate: taxRate,
+      isEditing: state.payment != null,
+      initialValue: state.payment != null ? amount : null,
       onPaymentTypeChanged: (newType) {
         context.read<edit.PaymentEditBloc>().add(edit.PaymentEditTypeChanged(newType));
       },
