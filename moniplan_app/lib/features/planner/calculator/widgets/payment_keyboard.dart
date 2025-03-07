@@ -198,7 +198,14 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
 
   /// Обрабатывает нажатие кнопки "Готово" или "Дальше"
   void _handleDonePressed(CalculatorState calculatorState) {
-    _applyOperation('=');
+    // Сначала применяем операцию "=" для вычисления результата
+    try {
+      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
+      calculatorBloc.add(EqualsPressed());
+    } catch (e) {
+      print('Ошибка при применении операции равенства: $e');
+    }
+
     // Добавляем небольшую задержку для анимации нажатия
     Future.delayed(const Duration(milliseconds: 100), () {
       try {
@@ -223,6 +230,19 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
         print('Ошибка при отправке событий в блок: $e');
       }
     });
+  }
+
+  /// Обрабатывает нажатие кнопки "="
+  void _handleEqualsPressed(CalculatorState calculatorState) {
+    // Отправляем событие EqualsPressed вместо OperationPressed('=')
+    HapticFeedback.lightImpact();
+
+    try {
+      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
+      calculatorBloc.add(EqualsPressed());
+    } catch (e) {
+      print('Ошибка при применении операции равенства: $e');
+    }
   }
 
   @override
@@ -317,7 +337,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
                     backgroundColor: theme.colorScheme.primary.withOpacity(0.2),
                     textColor: theme.colorScheme.primary,
                     onPressed: (value, calculatorState) {
-                      _handleDonePressed(calculatorState);
+                      _handleEqualsPressed(calculatorState);
                     },
                   ),
                   QuickButton(

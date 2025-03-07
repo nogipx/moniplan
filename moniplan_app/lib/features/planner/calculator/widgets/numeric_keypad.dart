@@ -52,10 +52,10 @@ class NumericKeypad extends StatelessWidget {
   Widget _buildNumericKeypad() {
     return Column(
       children: [
-        // Ряд с цифрами 7, 8, 9
+        // Ряд с цифрами 1, 2, 3
         Expanded(
           child: Row(
-            children: [_buildDigitButton('7'), _buildDigitButton('8'), _buildDigitButton('9')],
+            children: [_buildDigitButton('1'), _buildDigitButton('2'), _buildDigitButton('3')],
           ),
         ),
         // Ряд с цифрами 4, 5, 6
@@ -64,17 +64,17 @@ class NumericKeypad extends StatelessWidget {
             children: [_buildDigitButton('4'), _buildDigitButton('5'), _buildDigitButton('6')],
           ),
         ),
-        // Ряд с цифрами 1, 2, 3
+        // Ряд с цифрами 7, 8, 9
         Expanded(
           child: Row(
-            children: [_buildDigitButton('1'), _buildDigitButton('2'), _buildDigitButton('3')],
+            children: [_buildDigitButton('7'), _buildDigitButton('8'), _buildDigitButton('9')],
           ),
         ),
         // Ряд с 0, точкой и бэкспейсом
         Expanded(
           child: Row(
             children: [
-              _buildDigitButton('.'),
+              // _buildDigitButton('.'),
               _buildDigitButton('0'),
               _buildFunctionButton(Icons.backspace_outlined, onBackspacePressed),
             ],

@@ -33,325 +33,327 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
   void _onUpdateController(UpdateController event, Emitter<CalculatorState> emit) {
     // Просто обновляем контроллер, состояние будет обновлено другими событиями
     controller = event.controller;
+
+    // Обновляем текст контроллера из текущего состояния
+    _updateControllerFromState(state);
+  }
+
+  /// Обновляет текст контроллера из состояния
+  void _updateControllerFromState(CalculatorState state) {
+    if (controller != null) {
+      controller!.text = state.result;
+      controller!.selection = TextSelection.collapsed(offset: state.result.length);
+    }
   }
 
   /// Обработка нажатия на цифру
   void _onDigitPressed(DigitPressed event, Emitter<CalculatorState> emit) {
     final digit = event.digit;
 
-    if (!state.isCalculatorMode) {
-      // В обычном режиме просто добавляем цифру к контроллеру
-      if (controller != null) {
-        final currentText = controller!.text;
-
-        // Если текст пустой или равен "0", заменяем его на цифру
-        if (currentText.isEmpty || currentText == '0') {
-          controller!.text = digit;
-        } else {
-          // Иначе добавляем цифру в конец
-          controller!.text = currentText + digit;
-        }
-
-        // Устанавливаем курсор в конец текста
-        controller!.selection = TextSelection.collapsed(offset: controller!.text.length);
-
-        // Обновляем состояние из контроллера
-        add(UpdateFromController());
-      }
+    // Если у нас уже есть результат, начинаем новое выражение
+    if (state.hasResult) {
+      final newState = state.copyWith(
+        result: digit,
+        leftOperand: double.tryParse(digit) ?? 0,
+        currentOperator: '',
+        rightOperand: null,
+        hasResult: false,
+      );
+      emit(newState);
+      _updateControllerFromState(newState);
       return;
     }
 
-    // В режиме калькулятора
-    if (controller != null) {
-      if (state.hasResult) {
-        // Если у нас уже есть результат, начинаем новое выражение
-        controller!.text = digit;
-        controller!.selection = TextSelection.collapsed(offset: 1);
+    // Если оператор еще не выбран, добавляем цифру к левому операнду
+    if (state.currentOperator.isEmpty) {
+      String newResult;
 
-        emit(
-          state.copyWith(
-            currentOperator: '',
-            leftOperand: double.tryParse(digit) ?? 0,
-            rightOperand: null,
-            hasResult: false,
-            result: digit,
-          ),
-        );
-      } else if (state.currentOperator.isEmpty) {
-        // Если оператор еще не выбран, добавляем цифру к левому операнду
-        final currentText = controller!.text;
-
-        // Если текст пустой или равен "0", заменяем его на цифру
-        if (currentText.isEmpty || currentText == '0') {
-          controller!.text = digit;
-        } else {
-          // Иначе добавляем цифру в конец
-          controller!.text = currentText + digit;
-        }
-
-        // Устанавливаем курсор в конец текста
-        controller!.selection = TextSelection.collapsed(offset: controller!.text.length);
-
-        // Обновляем левый операнд
-        final newValue = controller!.text;
-        final leftOperand = double.tryParse(newValue);
-
-        emit(state.copyWith(leftOperand: leftOperand ?? 0, result: newValue));
+      // Если текущий результат "0", заменяем его на цифру
+      if (state.result == '0') {
+        newResult = digit;
       } else {
-        // Если оператор уже выбран, добавляем цифру к правому операнду
-        final currentText = controller!.text;
+        // Иначе добавляем цифру в конец
+        newResult = state.result + digit;
+      }
 
-        // Разбиваем текст на части по оператору
-        final parts = currentText.split(' ${state.currentOperator} ');
+      final newState = state.copyWith(
+        result: newResult,
+        leftOperand: double.tryParse(newResult) ?? 0,
+      );
+      emit(newState);
+      _updateControllerFromState(newState);
+    } else {
+      // Если оператор уже выбран, добавляем цифру к правому операнду
+      String leftPart = state.result;
+      String rightPart = '';
 
-        // Если правая часть пустая или "0", заменяем ее на цифру
-        // Но сохраняем минус, если он есть
-        if (parts.length == 1 || parts[1].isEmpty) {
-          controller!.text = '${parts[0]} ${state.currentOperator} $digit';
-        } else if (parts[1] == '0') {
-          controller!.text = '${parts[0]} ${state.currentOperator} $digit';
-        } else if (parts[1] == '-') {
-          controller!.text = '${parts[0]} ${state.currentOperator} -$digit';
-        } else {
-          // Иначе добавляем цифру к правой части
-          controller!.text = '${parts[0]} ${state.currentOperator} ${parts[1]}$digit';
-        }
-
-        // Устанавливаем курсор в конец текста
-        controller!.selection = TextSelection.collapsed(offset: controller!.text.length);
-
-        // Извлекаем правый операнд из выражения
-        final updatedParts = controller!.text.split(' ${state.currentOperator} ');
-        if (updatedParts.length > 1 && updatedParts[1].isNotEmpty) {
-          final rightOperand = double.tryParse(updatedParts[1]);
-
-          // Обновляем состояние с текущим выражением
-          emit(state.copyWith(rightOperand: rightOperand, result: controller!.text));
+      // Разбиваем текст на части по оператору
+      if (state.result.contains(' ${state.currentOperator} ')) {
+        final parts = state.result.split(' ${state.currentOperator} ');
+        leftPart = parts[0];
+        if (parts.length > 1) {
+          rightPart = parts[1];
         }
       }
+
+      // Обновляем правую часть
+      String newRightPart;
+      if (rightPart.isEmpty || rightPart == '0') {
+        newRightPart = digit;
+      } else {
+        newRightPart = rightPart + digit;
+      }
+
+      // Формируем новый результат
+      final newResult = '$leftPart ${state.currentOperator} $newRightPart';
+
+      final newState = state.copyWith(
+        result: newResult,
+        rightOperand: double.tryParse(newRightPart) ?? 0,
+      );
+      emit(newState);
+      _updateControllerFromState(newState);
     }
   }
 
   /// Обработка нажатия на кнопку Backspace
   void _onBackspacePressed(BackspacePressed event, Emitter<CalculatorState> emit) {
-    if (controller == null) return;
-
-    final currentText = controller!.text;
-    final currentPosition = controller!.selection.baseOffset;
-
-    // Если текст пустой или позиция курсора недействительна, ничего не делаем
-    if (currentText.isEmpty || currentPosition <= 0) {
+    // Если результат уже вычислен, ничего не делаем
+    if (state.hasResult) {
       return;
     }
 
-    // Удаляем символ перед курсором
-    final newText =
-        currentText.substring(0, currentPosition - 1) + currentText.substring(currentPosition);
+    // Если результат пустой или "0", ничего не делаем
+    if (state.result.isEmpty || state.result == '0') {
+      return;
+    }
 
-    controller!.text = newText;
-    controller!.selection = TextSelection.collapsed(offset: currentPosition - 1);
-
-    // Обновляем состояние из контроллера
-    if (state.isCalculatorMode) {
-      if (state.currentOperator.isEmpty) {
-        // Если нет оператора, обновляем левый операнд
-        emit(
-          state.copyWith(
-            leftOperand: newText.isEmpty ? 0 : (double.tryParse(newText) ?? 0),
-            result: newText.isEmpty ? '0' : newText,
-          ),
-        );
-      } else {
-        // Если есть оператор, проверяем, что осталось в выражении
-        final parts = newText.split(' ${state.currentOperator} ');
-        if (parts.length > 1 && parts[1].isNotEmpty) {
-          // Обновляем правый операнд
-          final rightOperand = double.tryParse(parts[1]) ?? 0;
-          emit(state.copyWith(rightOperand: rightOperand, result: newText));
-        } else if (parts.length > 1 && parts[1].isEmpty) {
-          // Если правый операнд пуст, удаляем оператор
-          emit(state.copyWith(currentOperator: '', rightOperand: null, result: parts[0]));
-        } else {
-          // Если оператор удален, обновляем левый операнд
-          emit(
-            state.copyWith(
-              leftOperand: newText.isEmpty ? 0 : (double.tryParse(newText) ?? 0),
-              currentOperator: '',
-              rightOperand: null,
-              result: newText.isEmpty ? '0' : newText,
-            ),
-          );
-        }
+    // Если оператор не выбран, удаляем последний символ из левого операнда
+    if (state.currentOperator.isEmpty) {
+      String newResult = state.result.substring(0, state.result.length - 1);
+      if (newResult.isEmpty) {
+        newResult = '0';
       }
+
+      final newState = state.copyWith(
+        result: newResult,
+        leftOperand: newResult == '0' ? 0 : (double.tryParse(newResult) ?? 0),
+      );
+      emit(newState);
+      _updateControllerFromState(newState);
     } else {
-      add(UpdateFromController());
+      // Если оператор выбран, проверяем, что удаляем
+      final parts = state.result.split(' ${state.currentOperator} ');
+      final leftPart = parts[0];
+      String rightPart = '';
+      if (parts.length > 1) {
+        rightPart = parts[1];
+      }
+
+      // Если правая часть не пуста, удаляем из нее
+      if (rightPart.isNotEmpty) {
+        final newRightPart = rightPart.substring(0, rightPart.length - 1);
+        final newResult =
+            newRightPart.isEmpty
+                ? '$leftPart ${state.currentOperator} '
+                : '$leftPart ${state.currentOperator} $newRightPart';
+
+        final newState = state.copyWith(
+          result: newResult,
+          rightOperand: newRightPart.isEmpty ? null : (double.tryParse(newRightPart) ?? 0),
+        );
+        emit(newState);
+        _updateControllerFromState(newState);
+      } else {
+        // Если правая часть пуста, удаляем оператор
+        final newState = state.copyWith(result: leftPart, currentOperator: '', rightOperand: null);
+        emit(newState);
+        _updateControllerFromState(newState);
+      }
     }
   }
 
   /// Обработка нажатия на кнопку очистки
   void _onClearPressed(ClearPressed event, Emitter<CalculatorState> emit) {
-    if (controller != null) {
-      controller!.clear();
-      controller!.selection = const TextSelection.collapsed(offset: 0);
-    }
-
-    emit(const CalculatorState());
+    final newState = const CalculatorState();
+    emit(newState);
+    _updateControllerFromState(newState);
   }
 
   /// Обработка нажатия на кнопку операции
   void _onOperationPressed(OperationPressed event, Emitter<CalculatorState> emit) {
-    if (controller == null) return;
-
     final operation = event.operation;
-    final currentText = controller!.text.trim();
 
-    // Особая обработка для минуса в начале выражения (отрицательное число)
-    if (operation == '-' && (currentText.isEmpty || currentText == '0')) {
-      controller!.text = '-';
-      controller!.selection = TextSelection.collapsed(offset: 1);
-
-      emit(state.copyWith(result: '-'));
+    // Если результат пустой, ничего не делаем
+    if (state.result.isEmpty) {
       return;
     }
 
-    // Особая обработка для минуса после оператора (отрицательное число)
-    if (operation == '-' && state.currentOperator.isNotEmpty) {
-      final parts = currentText.split(' ${state.currentOperator} ');
-      if (parts.length > 1 && parts[1].isEmpty) {
-        controller!.text = '${parts[0]} ${state.currentOperator} -';
-        controller!.selection = TextSelection.collapsed(offset: controller!.text.length);
-
-        emit(state.copyWith(result: controller!.text));
-        return;
-      }
-    }
-
-    // Проверяем, что текущее значение является числом
-    final currentValue = double.tryParse(currentText);
-    if (currentValue == null && !currentText.contains(' ') && currentText != '-') {
-      // Если текущее значение не является числом и не содержит оператора, ничего не делаем
-      return;
-    }
-
-    if (!state.isCalculatorMode) {
-      // Переключаемся в режим калькулятора
-      emit(
-        state.copyWith(
-          isCalculatorMode: true,
-          leftOperand: double.tryParse(currentText) ?? 0,
-          result: currentText,
-        ),
-      );
-    }
-
-    // Если у нас уже есть результат, используем его как левый операнд для нового выражения
+    // Если у нас уже есть результат, используем его как левый операнд
     if (state.hasResult) {
-      controller!.text = '${state.result} $operation ';
-      controller!.selection = TextSelection.collapsed(offset: controller!.text.length);
-
-      emit(
-        state.copyWith(
-          currentOperator: operation,
-          leftOperand: double.tryParse(state.result) ?? 0,
-          rightOperand: null,
-          hasResult: false,
-          result: controller!.text,
-        ),
+      final newResult = '${state.result} $operation ';
+      final newState = state.copyWith(
+        result: newResult,
+        currentOperator: operation,
+        rightOperand: null,
+        hasResult: false,
       );
+      emit(newState);
+      _updateControllerFromState(newState);
       return;
     }
 
-    // Проверяем, содержит ли текст уже операцию
-    final containsPlus = currentText.contains(' + ');
-    final containsMinus = currentText.contains(' - ');
-    final containsMultiply = currentText.contains(' × ');
-    final containsDivide = currentText.contains(' ÷ ');
+    // Если оператор не выбран, добавляем его
+    if (state.currentOperator.isEmpty) {
+      final newResult = '${state.result} $operation ';
+      final newState = state.copyWith(result: newResult, currentOperator: operation);
+      emit(newState);
+      _updateControllerFromState(newState);
+      return;
+    }
 
-    if (containsPlus || containsMinus || containsMultiply || containsDivide) {
-      // Проверяем, есть ли правый операнд
-      final parts = currentText.split(' ${state.currentOperator} ');
-      if (parts.length > 1 && parts[1].trim().isEmpty) {
-        // Если правый операнд пуст, просто заменяем оператор
-        controller!.text = '${parts[0]} $operation ';
-        controller!.selection = TextSelection.collapsed(offset: controller!.text.length);
+    // Если оператор уже выбран, проверяем, есть ли правый операнд
+    final parts = state.result.split(' ${state.currentOperator} ');
+    final leftPart = parts[0];
+    String rightPart = '';
+    if (parts.length > 1) {
+      rightPart = parts[1];
+    }
 
-        // Обновляем состояние
-        emit(state.copyWith(currentOperator: operation, result: controller!.text));
-        return;
-      }
+    // Если правый операнд пуст и нажат тот же оператор, убираем оператор
+    if (rightPart.isEmpty && operation == state.currentOperator) {
+      final newState = state.copyWith(result: leftPart, currentOperator: '', rightOperand: null);
+      emit(newState);
+      _updateControllerFromState(newState);
+      return;
+    }
 
-      // Если выражение уже содержит оператор и правый операнд, вычисляем результат
-      final result = state.calculateResult(currentText, isEquals: true);
-      emit(result);
+    // Если правый операнд пуст, просто заменяем оператор
+    if (rightPart.isEmpty) {
+      final newResult = '$leftPart $operation ';
+      final newState = state.copyWith(result: newResult, currentOperator: operation);
+      emit(newState);
+      _updateControllerFromState(newState);
+      return;
+    }
 
-      // Добавляем оператор к результату
-      controller!.text = '${result.result} $operation ';
-      controller!.selection = TextSelection.collapsed(offset: controller!.text.length);
-
-      // Обновляем состояние
-      emit(
-        state.copyWith(
-          currentOperator: operation,
-          leftOperand: double.tryParse(result.result) ?? 0,
-          rightOperand: null,
-          hasResult: false,
-          result: controller!.text,
-        ),
+    // Если правый операнд не пуст, вычисляем результат и добавляем новый оператор
+    try {
+      // Вычисляем результат
+      double result = _calculateResult(
+        state.leftOperand,
+        state.rightOperand ?? 0,
+        state.currentOperator,
       );
-    } else {
-      // Если выражение не содержит оператора, добавляем его
-      controller!.text = '$currentText $operation ';
-      controller!.selection = TextSelection.collapsed(offset: controller!.text.length);
 
-      // Обновляем состояние
-      emit(
-        state.copyWith(
-          currentOperator: operation,
-          leftOperand: double.tryParse(currentText) ?? 0,
-          rightOperand: null,
-          hasResult: false,
-          result: controller!.text,
-        ),
+      // Форматируем результат
+      final formattedResult =
+          result == result.toInt() ? result.toInt().toString() : result.toString();
+
+      // Формируем новый результат с оператором
+      final newResult = '$formattedResult $operation ';
+
+      final newState = state.copyWith(
+        result: newResult,
+        leftOperand: result,
+        rightOperand: null,
+        currentOperator: operation,
+        hasResult: false,
       );
+      emit(newState);
+      _updateControllerFromState(newState);
+    } catch (e) {
+      print('Ошибка при вычислении: $e');
+      // В случае ошибки просто заменяем оператор
+      final newResult = '$leftPart $operation ';
+      final newState = state.copyWith(
+        result: newResult,
+        currentOperator: operation,
+        rightOperand: null,
+      );
+      emit(newState);
+      _updateControllerFromState(newState);
     }
   }
 
   /// Обработка нажатия на кнопку "="
   void _onEqualsPressed(EqualsPressed event, Emitter<CalculatorState> emit) {
-    if (controller == null) return;
+    // Если результат пустой или уже вычислен, ничего не делаем
+    if (state.result.isEmpty || state.hasResult) {
+      return;
+    }
 
-    final currentText = controller!.text;
+    // Если оператор не выбран, ничего не делаем
+    if (state.currentOperator.isEmpty) {
+      return;
+    }
 
-    // Проверяем, содержит ли текст операцию
-    final containsOperator =
-        currentText.contains(' + ') ||
-        currentText.contains(' - ') ||
-        currentText.contains(' × ') ||
-        currentText.contains(' ÷ ');
+    // Проверяем, есть ли правый операнд
+    final parts = state.result.split(' ${state.currentOperator} ');
+    final leftPart = parts[0];
+    String rightPart = '';
+    if (parts.length > 1) {
+      rightPart = parts[1];
+    }
 
-    if (!containsOperator) {
-      // Если нет операции, просто возвращаем текущее значение
+    // Если правый операнд пуст или не является числом, ничего не делаем
+    if (rightPart.isEmpty || double.tryParse(rightPart) == null) {
       return;
     }
 
     // Вычисляем результат
-    final result = state.calculateResult(currentText, isEquals: true);
+    try {
+      // Вычисляем результат
+      double result = _calculateResult(
+        state.leftOperand,
+        state.rightOperand ?? 0,
+        state.currentOperator,
+      );
 
-    // Обновляем текст контроллера
-    controller!.text = result.result;
-    controller!.selection = TextSelection.collapsed(offset: result.result.length);
+      // Форматируем результат
+      final formattedResult =
+          result == result.toInt() ? result.toInt().toString() : result.toString();
 
-    // Обновляем состояние
-    emit(result);
+      final newState = state.copyWith(
+        result: formattedResult,
+        leftOperand: result,
+        rightOperand: null,
+        currentOperator: '',
+        hasResult: true,
+      );
+      emit(newState);
+      _updateControllerFromState(newState);
+    } catch (e) {
+      print('Ошибка при вычислении: $e');
+      // В случае ошибки просто возвращаем левую часть
+      final newState = state.copyWith(result: leftPart, currentOperator: '', rightOperand: null);
+      emit(newState);
+      _updateControllerFromState(newState);
+    }
+  }
+
+  /// Вычисляет результат арифметической операции
+  double _calculateResult(double left, double right, String operator) {
+    switch (operator) {
+      case '+':
+        return left + right;
+      case '-':
+        return left - right;
+      case '×':
+        return left * right;
+      case '÷':
+        if (right != 0) {
+          return left / right;
+        } else {
+          return left; // Защита от деления на ноль
+        }
+      default:
+        return left;
+    }
   }
 
   /// Обработка установки начального значения
   void _onSetInitialValue(SetInitialValue event, Emitter<CalculatorState> emit) {
-    if (controller != null) {
-      controller!.text = event.value;
-      controller!.selection = TextSelection.collapsed(offset: event.value.length);
-    }
-
     final value = double.tryParse(event.value) ?? 0;
 
     // Проверяем, является ли число целым
@@ -361,15 +363,15 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     // Форматируем результат для отображения
     final formattedResult = CalculatorState.formatNumber(value);
 
-    emit(
-      state.copyWith(
-        result: formattedResult,
-        leftOperand: leftOperand,
-        currentOperator: '',
-        rightOperand: null,
-        hasResult: false,
-      ),
+    final newState = state.copyWith(
+      result: formattedResult,
+      leftOperand: leftOperand,
+      currentOperator: '',
+      rightOperand: null,
+      hasResult: false,
     );
+    emit(newState);
+    _updateControllerFromState(newState);
   }
 
   /// Обработка обновления состояния из контроллера
@@ -377,8 +379,48 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     if (controller == null) return;
 
     final text = controller!.text;
-    final value = double.tryParse(text) ?? 0;
+    if (text.isEmpty) {
+      final newState = state.copyWith(result: '0', leftOperand: 0);
+      emit(newState);
+      _updateControllerFromState(newState);
+      return;
+    }
 
-    emit(state.copyWith(result: text.isEmpty ? '0' : text, leftOperand: value));
+    // Проверяем, содержит ли текст оператор
+    bool hasOperator = false;
+    String operator = '';
+    for (final op in ['+', '-', '×', '÷']) {
+      if (text.contains(' $op ')) {
+        hasOperator = true;
+        operator = op;
+        break;
+      }
+    }
+
+    if (!hasOperator) {
+      // Если нет оператора, обновляем только левый операнд
+      final value = double.tryParse(text) ?? 0;
+      final newState = state.copyWith(result: text, leftOperand: value);
+      emit(newState);
+    } else {
+      // Если есть оператор, разбиваем текст на части
+      final parts = text.split(' $operator ');
+      final leftPart = parts[0];
+      String rightPart = '';
+      if (parts.length > 1) {
+        rightPart = parts[1];
+      }
+
+      final leftValue = double.tryParse(leftPart) ?? 0;
+      final rightValue = rightPart.isEmpty ? null : (double.tryParse(rightPart) ?? 0);
+
+      final newState = state.copyWith(
+        result: text,
+        leftOperand: leftValue,
+        rightOperand: rightValue,
+        currentOperator: operator,
+      );
+      emit(newState);
+    }
   }
 }
