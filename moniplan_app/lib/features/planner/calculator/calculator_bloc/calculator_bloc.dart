@@ -2,48 +2,18 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_event.dart';
-import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_state.dart';
+import 'package:bloc/bloc.dart';
+import '_index.dart';
 
 /// Блок для управления калькулятором
 class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
-  // Контроллер текстового поля, с которым работает калькулятор
-  TextEditingController? controller;
-
-  CalculatorBloc({this.controller}) : super(const CalculatorState()) {
+  CalculatorBloc() : super(const CalculatorState()) {
     on<DigitPressed>(_onDigitPressed);
     on<BackspacePressed>(_onBackspacePressed);
     on<ClearPressed>(_onClearPressed);
     on<OperationPressed>(_onOperationPressed);
     on<EqualsPressed>(_onEqualsPressed);
     on<SetInitialValue>(_onSetInitialValue);
-    on<UpdateFromController>(_onUpdateFromController);
-    on<UpdateController>(_onUpdateController);
-  }
-
-  /// Обновляет контроллер, с которым работает блок
-  void updateController(TextEditingController newController) {
-    controller = newController;
-    add(UpdateController(newController));
-  }
-
-  /// Обработка события обновления контроллера
-  void _onUpdateController(UpdateController event, Emitter<CalculatorState> emit) {
-    // Просто обновляем контроллер, состояние будет обновлено другими событиями
-    controller = event.controller;
-
-    // Обновляем текст контроллера из текущего состояния
-    _updateControllerFromState(state);
-  }
-
-  /// Обновляет текст контроллера из состояния
-  void _updateControllerFromState(CalculatorState state) {
-    if (controller != null) {
-      controller!.text = state.result;
-      controller!.selection = TextSelection.collapsed(offset: state.result.length);
-    }
   }
 
   /// Обработка нажатия на цифру
@@ -55,17 +25,16 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       final newState = state.copyWith(
         result: digit,
         leftOperand: double.tryParse(digit) ?? 0,
-        currentOperator: '',
+        currentOperator: CalculatorOperator.none,
         rightOperand: null,
         hasResult: false,
       );
       emit(newState);
-      _updateControllerFromState(newState);
       return;
     }
 
     // Если оператор еще не выбран, добавляем цифру к левому операнду
-    if (state.currentOperator.isEmpty) {
+    if (state.currentOperator == CalculatorOperator.none) {
       String newResult;
 
       // Если текущий результат "0", заменяем его на цифру
@@ -81,15 +50,14 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         leftOperand: double.tryParse(newResult) ?? 0,
       );
       emit(newState);
-      _updateControllerFromState(newState);
     } else {
       // Если оператор уже выбран, добавляем цифру к правому операнду
       String leftPart = state.result;
       String rightPart = '';
 
       // Разбиваем текст на части по оператору
-      if (state.result.contains(' ${state.currentOperator} ')) {
-        final parts = state.result.split(' ${state.currentOperator} ');
+      if (state.result.contains(' ${state.currentOperator.symbol} ')) {
+        final parts = state.result.split(' ${state.currentOperator.symbol} ');
         leftPart = parts[0];
         if (parts.length > 1) {
           rightPart = parts[1];
@@ -105,14 +73,13 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       }
 
       // Формируем новый результат
-      final newResult = '$leftPart ${state.currentOperator} $newRightPart';
+      final newResult = '$leftPart ${state.currentOperator.symbol} $newRightPart';
 
       final newState = state.copyWith(
         result: newResult,
         rightOperand: double.tryParse(newRightPart) ?? 0,
       );
       emit(newState);
-      _updateControllerFromState(newState);
     }
   }
 
@@ -129,7 +96,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     }
 
     // Если оператор не выбран, удаляем последний символ из левого операнда
-    if (state.currentOperator.isEmpty) {
+    if (state.currentOperator == CalculatorOperator.none) {
       String newResult = state.result.substring(0, state.result.length - 1);
       if (newResult.isEmpty) {
         newResult = '0';
@@ -140,10 +107,9 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         leftOperand: newResult == '0' ? 0 : (double.tryParse(newResult) ?? 0),
       );
       emit(newState);
-      _updateControllerFromState(newState);
     } else {
       // Если оператор выбран, проверяем, что удаляем
-      final parts = state.result.split(' ${state.currentOperator} ');
+      final parts = state.result.split(' ${state.currentOperator.symbol} ');
       final leftPart = parts[0];
       String rightPart = '';
       if (parts.length > 1) {
@@ -155,20 +121,22 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         final newRightPart = rightPart.substring(0, rightPart.length - 1);
         final newResult =
             newRightPart.isEmpty
-                ? '$leftPart ${state.currentOperator} '
-                : '$leftPart ${state.currentOperator} $newRightPart';
+                ? '$leftPart ${state.currentOperator.symbol} '
+                : '$leftPart ${state.currentOperator.symbol} $newRightPart';
 
         final newState = state.copyWith(
           result: newResult,
           rightOperand: newRightPart.isEmpty ? null : (double.tryParse(newRightPart) ?? 0),
         );
         emit(newState);
-        _updateControllerFromState(newState);
       } else {
         // Если правая часть пуста, удаляем оператор
-        final newState = state.copyWith(result: leftPart, currentOperator: '', rightOperand: null);
+        final newState = state.copyWith(
+          result: leftPart,
+          currentOperator: CalculatorOperator.none,
+          rightOperand: null,
+        );
         emit(newState);
-        _updateControllerFromState(newState);
       }
     }
   }
@@ -177,12 +145,11 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
   void _onClearPressed(ClearPressed event, Emitter<CalculatorState> emit) {
     final newState = const CalculatorState();
     emit(newState);
-    _updateControllerFromState(newState);
   }
 
   /// Обработка нажатия на кнопку операции
   void _onOperationPressed(OperationPressed event, Emitter<CalculatorState> emit) {
-    final operation = event.operation;
+    final operation = CalculatorOperator.fromSymbol(event.operation);
 
     // Если результат пустой, ничего не делаем
     if (state.result.isEmpty) {
@@ -191,7 +158,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
 
     // Если у нас уже есть результат, используем его как левый операнд
     if (state.hasResult) {
-      final newResult = '${state.result} $operation ';
+      final newResult = '${state.result} ${operation.symbol} ';
       final newState = state.copyWith(
         result: newResult,
         currentOperator: operation,
@@ -199,21 +166,19 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         hasResult: false,
       );
       emit(newState);
-      _updateControllerFromState(newState);
       return;
     }
 
     // Если оператор не выбран, добавляем его
-    if (state.currentOperator.isEmpty) {
-      final newResult = '${state.result} $operation ';
+    if (state.currentOperator == CalculatorOperator.none) {
+      final newResult = '${state.result} ${operation.symbol} ';
       final newState = state.copyWith(result: newResult, currentOperator: operation);
       emit(newState);
-      _updateControllerFromState(newState);
       return;
     }
 
     // Если оператор уже выбран, проверяем, есть ли правый операнд
-    final parts = state.result.split(' ${state.currentOperator} ');
+    final parts = state.result.split(' ${state.currentOperator.symbol} ');
     final leftPart = parts[0];
     String rightPart = '';
     if (parts.length > 1) {
@@ -222,18 +187,20 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
 
     // Если правый операнд пуст и нажат тот же оператор, убираем оператор
     if (rightPart.isEmpty && operation == state.currentOperator) {
-      final newState = state.copyWith(result: leftPart, currentOperator: '', rightOperand: null);
+      final newState = state.copyWith(
+        result: leftPart,
+        currentOperator: CalculatorOperator.none,
+        rightOperand: null,
+      );
       emit(newState);
-      _updateControllerFromState(newState);
       return;
     }
 
     // Если правый операнд пуст, просто заменяем оператор
     if (rightPart.isEmpty) {
-      final newResult = '$leftPart $operation ';
+      final newResult = '$leftPart ${operation.symbol} ';
       final newState = state.copyWith(result: newResult, currentOperator: operation);
       emit(newState);
-      _updateControllerFromState(newState);
       return;
     }
 
@@ -251,7 +218,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
           result == result.toInt() ? result.toInt().toString() : result.toString();
 
       // Формируем новый результат с оператором
-      final newResult = '$formattedResult $operation ';
+      final newResult = '$formattedResult ${operation.symbol} ';
 
       final newState = state.copyWith(
         result: newResult,
@@ -261,18 +228,16 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         hasResult: false,
       );
       emit(newState);
-      _updateControllerFromState(newState);
     } catch (e) {
       print('Ошибка при вычислении: $e');
       // В случае ошибки просто заменяем оператор
-      final newResult = '$leftPart $operation ';
+      final newResult = '$leftPart ${operation.symbol} ';
       final newState = state.copyWith(
         result: newResult,
         currentOperator: operation,
         rightOperand: null,
       );
       emit(newState);
-      _updateControllerFromState(newState);
     }
   }
 
@@ -284,12 +249,12 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     }
 
     // Если оператор не выбран, ничего не делаем
-    if (state.currentOperator.isEmpty) {
+    if (state.currentOperator == CalculatorOperator.none) {
       return;
     }
 
     // Проверяем, есть ли правый операнд
-    final parts = state.result.split(' ${state.currentOperator} ');
+    final parts = state.result.split(' ${state.currentOperator.symbol} ');
     final leftPart = parts[0];
     String rightPart = '';
     if (parts.length > 1) {
@@ -318,30 +283,32 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         result: formattedResult,
         leftOperand: result,
         rightOperand: null,
-        currentOperator: '',
+        currentOperator: CalculatorOperator.none,
         hasResult: true,
       );
       emit(newState);
-      _updateControllerFromState(newState);
     } catch (e) {
       print('Ошибка при вычислении: $e');
       // В случае ошибки просто возвращаем левую часть
-      final newState = state.copyWith(result: leftPart, currentOperator: '', rightOperand: null);
+      final newState = state.copyWith(
+        result: leftPart,
+        currentOperator: CalculatorOperator.none,
+        rightOperand: null,
+      );
       emit(newState);
-      _updateControllerFromState(newState);
     }
   }
 
   /// Вычисляет результат арифметической операции
-  double _calculateResult(double left, double right, String operator) {
+  double _calculateResult(double left, double right, CalculatorOperator operator) {
     switch (operator) {
-      case '+':
+      case CalculatorOperator.add:
         return left + right;
-      case '-':
+      case CalculatorOperator.subtract:
         return left - right;
-      case '×':
+      case CalculatorOperator.multiply:
         return left * right;
-      case '÷':
+      case CalculatorOperator.divide:
         if (right != 0) {
           return left / right;
         } else {
@@ -366,61 +333,10 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     final newState = state.copyWith(
       result: formattedResult,
       leftOperand: leftOperand,
-      currentOperator: '',
+      currentOperator: CalculatorOperator.none,
       rightOperand: null,
       hasResult: false,
     );
     emit(newState);
-    _updateControllerFromState(newState);
-  }
-
-  /// Обработка обновления состояния из контроллера
-  void _onUpdateFromController(UpdateFromController event, Emitter<CalculatorState> emit) {
-    if (controller == null) return;
-
-    final text = controller!.text;
-    if (text.isEmpty) {
-      final newState = state.copyWith(result: '0', leftOperand: 0);
-      emit(newState);
-      _updateControllerFromState(newState);
-      return;
-    }
-
-    // Проверяем, содержит ли текст оператор
-    bool hasOperator = false;
-    String operator = '';
-    for (final op in ['+', '-', '×', '÷']) {
-      if (text.contains(' $op ')) {
-        hasOperator = true;
-        operator = op;
-        break;
-      }
-    }
-
-    if (!hasOperator) {
-      // Если нет оператора, обновляем только левый операнд
-      final value = double.tryParse(text) ?? 0;
-      final newState = state.copyWith(result: text, leftOperand: value);
-      emit(newState);
-    } else {
-      // Если есть оператор, разбиваем текст на части
-      final parts = text.split(' $operator ');
-      final leftPart = parts[0];
-      String rightPart = '';
-      if (parts.length > 1) {
-        rightPart = parts[1];
-      }
-
-      final leftValue = double.tryParse(leftPart) ?? 0;
-      final rightValue = rightPart.isEmpty ? null : (double.tryParse(rightPart) ?? 0);
-
-      final newState = state.copyWith(
-        result: text,
-        leftOperand: leftValue,
-        rightOperand: rightValue,
-        currentOperator: operator,
-      );
-      emit(newState);
-    }
   }
 }

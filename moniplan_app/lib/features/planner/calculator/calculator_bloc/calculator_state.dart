@@ -4,6 +4,7 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:expressions/expressions.dart';
+import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_operator.dart';
 
 /// Состояние калькулятора
 class CalculatorState extends Equatable {
@@ -17,7 +18,7 @@ class CalculatorState extends Equatable {
   final double? rightOperand;
 
   /// Текущий оператор
-  final String currentOperator;
+  final CalculatorOperator currentOperator;
 
   /// Флаг, указывающий, что результат вычислен
   final bool hasResult;
@@ -29,7 +30,7 @@ class CalculatorState extends Equatable {
     this.result = '0',
     this.leftOperand = 0,
     this.rightOperand,
-    this.currentOperator = '',
+    this.currentOperator = CalculatorOperator.none,
     this.hasResult = false,
     this.isCalculatorMode = false,
   });
@@ -39,7 +40,7 @@ class CalculatorState extends Equatable {
     String? result,
     double? leftOperand,
     double? rightOperand,
-    String? currentOperator,
+    CalculatorOperator? currentOperator,
     bool? hasResult,
     bool? isCalculatorMode,
   }) {
@@ -75,12 +76,12 @@ class CalculatorState extends Equatable {
   /// Вычисляет результат арифметической операции
   CalculatorState calculateResult(String text, {bool isEquals = false}) {
     // Если нет оператора, нечего вычислять
-    if (currentOperator.isEmpty) {
+    if (currentOperator == CalculatorOperator.none) {
       return this;
     }
 
     // Получаем операнды из текста
-    final parts = text.split(' $currentOperator ');
+    final parts = text.split(' ${currentOperator.symbol} ');
     if (parts.length < 2) return this;
 
     final leftText = parts[0].trim();
@@ -100,21 +101,8 @@ class CalculatorState extends Equatable {
 
     final rightOperand = parsedRight;
 
-    // Преобразуем оператор для пакета expressions
-    String expressionOperator;
-    switch (currentOperator) {
-      case '×':
-        expressionOperator = '*';
-        break;
-      case '÷':
-        expressionOperator = '/';
-        break;
-      default:
-        expressionOperator = currentOperator;
-    }
-
     // Создаем выражение для вычисления
-    final expression = '$leftOperand $expressionOperator $rightOperand';
+    final expression = '$leftOperand ${currentOperator.expressionSymbol} $rightOperand';
 
     // Парсим и вычисляем выражение
     double result;
@@ -124,7 +112,7 @@ class CalculatorState extends Equatable {
       result = evaluator.eval(parsedExpression, {}) as double;
 
       // Проверка деления на ноль
-      if (expressionOperator == '/' && rightOperand == 0) {
+      if (currentOperator == CalculatorOperator.divide && rightOperand == 0) {
         result = leftOperand; // Если делим на ноль, сохраняем левый операнд
       }
     } catch (e) {
@@ -147,7 +135,7 @@ class CalculatorState extends Equatable {
         result: formattedResult,
         leftOperand: isInteger ? resultDouble.toInt().toDouble() : resultDouble,
         rightOperand: null,
-        currentOperator: '',
+        currentOperator: CalculatorOperator.none,
         hasResult: true,
       );
     } else {

@@ -35,7 +35,7 @@ class _CalculatorBlocProviderState extends State<CalculatorBlocProvider> {
       print('Используем существующий CalculatorBloc из контекста');
     } catch (e) {
       // Если блока нет, создаем новый
-      _calculatorBloc = CalculatorBloc(controller: widget.controller);
+      _calculatorBloc = CalculatorBloc();
 
       // Инициализируем блок
       final initialValue = widget.controller.text;

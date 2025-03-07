@@ -68,7 +68,7 @@ class _PaymentEditScreenState extends State<PaymentEditScreen> {
         BlocProvider(
           create: (context) {
             // Создаем CalculatorBloc внутри функции create
-            final calculatorBloc = CalculatorBloc(controller: amountController);
+            final calculatorBloc = CalculatorBloc();
 
             // Инициализируем блок
             if (amountController.text.isNotEmpty) {
@@ -234,11 +234,8 @@ class _PaymentEditView extends StatelessWidget {
       taxRate = taxRate / 100;
     }
 
-    // Получаем контроллер из CalculatorBlocProvider
-    final calculatorBloc = context.read<CalculatorBloc>();
-
     // Создаем локальный контроллер, если контроллер в блоке null
-    final amountController = calculatorBloc.controller ?? TextEditingController(text: amount);
+    final amountController = TextEditingController(text: amount);
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -654,11 +651,8 @@ class _PaymentEditView extends StatelessWidget {
       taxRate = taxRate / 100;
     }
 
-    // Получаем контроллер из CalculatorBlocProvider
-    final calculatorBloc = context.read<CalculatorBloc>();
-
     // Создаем локальный контроллер, если контроллер в блоке null
-    final amountController = calculatorBloc.controller ?? TextEditingController(text: amount);
+    final amountController = TextEditingController(text: amount);
 
     return keyboard.PaymentKeyboard(
       amountController: amountController,

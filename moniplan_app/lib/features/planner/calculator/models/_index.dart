@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../calculator_bloc/calculator_state.dart';
+import '../_index.dart';
 
 /// Константы для клавиатуры
 class KeyboardConstants {

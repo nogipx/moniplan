@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 
 /// События для блока калькулятора
 abstract class CalculatorEvent extends Equatable {
@@ -31,6 +30,7 @@ class ClearPressed extends CalculatorEvent {}
 
 /// Применение арифметической операции
 class OperationPressed extends CalculatorEvent {
+  /// Символ операции ('+', '-', '×', '÷')
   final String operation;
 
   const OperationPressed(this.operation);
@@ -50,17 +50,4 @@ class SetInitialValue extends CalculatorEvent {
 
   @override
   List<Object?> get props => [value];
-}
-
-/// Обновление состояния из контроллера
-class UpdateFromController extends CalculatorEvent {}
-
-/// Обновление контроллера
-class UpdateController extends CalculatorEvent {
-  final TextEditingController controller;
-
-  const UpdateController(this.controller);
-
-  @override
-  List<Object?> get props => [controller];
 }

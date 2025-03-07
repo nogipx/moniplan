@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_bloc.dart';
 import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_event.dart';
-import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_operator.dart';
 
 /// Ряд с операциями калькулятора
 class OperationsRow extends StatelessWidget {
   final Function(String) onOperationPressed;
-  final String currentOperator;
+  final CalculatorOperator currentOperator;
   final ThemeData theme;
   final bool isDarkMode;
 
@@ -40,10 +40,10 @@ class OperationsRow extends StatelessWidget {
               HapticFeedback.mediumImpact();
             },
           ),
-          _buildOperationButton('÷'),
-          _buildOperationButton('×'),
-          _buildOperationButton('+'),
-          _buildOperationButton('-'),
+          _buildOperationButton(CalculatorOperator.divide.symbol),
+          _buildOperationButton(CalculatorOperator.multiply.symbol),
+          _buildOperationButton(CalculatorOperator.add.symbol),
+          _buildOperationButton(CalculatorOperator.subtract.symbol),
         ],
       ),
     );
@@ -52,7 +52,7 @@ class OperationsRow extends StatelessWidget {
   /// Кнопка операции
   Widget _buildOperationButton(String operation, {VoidCallback? onPressed}) {
     final isEquals = operation == '=';
-    final isActive = isEquals || operation == currentOperator;
+    final isActive = isEquals || operation == currentOperator.symbol;
     final isClear = operation == 'C';
 
     Color textColor;
