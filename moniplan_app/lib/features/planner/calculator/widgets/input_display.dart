@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/features/planner/calculator/_index.dart';
+import 'package:moniplan_app/features/planner/payment_edit_bloc/payment_edit_bloc.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:intl/intl.dart';
 
@@ -16,10 +17,10 @@ class InputDisplay extends StatefulWidget {
   /// Показывать ли налог
   final bool showTax;
 
-  /// Ставка налога (по умолчанию 20%)
+  /// Ставка налога (по умолчанию 0%)
   final double taxRate;
 
-  /// Название налога (по умолчанию "НДС")
+  /// Название налога (по умолчанию "Налог")
   final String taxName;
 
   /// Callback при изменении ставки налога
@@ -33,8 +34,8 @@ class InputDisplay extends StatefulWidget {
     required this.theme,
     required this.isDarkMode,
     this.showTax = true,
-    this.taxRate = 0.20,
-    this.taxName = 'НДС',
+    this.taxRate = 0.0,
+    this.taxName = 'Налог',
     this.onTaxRateChanged,
   }) : super(key: key);
 
@@ -49,14 +50,49 @@ class _InputDisplayState extends State<InputDisplay> {
   @override
   void initState() {
     super.initState();
+
+    // Инициализируем налог из виджета
     _currentTaxRate = widget.taxRate;
+
+    // Пытаемся получить налог из состояния, если доступно
+    try {
+      final taxString = context.read<PaymentEditBloc>().state.tax;
+      if (taxString.isNotEmpty) {
+        // Заменяем запятую на точку для корректного парсинга
+        final taxValue = double.tryParse(taxString.replaceAll(',', '.')) ?? 0.0;
+        // Преобразуем из процентов в десятичную дробь
+        _currentTaxRate = taxValue / 100;
+      }
+    } catch (e) {
+      // Если не удалось получить налог из состояния, используем значение из виджета
+      print('Не удалось получить налог из состояния в initState: $e');
+    }
   }
 
   @override
   void didUpdateWidget(InputDisplay oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.taxRate != widget.taxRate) {
-      _currentTaxRate = widget.taxRate;
+
+    try {
+      // Получаем строковое значение налога из состояния
+      final taxString = context.read<PaymentEditBloc>().state.tax;
+
+      // Если строка не пустая, преобразуем её в double и делим на 100 для получения десятичной дроби
+      if (taxString.isNotEmpty) {
+        // Заменяем запятую на точку для корректного парсинга
+        final taxValue = double.tryParse(taxString.replaceAll(',', '.')) ?? 0.0;
+        // Преобразуем из процентов в десятичную дробь
+        _currentTaxRate = taxValue / 100;
+      } else if (widget.taxRate != oldWidget.taxRate) {
+        // Если налог из состояния пустой, но изменился taxRate в виджете
+        _currentTaxRate = widget.taxRate;
+      }
+    } catch (e) {
+      // В случае ошибки используем значение из виджета
+      if (widget.taxRate != oldWidget.taxRate) {
+        _currentTaxRate = widget.taxRate;
+      }
+      print('Ошибка при получении налога из состояния: $e');
     }
   }
 
@@ -86,8 +122,13 @@ class _InputDisplayState extends State<InputDisplay> {
         return text;
       }
 
+      // Если дробная часть пустая или состоит только из нулей, возвращаем только целую часть
+      if (decimalPart.isEmpty || int.tryParse(decimalPart) == 0) {
+        return formattedInteger;
+      }
+
       // Возвращаем отформатированное число с дробной частью
-      return decimalPart.isEmpty ? formattedInteger : '$formattedInteger.$decimalPart';
+      return '$formattedInteger.$decimalPart';
     } else {
       // Если нет дробной части, просто форматируем целое число
       final formatter = NumberFormat('#,###', 'ru_RU');
@@ -113,7 +154,7 @@ class _InputDisplayState extends State<InputDisplay> {
     final num result = (num.tryParse(widget.state.result) ?? 0).abs();
 
     // Форматируем результат с разделителями тысяч
-    final formatter = NumberFormat('#,###', 'ru_RU');
+    final formatter = NumberFormat('#,###.##', 'ru_RU');
 
     // Рассчитываем налог (уменьшает итоговую сумму) только для доходов
     final bool isIncome = widget.paymentType == PaymentType.income;
@@ -122,9 +163,20 @@ class _InputDisplayState extends State<InputDisplay> {
     final taxAmount = showTaxInfo ? result * _currentTaxRate : 0;
     final netAmount = showTaxInfo ? result - taxAmount : result; // Чистая сумма после вычета налога
 
-    final formattedResult = formatter.format(result);
-    final formattedTax = formatter.format(taxAmount);
-    final formattedNetAmount = formatter.format(netAmount);
+    // Форматируем числа, убирая десятичную часть, если она равна нулю
+    String formatNumberWithoutTrailingZeros(num value) {
+      if (value == value.toInt()) {
+        // Если число целое, форматируем как целое
+        return formatter.format(value.toInt());
+      } else {
+        // Иначе форматируем с десятичной частью
+        return formatter.format(value);
+      }
+    }
+
+    final formattedResult = formatNumberWithoutTrailingZeros(result);
+    final formattedTax = formatNumberWithoutTrailingZeros(taxAmount);
+    final formattedNetAmount = formatNumberWithoutTrailingZeros(netAmount);
     final taxPercent = (_currentTaxRate * 100).toInt();
     final hasTax = _currentTaxRate > 0;
 

@@ -27,6 +27,7 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
     on<PaymentEditPreviousStep>(_onPreviousStep);
     on<PaymentEditSave>(_onSave);
     on<PaymentEditGoToStep>(_onGoToStep);
+    on<PaymentEditUpdateDraft>(_onUpdateDraft);
   }
 
   /// Обработчик инициализации редактирования платежа
@@ -37,36 +38,43 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
   /// Обработчик изменения типа платежа
   void _onTypeChanged(PaymentEditTypeChanged event, Emitter<PaymentEditState> emit) {
     emit(state.copyWith(type: event.type, clearErrorMessage: true));
+    add(const PaymentEditUpdateDraft());
   }
 
   /// Обработчик изменения суммы платежа
   void _onAmountChanged(PaymentEditAmountChanged event, Emitter<PaymentEditState> emit) {
     emit(state.copyWith(amount: event.amount, clearErrorMessage: true));
+    // Не обновляем черновик здесь, так как это делается в _navigateToStep и _savePayment
   }
 
   /// Обработчик изменения налога
   void _onTaxChanged(PaymentEditTaxChanged event, Emitter<PaymentEditState> emit) {
     emit(state.copyWith(tax: event.tax, clearErrorMessage: true));
+    add(const PaymentEditUpdateDraft());
   }
 
   /// Обработчик изменения названия платежа
   void _onTitleChanged(PaymentEditTitleChanged event, Emitter<PaymentEditState> emit) {
     emit(state.copyWith(title: event.title, clearErrorMessage: true));
+    add(const PaymentEditUpdateDraft());
   }
 
   /// Обработчик изменения примечания к платежу
   void _onNoteChanged(PaymentEditNoteChanged event, Emitter<PaymentEditState> emit) {
     emit(state.copyWith(note: event.note, clearErrorMessage: true));
+    add(const PaymentEditUpdateDraft());
   }
 
   /// Обработчик изменения даты платежа
   void _onDateChanged(PaymentEditDateChanged event, Emitter<PaymentEditState> emit) {
     emit(state.copyWith(date: event.date, clearErrorMessage: true));
+    add(const PaymentEditUpdateDraft());
   }
 
   /// Обработчик изменения статуса выполнения платежа
   void _onIsDoneChanged(PaymentEditIsDoneChanged event, Emitter<PaymentEditState> emit) {
     emit(state.copyWith(isDone: event.isDone, clearErrorMessage: true));
+    add(const PaymentEditUpdateDraft());
   }
 
   /// Обработчик изменения периода повторения платежа
@@ -75,16 +83,19 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
     Emitter<PaymentEditState> emit,
   ) {
     emit(state.copyWith(repeatPeriod: event.repeatPeriod, clearErrorMessage: true));
+    add(const PaymentEditUpdateDraft());
   }
 
   /// Обработчик изменения даты начала повторения
   void _onStartDateChanged(PaymentEditStartDateChanged event, Emitter<PaymentEditState> emit) {
     emit(state.copyWith(startDate: event.startDate, clearErrorMessage: true));
+    add(const PaymentEditUpdateDraft());
   }
 
   /// Обработчик изменения даты окончания повторения
   void _onEndDateChanged(PaymentEditEndDateChanged event, Emitter<PaymentEditState> emit) {
     emit(state.copyWith(endDate: event.endDate, clearErrorMessage: true));
+    add(const PaymentEditUpdateDraft());
   }
 
   /// Обработчик перехода к следующему шагу
@@ -150,8 +161,19 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
     }
 
     try {
-      // Создаем платеж из текущего состояния
-      final payment = state.toPayment();
+      // Обновляем черновик платежа напрямую, а не через событие
+      Payment payment;
+      try {
+        // Создаем платеж из текущего состояния
+        payment = state.toPayment();
+
+        // Обновляем состояние с новым платежом
+        emit(state.copyWith(payment: payment, clearErrorMessage: true));
+      } catch (e) {
+        // В случае ошибки при создании черновика, используем существующий или создаем новый
+        print('Ошибка при обновлении черновика платежа: $e');
+        payment = state.payment ?? state.toPayment();
+      }
 
       // Сохраняем платеж
       onSave(payment);
@@ -187,5 +209,19 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
         clearErrorMessage: true,
       ),
     );
+  }
+
+  /// Обработчик обновления черновика платежа
+  void _onUpdateDraft(PaymentEditUpdateDraft event, Emitter<PaymentEditState> emit) {
+    try {
+      // Создаем платеж из текущего состояния
+      final payment = state.toPayment();
+
+      // Обновляем состояние с новым платежом
+      emit(state.copyWith(payment: payment, clearErrorMessage: true));
+    } catch (e) {
+      // В случае ошибки просто логируем её, но не меняем состояние
+      print('Ошибка при обновлении черновика платежа: $e');
+    }
   }
 }

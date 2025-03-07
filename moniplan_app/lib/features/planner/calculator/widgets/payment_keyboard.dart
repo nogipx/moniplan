@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan_app/features/planner/payment_edit_bloc/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_app/features/planner/calculator/_index.dart';
 
@@ -13,11 +14,11 @@ class PaymentKeyboard extends StatefulWidget {
   /// Текущий тип платежа
   final PaymentType paymentType;
 
+  /// Текущая ставка налога
+  final double taxRate;
+
   /// Callback при изменении типа платежа
   final ValueChanged<PaymentType> onPaymentTypeChanged;
-
-  /// Callback при нажатии кнопки "Готово"
-  final Function(CalculatorState, double) onDone;
 
   /// Пользовательские кнопки быстрого доступа для суммы
   final List<QuickButton>? amountQuickButtons;
@@ -25,18 +26,14 @@ class PaymentKeyboard extends StatefulWidget {
   /// Показывать ли колонку быстрых кнопок
   final bool showQuickButtons;
 
-  /// Текущая ставка налога
-  final double taxRate;
-
   const PaymentKeyboard({
     Key? key,
     required this.amountController,
     required this.paymentType,
     required this.onPaymentTypeChanged,
-    required this.onDone,
+    this.taxRate = 0.0,
     this.amountQuickButtons,
     this.showQuickButtons = true,
-    this.taxRate = 0.0,
   }) : super(key: key);
 
   @override
@@ -44,87 +41,51 @@ class PaymentKeyboard extends StatefulWidget {
 }
 
 class _PaymentKeyboardState extends State<PaymentKeyboard> {
-  // Блок калькулятора
-  late CalculatorBloc _calculatorBloc;
-
   // Внутренний контроллер для поля ввода
   late final TextEditingController _internalAmountController;
 
-  // Подписка на поток состояний
+  // Подписка на поток состояний калькулятора
   StreamSubscription<CalculatorState>? _calculatorStateSubscription;
 
-  // Текущая ставка налога (по умолчанию берется из виджета)
-  late double _taxRate;
+  // Текущая ставка налога (по умолчанию 0)
+  double _currentTaxRate = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _taxRate = widget.taxRate;
-    _initializeControllers();
-    _initializeCalculatorBloc();
+
+    // Инициализируем внутренний контроллер
+    _internalAmountController = TextEditingController(text: widget.amountController.text);
+
+    // Инициализируем ставку налога из параметра
+    _currentTaxRate = widget.taxRate;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Подписываемся на изменения состояния калькулятора
+    try {
+      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
+      _calculatorStateSubscription?.cancel();
+      _calculatorStateSubscription = calculatorBloc.stream.listen((state) {
+        _updateControllersFromState(state);
+      });
+    } catch (e) {
+      print('Ошибка при подписке на CalculatorBloc: $e');
+    }
   }
 
   @override
   void didUpdateWidget(PaymentKeyboard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.taxRate != widget.taxRate) {
+
+    // Обновляем ставку налога, если она изменилась
+    if (widget.taxRate != oldWidget.taxRate) {
       setState(() {
-        _taxRate = widget.taxRate;
+        _currentTaxRate = widget.taxRate;
       });
-    }
-  }
-
-  /// Инициализация контроллеров
-  void _initializeControllers() {
-    _internalAmountController = TextEditingController(text: widget.amountController.text);
-  }
-
-  /// Обработчик изменения ставки налога
-  void _handleTaxRateChanged(double newRate) {
-    setState(() {
-      _taxRate = newRate;
-    });
-  }
-
-  /// Инициализация блока калькулятора
-  void _initializeCalculatorBloc() {
-    _calculatorBloc = CalculatorBloc(controller: _internalAmountController);
-
-    final initialValue = _internalAmountController.text;
-    if (initialValue.isNotEmpty) {
-      _calculatorBloc.add(SetInitialValue(initialValue));
-    }
-
-    // Всегда включаем режим калькулятора
-    _calculatorBloc.add(const ToggleCalculatorMode(true));
-
-    // Добавляем слушатель для обновления контроллеров при изменении состояния
-    _calculatorStateSubscription = _calculatorBloc.stream.listen((state) {
-      _updateControllersFromState(state);
-    });
-  }
-
-  /// Обновляет контроллеры на основе текущего состояния калькулятора
-  void _updateControllersFromState(CalculatorState state) {
-    // Проверяем, нужно ли обновлять контроллер
-    if (_internalAmountController.text != state.result) {
-      // Сохраняем текущую позицию курсора
-      final cursorPosition = _internalAmountController.selection.baseOffset;
-
-      // Обновляем текст контроллера
-      _internalAmountController.text = state.result;
-
-      // Восстанавливаем позицию курсора, если это возможно
-      if (cursorPosition >= 0 && cursorPosition <= state.result.length) {
-        _internalAmountController.selection = TextSelection.collapsed(offset: cursorPosition);
-      } else {
-        _internalAmountController.selection = TextSelection.collapsed(offset: state.result.length);
-      }
-    }
-
-    // Принудительно вызываем перестроение виджета для обновления результатов
-    if (mounted) {
-      setState(() {});
     }
   }
 
@@ -138,8 +99,26 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
 
     // Освобождаем ресурсы
     _internalAmountController.dispose();
-    _calculatorBloc.close();
     super.dispose();
+  }
+
+  /// Обновляет контроллеры при изменении состояния калькулятора
+  void _updateControllersFromState(CalculatorState state) {
+    // Обновляем текст только если он изменился
+    if (_internalAmountController.text != state.result) {
+      // Сохраняем текущую позицию курсора
+      final cursorPosition = _internalAmountController.selection.baseOffset;
+
+      // Обновляем текст
+      _internalAmountController.text = state.result;
+
+      // Восстанавливаем позицию курсора
+      if (cursorPosition >= 0 && cursorPosition <= state.result.length) {
+        _internalAmountController.selection = TextSelection.collapsed(offset: cursorPosition);
+      } else {
+        _internalAmountController.selection = TextSelection.collapsed(offset: state.result.length);
+      }
+    }
   }
 
   /// Добавляет цифру к текущему значению
@@ -147,50 +126,109 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     HapticFeedback.lightImpact();
 
     // Добавляем цифру через блок калькулятора
-    _calculatorBloc.add(DigitPressed(digit));
+    try {
+      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
+      calculatorBloc.add(DigitPressed(digit));
+    } catch (e) {
+      print('Ошибка при добавлении цифры: $e');
+    }
   }
 
-  /// Удаляет последнюю цифру
-  void _backspace() {
-    HapticFeedback.lightImpact();
+  /// Обработчик изменения ставки налога
+  void _handleTaxRateChanged(double newRate) {
+    setState(() {
+      _currentTaxRate = newRate;
+    });
 
-    // Удаляем цифру через блок калькулятора
-    _calculatorBloc.add(BackspacePressed());
+    // Отправляем событие в блок редактирования платежа
+    try {
+      final paymentEditBloc = context.read<PaymentEditBloc>();
+      final taxPercent = (newRate * 100).toInt().toString();
+      paymentEditBloc.add(PaymentEditTaxChanged(taxPercent));
+
+      // Обновляем черновик платежа
+      paymentEditBloc.add(const PaymentEditUpdateDraft());
+    } catch (e) {
+      print('Ошибка при отправке события в PaymentEditBloc: $e');
+    }
   }
 
   /// Применяет операцию к текущему значению
   void _applyOperation(String operation) {
-    HapticFeedback.mediumImpact();
+    HapticFeedback.lightImpact();
 
-    // Если операция - это "=", вычисляем результат
-    if (operation == '=') {
-      _calculatorBloc.add(EqualsPressed());
-    } else {
-      // Добавляем операцию через блок калькулятора
-      _calculatorBloc.add(OperationPressed(operation));
+    try {
+      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
+      calculatorBloc.add(OperationPressed(operation));
+    } catch (e) {
+      print('Ошибка при применении операции: $e');
     }
   }
 
-  /// Обрабатывает нажатие на кнопку быстрого значения
-  void _onQuickValuePressed(double value) {
-    // Очищаем текущее значение
-    _calculatorBloc.add(ClearPressed());
+  /// Удаляет последний символ (backspace)
+  void _backspace() {
+    HapticFeedback.lightImpact();
 
-    // Устанавливаем новое значение напрямую в контроллер
-    _internalAmountController.text = value.toString();
-    _internalAmountController.selection = TextSelection.collapsed(offset: value.toString().length);
+    try {
+      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
+      calculatorBloc.add(BackspacePressed());
+    } catch (e) {
+      print('Ошибка при удалении символа: $e');
+    }
+  }
 
-    // Обновляем состояние калькулятора
-    _calculatorBloc.add(UpdateFromController());
+  /// Устанавливает значение напрямую
+  void _setValue(double value) {
+    HapticFeedback.lightImpact();
 
-    // Добавляем тактильный отклик
-    HapticFeedback.mediumImpact();
+    try {
+      // Устанавливаем значение напрямую в контроллер
+      _internalAmountController.text = value.toString();
+      _internalAmountController.selection = TextSelection.collapsed(
+        offset: value.toString().length,
+      );
+
+      // Обновляем состояние калькулятора
+      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
+      calculatorBloc.add(SetInitialValue(value.toString()));
+    } catch (e) {
+      print('Ошибка при установке значения: $e');
+    }
+  }
+
+  /// Обрабатывает нажатие кнопки "Готово" или "Дальше"
+  void _handleDonePressed(CalculatorState calculatorState) {
+    _applyOperation('=');
+    // Добавляем небольшую задержку для анимации нажатия
+    Future.delayed(const Duration(milliseconds: 100), () {
+      try {
+        // Получаем блоки из контекста
+        final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
+        final paymentEditBloc = context.read<PaymentEditBloc>();
+
+        // Отправляем события в блок редактирования платежа
+        final amount = calculatorBloc.state.result;
+        paymentEditBloc.add(PaymentEditAmountChanged(amount));
+
+        // Сохраняем налог
+        final taxPercent = (_currentTaxRate * 100).toInt().toString();
+        paymentEditBloc.add(PaymentEditTaxChanged(taxPercent));
+
+        // Обновляем черновик платежа
+        paymentEditBloc.add(const PaymentEditUpdateDraft());
+
+        // Переходим к следующему шагу
+        paymentEditBloc.add(PaymentEditNextStep());
+      } catch (e) {
+        print('Ошибка при отправке событий в блок: $e');
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _calculatorBloc,
+    return CalculatorBlocProvider(
+      controller: _internalAmountController,
       child: BlocBuilder<CalculatorBloc, CalculatorState>(
         builder: (context, state) {
           return _buildKeyboard(context, state);
@@ -234,8 +272,8 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
             isDarkMode: isDarkMode,
             showTax:
                 widget.paymentType == PaymentType.income, // Показываем налог только для доходов
-            taxRate: _taxRate,
             taxName: 'Налог',
+            taxRate: _currentTaxRate,
             onTaxRateChanged: _handleTaxRateChanged,
           ),
 
@@ -253,7 +291,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
               child: NumericKeypad(
                 onDigitPressed: _addDigit,
                 onBackspacePressed: _backspace,
-                onQuickValuePressed: _onQuickValuePressed,
+                onQuickValuePressed: _setValue,
                 theme: theme,
                 isDarkMode: isDarkMode,
                 calculatorState: state,
@@ -278,8 +316,8 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
                     text: '=',
                     backgroundColor: theme.colorScheme.primary.withOpacity(0.2),
                     textColor: theme.colorScheme.primary,
-                    onPressed: (value, calculatorState) async {
-                      _applyOperation('=');
+                    onPressed: (value, calculatorState) {
+                      _handleDonePressed(calculatorState);
                     },
                   ),
                   QuickButton(
@@ -287,11 +325,8 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
                     text: 'Дальше',
                     backgroundColor: theme.colorScheme.primary.withOpacity(0.2),
                     textColor: theme.colorScheme.primary,
-                    onPressed: (value, calculatorState) async {
-                      _applyOperation('=');
-                      await Future.delayed(const Duration(milliseconds: 100));
-                      // Передаем информацию о налоге вместе с результатом калькулятора
-                      widget.onDone(calculatorState, _taxRate);
+                    onPressed: (value, calculatorState) {
+                      _handleDonePressed(calculatorState);
                     },
                   ),
                 ],

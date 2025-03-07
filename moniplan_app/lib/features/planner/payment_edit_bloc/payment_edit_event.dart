@@ -119,6 +119,14 @@ class PaymentEditEndDateChanged extends PaymentEditEvent {
   List<Object?> get props => [endDate];
 }
 
+/// Обновление черновика платежа
+class PaymentEditUpdateDraft extends PaymentEditEvent {
+  const PaymentEditUpdateDraft();
+
+  @override
+  List<Object?> get props => [];
+}
+
 /// Переход к следующему шагу редактирования
 class PaymentEditNextStep extends PaymentEditEvent {}
 

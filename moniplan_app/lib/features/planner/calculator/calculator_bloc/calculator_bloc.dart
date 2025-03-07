@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:expressions/expressions.dart';
 import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_event.dart';
 import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_state.dart';
 
@@ -19,7 +18,6 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     on<ClearPressed>(_onClearPressed);
     on<OperationPressed>(_onOperationPressed);
     on<EqualsPressed>(_onEqualsPressed);
-    on<ToggleCalculatorMode>(_onToggleCalculatorMode);
     on<SetInitialValue>(_onSetInitialValue);
     on<UpdateFromController>(_onUpdateFromController);
     on<UpdateController>(_onUpdateController);
@@ -347,18 +345,6 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     emit(result);
   }
 
-  /// Обработка переключения режима калькулятора
-  void _onToggleCalculatorMode(ToggleCalculatorMode event, Emitter<CalculatorState> emit) {
-    emit(state.copyWith(isCalculatorMode: event.isCalculatorMode));
-
-    if (event.isCalculatorMode && controller != null) {
-      // При переключении в режим калькулятора, обновляем левый операнд
-      final currentText = controller!.text;
-      final currentValue = double.tryParse(currentText) ?? 0;
-      emit(state.copyWith(leftOperand: currentValue, result: currentText));
-    }
-  }
-
   /// Обработка установки начального значения
   void _onSetInitialValue(SetInitialValue event, Emitter<CalculatorState> emit) {
     if (controller != null) {
@@ -367,10 +353,18 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     }
 
     final value = double.tryParse(event.value) ?? 0;
+
+    // Проверяем, является ли число целым
+    final isInteger = value == value.toInt();
+    final leftOperand = isInteger ? value.toInt().toDouble() : value;
+
+    // Форматируем результат для отображения
+    final formattedResult = CalculatorState.formatNumber(value);
+
     emit(
       state.copyWith(
-        result: event.value,
-        leftOperand: value,
+        result: formattedResult,
+        leftOperand: leftOperand,
         currentOperator: '',
         rightOperand: null,
         hasResult: false,

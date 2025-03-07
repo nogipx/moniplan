@@ -140,9 +140,12 @@ class CalculatorState extends Equatable {
       final resultDouble = double.tryParse(formattedResult);
       if (resultDouble == null) return this;
 
+      // Проверяем, является ли число целым
+      final isInteger = resultDouble == resultDouble.toInt();
+
       return copyWith(
         result: formattedResult,
-        leftOperand: resultDouble,
+        leftOperand: isInteger ? resultDouble.toInt().toDouble() : resultDouble,
         rightOperand: null,
         currentOperator: '',
         hasResult: true,

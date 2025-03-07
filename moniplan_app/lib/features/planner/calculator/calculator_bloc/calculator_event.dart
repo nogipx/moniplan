@@ -42,16 +42,6 @@ class OperationPressed extends CalculatorEvent {
 /// Вычисление результата
 class EqualsPressed extends CalculatorEvent {}
 
-/// Переключение режима калькулятора
-class ToggleCalculatorMode extends CalculatorEvent {
-  final bool isCalculatorMode;
-
-  const ToggleCalculatorMode(this.isCalculatorMode);
-
-  @override
-  List<Object?> get props => [isCalculatorMode];
-}
-
 /// Установка начального значения
 class SetInitialValue extends CalculatorEvent {
   final String value;

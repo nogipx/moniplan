@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_bloc.dart';
+import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_event.dart';
+import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_state.dart';
 import 'package:moniplan_app/features/planner/calculator/models/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -15,16 +17,68 @@ import 'package:moniplan_app/features/planner/payment_edit_bloc/_index.dart' as 
 import 'package:moniplan_app/features/planner/calculator/widgets/payment_keyboard.dart' as keyboard;
 import 'dart:math' as math;
 
-class PaymentEditScreen extends StatelessWidget {
+class PaymentEditScreen extends StatefulWidget {
   final Payment? payment;
   final Function(Payment) onSave;
 
   const PaymentEditScreen({this.payment, required this.onSave, super.key});
 
   @override
+  State<PaymentEditScreen> createState() => _PaymentEditScreenState();
+}
+
+class _PaymentEditScreenState extends State<PaymentEditScreen> {
+  // Контроллер для калькулятора
+  late final TextEditingController amountController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Инициализируем контроллер
+    if (widget.payment != null) {
+      // Получаем сумму платежа
+      final money = widget.payment!.details.money.abs();
+
+      // Проверяем, является ли число целым
+      final isInteger = money == money.toInt();
+
+      // Форматируем число без десятичной точки для целых чисел
+      final formattedMoney = isInteger ? money.toInt().toString() : money.toString();
+
+      amountController = TextEditingController(text: formattedMoney);
+    } else {
+      amountController = TextEditingController(text: '');
+    }
+  }
+
+  @override
+  void dispose() {
+    // Освобождаем ресурсы контроллера
+    amountController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => edit.PaymentEditBloc(onSave: onSave, payment: payment),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => edit.PaymentEditBloc(onSave: widget.onSave, payment: widget.payment),
+        ),
+        BlocProvider(
+          create: (context) {
+            // Создаем CalculatorBloc внутри функции create
+            final calculatorBloc = CalculatorBloc(controller: amountController);
+
+            // Инициализируем блок
+            if (amountController.text.isNotEmpty) {
+              calculatorBloc.add(SetInitialValue(amountController.text));
+            }
+
+            return calculatorBloc;
+          },
+        ),
+      ],
       child: const _PaymentEditView(),
     );
   }
@@ -65,7 +119,7 @@ class _PaymentEditView extends StatelessWidget {
               actions: [
                 IconButton(
                   icon: const Icon(Icons.check),
-                  onPressed: () => context.read<edit.PaymentEditBloc>().add(edit.PaymentEditSave()),
+                  onPressed: () => _savePayment(context, state),
                   tooltip: 'Сохранить',
                 ),
               ],
@@ -94,10 +148,7 @@ class _PaymentEditView extends StatelessWidget {
                               label: const Text('Скрыть клавиатуру'),
                             ),
                             FilledButton.icon(
-                              onPressed:
-                                  () => context.read<edit.PaymentEditBloc>().add(
-                                    edit.PaymentEditSave(),
-                                  ),
+                              onPressed: () => _savePayment(context, state),
                               icon: const Icon(Icons.check),
                               label: const Text('Сохранить'),
                             ),
@@ -146,24 +197,59 @@ class _PaymentEditView extends StatelessWidget {
 
   // Шаг 1: Ввод суммы
   Widget _buildAmountStep(BuildContext context, edit.PaymentEditState state) {
+    // Используем сумму из черновика платежа, если он доступен
+    String amount;
+    if (state.payment != null) {
+      // Получаем сумму платежа
+      final money = state.payment!.details.money.abs();
+
+      // Проверяем, является ли число целым
+      final isInteger = money == money.toInt();
+
+      // Форматируем число без десятичной точки для целых чисел
+      amount = isInteger ? money.toInt().toString() : money.toString();
+    } else {
+      // Проверяем, является ли сумма из состояния целым числом
+      final amountValue = double.tryParse(state.amount);
+      if (amountValue != null) {
+        final isInteger = amountValue == amountValue.toInt();
+        amount = isInteger ? amountValue.toInt().toString() : state.amount;
+      } else {
+        amount = state.amount;
+      }
+    }
+
+    // Используем тип платежа из черновика, если он доступен
+    final paymentType = state.payment != null ? state.payment!.details.type : state.type;
+
+    // Получаем налог из платежа или из состояния
+    double taxRate = 0.0;
+    if (state.payment != null && state.payment!.details.tax != null) {
+      taxRate = state.payment!.details.tax!;
+    } else if (state.tax.isNotEmpty) {
+      // Парсим налог из строки, заменяя запятую на точку
+      final taxString = state.tax.replaceAll(',', '.');
+      taxRate = double.tryParse(taxString) ?? 0.0;
+      // Преобразуем из процентов в десятичную дробь
+      taxRate = taxRate / 100;
+    }
+
+    // Получаем контроллер из CalculatorBlocProvider
+    final calculatorBloc = context.read<CalculatorBloc>();
+
+    // Создаем локальный контроллер, если контроллер в блоке null
+    final amountController = calculatorBloc.controller ?? TextEditingController(text: amount);
+
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionallySizedBox(
         heightFactor: 0.9,
         child: keyboard.PaymentKeyboard(
-          amountController: TextEditingController(text: state.amount),
-          paymentType: state.type,
-          taxRate: double.tryParse(state.tax) != null ? double.parse(state.tax) / 100 : 0.0,
+          amountController: amountController,
+          paymentType: paymentType,
+          taxRate: taxRate,
           onPaymentTypeChanged: (newType) {
             context.read<edit.PaymentEditBloc>().add(edit.PaymentEditTypeChanged(newType));
-          },
-          onDone: (calculatorState, taxRate) {
-            final bloc = context.read<edit.PaymentEditBloc>();
-            final amount = calculatorState.result;
-            bloc.add(edit.PaymentEditAmountChanged(amount));
-            final taxPercent = (taxRate * 100).toInt().toString();
-            bloc.add(edit.PaymentEditTaxChanged(taxPercent));
-            bloc.add(edit.PaymentEditNextStep());
           },
         ),
       ),
@@ -174,6 +260,12 @@ class _PaymentEditView extends StatelessWidget {
   Widget _buildNameStep(BuildContext context, edit.PaymentEditState state) {
     final theme = Theme.of(context);
 
+    // Используем данные из черновика платежа, если он доступен
+    final title = state.payment != null ? state.payment!.details.name : state.title;
+    final note = state.payment != null ? state.payment!.details.note : state.note;
+    final date = state.payment != null ? state.payment!.date : state.date;
+    final isDone = state.payment != null ? state.payment!.isDone : state.isDone;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -183,7 +275,7 @@ class _PaymentEditView extends StatelessWidget {
         // Дата платежа
         InkWell(
           onTap:
-              () => _selectDate(context, state.date, (date) {
+              () => _selectDate(context, date, (date) {
                 if (date != null) {
                   context.read<edit.PaymentEditBloc>().add(edit.PaymentEditDateChanged(date));
                 }
@@ -204,10 +296,7 @@ class _PaymentEditView extends StatelessWidget {
                   children: [
                     Text('Дата платежа', style: theme.textTheme.bodyMedium),
                     const SizedBox(height: 4),
-                    Text(
-                      DateFormat('d MMMM y').format(state.date),
-                      style: theme.textTheme.titleMedium,
-                    ),
+                    Text(DateFormat('d MMMM y').format(date), style: theme.textTheme.titleMedium),
                   ],
                 ),
                 const Spacer(),
@@ -221,7 +310,7 @@ class _PaymentEditView extends StatelessWidget {
 
         // Поле ввода названия
         TextFormField(
-          initialValue: state.title,
+          initialValue: title,
           style: theme.textTheme.titleLarge,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
@@ -238,7 +327,7 @@ class _PaymentEditView extends StatelessWidget {
 
         // Поле для примечания
         TextFormField(
-          initialValue: state.note,
+          initialValue: note,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
             labelText: 'Примечание',
@@ -266,7 +355,7 @@ class _PaymentEditView extends StatelessWidget {
               Text('Платеж выполнен', style: theme.textTheme.titleMedium),
               const Spacer(),
               Switch(
-                value: state.isDone,
+                value: isDone,
                 onChanged: (value) {
                   context.read<edit.PaymentEditBloc>().add(edit.PaymentEditIsDoneChanged(value));
                 },
@@ -281,6 +370,12 @@ class _PaymentEditView extends StatelessWidget {
   // Шаг 3: Установка повторения
   Widget _buildRepeatStep(BuildContext context, edit.PaymentEditState state) {
     final theme = Theme.of(context);
+
+    // Используем данные из черновика платежа, если он доступен
+    final repeatPeriod = state.payment != null ? state.payment!.repeat : state.repeatPeriod;
+    final startDate = state.payment != null ? state.payment!.dateStart : state.startDate;
+    final endDate = state.payment != null ? state.payment!.dateEnd : state.endDate;
+    final date = state.payment != null ? state.payment!.date : state.date;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,35 +401,35 @@ class _PaymentEditView extends StatelessWidget {
                 context: context,
                 title: 'Без повторения',
                 value: DateTimeRepeat.noRepeat,
-                groupValue: state.repeatPeriod,
+                groupValue: repeatPeriod,
               ),
               _buildRepeatOption(
                 context: context,
                 title: 'Ежедневно',
                 value: DateTimeRepeat.day,
-                groupValue: state.repeatPeriod,
+                groupValue: repeatPeriod,
               ),
               _buildRepeatOption(
                 context: context,
                 title: 'Еженедельно',
                 value: DateTimeRepeat.week,
-                groupValue: state.repeatPeriod,
+                groupValue: repeatPeriod,
               ),
               _buildRepeatOption(
                 context: context,
                 title: 'Ежемесячно',
                 value: DateTimeRepeat.month,
-                groupValue: state.repeatPeriod,
+                groupValue: repeatPeriod,
               ),
               _buildRepeatOption(
                 context: context,
                 title: 'Ежегодно',
                 value: DateTimeRepeat.year,
-                groupValue: state.repeatPeriod,
+                groupValue: repeatPeriod,
               ),
 
               // Поле для ввода кастомного значения периода
-              if (state.repeatPeriod.type != DateTimeRepeatType.none) ...[
+              if (repeatPeriod.type != DateTimeRepeatType.none) ...[
                 const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 16),
@@ -347,7 +442,7 @@ class _PaymentEditView extends StatelessWidget {
                     SizedBox(
                       width: 80,
                       child: TextFormField(
-                        initialValue: state.repeatPeriod.value.toString(),
+                        initialValue: repeatPeriod.value.toString(),
                         keyboardType: TextInputType.number,
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
@@ -363,7 +458,7 @@ class _PaymentEditView extends StatelessWidget {
                             final intValue = int.tryParse(value) ?? 1;
                             if (intValue > 0) {
                               final newRepeat = DateTimeRepeat.custom(
-                                type: state.repeatPeriod.type,
+                                type: repeatPeriod.type,
                                 value: intValue,
                               );
                               context.read<edit.PaymentEditBloc>().add(
@@ -377,8 +472,8 @@ class _PaymentEditView extends StatelessWidget {
                     const SizedBox(width: 12),
                     Text(
                       _getSuffixText(
-                        state.repeatPeriod.type,
-                        int.tryParse(state.repeatPeriod.value.toString()) ?? 1,
+                        repeatPeriod.type,
+                        int.tryParse(repeatPeriod.value.toString()) ?? 1,
                       ),
                     ),
                   ],
@@ -388,13 +483,13 @@ class _PaymentEditView extends StatelessWidget {
           ),
         ),
 
-        if (state.repeatPeriod.type != DateTimeRepeatType.none) ...[
+        if (repeatPeriod.type != DateTimeRepeatType.none) ...[
           const SizedBox(height: 24),
 
           // Дата начала повторений
           InkWell(
             onTap:
-                () => _selectDate(context, state.startDate ?? state.date, (date) {
+                () => _selectDate(context, startDate ?? date, (date) {
                   if (date != null) {
                     context.read<edit.PaymentEditBloc>().add(
                       edit.PaymentEditStartDateChanged(date),
@@ -418,9 +513,7 @@ class _PaymentEditView extends StatelessWidget {
                       Text('Дата начала повторений', style: theme.textTheme.bodyMedium),
                       const SizedBox(height: 4),
                       Text(
-                        state.startDate != null
-                            ? DateFormat('d MMMM y').format(state.startDate!)
-                            : 'Не выбрана',
+                        startDate != null ? DateFormat('d MMMM y').format(startDate) : 'Не выбрана',
                         style: theme.textTheme.titleMedium,
                       ),
                     ],
@@ -441,7 +534,7 @@ class _PaymentEditView extends StatelessWidget {
           // Дата окончания повторений
           InkWell(
             onTap:
-                () => _selectDate(context, state.endDate ?? state.date, (date) {
+                () => _selectDate(context, endDate ?? date, (date) {
                   if (date != null) {
                     context.read<edit.PaymentEditBloc>().add(edit.PaymentEditEndDateChanged(date));
                   }
@@ -463,9 +556,7 @@ class _PaymentEditView extends StatelessWidget {
                       Text('Дата окончания повторений', style: theme.textTheme.bodyMedium),
                       const SizedBox(height: 4),
                       Text(
-                        state.endDate != null
-                            ? DateFormat('d MMMM y').format(state.endDate!)
-                            : 'Не выбрана',
+                        endDate != null ? DateFormat('d MMMM y').format(endDate) : 'Не выбрана',
                         style: theme.textTheme.titleMedium,
                       ),
                     ],
@@ -524,20 +615,55 @@ class _PaymentEditView extends StatelessWidget {
 
   // Клавиатура для ввода суммы и налога
   Widget _buildKeyboard(BuildContext context, edit.PaymentEditState state) {
+    // Используем тип платежа из черновика, если он доступен
+    final paymentType = state.payment != null ? state.payment!.details.type : state.type;
+
+    // Используем сумму из черновика платежа, если он доступен
+    String amount;
+    if (state.payment != null) {
+      // Получаем сумму платежа
+      final money = state.payment!.details.money.abs();
+
+      // Проверяем, является ли число целым
+      final isInteger = money == money.toInt();
+
+      // Форматируем число без десятичной точки для целых чисел
+      amount = isInteger ? money.toInt().toString() : money.toString();
+    } else {
+      // Проверяем, является ли сумма из состояния целым числом
+      final amountValue = double.tryParse(state.amount);
+      if (amountValue != null) {
+        final isInteger = amountValue == amountValue.toInt();
+        amount = isInteger ? amountValue.toInt().toString() : state.amount;
+      } else {
+        amount = state.amount;
+      }
+    }
+
+    // Получаем налог из платежа или из состояния
+    double taxRate = 0.0;
+    if (state.payment != null && state.payment!.details.tax != null) {
+      taxRate = state.payment!.details.tax!;
+    } else if (state.tax.isNotEmpty) {
+      // Парсим налог из строки, заменяя запятую на точку
+      final taxString = state.tax.replaceAll(',', '.');
+      taxRate = double.tryParse(taxString) ?? 0.0;
+      // Преобразуем из процентов в десятичную дробь
+      taxRate = taxRate / 100;
+    }
+
+    // Получаем контроллер из CalculatorBlocProvider
+    final calculatorBloc = context.read<CalculatorBloc>();
+
+    // Создаем локальный контроллер, если контроллер в блоке null
+    final amountController = calculatorBloc.controller ?? TextEditingController(text: amount);
+
     return keyboard.PaymentKeyboard(
-      amountController: TextEditingController(text: state.amount),
-      paymentType: state.type,
-      taxRate: double.tryParse(state.tax) != null ? double.parse(state.tax) / 100 : 0.0,
+      amountController: amountController,
+      paymentType: paymentType,
+      taxRate: taxRate,
       onPaymentTypeChanged: (newType) {
         context.read<edit.PaymentEditBloc>().add(edit.PaymentEditTypeChanged(newType));
-      },
-      onDone: (calculatorState, taxRate) {
-        final bloc = context.read<edit.PaymentEditBloc>();
-        final amount = calculatorState.result;
-        bloc.add(edit.PaymentEditAmountChanged(amount));
-        final taxPercent = (taxRate * 100).toInt().toString();
-        bloc.add(edit.PaymentEditTaxChanged(taxPercent));
-        bloc.add(edit.PaymentEditNextStep());
       },
     );
   }
@@ -576,7 +702,7 @@ class _PaymentEditView extends StatelessWidget {
                 onTap: () {
                   // Проверяем, можно ли перейти на этот шаг
                   if (_canNavigateToStep(state, index)) {
-                    context.read<edit.PaymentEditBloc>().add(edit.PaymentEditGoToStep(index));
+                    _navigateToStep(context, state, index);
                   } else {
                     // Показываем сообщение, что нужно заполнить предыдущие шаги
                     showToast('Сначала заполните предыдущие шаги');
@@ -656,7 +782,7 @@ class _PaymentEditView extends StatelessWidget {
               // Кнопка "Сохранить"
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: () => context.read<edit.PaymentEditBloc>().add(edit.PaymentEditSave()),
+                  onPressed: () => _savePayment(context, state),
                   icon: const Icon(Icons.check),
                   label: const Text('Сохранить'),
                 ),
@@ -770,5 +896,50 @@ class _PaymentEditView extends StatelessWidget {
     }
 
     return false;
+  }
+
+  // Метод для сохранения текущего значения из калькулятора
+  void _saveCurrentCalculatorValue(BuildContext context, edit.PaymentEditState state) {
+    final bloc = context.read<edit.PaymentEditBloc>();
+
+    // Получаем значение из CalculatorBloc
+    try {
+      final calculatorBloc = context.read<CalculatorBloc>();
+      final amount = calculatorBloc.state.result;
+      bloc.add(edit.PaymentEditAmountChanged(amount));
+
+      // Обновляем черновик платежа
+      bloc.add(const edit.PaymentEditUpdateDraft());
+    } catch (e) {
+      print('Ошибка при получении значения из CalculatorBloc: $e');
+
+      // Проверяем, что сумма не пустая
+      if (state.amount.isEmpty) {
+        bloc.add(const edit.PaymentEditAmountChanged('0'));
+        bloc.add(const edit.PaymentEditUpdateDraft());
+      }
+    }
+  }
+
+  // Метод для перехода на указанный шаг с сохранением текущих данных
+  void _navigateToStep(BuildContext context, edit.PaymentEditState state, int step) {
+    // Если мы на шаге ввода суммы, сначала сохраняем текущее значение из калькулятора
+    if (state.currentStep == 0) {
+      _saveCurrentCalculatorValue(context, state);
+    }
+
+    // Переходим на указанный шаг
+    context.read<edit.PaymentEditBloc>().add(edit.PaymentEditGoToStep(step));
+  }
+
+  // Метод для сохранения платежа с учетом текущего шага
+  void _savePayment(BuildContext context, edit.PaymentEditState state) {
+    // Если мы на шаге ввода суммы, сначала сохраняем текущее значение из калькулятора
+    if (state.currentStep == 0) {
+      _saveCurrentCalculatorValue(context, state);
+    }
+
+    // Затем сохраняем платеж
+    context.read<edit.PaymentEditBloc>().add(edit.PaymentEditSave());
   }
 }

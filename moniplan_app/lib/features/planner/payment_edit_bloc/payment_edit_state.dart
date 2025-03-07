@@ -161,12 +161,15 @@ class PaymentEditState extends Equatable {
     }
 
     // Преобразуем налог из десятичной дроби в проценты
-    final taxPercent = (payment.details.tax * 100).toInt().toString();
+    String taxPercent = '';
+    if (payment.details.tax != null) {
+      taxPercent = (payment.details.tax! * 100).toInt().toString();
+    }
 
     return PaymentEditState(
       payment: payment,
       title: payment.details.name,
-      amount: payment.details.money.toInt().toString(),
+      amount: payment.details.money.abs().toString(),
       note: payment.details.note,
       tax: taxPercent, // Используем проценты для отображения
       date: payment.date,
