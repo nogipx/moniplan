@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/features/planner/calculator/calculator_bloc/calculator_bloc.dart';
@@ -330,6 +331,58 @@ class _PaymentEditView extends StatelessWidget {
                 value: DateTimeRepeat.year,
                 groupValue: state.repeatPeriod,
               ),
+
+              // Поле для ввода кастомного значения периода
+              if (state.repeatPeriod.type != DateTimeRepeatType.none) ...[
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 16),
+
+                Text('Укажите период:', style: theme.textTheme.titleMedium),
+                const SizedBox(height: 8),
+
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 80,
+                      child: TextFormField(
+                        initialValue: state.repeatPeriod.value.toString(),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(3),
+                        ],
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          hintText: '1',
+                        ),
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            final intValue = int.tryParse(value) ?? 1;
+                            if (intValue > 0) {
+                              final newRepeat = DateTimeRepeat.custom(
+                                type: state.repeatPeriod.type,
+                                value: intValue,
+                              );
+                              context.read<edit.PaymentEditBloc>().add(
+                                edit.PaymentEditRepeatPeriodChanged(newRepeat),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      _getSuffixText(
+                        state.repeatPeriod.type,
+                        int.tryParse(state.repeatPeriod.value.toString()) ?? 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
@@ -515,5 +568,62 @@ class _PaymentEditView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Вспомогательный метод для получения текста суффикса в зависимости от типа и значения
+  String _getSuffixText(DateTimeRepeatType type, int value) {
+    switch (type) {
+      case DateTimeRepeatType.day:
+        return _getDaysForm(value);
+      case DateTimeRepeatType.week:
+        return _getWeeksForm(value);
+      case DateTimeRepeatType.month:
+        return _getMonthsForm(value);
+      case DateTimeRepeatType.year:
+        return _getYearsForm(value);
+      case DateTimeRepeatType.none:
+        return '';
+    }
+  }
+
+  // Вспомогательные методы для склонения существительных
+  String _getDaysForm(int days) {
+    if (days % 10 == 1 && days % 100 != 11) {
+      return 'день';
+    } else if ([2, 3, 4].contains(days % 10) && ![12, 13, 14].contains(days % 100)) {
+      return 'дня';
+    } else {
+      return 'дней';
+    }
+  }
+
+  String _getWeeksForm(int weeks) {
+    if (weeks % 10 == 1 && weeks % 100 != 11) {
+      return 'неделя';
+    } else if ([2, 3, 4].contains(weeks % 10) && ![12, 13, 14].contains(weeks % 100)) {
+      return 'недели';
+    } else {
+      return 'недель';
+    }
+  }
+
+  String _getMonthsForm(int months) {
+    if (months % 10 == 1 && months % 100 != 11) {
+      return 'месяц';
+    } else if ([2, 3, 4].contains(months % 10) && ![12, 13, 14].contains(months % 100)) {
+      return 'месяца';
+    } else {
+      return 'месяцев';
+    }
+  }
+
+  String _getYearsForm(int years) {
+    if (years % 10 == 1 && years % 100 != 11) {
+      return 'год';
+    } else if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100)) {
+      return 'года';
+    } else {
+      return 'лет';
+    }
   }
 }
