@@ -1,0 +1,171 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:oktoast/oktoast.dart';
+
+import 'payment_edit_event.dart';
+import 'payment_edit_state.dart';
+
+/// Блок для управления редактированием платежа
+class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
+  /// Функция для сохранения платежа
+  final Function(Payment) onSave;
+
+  PaymentEditBloc({required this.onSave, Payment? payment})
+    : super(PaymentEditState.fromPayment(payment)) {
+    on<PaymentEditInitialize>(_onInitialize);
+    on<PaymentEditTypeChanged>(_onTypeChanged);
+    on<PaymentEditAmountChanged>(_onAmountChanged);
+    on<PaymentEditTaxChanged>(_onTaxChanged);
+    on<PaymentEditTitleChanged>(_onTitleChanged);
+    on<PaymentEditNoteChanged>(_onNoteChanged);
+    on<PaymentEditDateChanged>(_onDateChanged);
+    on<PaymentEditIsDoneChanged>(_onIsDoneChanged);
+    on<PaymentEditRepeatPeriodChanged>(_onRepeatPeriodChanged);
+    on<PaymentEditStartDateChanged>(_onStartDateChanged);
+    on<PaymentEditEndDateChanged>(_onEndDateChanged);
+    on<PaymentEditNextStep>(_onNextStep);
+    on<PaymentEditPreviousStep>(_onPreviousStep);
+    on<PaymentEditSave>(_onSave);
+  }
+
+  /// Обработчик инициализации редактирования платежа
+  void _onInitialize(PaymentEditInitialize event, Emitter<PaymentEditState> emit) {
+    emit(PaymentEditState.fromPayment(event.payment));
+  }
+
+  /// Обработчик изменения типа платежа
+  void _onTypeChanged(PaymentEditTypeChanged event, Emitter<PaymentEditState> emit) {
+    emit(state.copyWith(type: event.type, clearErrorMessage: true));
+  }
+
+  /// Обработчик изменения суммы платежа
+  void _onAmountChanged(PaymentEditAmountChanged event, Emitter<PaymentEditState> emit) {
+    emit(state.copyWith(amount: event.amount, clearErrorMessage: true));
+  }
+
+  /// Обработчик изменения налога
+  void _onTaxChanged(PaymentEditTaxChanged event, Emitter<PaymentEditState> emit) {
+    emit(state.copyWith(tax: event.tax, clearErrorMessage: true));
+  }
+
+  /// Обработчик изменения названия платежа
+  void _onTitleChanged(PaymentEditTitleChanged event, Emitter<PaymentEditState> emit) {
+    emit(state.copyWith(title: event.title, clearErrorMessage: true));
+  }
+
+  /// Обработчик изменения примечания к платежу
+  void _onNoteChanged(PaymentEditNoteChanged event, Emitter<PaymentEditState> emit) {
+    emit(state.copyWith(note: event.note, clearErrorMessage: true));
+  }
+
+  /// Обработчик изменения даты платежа
+  void _onDateChanged(PaymentEditDateChanged event, Emitter<PaymentEditState> emit) {
+    emit(state.copyWith(date: event.date, clearErrorMessage: true));
+  }
+
+  /// Обработчик изменения статуса выполнения платежа
+  void _onIsDoneChanged(PaymentEditIsDoneChanged event, Emitter<PaymentEditState> emit) {
+    emit(state.copyWith(isDone: event.isDone, clearErrorMessage: true));
+  }
+
+  /// Обработчик изменения периода повторения платежа
+  void _onRepeatPeriodChanged(
+    PaymentEditRepeatPeriodChanged event,
+    Emitter<PaymentEditState> emit,
+  ) {
+    emit(state.copyWith(repeatPeriod: event.repeatPeriod, clearErrorMessage: true));
+  }
+
+  /// Обработчик изменения даты начала повторения
+  void _onStartDateChanged(PaymentEditStartDateChanged event, Emitter<PaymentEditState> emit) {
+    emit(state.copyWith(startDate: event.startDate, clearErrorMessage: true));
+  }
+
+  /// Обработчик изменения даты окончания повторения
+  void _onEndDateChanged(PaymentEditEndDateChanged event, Emitter<PaymentEditState> emit) {
+    emit(state.copyWith(endDate: event.endDate, clearErrorMessage: true));
+  }
+
+  /// Обработчик перехода к следующему шагу
+  void _onNextStep(PaymentEditNextStep event, Emitter<PaymentEditState> emit) {
+    // Если мы на первом шаге, проверяем, что сумма введена корректно
+    if (state.currentStep == 0) {
+      if (!state.isValid) {
+        emit(state.copyWith(errorMessage: 'Введите корректную сумму платежа'));
+        showToast('Введите корректную сумму платежа');
+        return;
+      }
+
+      // Переходим ко второму шагу и закрываем клавиатуру
+      emit(state.copyWith(currentStep: 1, showKeyboard: false, clearErrorMessage: true));
+      return;
+    }
+
+    // Переходим к следующему шагу
+    if (state.currentStep < 2) {
+      emit(state.copyWith(currentStep: state.currentStep + 1, clearErrorMessage: true));
+    } else {
+      // Если мы на последнем шаге, сохраняем платеж
+      add(PaymentEditSave());
+    }
+  }
+
+  /// Обработчик перехода к предыдущему шагу
+  void _onPreviousStep(PaymentEditPreviousStep event, Emitter<PaymentEditState> emit) {
+    // Если открыта клавиатура и мы не на первом шаге, закрываем её
+    if (state.showKeyboard && state.currentStep > 0) {
+      emit(state.copyWith(showKeyboard: false, clearErrorMessage: true));
+      return;
+    }
+
+    // Переходим к предыдущему шагу
+    if (state.currentStep > 0) {
+      final newStep = state.currentStep - 1;
+
+      // Если переходим на первый шаг, показываем клавиатуру
+      emit(
+        state.copyWith(
+          currentStep: newStep,
+          showKeyboard: newStep == 0,
+          keyboardType: newStep == 0 ? KeyboardType.amount : state.keyboardType,
+          clearErrorMessage: true,
+        ),
+      );
+    }
+  }
+
+  /// Обработчик сохранения платежа
+  void _onSave(PaymentEditSave event, Emitter<PaymentEditState> emit) {
+    // Проверяем валидность данных
+    if (!state.isValid) {
+      emit(
+        state.copyWith(
+          errorMessage: 'Введите корректную сумму платежа',
+          status: PaymentEditStatus.failure,
+        ),
+      );
+      showToast('Введите корректную сумму платежа');
+      return;
+    }
+
+    try {
+      // Создаем платеж из текущего состояния
+      final payment = state.toPayment();
+
+      // Сохраняем платеж
+      onSave(payment);
+
+      // Обновляем состояние
+      emit(state.copyWith(status: PaymentEditStatus.success, clearErrorMessage: true));
+    } catch (e) {
+      // В случае ошибки обновляем состояние
+      emit(
+        state.copyWith(
+          errorMessage: 'Ошибка при сохранении платежа: ${e.toString()}',
+          status: PaymentEditStatus.failure,
+        ),
+      );
+      showToast('Ошибка при сохранении платежа');
+    }
+  }
+}
