@@ -19,54 +19,16 @@ class AnalyzerFactoryImpl implements IAnalyzerFactory {
     _analyzerFactories.clear();
 
     // Регистрируем стандартные анализаторы
-    _registerAnalyzer(
-      id: 'anomaly_analyzer',
-      name: 'Анализатор аномалий',
-      description: 'Выявляет необычные платежи и аномалии в финансовых данных',
-      type: AnalyzerType.retrospective,
-      order: 1,
-      tags: ['anomalies', 'expenses', 'basic'],
-      factory: () => AnomalyAnalyzer(source),
-    );
 
-    _registerAnalyzer(
-      id: 'predictive_analyzer',
-      name: 'Предиктивный анализатор',
-      description: 'Прогнозирует будущие финансовые тенденции на основе исторических данных',
-      type: AnalyzerType.predictive,
-      order: 4,
-      tags: ['predictive', 'forecast', 'advanced'],
-      factory: () => PredictiveAnalyzerImpl(source),
-    );
-
-    _registerAnalyzer(
-      id: 'seasonal_pattern_analyzer',
-      name: 'Анализатор сезонных паттернов',
-      description: 'Выявляет сезонные тренды в расходах и доходах',
-      type: AnalyzerType.retrospective,
-      order: 5,
-      tags: ['seasonal', 'patterns', 'advanced'],
-      factory: () => SeasonalPatternAnalyzer(source),
-    );
-
-    _registerAnalyzer(
-      id: 'budget_optimization_analyzer',
-      name: 'Анализатор оптимизации бюджета',
-      description: 'Предлагает способы оптимизации бюджета и выявляет возможности для экономии',
-      type: AnalyzerType.combined,
-      order: 6,
-      tags: ['optimization', 'budget', 'advanced'],
-      factory: () => BudgetOptimizationAnalyzer(source),
-    );
-
+    // Ретроспективные анализаторы
     _registerAnalyzer(
       id: 'financial_ratio_analyzer',
       name: 'Анализатор финансовых коэффициентов',
       description:
           'Рассчитывает ключевые финансовые показатели и сравнивает с рекомендуемыми значениями',
       type: AnalyzerType.retrospective,
-      order: 7,
-      tags: ['ratio', 'metrics', 'advanced'],
+      order: 3,
+      tags: ['ratio', 'metrics', 'advanced', 'retrospective'],
       factory: () => FinancialRatioAnalyzer(source),
     );
 
@@ -76,9 +38,42 @@ class AnalyzerFactoryImpl implements IAnalyzerFactory {
       description:
           'Отслеживает рост расходов относительно роста доходов и выявляет категории с наибольшим ростом',
       type: AnalyzerType.retrospective,
-      order: 8,
-      tags: ['inflation', 'lifestyle', 'advanced'],
+      order: 4,
+      tags: ['inflation', 'lifestyle', 'advanced', 'retrospective'],
       factory: () => LifestyleInflationAnalyzer(source),
+    );
+
+    _registerAnalyzer(
+      id: 'category_distribution_analyzer',
+      name: 'Анализатор распределения по категориям',
+      description:
+          'Анализирует распределение расходов по категориям с автоматической категоризацией',
+      type: AnalyzerType.retrospective,
+      order: 5,
+      tags: ['categories', 'distribution', 'advanced', 'retrospective', 'ml'],
+      factory: () => CategoryDistributionAnalyzer(source),
+    );
+
+    // Прогностические анализаторы
+    _registerAnalyzer(
+      id: 'predictive_analyzer',
+      name: 'Предиктивный анализатор',
+      description: 'Прогнозирует будущие финансовые тенденции на основе исторических данных',
+      type: AnalyzerType.predictive,
+      order: 6,
+      tags: ['predictive', 'forecast', 'advanced', 'predictive'],
+      factory: () => PredictiveAnalyzerImpl(source),
+    );
+
+    // Комбинированные анализаторы
+    _registerAnalyzer(
+      id: 'budget_optimization_analyzer',
+      name: 'Анализатор оптимизации бюджета',
+      description: 'Предлагает способы оптимизации бюджета и выявляет возможности для экономии',
+      type: AnalyzerType.combined,
+      order: 8,
+      tags: ['optimization', 'budget', 'advanced', 'combined'],
+      factory: () => BudgetOptimizationAnalyzer(source),
     );
 
     _registerAnalyzer(
@@ -88,7 +83,7 @@ class AnalyzerFactoryImpl implements IAnalyzerFactory {
           'Рассчитывает показатели на пути к финансовой независимости и прогнозирует сроки её достижения',
       type: AnalyzerType.combined,
       order: 9,
-      tags: ['independence', 'fire', 'advanced'],
+      tags: ['independence', 'fire', 'advanced', 'combined'],
       factory: () => FinancialIndependenceAnalyzer(source),
     );
   }
