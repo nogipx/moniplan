@@ -29,7 +29,11 @@ dependencies:
     git: https://github.com/nogipx/receive_sharing_intent
   oktoast: 3.4.0
   fl_chart: ^0.70.0
-  tflite_flutter: ^0.11.0
+  tflite_flutter: 
+    git:
+      url: https://github.com/nogipx/flutter-tflite
+      ref: fcd9746ddc273f0eb3bcf4ac269e7ea3bf352839
+
   # Sliver
   sliver_tools: 0.2.12
   super_sliver_list: 0.4.1

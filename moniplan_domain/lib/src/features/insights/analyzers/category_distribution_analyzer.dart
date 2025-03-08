@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:collection/collection.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 import '../_index.dart';
 import '../categorization/_index.dart';
@@ -14,10 +15,12 @@ import '../categorization/_index.dart';
 final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
   /// Категоризатор платежей
   final ICategoryPredictor _categorizer;
+  final List<Payment> _payments;
 
   /// Конструктор
-  CategoryDistributionAnalyzer(super.source, ICategoryPredictor categorizer)
-    : _categorizer = categorizer;
+  CategoryDistributionAnalyzer(super.source, ICategoryPredictor categorizer, List<Payment> payments)
+    : _categorizer = categorizer,
+      _payments = payments;
 
   @override
   Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData}) async {
@@ -71,20 +74,34 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
 
   /// Категоризирует расходы без категорий
   Future<List<IFinancialData>> _categorizeExpenses(List<IFinancialData> expenses) async {
-    // Разделяем расходы на те, у которых уже есть категория, и те, у которых её нет
-    final withCategory = expenses.where((e) => e.category.isNotEmpty).toList();
-    final withoutCategory = expenses.where((e) => e.category.isEmpty).toList();
-
-    // Если у всех расходов уже есть категории, возвращаем исходный список
-    if (withoutCategory.isEmpty) {
-      return expenses;
-    }
-
     // Категоризируем расходы без категорий
-    final categorizedExpenses = await _categorizer.predictCategories(withoutCategory);
-
+    final categorizedExpenses = await Future.wait(
+      expenses.map(
+        (e) async => MapEntry(
+          e,
+          await _categorizer.predictCategory(
+            Payment(
+              paymentId: e.id,
+              details: PaymentDetails(
+                name: e.category,
+                type:
+                    e.type == FinancialOperationType.expense
+                        ? PaymentType.expense
+                        : PaymentType.income,
+                currency: CurrencyData.create('', 2),
+              ),
+              date: e.date,
+            ),
+          ),
+        ),
+      ),
+    );
     // Объединяем расходы с категориями и категоризированные расходы
-    return [...withCategory, ...categorizedExpenses];
+    return categorizedExpenses
+        .map(
+          (e) => _CategorizedFinancialData(originalData: e.key, category: e.value.first.category),
+        )
+        .toList();
   }
 
   /// Анализирует распределение расходов по категориям

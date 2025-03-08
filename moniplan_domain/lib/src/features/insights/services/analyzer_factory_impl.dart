@@ -43,17 +43,6 @@ class AnalyzerFactoryImpl implements IAnalyzerFactory {
       factory: () => LifestyleInflationAnalyzer(source),
     );
 
-    _registerAnalyzer(
-      id: 'category_distribution_analyzer',
-      name: 'Анализатор распределения по категориям',
-      description:
-          'Анализирует распределение расходов по категориям с автоматической категоризацией',
-      type: AnalyzerType.retrospective,
-      order: 5,
-      tags: ['categories', 'distribution', 'advanced', 'retrospective', 'ml'],
-      factory: () => CategoryDistributionAnalyzer(source, categorizer),
-    );
-
     // Прогностические анализаторы
     _registerAnalyzer(
       id: 'predictive_analyzer',

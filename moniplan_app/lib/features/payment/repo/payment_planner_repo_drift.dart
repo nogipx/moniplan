@@ -259,24 +259,22 @@ final class PlannerRepoDrift implements IPlannerRepo {
   Future<PlannerActualInfo?> updatePlannerActualInfo({
     required String plannerId,
     required PlannerActualInfo plannerActualInfo,
-  }) {
-    return _guard(name: 'updatePlannerActualInfo', () async {
-      final updatedDao = _plannerActualInfoMapper.toDto(plannerActualInfo);
+  }) async {
+    final updatedDao = _plannerActualInfoMapper.toDto(plannerActualInfo);
 
-      final selector = appDb.db.managers.plannerActualInfoDriftTable.filter(
-        (f) => f.plannerId.equals(plannerId),
-      );
-
+    final selector = appDb.db.managers.plannerActualInfoDriftTable.filter(
+      (f) => f.plannerId.equals(plannerId),
+    );
+    await _guard(name: 'updatePlannerActualInfo', () async {
       return appDb.db.transaction(() async {
         if (await selector.exists()) {
           await appDb.db.managers.plannerActualInfoDriftTable.replace(updatedDao);
         } else {
           await appDb.db.managers.plannerActualInfoDriftTable.create((_) => updatedDao);
         }
-
-        return plannerActualInfo;
       });
     });
+    return plannerActualInfo;
   }
 
   Future<void> _deleteInfoForPlanner({required String plannerId}) {

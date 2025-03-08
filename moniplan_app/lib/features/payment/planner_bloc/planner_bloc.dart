@@ -20,10 +20,17 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   PlannerBloc({required this.plannerId, required IPlannerRepo paymentPlannerRepo})
     : _plannerRepo = paymentPlannerRepo,
       super(PlannerInitialState()) {
-    on<PlannerComputeBudgetEvent>(_onCompute, transformer: restartable());
-    on<PlannerUpdatePaymentEvent>(_onUpdatePayment, transformer: sequential());
-    on<PlannerDeletePaymentEvent>(_onDeletePayment, transformer: sequential());
-    on<PlannerFixateRepeatedPaymentEvent>(_onFixateRepeatedPayment, transformer: sequential());
+    on<PlannerComputeBudgetEvent>((e, emit) => _onCompute(e, emit), transformer: droppable());
+
+    on<PlannerEvent>(
+      (e, emit) => switch (e) {
+        PlannerUpdatePaymentEvent() => _onUpdatePayment(e, emit),
+        PlannerDeletePaymentEvent() => _onDeletePayment(e, emit),
+        PlannerFixateRepeatedPaymentEvent() => _onFixateRepeatedPayment(e, emit),
+        _ => emit(state),
+      },
+      transformer: sequential(),
+    );
   }
 
   FutureOr<void> _onCompute(PlannerComputeBudgetEvent event, Emitter<PlannerState> emit) async {
@@ -32,9 +39,9 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     final planner = await _plannerRepo.getPlannerById(id);
 
     if (planner != null) {
-      final newState = _computeStateFromPlanner(
+      final newState = (await _computeStateFromPlanner(
         planner.copyWith(payments: payments),
-      ).copyWith(plannerId: id);
+      )).copyWith(plannerId: id);
 
       emit(newState);
     }
@@ -48,6 +55,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       final canApplyUpdate = CheckPaymentCanApplyUpdate(updatedPayment: event.newPayment).run();
       if (!canApplyUpdate.canUpdate) {
         emit(state.copyWith(errors: canApplyUpdate.errorKeys));
+        return;
       }
 
       final result = await _plannerRepo.savePayment(
@@ -60,7 +68,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       );
 
       if (result != null) {
-        add(PlannerEvent.computeBudget());
+        await _onCompute(const PlannerComputeBudgetEvent(), emit);
       }
     } on Object catch (e) {
       print(e);
@@ -74,7 +82,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   ) async {
     await _plannerRepo.deletePayment(plannerId: plannerId, paymentId: event.paymentId);
 
-    add(PlannerEvent.computeBudget());
+    await _onCompute(const PlannerComputeBudgetEvent(), emit);
   }
 
   Future<void> _onFixateRepeatedPayment(
@@ -83,10 +91,10 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   ) async {
     await _plannerRepo.fixateRepeatedPayment(plannerId: plannerId, paymentId: event.paymentId);
 
-    add(PlannerEvent.computeBudget());
+    await _onCompute(const PlannerComputeBudgetEvent(), emit);
   }
 
-  PlannerState _computeStateFromPlanner(Planner planner) {
+  Future<PlannerState> _computeStateFromPlanner(Planner planner) async {
     var targetPlanner = planner.copyWith();
     if (planner.isGenerationAllowed) {
       final result =
@@ -134,10 +142,6 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
           payments: constrainedPayments,
         ).run();
 
-    unawaited(
-      _plannerRepo.updatePlannerActualInfo(plannerId: plannerId, plannerActualInfo: actualInfo),
-    );
-
     final newState = PlannerState.budgetComputed(
       payments: constrainedPayments,
       paymentsByDate: paymentsByDate,
@@ -145,6 +149,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       dateStart: targetPlanner.dateStart,
       dateEnd: targetPlanner.dateEnd,
       moneyFlow: moneyFlow,
+      actualInfo: actualInfo,
     );
 
     return newState;

@@ -15,14 +15,33 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
 
-class PlannerViewScreenSliver extends StatefulWidget {
-  const PlannerViewScreenSliver({super.key});
+class PlannerScreen extends StatelessWidget {
+  final String plannerId;
+
+  const PlannerScreen({super.key, required this.plannerId});
 
   @override
-  State<PlannerViewScreenSliver> createState() => _PlannerViewScreenSliverState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) {
+        return PlannerBloc(
+          plannerId: plannerId,
+          paymentPlannerRepo: AppDi.instance.getPlannerRepo(),
+        )..add(const PlannerEvent.computeBudget());
+      },
+      child: const _PlannerViewScreenSliver(),
+    );
+  }
 }
 
-class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
+class _PlannerViewScreenSliver extends StatefulWidget {
+  const _PlannerViewScreenSliver();
+
+  @override
+  State<_PlannerViewScreenSliver> createState() => _PlannerViewScreenSliverState();
+}
+
+class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
   final _listController = ListController();
   final _scrollController = ScrollController();
 

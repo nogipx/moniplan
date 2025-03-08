@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import '../interfaces/i_financial_data.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 /// Интерфейс для сервиса предсказания категорий
 abstract class ICategoryPredictor {
@@ -13,8 +13,16 @@ abstract class ICategoryPredictor {
   Future<void> initialize();
 
   /// Предсказывает категорию для финансовой операции
-  Future<String> predictCategory(IFinancialData operation);
+  Future<List<CategoryPrediction>> predictCategory(Payment operation);
+}
 
-  /// Предсказывает категории для списка финансовых операций
-  Future<List<IFinancialData>> predictCategories(List<IFinancialData> operations);
+/// Модель категоризации платежа
+class CategoryPrediction {
+  final String category;
+  final double probability;
+
+  CategoryPrediction({required this.category, required this.probability});
+
+  @override
+  String toString() => '$category (${(probability * 100).toStringAsFixed(1)}%)';
 }

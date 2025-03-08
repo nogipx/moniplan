@@ -59,9 +59,7 @@ class _PaymentEditScreenState extends State<PaymentEditScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => edit.PaymentEditBloc(onSave: widget.onSave, payment: widget.payment),
-        ),
+        BlocProvider(create: (context) => edit.PaymentEditBloc(payment: widget.payment)),
         BlocProvider(
           create: (context) {
             // Создаем CalculatorBloc внутри функции create
@@ -76,18 +74,27 @@ class _PaymentEditScreenState extends State<PaymentEditScreen> {
           },
         ),
       ],
-      child: const _PaymentEditView(),
+      child: _PaymentEditView(onSave: widget.onSave),
     );
   }
 }
 
 class _PaymentEditView extends StatelessWidget {
-  const _PaymentEditView();
+  final Function(Payment) onSave;
+
+  const _PaymentEditView({required this.onSave});
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<edit.PaymentEditBloc, edit.PaymentEditState>(
-      listenWhen: (previous, current) => previous.status != current.status,
+      listenWhen: (previous, current) {
+        if (previous.status == edit.PaymentEditStatus.success &&
+            current.status == edit.PaymentEditStatus.success) {
+          onSave(current.payment!);
+          return true;
+        }
+        return previous.status != current.status;
+      },
       listener: (context, state) {
         if (state.status == edit.PaymentEditStatus.success) {
           Navigator.pop(context);
@@ -928,10 +935,11 @@ class _PaymentEditView extends StatelessWidget {
   }
 
   // Метод для сохранения платежа с учетом текущего шага
-  void _savePayment(BuildContext context, edit.PaymentEditState state) {
+  Future<void> _savePayment(BuildContext context, edit.PaymentEditState state) async {
     // Если мы на шаге ввода суммы, сначала сохраняем текущее значение из калькулятора
     if (state.currentStep == 0) {
       _saveCurrentCalculatorValue(context, state);
+      await Future.delayed(const Duration(milliseconds: 500));
     }
 
     // Затем сохраняем платеж

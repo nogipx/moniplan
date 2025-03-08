@@ -47,6 +47,16 @@ Future<void> updateDialog({
     }, payment: targetPayment);
   }
 
+  void fixate() {
+    if (paymentToEdit == null || targetPayment == null) {
+      return;
+    }
+
+    context.read<PlannerBloc>().add(
+      PlannerEvent.fixateRepeatedPayment(paymentId: targetPayment.paymentId),
+    );
+  }
+
   void duplicate() {
     if (paymentToEdit == null || targetPayment == null) {
       return;
@@ -71,16 +81,6 @@ Future<void> updateDialog({
     );
   }
 
-  void fixate() {
-    if (paymentToEdit == null || targetPayment == null) {
-      return;
-    }
-
-    context.read<PlannerBloc>().add(
-      PlannerEvent.fixateRepeatedPayment(paymentId: targetPayment.paymentId),
-    );
-  }
-
   if (paymentToEdit == null) {
     // Создание нового платежа
     Navigator.push(
@@ -94,7 +94,7 @@ Future<void> updateDialog({
     final wasVirtualPaymentSelected = paymentToEdit.isNotParent;
 
     // Просмотр существующего платежа
-    PaymentActionsBottomSheet.show(
+    await PaymentActionsBottomSheet.show(
       context: context,
       payment: targetPayment!,
       onDelete: delete,

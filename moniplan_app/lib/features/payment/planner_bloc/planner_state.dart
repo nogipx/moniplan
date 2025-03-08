@@ -24,6 +24,7 @@ class PlannerState with _$PlannerState {
     @Default({}) Map<Payment, num> budget,
     @Default(MoneyFlowUseCaseResult()) MoneyFlowUseCaseResult moneyFlow,
     @Default({}) Set<String> errors,
+    PlannerActualInfo? actualInfo,
   }) = PlannerBudgetComputedState;
 
   const factory PlannerState.error({

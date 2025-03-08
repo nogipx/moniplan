@@ -8,10 +8,8 @@ import 'payment_edit_state.dart';
 /// Блок для управления редактированием платежа
 class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
   /// Функция для сохранения платежа
-  final Function(Payment) onSave;
 
-  PaymentEditBloc({required this.onSave, Payment? payment})
-    : super(PaymentEditState.fromPayment(payment)) {
+  PaymentEditBloc({Payment? payment}) : super(PaymentEditState.fromPayment(payment)) {
     on<PaymentEditInitialize>(_onInitialize);
     on<PaymentEditTypeChanged>(_onTypeChanged);
     on<PaymentEditAmountChanged>(_onAmountChanged);
@@ -175,11 +173,14 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
         payment = state.payment ?? state.toPayment();
       }
 
-      // Сохраняем платеж
-      onSave(payment);
-
       // Обновляем состояние
-      emit(state.copyWith(status: PaymentEditStatus.success, clearErrorMessage: true));
+      emit(
+        state.copyWith(
+          status: PaymentEditStatus.success,
+          clearErrorMessage: true,
+          payment: payment,
+        ),
+      );
     } catch (e) {
       // В случае ошибки обновляем состояние
       emit(

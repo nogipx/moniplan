@@ -41,6 +41,7 @@ class InsightGeneratorImpl implements IInsightGenerator {
       'ml_category_distribution_analyzer': CategoryDistributionAnalyzer(
         periodAdapter,
         _categoryPredictor,
+        planner.payments,
       ),
     };
 

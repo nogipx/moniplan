@@ -5,13 +5,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:moniplan_app/core/di_get_it/app_di.dart';
+import 'package:moniplan_app/core/services/payment_categorizer_service.dart';
+import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/payment_edit/screens/payment_edit_screen.dart';
+import 'package:moniplan_app/features/planner/insights/providers/moniplan_adapters.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
-class PaymentActionsBottomSheet extends StatelessWidget {
+class PaymentActionsBottomSheet extends StatefulWidget {
   final Payment payment;
   final Function()? onDelete;
   final Function()? onDuplicate;
@@ -64,16 +68,70 @@ class PaymentActionsBottomSheet extends StatelessWidget {
   }
 
   @override
+  State<PaymentActionsBottomSheet> createState() => _PaymentActionsBottomSheetState();
+}
+
+class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
+  late final ValueNotifier<List<CategoryPrediction>> _predictedCategories;
+  bool _isLoadingCategory = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _predictedCategories = ValueNotifier<List<CategoryPrediction>>([]);
+    _predictCategoryIfNeeded();
+  }
+
+  @override
+  void dispose() {
+    _predictedCategories.dispose();
+    super.dispose();
+  }
+
+  Future<void> _predictCategoryIfNeeded() async {
+    // Если у платежа уже есть название, не нужно предсказывать категорию
+    if (widget.payment.details.name.isNotEmpty) {
+      return;
+    }
+
+    setState(() {
+      _isLoadingCategory = true;
+    });
+
+    try {
+      // Получаем категоризатор из DI
+      final categoryPredictor = AppDi.instance.getPaymentCategorizer();
+
+      // Предсказываем категорию
+      final categories = await categoryPredictor.predictCategory(widget.payment);
+
+      if (mounted) {
+        _predictedCategories.value = categories;
+        setState(() {
+          _isLoadingCategory = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingCategory = false;
+        });
+      }
+      debugPrint('Ошибка при предсказании категории: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final moneyFormat = NumberFormat.currency(locale: 'ru_RU', symbol: '₽', decimalDigits: 0);
 
-    final isIncome = payment.type == PaymentType.income;
+    final isIncome = widget.payment.type == PaymentType.income;
     final moneyColor = isIncome ? context.color.primary : context.color.error;
     final moneySign = isIncome ? '+' : '-';
-    final moneyValue = moneyFormat.format(payment.normalizedMoney.abs());
+    final moneyValue = moneyFormat.format(widget.payment.normalizedMoney.abs());
 
     // Определяем, является ли платеж реальным (не виртуальным)
-    final isRealPayment = payment.isParent;
+    final isRealPayment = widget.payment.isParent;
 
     return SafeArea(
       child: Container(
@@ -113,13 +171,13 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                 children: [
                   // Название платежа
                   Text(
-                    payment.details.name,
+                    widget.payment.details.name,
                     style: context.text.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                     overflow: TextOverflow.visible,
                   ),
 
                   // Индикатор виртуального платежа
-                  if (payment.isNotParent) ...[
+                  if (widget.payment.isNotParent) ...[
                     const SizedBox(height: 4),
                     Row(
                       children: [
@@ -134,7 +192,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ] else if (isVirtualPaymentSelected) ...[
+                  ] else if (widget.isVirtualPaymentSelected) ...[
                     const SizedBox(height: 4),
                     Row(
                       children: [
@@ -163,7 +221,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                       Icon(Icons.calendar_today, size: 16, color: context.color.onSurfaceVariant),
                       const SizedBox(width: 8),
                       Text(
-                        DateFormat('d MMMM y').format(payment.date),
+                        DateFormat('d MMMM y').format(widget.payment.date),
                         style: context.text.bodyMedium?.copyWith(
                           color: context.color.onSurfaceVariant,
                         ),
@@ -183,14 +241,14 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                   ),
 
                   // Налог (только для доходов)
-                  if (isIncome && payment.details.tax > 0) ...[
+                  if (isIncome && widget.payment.details.tax > 0) ...[
                     const SizedBox(height: 4),
                     Row(
                       children: [
                         Icon(Icons.percent, size: 16, color: context.color.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
-                          'Налог: ${(payment.details.tax * 100).toInt()}%',
+                          'Налог: ${(widget.payment.details.tax * 100).toInt()}%',
                           style: context.text.bodySmall?.copyWith(
                             color: context.color.onSurfaceVariant,
                           ),
@@ -199,8 +257,24 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                     ),
                   ],
 
+                  // Предсказанная категория (если есть)
+                  const SizedBox(height: 12),
+                  ValueListenableBuilder(
+                    valueListenable: _predictedCategories,
+                    builder: (context, value, child) {
+                      return Visibility(
+                        visible: value.isNotEmpty,
+                        child: Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: value.map((e) => _buildCategory(context, e)).toList(),
+                        ),
+                      );
+                    },
+                  ),
+
                   // Информация о повторении платежа
-                  if (payment.isRepeat) ...[
+                  if (widget.payment.isRepeat) ...[
                     const SizedBox(height: 12),
                     Row(
                       children: [
@@ -208,7 +282,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Повторяется: ${_getRepeatText(payment.repeat)}',
+                            'Повторяется: ${_getRepeatText(widget.payment.repeat)}',
                             style: context.text.bodySmall?.copyWith(
                               color: context.color.onSurfaceVariant,
                             ),
@@ -218,7 +292,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                     ),
 
                     // Период повторения
-                    if (payment.dateStart != null || payment.dateEnd != null) ...[
+                    if (widget.payment.dateStart != null || widget.payment.dateEnd != null) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
@@ -226,7 +300,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              _getRepeatPeriodText(payment),
+                              _getRepeatPeriodText(widget.payment),
                               style: context.text.bodySmall?.copyWith(
                                 color: context.color.onSurfaceVariant,
                               ),
@@ -243,33 +317,41 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          payment.isEnabled ? Icons.check_circle_outline : Icons.cancel_outlined,
+                          widget.payment.isEnabled
+                              ? Icons.check_circle_outline
+                              : Icons.cancel_outlined,
                           size: 16,
-                          color: payment.isEnabled ? context.color.primary : context.color.error,
+                          color:
+                              widget.payment.isEnabled
+                                  ? context.color.primary
+                                  : context.color.error,
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          payment.isEnabled ? 'Активен' : 'Отключен',
+                          widget.payment.isEnabled ? 'Активен' : 'Отключен',
                           style: context.text.bodySmall?.copyWith(
-                            color: payment.isEnabled ? context.color.primary : context.color.error,
+                            color:
+                                widget.payment.isEnabled
+                                    ? context.color.primary
+                                    : context.color.error,
                           ),
                         ),
                         const SizedBox(width: 16),
-                        if (!payment.isRepeat) ...[
+                        if (!widget.payment.isRepeat) ...[
                           Icon(
-                            payment.isDone ? Icons.task_alt : Icons.pending_outlined,
+                            widget.payment.isDone ? Icons.task_alt : Icons.pending_outlined,
                             size: 16,
                             color:
-                                payment.isDone
+                                widget.payment.isDone
                                     ? context.color.primary
                                     : context.color.onSurfaceVariant,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            payment.isDone ? 'Выполнен' : 'Не выполнен',
+                            widget.payment.isDone ? 'Выполнен' : 'Не выполнен',
                             style: context.text.bodySmall?.copyWith(
                               color:
-                                  payment.isDone
+                                  widget.payment.isDone
                                       ? context.color.primary
                                       : context.color.onSurfaceVariant,
                             ),
@@ -280,7 +362,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                   ],
 
                   // Примечание к платежу (если есть)
-                  if (payment.details.note.isNotEmpty) ...[
+                  if (widget.payment.details.note.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +371,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            payment.details.note,
+                            widget.payment.details.note,
                             style: context.text.bodySmall?.copyWith(
                               color: context.color.onSurfaceVariant,
                               fontStyle: FontStyle.italic,
@@ -311,57 +393,65 @@ class PaymentActionsBottomSheet extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  if (onDuplicate != null)
+                  if (widget.onDuplicate != null)
                     _buildCircleButton(
                       context,
                       icon: Icons.copy,
                       label: 'Дублировать',
                       color: context.color.secondary,
                       onTap: () {
-                        onDuplicate?.call();
+                        widget.onDuplicate?.call();
                         Navigator.pop(context);
                       },
                     ),
 
                   // Кнопки включения/выключения и выполнения только для реальных платежей
-                  if (isRealPayment && onToggleEnabled != null)
+                  if (isRealPayment && widget.onToggleEnabled != null)
                     _buildCircleButton(
                       context,
                       icon:
-                          !payment.isEnabled
+                          !widget.payment.isEnabled
                               ? Icons.power_settings_new_rounded
                               : Icons.power_settings_new_outlined,
-                      label: !payment.isEnabled ? 'Выключено' : 'Включено',
-                      color: !payment.isEnabled ? context.color.tertiary : context.color.primary,
+                      label: !widget.payment.isEnabled ? 'Выключено' : 'Включено',
+                      color:
+                          !widget.payment.isEnabled
+                              ? context.color.tertiary
+                              : context.color.primary,
                       onTap: () {
-                        onToggleEnabled?.call(payment.copyWith(isEnabled: !payment.isEnabled));
+                        widget.onToggleEnabled?.call(
+                          widget.payment.copyWith(isEnabled: !widget.payment.isEnabled),
+                        );
                         Navigator.pop(context);
                       },
                     ),
 
-                  if (onToggleDone != null)
+                  if (widget.onToggleDone != null)
                     _buildCircleButton(
                       context,
-                      icon: !payment.isDone ? Icons.remove_done : Icons.done,
-                      label: !payment.isDone ? 'Не выполнено' : 'Выполнено',
-                      color: !payment.isDone ? context.color.tertiary : context.color.primary,
+                      icon: !widget.payment.isDone ? Icons.remove_done : Icons.done,
+                      label: !widget.payment.isDone ? 'Не выполнено' : 'Выполнено',
+                      color:
+                          !widget.payment.isDone ? context.color.tertiary : context.color.primary,
                       onTap: () {
                         // Показываем диалог о необходимости фиксации перед выполнением платежа
                         // в двух случаях:
                         // 1. Если был выбран виртуальный платеж (даже если отображается родительский)
                         // 2. Если платеж реальный и является родителем повторяющихся платежей
-                        if (!payment.isDone &&
-                            payment.isRepeat &&
-                            (isVirtualPaymentSelected || payment.isRepeatParent)) {
+                        if (!widget.payment.isDone &&
+                            widget.payment.isRepeat &&
+                            (widget.isVirtualPaymentSelected || widget.payment.isRepeatParent)) {
                           _showFixationBeforeCompletionDialog(context);
                         } else {
-                          onToggleDone?.call(payment.copyWith(isDone: !payment.isDone));
+                          widget.onToggleDone?.call(
+                            widget.payment.copyWith(isDone: !widget.payment.isDone),
+                          );
                           Navigator.pop(context);
                         }
                       },
                     ),
 
-                  if (onDelete != null)
+                  if (widget.onDelete != null)
                     _buildCircleButton(
                       context,
                       icon: Icons.delete_outline,
@@ -369,7 +459,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                       color: context.color.error,
                       onTap: () {
                         Navigator.pop(context);
-                        onDelete?.call();
+                        widget.onDelete?.call();
                       },
                     ),
                 ],
@@ -387,11 +477,9 @@ class PaymentActionsBottomSheet extends StatelessWidget {
                     MaterialPageRoute(
                       builder:
                           (context) => PaymentEditScreen(
-                            payment: payment,
+                            payment: widget.payment,
                             onSave: (updatedPayment) {
-                              final bloc =
-                                  plannerBloc ??
-                                  BlocProvider.of<PlannerBloc>(context, listen: false);
+                              final bloc = context.read<PlannerBloc>();
                               bloc.add(
                                 PlannerEvent.updatePayment(
                                   newPayment: updatedPayment,
@@ -415,7 +503,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
             ),
 
             // Кнопка фиксации для повторяющихся платежей
-            if (payment.isRepeat && onFixation != null)
+            if (widget.payment.isRepeat && widget.onFixation != null)
               Container(
                 margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: TextButton.icon(
@@ -432,6 +520,30 @@ class PaymentActionsBottomSheet extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCategory(BuildContext context, CategoryPrediction category) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: context.color.tertiary.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.category, size: 16, color: context.color.tertiary),
+          const SizedBox(width: 8),
+          Text(
+            '${category.category} (${(category.probability * 100).toStringAsFixed(1)}%)',
+            style: context.text.bodySmall?.copyWith(
+              color: context.color.tertiary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -481,7 +593,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Закрываем диалог
-                onFixation?.call(); // Вызываем функцию фиксации
+                widget.onFixation?.call(); // Вызываем функцию фиксации
                 Navigator.of(context).pop(); // Закрываем нижний лист
               },
               child: const Text('Зафиксировать'),
@@ -495,12 +607,12 @@ class PaymentActionsBottomSheet extends StatelessWidget {
   // Показывает диалог о необходимости фиксации перед выполнением платежа
   void _showFixationBeforeCompletionDialog(BuildContext context) {
     final String titleText =
-        isVirtualPaymentSelected
+        widget.isVirtualPaymentSelected
             ? 'Необходима фиксация виртуального платежа'
             : 'Необходима фиксация повторяющегося платежа';
 
     final String messageText =
-        isVirtualPaymentSelected
+        widget.isVirtualPaymentSelected
             ? 'Вы пытаетесь отметить как выполненный виртуальный платеж из повторяющейся серии.'
             : 'Вы пытаетесь отметить как выполненный повторяющийся платеж.';
 
@@ -544,8 +656,8 @@ class PaymentActionsBottomSheet extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Закрываем диалог
-                if (onFixation != null) {
-                  onFixation?.call(); // Вызываем функцию фиксации
+                if (widget.onFixation != null) {
+                  widget.onFixation?.call(); // Вызываем функцию фиксации
                   Navigator.of(context).pop(); // Закрываем нижний лист
                 }
               },
@@ -575,7 +687,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
 
   // Показывает информацию о разнице дней между текущей датой и датой платежа
   void _showDaysInfo(BuildContext context, DateTime today) {
-    final difference = payment.date.difference(today).inDays;
+    final difference = widget.payment.date.difference(today).inDays;
     final absValue = difference.abs();
 
     String message;
@@ -605,7 +717,8 @@ class PaymentActionsBottomSheet extends StatelessWidget {
     }
 
     // Находим платежи за выбранный день
-    final dayPayments = plannerState.payments.where((p) => p.date.isSameDay(payment.date)).toList();
+    final dayPayments =
+        plannerState.payments.where((p) => p.date.isSameDay(widget.payment.date)).toList();
 
     // Вычисляем доходы и расходы за день
     num dayIncome = 0;
@@ -624,7 +737,7 @@ class PaymentActionsBottomSheet extends StatelessWidget {
 
     DaySummaryDialog.show(
       context: context,
-      date: payment.date,
+      date: widget.payment.date,
       payments: dayPayments,
       dayIncome: dayIncome,
       dayOutcome: dayOutcome,

@@ -196,14 +196,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
     return Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) {
-          return BlocProvider(
-            create: (context) {
-              final bloc = PlannerBloc(paymentPlannerRepo: _plannerRepo, plannerId: plannerId)
-                ..add(const PlannerEvent.computeBudget());
-              return bloc;
-            },
-            child: const PlannerViewScreenSliver(),
-          );
+          return PlannerScreen(plannerId: plannerId);
         },
       ),
     );
