@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:drift/drift.dart';
-import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/features/payment/_index.dart';
 
 part 'drift_database.g.dart';
 

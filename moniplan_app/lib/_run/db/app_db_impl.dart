@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/db/drift_open_temporary_connection.dart';
 import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 class AppDbImpl extends ChangeNotifier implements AppDb {

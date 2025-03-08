@@ -8,8 +8,10 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
+
+import 'planner_event.dart';
+import 'planner_state.dart';
 
 class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   final IPlannerRepo _plannerRepo;

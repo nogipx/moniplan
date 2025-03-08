@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:moniplan_domain/src/features/payment/models/payment/payment.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 part 'insight.freezed.dart';
 part 'insight.g.dart';
@@ -47,6 +46,18 @@ enum InsightImportance {
   critical,
 }
 
+/// Временной признак инсайта
+enum InsightTimeframe {
+  /// Ретроспективный инсайт (основан на завершенных платежах)
+  retrospective,
+
+  /// Прогностический инсайт (основан на запланированных платежах)
+  predictive,
+
+  /// Комбинированный инсайт (использует оба типа данных)
+  combined,
+}
+
 /// Модель финансового инсайта
 @freezed
 class Insight with _$Insight {
@@ -65,6 +76,9 @@ class Insight with _$Insight {
 
     /// Важность инсайта
     required InsightImportance importance,
+
+    /// Временной признак инсайта
+    @Default(InsightTimeframe.combined) InsightTimeframe timeframe,
 
     /// Связанные платежи (опционально)
     List<Payment>? relatedPayments,

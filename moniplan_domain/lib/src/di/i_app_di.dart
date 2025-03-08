@@ -15,5 +15,5 @@ abstract interface class IAppDi {
 
   IStatisticsRepo getStatisticsRepo();
 
-  InsightGenerator getInsightGenerator();
+  IInsightGenerator getInsightGenerator();
 }

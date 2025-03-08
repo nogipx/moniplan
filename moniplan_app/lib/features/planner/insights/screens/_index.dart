@@ -2,5 +2,6 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-export 'screens/planners_list_screen.dart';
-export 'widgets/_index.dart';
+export 'insight_data_screen.dart';
+export 'analyzer_settings_screen.dart';
+export 'insights_screen.dart';

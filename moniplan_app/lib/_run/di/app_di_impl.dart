@@ -6,6 +6,9 @@ import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
 import 'package:moniplan_app/features/monisync/repo/monisync_repo_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/features/payment/_index.dart';
+import 'package:moniplan_app/features/planner/_index.dart';
+import 'package:moniplan_app/features/statistic/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 const mockEncryptionKey = 'J33L06KoJbO1okTNJ1sHNV1DS5UiVtLPLmWn0RZbxGk=';
@@ -25,7 +28,7 @@ class GetItAppDI implements AppDi {
       MonisyncRepoImpl(appDb: db, encryptKey: mockEncryptionKey),
     );
     _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
-    _getIt.registerSingleton<InsightGenerator>(InsightGeneratorImpl());
+    _getIt.registerSingleton<IInsightGenerator>(InsightGeneratorImpl());
   }
 
   @override
@@ -41,7 +44,7 @@ class GetItAppDI implements AppDi {
   IStatisticsRepo getStatisticsRepo() => _getIt.get();
 
   @override
-  InsightGenerator getInsightGenerator() => _getIt.get();
+  IInsightGenerator getInsightGenerator() => _getIt.get();
 
   T get<T extends Object>() => _getIt.get<T>();
 }

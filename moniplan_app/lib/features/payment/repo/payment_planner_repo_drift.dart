@@ -6,6 +6,8 @@ import 'package:drift/drift.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
+import '../_index.dart';
+
 final class PlannerRepoDrift implements IPlannerRepo {
   final AppDb appDb;
   final AppLog _log;

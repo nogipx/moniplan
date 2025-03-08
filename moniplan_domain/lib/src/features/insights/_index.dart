@@ -2,5 +2,24 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-export 'models/_index.dart';
-export 'services/_index.dart';
+// Анализаторы
+export 'analyzers/_index.dart';
+
+// Интерфейсы
+export 'interfaces/i_financial_analyzer.dart';
+export 'interfaces/i_financial_data.dart';
+export 'interfaces/i_insight_generator.dart';
+export 'interfaces/i_analyzer_factory.dart';
+export 'interfaces/i_analyzer_settings_service.dart';
+
+// Модели
+export 'models/insight.dart';
+export 'models/analyzer_descriptor.dart';
+
+// Сервисы
+export 'services/analyzer_factory_impl.dart';
+export 'services/analyzer_settings_service.dart';
+
+// Утилиты
+export 'utils/insight_utils.dart';
+export 'utils/payment_extraction_service.dart';

@@ -2,5 +2,6 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-export 'insight_generator.dart';
-export 'insight_generator_impl.dart';
+export 'i_financial_analyzer.dart';
+export 'i_financial_data.dart';
+export 'i_insight_generator.dart';
