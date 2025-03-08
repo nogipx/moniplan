@@ -1,0 +1,1802 @@
+[
+    {
+        "text": "Кэшбэк от банка",
+        "true_category": "Транспорт",
+        "predictions": [
+            {
+                "category": "Транспорт",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Красота и здоровье",
+                "probability": 4.131348735336715e-11
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 1.077432847801374e-11
+            }
+        ]
+    },
+    {
+        "text": "Возврат средсттв 85 points",
+        "true_category": "Кредиты и долги",
+        "predictions": [
+            {
+                "category": "Кредиты и долги",
+                "probability": 0.9998183250427246
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 5.681351467501372e-05
+            },
+            {
+                "category": "Жильё и коммунальные",
+                "probability": 2.8977128749829717e-05
+            }
+        ]
+    },
+    {
+        "text": "Воз-loyalty-program",
+        "true_category": "Автомобиль",
+        "predictions": [
+            {
+                "category": "Автомобиль",
+                "probability": 0.6427711248397827
+            },
+            {
+                "category": "Страхование",
+                "probability": 0.35173705220222473
+            },
+            {
+                "category": "Домашние животные",
+                "probability": 0.003491064766421914
+            }
+        ]
+    },
+    {
+        "text": "КЭШБЭК ОТ БАНКА КЭШБЭК",
+        "true_category": "Одежда и обувь",
+        "predictions": [
+            {
+                "category": "Одежда и обувь",
+                "probability": 0.9999998211860657
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 9.214910789978603e-08
+            },
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 8.973672471768168e-09
+            }
+        ]
+    },
+    {
+        "text": "НАЧИСЛЕНИЕ БОНУСОВ",
+        "true_category": "Обучение",
+        "predictions": [
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 0.18036586046218872
+            },
+            {
+                "category": "Красота и здоровье",
+                "probability": 0.17263241112232208
+            },
+            {
+                "category": "Путешествия",
+                "probability": 0.11952795088291168
+            }
+        ]
+    },
+    {
+        "text": "Возврат",
+        "true_category": "Экстренные расходы",
+        "predictions": [
+            {
+                "category": "Экстренные расходы",
+                "probability": 0.9999998211860657
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 5.078794274027132e-08
+            },
+            {
+                "category": "Налоги и штрафы",
+                "probability": 2.438389934411589e-08
+            }
+        ]
+    },
+    {
+        "text": "Бону",
+        "true_category": "Красота и здоровье",
+        "predictions": [
+            {
+                "category": "Красота и здоровье",
+                "probability": 0.9999966025352478
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 2.444822712277528e-06
+            },
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 4.677796994201344e-07
+            }
+        ]
+    },
+    {
+        "text": "Возврат средств",
+        "true_category": "Подарки и переводы",
+        "predictions": [
+            {
+                "category": "Подарки и переводы",
+                "probability": 0.9994816184043884
+            },
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 0.00047310625086538494
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 2.71992503257934e-05
+            }
+        ]
+    },
+    {
+        "text": "ВОЗВРАТ 90.57",
+        "true_category": "Развлечения",
+        "predictions": [
+            {
+                "category": "Развлечения",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 4.723033519837827e-09
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 1.2573051488828924e-09
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк от банка",
+        "true_category": "Продукты",
+        "predictions": [
+            {
+                "category": "Продукты",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Развлечения",
+                "probability": 1.2511266689330114e-08
+            },
+            {
+                "category": "Обучение",
+                "probability": 1.0247860338097325e-09
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк-сервис cashback",
+        "true_category": "Жильё и коммунальные",
+        "predictions": [
+            {
+                "category": "Жильё и коммунальные",
+                "probability": 0.9973904490470886
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 0.0005184368346817791
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 0.0004984940169379115
+            }
+        ]
+    },
+    {
+        "text": "Боонус",
+        "true_category": "Подарки и переводы",
+        "predictions": [
+            {
+                "category": "Подарки и переводы",
+                "probability": 0.9999906420707703
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 8.998824341688305e-06
+            },
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 1.7311116096152546e-07
+            }
+        ]
+    },
+    {
+        "text": "Кэш 💸",
+        "true_category": "Медицина",
+        "predictions": [
+            {
+                "category": "Медицина",
+                "probability": 0.9999993443489075
+            },
+            {
+                "category": "Экстренные расходы",
+                "probability": 5.84301517392305e-07
+            },
+            {
+                "category": "Путешествия",
+                "probability": 2.7688673576165e-10
+            }
+        ]
+    },
+    {
+        "text": "Возв 🏠",
+        "true_category": "Подарки и благотворительность",
+        "predictions": [
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 0.9999997019767761
+            },
+            {
+                "category": "Инвестиции и накопления",
+                "probability": 2.558747667080752e-07
+            },
+            {
+                "category": "Экстренные расходы",
+                "probability": 2.111945285321326e-08
+            }
+        ]
+    },
+    {
+        "text": "Кэбэк",
+        "true_category": "Кэшбэк и бонусы",
+        "predictions": [
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 0.9999991059303284
+            },
+            {
+                "category": "Зарплата",
+                "probability": 4.5715617602581915e-07
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 4.046102048960165e-07
+            }
+        ]
+    },
+    {
+        "text": "Возврат.средств.refund",
+        "true_category": "Подарки и благотворительность",
+        "predictions": [
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 0.18036586046218872
+            },
+            {
+                "category": "Красота и здоровье",
+                "probability": 0.17263241112232208
+            },
+            {
+                "category": "Путешествия",
+                "probability": 0.11952795088291168
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк от банка",
+        "true_category": "Кредиты и долги",
+        "predictions": [
+            {
+                "category": "Кредиты и долги",
+                "probability": 0.9999904036521912
+            },
+            {
+                "category": "Инвестиции и накопления",
+                "probability": 6.599539574381197e-06
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 1.7747280480762129e-06
+            }
+        ]
+    },
+    {
+        "text": "Бонус №462",
+        "true_category": "Кредиты и долги",
+        "predictions": [
+            {
+                "category": "Кредиты и долги",
+                "probability": 0.9961913228034973
+            },
+            {
+                "category": "Инвестиции и накопления",
+                "probability": 0.0022158038336783648
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 0.0006590679404325783
+            }
+        ]
+    },
+    {
+        "text": "Начисление бонусов",
+        "true_category": "Кэшбэк и бонусы",
+        "predictions": [
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 0.9793084263801575
+            },
+            {
+                "category": "Зарплата",
+                "probability": 0.018172744661569595
+            },
+            {
+                "category": "Продажа вещей",
+                "probability": 0.0008952849311754107
+            }
+        ]
+    },
+    {
+        "text": "ВЗВРАТ 61.32",
+        "true_category": "Продукты",
+        "predictions": [
+            {
+                "category": "Продукты",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Обучение",
+                "probability": 1.8387687816812104e-08
+            },
+            {
+                "category": "Развлечения",
+                "probability": 5.351387333263347e-09
+            }
+        ]
+    },
+    {
+        "text": "Бонус",
+        "true_category": "Подарки и переводы",
+        "predictions": [
+            {
+                "category": "Подарки и переводы",
+                "probability": 0.9999812245368958
+            },
+            {
+                "category": "Пассивный доход",
+                "probability": 9.116795808949973e-06
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 7.172006007749587e-06
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк-сервис 10.11",
+        "true_category": "Развлечения",
+        "predictions": [
+            {
+                "category": "Развлечения",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Инвестиции и накопления",
+                "probability": 1.3894402073333367e-08
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 8.155503827822486e-09
+            }
+        ]
+    },
+    {
+        "text": "НАЧИ",
+        "true_category": "Обучение",
+        "predictions": [
+            {
+                "category": "Обучение",
+                "probability": 0.9999997019767761
+            },
+            {
+                "category": "Дети и образование",
+                "probability": 2.123766051909115e-07
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 2.1079731737927432e-08
+            }
+        ]
+    },
+    {
+        "text": "Возврат",
+        "true_category": "Ремонт и обустройство",
+        "predictions": [
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 0.9999998211860657
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 8.418436436841148e-08
+            },
+            {
+                "category": "Одежда и обувь",
+                "probability": 4.424017152615534e-09
+            }
+        ]
+    },
+    {
+        "text": "Возврат №959",
+        "true_category": "Красота и здоровье",
+        "predictions": [
+            {
+                "category": "Красота и здоровье",
+                "probability": 0.9998633861541748
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 6.00968451180961e-05
+            },
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 3.570283661247231e-05
+            }
+        ]
+    },
+    {
+        "text": "Бонус 56",
+        "true_category": "Продажа вещей",
+        "predictions": [
+            {
+                "category": "Продажа вещей",
+                "probability": 0.9999993443489075
+            },
+            {
+                "category": "Бизнес",
+                "probability": 4.0982820337376324e-07
+            },
+            {
+                "category": "Жильё и коммунальные",
+                "probability": 1.7517699291147437e-07
+            }
+        ]
+    },
+    {
+        "text": "Начисление бонусов №255",
+        "true_category": "Домашние животные",
+        "predictions": [
+            {
+                "category": "Домашние животные",
+                "probability": 0.9999518990516663
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 3.782236672122963e-05
+            },
+            {
+                "category": "Обучение",
+                "probability": 8.243625416071154e-06
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк-сервис",
+        "true_category": "Подарки и переводы",
+        "predictions": [
+            {
+                "category": "Подарки и переводы",
+                "probability": 0.9999863505363464
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 1.3511599718185607e-05
+            },
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 4.119166518989914e-08
+            }
+        ]
+    },
+    {
+        "text": "Бонус",
+        "true_category": "Транспорт",
+        "predictions": [
+            {
+                "category": "Транспорт",
+                "probability": 0.7432079911231995
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 0.2366933971643448
+            },
+            {
+                "category": "Путешествия",
+                "probability": 0.005523663479834795
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк от банка №846",
+        "true_category": "Страхование",
+        "predictions": [
+            {
+                "category": "Страхование",
+                "probability": 0.9999722838401794
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 2.760154711722862e-05
+            },
+            {
+                "category": "Пассивный доход",
+                "probability": 1.0732636113175431e-08
+            }
+        ]
+    },
+    {
+        "text": "Возврпт средств",
+        "true_category": "Развлечения",
+        "predictions": [
+            {
+                "category": "Развлечения",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 5.128848457047752e-09
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 5.256033941414273e-10
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк-сервис.65.46",
+        "true_category": "Инвестиции и накопления",
+        "predictions": [
+            {
+                "category": "Инвестиции и накопления",
+                "probability": 0.9999226927757263
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 7.416379230562598e-05
+            },
+            {
+                "category": "Кредиты и долги",
+                "probability": 1.967473053809954e-06
+            }
+        ]
+    },
+    {
+        "text": "Кэбшэк 2023 accrual",
+        "true_category": "Социальные выплаты",
+        "predictions": [
+            {
+                "category": "Социальные выплаты",
+                "probability": 0.9998500347137451
+            },
+            {
+                "category": "Зарплата",
+                "probability": 7.686114986427128e-05
+            },
+            {
+                "category": "Бизнес",
+                "probability": 4.174407149548642e-05
+            }
+        ]
+    },
+    {
+        "text": "Возврат средств",
+        "true_category": "Продукты",
+        "predictions": [
+            {
+                "category": "Продукты",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Обучение",
+                "probability": 4.1188688015836306e-08
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 9.381857513091063e-10
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк-сервис",
+        "true_category": "Одежда и обувь",
+        "predictions": [
+            {
+                "category": "Одежда и обувь",
+                "probability": 0.9999998211860657
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 1.3785886210371245e-07
+            },
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 2.912181606973263e-08
+            }
+        ]
+    },
+    {
+        "text": "Возврат №78",
+        "true_category": "Продукты",
+        "predictions": [
+            {
+                "category": "Продукты",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Обучение",
+                "probability": 4.0925645095057916e-08
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 1.416181838465036e-09
+            }
+        ]
+    },
+    {
+        "text": "БОУСЫ ЗА ПОКУПКИ",
+        "true_category": "Налоги и штрафы",
+        "predictions": [
+            {
+                "category": "Налоги и штрафы",
+                "probability": 0.9999983906745911
+            },
+            {
+                "category": "Экстренные расходы",
+                "probability": 1.3586726481662481e-06
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 2.055769527942175e-07
+            }
+        ]
+    },
+    {
+        "text": "БОНОС 👶",
+        "true_category": "Призы и выигрыши",
+        "predictions": [
+            {
+                "category": "Призы и выигрыши",
+                "probability": 0.9999988675117493
+            },
+            {
+                "category": "Налоги и штрафы",
+                "probability": 9.03035015653586e-07
+            },
+            {
+                "category": "Экстренные расходы",
+                "probability": 1.7277842800922372e-07
+            }
+        ]
+    },
+    {
+        "text": "Возврат",
+        "true_category": "Бизнес",
+        "predictions": [
+            {
+                "category": "Бизнес",
+                "probability": 0.999699592590332
+            },
+            {
+                "category": "Пассивный доход",
+                "probability": 0.0002144241298083216
+            },
+            {
+                "category": "Продажа вещей",
+                "probability": 6.790591578464955e-05
+            }
+        ]
+    },
+    {
+        "text": "Возврат средств",
+        "true_category": "Развлечения",
+        "predictions": [
+            {
+                "category": "Развлечения",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 2.2942977295770106e-08
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 1.2628889933807841e-08
+            }
+        ]
+    },
+    {
+        "text": "Бонусы за покупки discount",
+        "true_category": "Страхование",
+        "predictions": [
+            {
+                "category": "Автомобиль",
+                "probability": 0.6518250703811646
+            },
+            {
+                "category": "Страхование",
+                "probability": 0.34304261207580566
+            },
+            {
+                "category": "Домашние животные",
+                "probability": 0.002648284425958991
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк-сервис miles",
+        "true_category": "Медицина",
+        "predictions": [
+            {
+                "category": "Жильё и коммунальные",
+                "probability": 0.23773260414600372
+            },
+            {
+                "category": "Транспорт",
+                "probability": 0.09585286676883698
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 0.073428213596344
+            }
+        ]
+    },
+    {
+        "text": "Начи 30.1",
+        "true_category": "Медицина",
+        "predictions": [
+            {
+                "category": "Медицина",
+                "probability": 0.9999989867210388
+            },
+            {
+                "category": "Экстренные расходы",
+                "probability": 9.62716285357601e-07
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 1.9929793371176174e-09
+            }
+        ]
+    },
+    {
+        "text": "КЭШБЭК ОТ БАНКА 4.4",
+        "true_category": "Пассивный доход",
+        "predictions": [
+            {
+                "category": "Пассивный доход",
+                "probability": 0.9999961256980896
+            },
+            {
+                "category": "Бизнес",
+                "probability": 1.6299557046295376e-06
+            },
+            {
+                "category": "Страхование",
+                "probability": 8.015790626814123e-07
+            }
+        ]
+    },
+    {
+        "text": "Бонусы за покупки",
+        "true_category": "Фриланс",
+        "predictions": [
+            {
+                "category": "Фриланс",
+                "probability": 0.9999586939811707
+            },
+            {
+                "category": "Развлечения",
+                "probability": 3.790968912653625e-05
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 1.709483740341966e-06
+            }
+        ]
+    },
+    {
+        "text": "Возврат 17.2",
+        "true_category": "Домашние животные",
+        "predictions": [
+            {
+                "category": "Домашние животные",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Медицина",
+                "probability": 4.51974624393614e-10
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 3.7782840744959856e-10
+            }
+        ]
+    },
+    {
+        "text": "Начисление бонусов",
+        "true_category": "Одежда и обувь",
+        "predictions": [
+            {
+                "category": "Одежда и обувь",
+                "probability": 0.9999998211860657
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 6.368230742737069e-08
+            },
+            {
+                "category": "Жильё и коммунальные",
+                "probability": 3.291892092249782e-09
+            }
+        ]
+    },
+    {
+        "text": "Кэшбрк от банка",
+        "true_category": "Призы и выигрыши",
+        "predictions": [
+            {
+                "category": "Призы и выигрыши",
+                "probability": 0.9999729990959167
+            },
+            {
+                "category": "Налоги и штрафы",
+                "probability": 1.4617104170611128e-05
+            },
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 5.771423275291454e-06
+            }
+        ]
+    },
+    {
+        "text": "Возврат средств 15.83 promo code",
+        "true_category": "Продажа вещей",
+        "predictions": [
+            {
+                "category": "Продажа вещей",
+                "probability": 0.9999260306358337
+            },
+            {
+                "category": "Бизнес",
+                "probability": 7.28457816876471e-05
+            },
+            {
+                "category": "Одежда и обувь",
+                "probability": 4.880537858298339e-07
+            }
+        ]
+    },
+    {
+        "text": "Еэшбэк 2020 refun",
+        "true_category": "Зарплата",
+        "predictions": [
+            {
+                "category": "Зарплата",
+                "probability": 0.9999671578407288
+            },
+            {
+                "category": "Путешествия",
+                "probability": 1.4162167644826695e-05
+            },
+            {
+                "category": "Обучение",
+                "probability": 1.0930709322565235e-05
+            }
+        ]
+    },
+    {
+        "text": "БОНУСЫ ЗА ПОКУПКИ 75.11 КЭШБЭК",
+        "true_category": "Продажа вещей",
+        "predictions": [
+            {
+                "category": "Продажа вещей",
+                "probability": 0.9999986290931702
+            },
+            {
+                "category": "Бизнес",
+                "probability": 9.898857342705014e-07
+            },
+            {
+                "category": "Жильё и коммунальные",
+                "probability": 2.4340204163308954e-07
+            }
+        ]
+    },
+    {
+        "text": "Бону",
+        "true_category": "Зарплата",
+        "predictions": [
+            {
+                "category": "Зарплата",
+                "probability": 0.9999827742576599
+            },
+            {
+                "category": "Обучение",
+                "probability": 1.1975685993093066e-05
+            },
+            {
+                "category": "Домашние животные",
+                "probability": 2.2680444544675993e-06
+            }
+        ]
+    },
+    {
+        "text": "БОНУСЫ ЗА ПОКУПКИ",
+        "true_category": "Автомобиль",
+        "predictions": [
+            {
+                "category": "Автомобиль",
+                "probability": 0.9999997019767761
+            },
+            {
+                "category": "Страхование",
+                "probability": 2.435097883335402e-07
+            },
+            {
+                "category": "Домашние животные",
+                "probability": 4.1129544214868474e-09
+            }
+        ]
+    },
+    {
+        "text": "Бонуы за покупки",
+        "true_category": "Пассивный доход",
+        "predictions": [
+            {
+                "category": "Пассивный доход",
+                "probability": 0.9999975562095642
+            },
+            {
+                "category": "Бизнес",
+                "probability": 1.4494935385300778e-06
+            },
+            {
+                "category": "Инвестиции и накопления",
+                "probability": 5.893107868359948e-07
+            }
+        ]
+    },
+    {
+        "text": "Начисление бонусов",
+        "true_category": "Дети и образование",
+        "predictions": [
+            {
+                "category": "Дети и образование",
+                "probability": 0.993046224117279
+            },
+            {
+                "category": "Социальные выплаты",
+                "probability": 0.005623712204396725
+            },
+            {
+                "category": "Обучение",
+                "probability": 0.0009516551508568227
+            }
+        ]
+    },
+    {
+        "text": "Бонус",
+        "true_category": "Зарплата",
+        "predictions": [
+            {
+                "category": "Зарплата",
+                "probability": 0.9993681311607361
+            },
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 0.00033276929752901196
+            },
+            {
+                "category": "Обучение",
+                "probability": 0.0002199743321398273
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк",
+        "true_category": "Зарплата",
+        "predictions": [
+            {
+                "category": "Зарплата",
+                "probability": 0.9999697804450989
+            },
+            {
+                "category": "Обучение",
+                "probability": 1.1780663044191897e-05
+            },
+            {
+                "category": "Путешествия",
+                "probability": 1.1140674359921832e-05
+            }
+        ]
+    },
+    {
+        "text": "ВОЗВРАТ СРЕДСТВ ПРОМОКОД",
+        "true_category": "Продажа вещей",
+        "predictions": [
+            {
+                "category": "Продажа вещей",
+                "probability": 0.9999783635139465
+            },
+            {
+                "category": "Бизнес",
+                "probability": 2.133637826773338e-05
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 1.8931324063942156e-07
+            }
+        ]
+    },
+    {
+        "text": "ВОЗВРАТ СРЕДСТВ 17.2",
+        "true_category": "Страхование",
+        "predictions": [
+            {
+                "category": "Страхование",
+                "probability": 0.9999969601631165
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 2.9681134492420824e-06
+            },
+            {
+                "category": "Пассивный доход",
+                "probability": 4.1840621634037234e-08
+            }
+        ]
+    },
+    {
+        "text": "БОНУ №657 REFUND",
+        "true_category": "Одежда и обувь",
+        "predictions": [
+            {
+                "category": "Одежда и обувь",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Жильё и коммунальные",
+                "probability": 1.4615857857336323e-08
+            },
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 6.97244662006824e-09
+            }
+        ]
+    },
+    {
+        "text": "Возврат средств",
+        "true_category": "Одежда и обувь",
+        "predictions": [
+            {
+                "category": "Одежда и обувь",
+                "probability": 0.9998393058776855
+            },
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 7.887752872193232e-05
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 5.0049562560161576e-05
+            }
+        ]
+    },
+    {
+        "text": "Бонус 62.03",
+        "true_category": "Подарки и переводы",
+        "predictions": [
+            {
+                "category": "Подарки и переводы",
+                "probability": 0.9999787211418152
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 2.0982572095817886e-05
+            },
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 1.4750627030934993e-07
+            }
+        ]
+    },
+    {
+        "text": "Возврат 50",
+        "true_category": "Страхование",
+        "predictions": [
+            {
+                "category": "Страхование",
+                "probability": 0.9964390993118286
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 0.0010023649083450437
+            },
+            {
+                "category": "Развлечения",
+                "probability": 0.000870443822350353
+            }
+        ]
+    },
+    {
+        "text": "Возврат средств promo code",
+        "true_category": "Кэшбэк и бонусы",
+        "predictions": [
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 0.9996222853660583
+            },
+            {
+                "category": "Зарплата",
+                "probability": 0.0003725089773070067
+            },
+            {
+                "category": "Подарки и переводы",
+                "probability": 2.5816282231971854e-06
+            }
+        ]
+    },
+    {
+        "text": "Бонусы за покупки 2022",
+        "true_category": "Подарки и благотворительность",
+        "predictions": [
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 0.997945249080658
+            },
+            {
+                "category": "Инвестиции и накопления",
+                "probability": 0.0009341841214336455
+            },
+            {
+                "category": "Подарки и переводы",
+                "probability": 0.0004334305413067341
+            }
+        ]
+    },
+    {
+        "text": "Возврат cashback",
+        "true_category": "Призы и выигрыши",
+        "predictions": [
+            {
+                "category": "Призы и выигрыши",
+                "probability": 0.9999960064888
+            },
+            {
+                "category": "Налоги и штрафы",
+                "probability": 3.162443135806825e-06
+            },
+            {
+                "category": "Экстренные расходы",
+                "probability": 4.7488450150012795e-07
+            }
+        ]
+    },
+    {
+        "text": "Возврат средтв",
+        "true_category": "Кредиты и долги",
+        "predictions": [
+            {
+                "category": "Кредиты и долги",
+                "probability": 0.9999968409538269
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 9.772240900929319e-07
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 4.438647636106907e-07
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк-от-банка",
+        "true_category": "Одежда и обувь",
+        "predictions": [
+            {
+                "category": "Одежда и обувь",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Жильё и коммунальные",
+                "probability": 1.0419554996587976e-08
+            },
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 2.728101522464499e-09
+            }
+        ]
+    },
+    {
+        "text": "Начисление бонусов",
+        "true_category": "Развлечения",
+        "predictions": [
+            {
+                "category": "Развлечения",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 2.2541659205899123e-08
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 6.519408124461279e-09
+            }
+        ]
+    },
+    {
+        "text": "НАЧИСЛЕНИЕ БОНУСОВ 7.6",
+        "true_category": "Путешествия",
+        "predictions": [
+            {
+                "category": "Путешествия",
+                "probability": 0.9986562132835388
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 0.0003863055317196995
+            },
+            {
+                "category": "Медицина",
+                "probability": 0.0003126062511000782
+            }
+        ]
+    },
+    {
+        "text": "Бонусы за покупки",
+        "true_category": "Пассивный доход",
+        "predictions": [
+            {
+                "category": "Пассивный доход",
+                "probability": 0.9999986290931702
+            },
+            {
+                "category": "Бизнес",
+                "probability": 8.932438504416496e-07
+            },
+            {
+                "category": "Страхование",
+                "probability": 2.638488183492882e-07
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк",
+        "true_category": "Страхование",
+        "predictions": [
+            {
+                "category": "Страхование",
+                "probability": 0.9999998211860657
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 1.3475774096605164e-07
+            },
+            {
+                "category": "Пассивный доход",
+                "probability": 2.6250546181216805e-10
+            }
+        ]
+    },
+    {
+        "text": "Начисление бонусов",
+        "true_category": "Экстренные расходы",
+        "predictions": [
+            {
+                "category": "Экстренные расходы",
+                "probability": 0.9999995827674866
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 1.2986976116735605e-07
+            },
+            {
+                "category": "Налоги и штрафы",
+                "probability": 8.300796139337763e-08
+            }
+        ]
+    },
+    {
+        "text": "Воврат №983",
+        "true_category": "Фриланс",
+        "predictions": [
+            {
+                "category": "Бизнес",
+                "probability": 0.31893301010131836
+            },
+            {
+                "category": "Зарплата",
+                "probability": 0.19309070706367493
+            },
+            {
+                "category": "Социальные выплаты",
+                "probability": 0.1843099445104599
+            }
+        ]
+    },
+    {
+        "text": "Бону",
+        "true_category": "Кэшбэк и бонусы",
+        "predictions": [
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 0.9996173977851868
+            },
+            {
+                "category": "Зарплата",
+                "probability": 0.0003139583859592676
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 5.5800053814891726e-05
+            }
+        ]
+    },
+    {
+        "text": "Бнус 6.22",
+        "true_category": "Призы и выигрыши",
+        "predictions": [
+            {
+                "category": "Призы и выигрыши",
+                "probability": 0.9999963641166687
+            },
+            {
+                "category": "Налоги и штрафы",
+                "probability": 2.760106553978403e-06
+            },
+            {
+                "category": "Экстренные расходы",
+                "probability": 5.200548685024842e-07
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк",
+        "true_category": "Ремонт и обустройство",
+        "predictions": [
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 1.1240982367155539e-08
+            },
+            {
+                "category": "Обучение",
+                "probability": 1.7183487965866107e-09
+            }
+        ]
+    },
+    {
+        "text": "Возвврат reward",
+        "true_category": "Социальные выплаты",
+        "predictions": [
+            {
+                "category": "Социальные выплаты",
+                "probability": 0.9928794503211975
+            },
+            {
+                "category": "Фриланс",
+                "probability": 0.005137903615832329
+            },
+            {
+                "category": "Бизнес",
+                "probability": 0.0011797725455835462
+            }
+        ]
+    },
+    {
+        "text": "Бонус",
+        "true_category": "Подарки и благотворительность",
+        "predictions": [
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 0.9999865889549255
+            },
+            {
+                "category": "Инвестиции и накопления",
+                "probability": 1.2691681149590295e-05
+            },
+            {
+                "category": "Экстренные расходы",
+                "probability": 5.036564516558428e-07
+            }
+        ]
+    },
+    {
+        "text": "КЭШБЭК",
+        "true_category": "Зарплата",
+        "predictions": [
+            {
+                "category": "Зарплата",
+                "probability": 0.9999218583106995
+            },
+            {
+                "category": "Обучение",
+                "probability": 3.771662886720151e-05
+            },
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 1.5741145034553483e-05
+            }
+        ]
+    },
+    {
+        "text": "Возврат средств",
+        "true_category": "Дети и образование",
+        "predictions": [
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 0.18036586046218872
+            },
+            {
+                "category": "Красота и здоровье",
+                "probability": 0.17263241112232208
+            },
+            {
+                "category": "Путешествия",
+                "probability": 0.11952795088291168
+            }
+        ]
+    },
+    {
+        "text": "Воз",
+        "true_category": "Страхование",
+        "predictions": [
+            {
+                "category": "Страхование",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 3.9972263721210766e-08
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 1.395241561175098e-10
+            }
+        ]
+    },
+    {
+        "text": "Начислениее-бонусов-20",
+        "true_category": "Налоги и штрафы",
+        "predictions": [
+            {
+                "category": "Налоги и штрафы",
+                "probability": 0.9938579797744751
+            },
+            {
+                "category": "Экстренные расходы",
+                "probability": 0.002590849995613098
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 0.001315277419053018
+            }
+        ]
+    },
+    {
+        "text": "Наачисление бонусов (78.68)",
+        "true_category": "Связь и подписки",
+        "predictions": [
+            {
+                "category": "Связь и подписки",
+                "probability": 0.9994755387306213
+            },
+            {
+                "category": "Транспорт",
+                "probability": 0.00022893935965839773
+            },
+            {
+                "category": "Путешествия",
+                "probability": 7.389861275441945e-05
+            }
+        ]
+    },
+    {
+        "text": "Бонус",
+        "true_category": "Продажа вещей",
+        "predictions": [
+            {
+                "category": "Продажа вещей",
+                "probability": 0.963553786277771
+            },
+            {
+                "category": "Бизнес",
+                "probability": 0.034426525235176086
+            },
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 0.001102642621845007
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк от банак возн",
+        "true_category": "Экстренные расходы",
+        "predictions": [
+            {
+                "category": "Экстренные расходы",
+                "probability": 0.9999980330467224
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 1.0381617130406084e-06
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 7.367554530901543e-07
+            }
+        ]
+    },
+    {
+        "text": "Начиссление бонусов",
+        "true_category": "Обучение",
+        "predictions": [
+            {
+                "category": "Обучение",
+                "probability": 0.9999434351921082
+            },
+            {
+                "category": "Дети и образование",
+                "probability": 4.9980124458670616e-05
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 5.316210263117682e-06
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк-сервис №132 баллы",
+        "true_category": "Одежда и обувь",
+        "predictions": [
+            {
+                "category": "Одежда и обувь",
+                "probability": 0.9999998211860657
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 7.185769845818868e-08
+            },
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 3.793529046447475e-09
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк-сервис",
+        "true_category": "Инвестиции и накопления",
+        "predictions": [
+            {
+                "category": "Инвестиции и накопления",
+                "probability": 0.9999992251396179
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 4.895126153314777e-07
+            },
+            {
+                "category": "Налоги и штрафы",
+                "probability": 1.4229215139494045e-07
+            }
+        ]
+    },
+    {
+        "text": "Начисление бонусов prom (code)",
+        "true_category": "Инвестиции и накопления",
+        "predictions": [
+            {
+                "category": "Инвестиции и накопления",
+                "probability": 0.9999889731407166
+            },
+            {
+                "category": "Налоги и штрафы",
+                "probability": 5.709489414584823e-06
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 5.2146419875498395e-06
+            }
+        ]
+    },
+    {
+        "text": "Кэшб 17",
+        "true_category": "Страхование",
+        "predictions": [
+            {
+                "category": "Страхование",
+                "probability": 0.9999991059303284
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 7.864389317546738e-07
+            },
+            {
+                "category": "Красота и здоровье",
+                "probability": 2.9072735330260002e-08
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк-сервис",
+        "true_category": "Фриланс",
+        "predictions": [
+            {
+                "category": "Фриланс",
+                "probability": 0.9999679923057556
+            },
+            {
+                "category": "Развлечения",
+                "probability": 2.3360711566056125e-05
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 2.900916115322616e-06
+            }
+        ]
+    },
+    {
+        "text": "ВОЗВРАТ НАЧИСЛЕНИЕ",
+        "true_category": "Кредиты и долги",
+        "predictions": [
+            {
+                "category": "Кредиты и долги",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Автомобиль",
+                "probability": 3.2593934662372703e-08
+            },
+            {
+                "category": "Жильё и коммунальные",
+                "probability": 1.6977699246467637e-08
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк от банка 2020 возврат",
+        "true_category": "Связь и подписки",
+        "predictions": [
+            {
+                "category": "Связь и подписки",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 2.0890816188057215e-08
+            },
+            {
+                "category": "Одежда и обувь",
+                "probability": 9.929692623700248e-09
+            }
+        ]
+    },
+    {
+        "text": "🛒 Бонус 13.7 скидка",
+        "true_category": "Связь и подписки",
+        "predictions": [
+            {
+                "category": "Связь и подписки",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 2.0890736251999442e-08
+            },
+            {
+                "category": "Одежда и обувь",
+                "probability": 9.929617128534574e-09
+            }
+        ]
+    },
+    {
+        "text": "Кэшбжк",
+        "true_category": "Автомобиль",
+        "predictions": [
+            {
+                "category": "Автомобиль",
+                "probability": 0.5992168188095093
+            },
+            {
+                "category": "Страхование",
+                "probability": 0.39858588576316833
+            },
+            {
+                "category": "Домашние животные",
+                "probability": 0.0014909562887623906
+            }
+        ]
+    },
+    {
+        "text": "ББонус",
+        "true_category": "Экстренные расходы",
+        "predictions": [
+            {
+                "category": "Экстренные расходы",
+                "probability": 0.9999391436576843
+            },
+            {
+                "category": "Подарки и благотворительность",
+                "probability": 4.9969519750447944e-05
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 7.869090040912852e-06
+            }
+        ]
+    },
+    {
+        "text": "Возврат 83",
+        "true_category": "Путешествия",
+        "predictions": [
+            {
+                "category": "Путешествия",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Связь и подписки",
+                "probability": 2.0206539219636e-10
+            },
+            {
+                "category": "Транспорт",
+                "probability": 3.130878195589659e-11
+            }
+        ]
+    },
+    {
+        "text": "Кэшбэк от банка 3.4",
+        "true_category": "Красота и здоровье",
+        "predictions": [
+            {
+                "category": "Красота и здоровье",
+                "probability": 0.9999999403953552
+            },
+            {
+                "category": "Хобби и увлечения",
+                "probability": 3.327489617177548e-09
+            },
+            {
+                "category": "Ремонт и обустройство",
+                "probability": 6.438058974822525e-10
+            }
+        ]
+    },
+    {
+        "text": "эКшбэк-сервис №921",
+        "true_category": "Кэшбэк и бонусы",
+        "predictions": [
+            {
+                "category": "Кэшбэк и бонусы",
+                "probability": 0.9983471632003784
+            },
+            {
+                "category": "Зарплата",
+                "probability": 0.0015682968078181148
+            },
+            {
+                "category": "Рабочие расходы",
+                "probability": 3.3352789614582434e-05
+            }
+        ]
+    }
+]
