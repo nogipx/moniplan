@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:oktoast/oktoast.dart';
+import 'dart:async';
 
 import 'payment_edit_event.dart';
 import 'payment_edit_state.dart';
@@ -145,51 +146,59 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
   }
 
   /// Обработчик сохранения платежа
-  void _onSave(PaymentEditSave event, Emitter<PaymentEditState> emit) {
-    // Проверяем валидность данных
-    if (!state.isValid) {
-      emit(
-        state.copyWith(
-          errorMessage: 'Введите корректную сумму платежа',
-          status: PaymentEditStatus.failure,
-        ),
-      );
-      showToast('Введите корректную сумму платежа');
-      return;
-    }
-
+  FutureOr<void> _onSave(PaymentEditSave event, Emitter<PaymentEditState> emit) async {
     try {
-      // Обновляем черновик платежа напрямую, а не через событие
-      Payment payment;
-      try {
-        // Создаем платеж из текущего состояния
-        payment = state.toPayment();
-
-        // Обновляем состояние с новым платежом
-        emit(state.copyWith(payment: payment, clearErrorMessage: true));
-      } catch (e) {
-        // В случае ошибки при создании черновика, используем существующий или создаем новый
-        print('Ошибка при обновлении черновика платежа: $e');
-        payment = state.payment ?? state.toPayment();
+      // Проверяем, что сумма платежа больше нуля
+      final amount = double.tryParse(state.amount);
+      if (amount == null || amount <= 0) {
+        emit(
+          state.copyWith(
+            status: PaymentEditStatus.failure,
+            errorMessage: 'Сумма платежа должна быть больше нуля',
+          ),
+        );
+        return;
       }
 
-      // Обновляем состояние
-      emit(
-        state.copyWith(
-          status: PaymentEditStatus.success,
-          clearErrorMessage: true,
-          payment: payment,
-        ),
-      );
+      // Проверяем, что название платежа не пустое
+      if (state.title.trim().isEmpty) {
+        emit(
+          state.copyWith(
+            status: PaymentEditStatus.failure,
+            errorMessage: 'Введите название платежа',
+          ),
+        );
+        return;
+      }
+
+      // Создаем платеж из текущего состояния
+      Payment? payment;
+
+      try {
+        payment = state.toPayment();
+      } catch (e) {
+        // В случае ошибки при создании платежа
+        print('Ошибка при создании платежа: $e');
+
+        // Используем существующий платеж, если он есть
+        payment = state.payment;
+
+        // Если платежа нет, выбрасываем исключение
+        if (payment == null) {
+          throw Exception('Не удалось создать платеж: $e');
+        }
+      }
+
+      // Эмитим состояние с успешным сохранением
+      emit(state.copyWith(status: PaymentEditStatus.success, payment: payment));
     } catch (e) {
-      // В случае ошибки обновляем состояние
+      // Эмитим состояние с ошибкой
       emit(
         state.copyWith(
-          errorMessage: 'Ошибка при сохранении платежа: ${e.toString()}',
           status: PaymentEditStatus.failure,
+          errorMessage: 'Ошибка при сохранении платежа: $e',
         ),
       );
-      showToast('Ошибка при сохранении платежа');
     }
   }
 

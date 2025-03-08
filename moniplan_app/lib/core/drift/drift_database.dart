@@ -4,6 +4,7 @@
 
 import 'package:drift/drift.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
+import 'package:moniplan_app/features/payment/dao/payment_dao.dart';
 
 part 'drift_database.g.dart';
 
@@ -16,6 +17,7 @@ typedef DriftDbConnector = LazyDatabase Function();
     PaymentsComposedDriftTable,
     PlannerActualInfoDriftTable,
   ],
+  daos: [PaymentDao],
 )
 class MoniplanDriftDb extends _$MoniplanDriftDb {
   final QueryExecutor dbExecutor;

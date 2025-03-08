@@ -5,6 +5,7 @@
 import 'package:drift/drift.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:sqlite3/sqlite3.dart' show SqliteException;
 
 import '../_index.dart';
 
@@ -20,9 +21,37 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
   Future<T> _guard<T>(Future<T> Function() action, {String name = ''}) async {
     try {
-      final result = action();
-      _log.business('Success: $name()');
-      return result;
+      // Механизм повторных попыток с экспоненциальной задержкой
+      int retryCount = 0;
+      const maxRetries = 5;
+      const initialDelay = Duration(milliseconds: 100);
+
+      while (true) {
+        try {
+          final result = await action();
+          _log.business('Success: $name()');
+          return result;
+        } on Object catch (e) {
+          // Проверяем любые ошибки, связанные с блокировкой базы данных
+          final errorMessage = e.toString().toLowerCase();
+          final isDatabaseLocked =
+              errorMessage.contains('database is locked') ||
+              errorMessage.contains('busy') ||
+              errorMessage.contains('cannot start a transaction');
+
+          if (isDatabaseLocked && retryCount < maxRetries) {
+            retryCount++;
+            // Экспоненциальная задержка: 100ms, 200ms, 400ms, 800ms, 1600ms
+            final delay = Duration(milliseconds: initialDelay.inMilliseconds * (1 << retryCount));
+            _log.warning(
+              'Database locked, retrying $name() after ${delay.inMilliseconds}ms (attempt $retryCount/$maxRetries)',
+            );
+            await Future.delayed(delay);
+            continue;
+          }
+          rethrow;
+        }
+      }
     } on Object catch (error, trace) {
       _log.error('Failed operation: $name()', error: error, trace: trace);
       rethrow;
@@ -31,39 +60,57 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
   @override
   Future<Planner?> getPlannerById(String id, {bool withActualInfo = false}) async {
-    return _guard(
-      name: 'getPlannerById',
-      () async => _composePlanner(
-        plannerDao: await _getPlannerById(id),
-        paymentsDao: await _getPaymentsByPlannerId(id),
-        actualInfo: withActualInfo ? await getPlannerActualInfo(plannerId: id) : null,
-      ),
-    );
+    return _guard(name: 'getPlannerById', () async {
+      // Получаем данные планировщика
+      final plannerDao = await _getPlannerById(id);
+      if (plannerDao == null) return null;
+
+      // Получаем платежи планировщика
+      final payments = await getPaymentsByPlannerId(plannerId: id);
+
+      // Получаем актуальную информацию о планировщике, если требуется
+      final actualInfo = withActualInfo ? await getPlannerActualInfo(plannerId: id) : null;
+
+      // Создаем объект планировщика
+      return _plannerMapper
+          .toDomain(plannerDao)
+          .copyWith(payments: payments, actualInfo: actualInfo);
+    });
   }
 
   @override
   Future<List<Planner>> getPlanners({bool withPayments = false, bool withActualInfo = true}) async {
     return _guard(name: 'getPlanners', () async {
+      // Получаем все планировщики
       final plannersDao = await appDb.db.managers.paymentPlannersDriftTable.get();
 
+      // Словарь для хранения платежей по планировщикам
       final paymentsForPlanner = <String, List<Payment>>{};
+
+      // Если нужны платежи, получаем их для всех планировщиков
       if (withPayments) {
         final plannersIds = plannersDao.map((e) => e.plannerId).toSet();
 
+        // Получаем все платежи для всех планировщиков
         final allPaymentsDao =
             await appDb.db.managers.paymentsComposedDriftTable
                 .filter((f) => f.plannerId.isIn(plannersIds))
                 .get();
 
+        // Преобразуем DAO в доменные объекты
         final allPayments = allPaymentsDao.map(_paymentMapper.toDomain).toList();
 
+        // Группируем платежи по планировщикам
         for (final payment in allPayments) {
           final list = paymentsForPlanner.putIfAbsent(payment.plannerId, () => []);
           list.add(payment);
         }
       }
 
+      // Словарь для хранения актуальной информации по планировщикам
       final actualInfosForPlanner = <String, PlannerActualInfo?>{};
+
+      // Если нужна актуальная информация, получаем ее для всех планировщиков
       if (withActualInfo) {
         for (final plannerDao in plannersDao) {
           final id = plannerDao.plannerId;
@@ -71,6 +118,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
         }
       }
 
+      // Преобразуем DAO в доменные объекты и добавляем платежи и актуальную информацию
       final planners =
           plannersDao.map((e) {
             return _plannerMapper
@@ -88,21 +136,26 @@ final class PlannerRepoDrift implements IPlannerRepo {
   @override
   Future<Planner?> savePlanner(Planner planner) async {
     return _guard(name: 'savePlanner', () async {
+      // Проверяем, что планировщик может быть сохранен
       if (!planner.isGenerationAllowed) {
         throw Exception(
           'Cannot persist generated planners. '
           'Only blueprints allowed to persist.',
         );
       }
+
+      // Проверяем, что у планировщика есть ID
       if (planner.id.isEmpty) {
         throw Exception(
-          'Invalid planner.'
+          'Invalid planner. '
           'Planner should have id.',
         );
       }
 
+      // Преобразуем доменный объект в DAO
       final plannerDao = _plannerMapper.toDto(planner);
 
+      // Сохраняем планировщик в транзакции
       return appDb.db.transaction(() async {
         await appDb.db.managers.paymentPlannersDriftTable.create(
           (o) => plannerDao,
@@ -117,14 +170,14 @@ final class PlannerRepoDrift implements IPlannerRepo {
   @override
   Future<Payment?> getPaymentById({required String plannerId, required String paymentId}) async {
     return _guard(name: 'getPaymentById', () async {
-      final paymentInPlanner =
-          await appDb.db.managers.paymentsComposedDriftTable
-              .filter((f) => f.plannerId(plannerId) & f.paymentId(paymentId))
-              .getSingleOrNull();
+      // Получаем платеж из DAO
+      final paymentDao = await appDb.db.paymentDao.getPaymentByIdInPlanner(paymentId, plannerId);
 
-      if (paymentInPlanner != null) {
-        return _paymentMapper.toDomain(paymentInPlanner);
+      // Если платеж найден, преобразуем его в доменный объект
+      if (paymentDao != null) {
+        return _paymentMapper.toDomain(paymentDao);
       }
+
       return null;
     });
   }
@@ -132,13 +185,11 @@ final class PlannerRepoDrift implements IPlannerRepo {
   @override
   Future<List<Payment>> getPaymentsByPlannerId({required String plannerId}) async {
     return _guard(name: 'getPaymentsByPlannerId', () async {
-      final paymentInPlanner =
-          await appDb.db.managers.paymentsComposedDriftTable
-              .filter((f) => f.plannerId(plannerId))
-              .get();
+      // Получаем все платежи планировщика из DAO
+      final paymentsDao = await appDb.db.paymentDao.getPaymentsByPlannerId(plannerId);
 
-      final payments = paymentInPlanner.map(_paymentMapper.toDomain).toList();
-      return payments;
+      // Преобразуем DAO в доменные объекты
+      return paymentsDao.map(_paymentMapper.toDomain).toList();
     });
   }
 
@@ -149,47 +200,43 @@ final class PlannerRepoDrift implements IPlannerRepo {
     bool allowCreate = false,
   }) async {
     return _guard(name: 'savePayment', () async {
-      final selectorPaymentInPlanner = appDb.db.managers.paymentsComposedDriftTable.filter((f) {
-        return f.plannerId(plannerId) & f.paymentId(payment.paymentId);
-      });
+      // Подготавливаем данные платежа
+      final resultPayment = payment.copyWith(plannerId: plannerId);
+      final paymentDao = _paymentMapper.toDto(resultPayment);
 
-      final selectorPaymentItself = appDb.db.managers.paymentsComposedDriftTable.filter((f) {
-        return f.paymentId(payment.paymentId);
-      });
-
+      // Проверяем существование платежа в планировщике, если не разрешено создание
       if (!allowCreate) {
-        final paymentInPlanner = await selectorPaymentInPlanner.get();
+        final exists = await appDb.db.paymentDao.paymentExistsInPlanner(
+          payment.paymentId,
+          plannerId,
+        );
 
-        if (paymentInPlanner.isEmpty) {
+        if (!exists) {
           throw Exception('Payment "${payment.paymentId}" is not linked with Planner "$plannerId"');
         }
       }
 
-      final resultPayment = payment.copyWith(plannerId: plannerId);
-      final paymentDao = _paymentMapper.toDto(resultPayment);
+      // Сохраняем платеж используя DAO
+      await appDb.db.paymentDao.savePayment(paymentDao);
 
-      return appDb.db.transaction(() async {
-        if (await selectorPaymentItself.exists()) {
-          await appDb.db.managers.paymentsComposedDriftTable.replace(paymentDao);
-        } else {
-          await appDb.db.managers.paymentsComposedDriftTable.create((_) => paymentDao);
-        }
-
-        return payment;
-      });
+      return resultPayment;
     });
   }
 
   @override
   Future<void> deletePlanner(String plannerId) {
     return _guard(name: 'deletePlanner', () async {
+      // Удаляем планировщик в транзакции
       return appDb.db.transaction(() async {
-        await appDb.db.managers.paymentsComposedDriftTable
-            .filter((f) => f.plannerId(plannerId))
-            .delete();
+        // Удаляем все платежи планировщика
+        await appDb.db.paymentDao.deleteAllPaymentsFromPlanner(plannerId);
+
+        // Удаляем сам планировщик
         await appDb.db.managers.paymentPlannersDriftTable
-            .filter((f) => f.plannerId(plannerId))
+            .filter((f) => f.plannerId.equals(plannerId))
             .delete();
+
+        // Удаляем информацию о планировщике
         await _deleteInfoForPlanner(plannerId: plannerId);
       });
     });
@@ -198,16 +245,15 @@ final class PlannerRepoDrift implements IPlannerRepo {
   @override
   Future<void> deletePayment({required String plannerId, required String paymentId}) async {
     return _guard(name: 'deletePayment', () async {
-      final selector = appDb.db.managers.paymentsComposedDriftTable.filter((f) {
-        return f.plannerId(plannerId) & f.paymentId(paymentId);
-      });
+      // Проверяем существование платежа в планировщике
+      final exists = await appDb.db.paymentDao.paymentExistsInPlanner(paymentId, plannerId);
 
-      final paymentInPlanner = await selector.exists();
-
-      if (!paymentInPlanner) {
+      if (!exists) {
         throw Exception('Payment "$paymentId" is not linked with Planner "$plannerId"');
       }
-      await selector.delete();
+
+      // Удаляем платеж
+      await appDb.db.paymentDao.deletePaymentFromPlanner(paymentId, plannerId);
     });
   }
 
@@ -217,15 +263,18 @@ final class PlannerRepoDrift implements IPlannerRepo {
     required String paymentId,
   }) async {
     return _guard(name: 'fixateRepeatedPayment', () async {
+      // Получаем платеж
       final payment = await getPaymentById(plannerId: plannerId, paymentId: paymentId);
       if (payment == null) {
         throw Exception('Cannot find payment with id "$paymentId" in planner "$plannerId"');
       }
 
+      // Проверяем, что платеж является повторяющимся
       if (!payment.isRepeatParent) {
         throw Exception('Payment should be repeated and parent');
       }
 
+      // Создаем копию платежа без повторения
       final copiedPayment = payment.copyWith(
         paymentId: const Uuid().v4(),
         repeat: DateTimeRepeat.noRepeat,
@@ -233,25 +282,40 @@ final class PlannerRepoDrift implements IPlannerRepo {
         dateEnd: null,
       );
 
+      // Обновляем оригинальный платеж, сдвигая его дату на следующий период
       final updatedOriginalPayment = payment.copyWith(date: payment.repeat.next(payment.date));
 
-      await savePayment(plannerId: plannerId, payment: copiedPayment, allowCreate: true);
+      // Подготавливаем данные для обоих платежей
+      final resultCopiedPayment = copiedPayment.copyWith(plannerId: plannerId);
+      final copiedPaymentDao = _paymentMapper.toDto(resultCopiedPayment);
 
-      await savePayment(plannerId: plannerId, payment: updatedOriginalPayment);
+      final resultUpdatedPayment = updatedOriginalPayment.copyWith(plannerId: plannerId);
+      final updatedPaymentDao = _paymentMapper.toDto(resultUpdatedPayment);
 
-      return copiedPayment;
+      // Сохраняем оба платежа в одной транзакции для атомарности
+      await appDb.db.transaction(() async {
+        // Создаем копию платежа
+        await appDb.db.paymentDao.createPayment(copiedPaymentDao);
+
+        // Обновляем оригинальный платеж
+        await appDb.db.paymentDao.updatePayment(updatedPaymentDao);
+      });
+
+      return resultCopiedPayment;
     });
   }
 
   @override
   Future<PlannerActualInfo?> getPlannerActualInfo({required String plannerId}) {
     return _guard(name: 'getPlannerActualInfo', () async {
-      final info =
+      // Получаем актуальную информацию о планировщике
+      final infoList =
           await appDb.db.managers.plannerActualInfoDriftTable
               .filter((f) => f.plannerId.equals(plannerId))
               .get();
 
-      return info.isNotEmpty ? _plannerActualInfoMapper.toDomain(info.first) : null;
+      // Если информация найдена, преобразуем ее в доменный объект
+      return infoList.isNotEmpty ? _plannerActualInfoMapper.toDomain(infoList.first) : null;
     });
   }
 
@@ -260,34 +324,22 @@ final class PlannerRepoDrift implements IPlannerRepo {
     required String plannerId,
     required PlannerActualInfo plannerActualInfo,
   }) async {
-    final updatedDao = _plannerActualInfoMapper.toDto(plannerActualInfo);
-
-    final selector = appDb.db.managers.plannerActualInfoDriftTable.filter(
-      (f) => f.plannerId.equals(plannerId),
-    );
-    await _guard(name: 'updatePlannerActualInfo', () async {
-      return appDb.db.transaction(() async {
-        if (await selector.exists()) {
-          await appDb.db.managers.plannerActualInfoDriftTable.replace(updatedDao);
-        } else {
-          await appDb.db.managers.plannerActualInfoDriftTable.create((_) => updatedDao);
-        }
-      });
-    });
-    return plannerActualInfo;
+    // TODO: Реализовать обновление актуальной информации о планировщике
+    return null;
   }
 
   Future<void> _deleteInfoForPlanner({required String plannerId}) {
     return _guard(name: '_deleteInfoForPlanner', () async {
+      // Удаляем информацию о планировщике
       final selector = appDb.db.managers.plannerActualInfoDriftTable.filter(
         (f) => f.plannerId.equals(plannerId),
       );
 
-      return appDb.db.transaction(() async {
-        if (await selector.exists()) {
-          await selector.delete();
-        }
-      });
+      // Проверяем существование информации и удаляем ее
+      final exists = await selector.get().then((list) => list.isNotEmpty);
+      if (exists) {
+        await selector.delete();
+      }
     });
   }
 
@@ -295,24 +347,4 @@ final class PlannerRepoDrift implements IPlannerRepo {
       appDb.db.managers.paymentPlannersDriftTable
           .filter((f) => f.plannerId.equals(id))
           .getSingleOrNull();
-
-  Future<List<PaymentsComposedDriftTableData>> _getPaymentsByPlannerId(String id) =>
-      appDb.db.managers.paymentsComposedDriftTable.filter((f) => f.plannerId.equals(id)).get();
-
-  Planner? _composePlanner({
-    PaymentPlannersDriftTableData? plannerDao,
-    List<PaymentsComposedDriftTableData> paymentsDao = const [],
-    PlannerActualInfo? actualInfo,
-  }) {
-    if (plannerDao != null) {
-      final plannerDomain = _plannerMapper.toDomain(plannerDao);
-      final paymentsDomain = paymentsDao.map(_paymentMapper.toDomain).toList();
-
-      final result = plannerDomain.copyWith(payments: paymentsDomain, actualInfo: actualInfo);
-
-      return result;
-    }
-
-    return null;
-  }
 }

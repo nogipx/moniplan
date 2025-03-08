@@ -88,18 +88,30 @@ class _PaymentEditView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<edit.PaymentEditBloc, edit.PaymentEditState>(
       listenWhen: (previous, current) {
-        if (previous.status == edit.PaymentEditStatus.success &&
-            current.status == edit.PaymentEditStatus.success) {
-          onSave(current.payment!);
-          return true;
-        }
+        // Слушаем изменения статуса
         return previous.status != current.status;
       },
       listener: (context, state) {
         if (state.status == edit.PaymentEditStatus.success) {
-          Navigator.pop(context);
-        } else if (state.status == edit.PaymentEditStatus.failure && state.errorMessage != null) {
-          showToast(state.errorMessage!);
+          // Проверяем, что платеж существует
+          if (state.payment != null) {
+            // Вызываем onSave перед закрытием экрана
+            onSave(state.payment!);
+
+            // Добавляем небольшую задержку перед закрытием экрана,
+            // чтобы дать время на сохранение платежа
+            Future.delayed(const Duration(milliseconds: 300), () {
+              // Закрываем экран только если он все еще открыт
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            });
+          }
+        } else if (state.status == edit.PaymentEditStatus.failure) {
+          // Показываем сообщение об ошибке
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage ?? 'Ошибка при сохранении платежа')),
+          );
         }
       },
       builder: (context, state) {
@@ -940,6 +952,23 @@ class _PaymentEditView extends StatelessWidget {
     if (state.currentStep == 0) {
       _saveCurrentCalculatorValue(context, state);
       await Future.delayed(const Duration(milliseconds: 500));
+    }
+
+    // Проверяем, что сумма платежа больше нуля
+    final amount = double.tryParse(state.amount);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Сумма платежа должна быть больше нуля')));
+      return;
+    }
+
+    // Проверяем, что название платежа не пустое
+    if (state.title.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Введите название платежа')));
+      return;
     }
 
     // Затем сохраняем платеж

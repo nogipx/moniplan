@@ -52,27 +52,70 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     Emitter<PlannerState> emit,
   ) async {
     try {
+      // Проверяем, можно ли применить обновление
       final canApplyUpdate = CheckPaymentCanApplyUpdate(updatedPayment: event.newPayment).run();
       if (!canApplyUpdate.canUpdate) {
         emit(state.copyWith(errors: canApplyUpdate.errorKeys));
         return;
       }
 
-      final result = await _plannerRepo.savePayment(
-        plannerId: plannerId,
-        payment: event.newPayment.copyWith(
-          // dateStart больше не нужен, поскольку больше не генерируем платежи прошлого
-          dateStart: null,
-        ),
-        allowCreate: event.create,
+      // Подготавливаем платеж для сохранения
+      final paymentToSave = event.newPayment.copyWith(
+        // dateStart больше не нужен, поскольку больше не генерируем платежи прошлого
+        dateStart: null,
       );
 
+      // Сохраняем платеж с повторными попытками в случае ошибки
+      Payment? result;
+      int retryCount = 0;
+      const maxRetries = 3;
+
+      while (retryCount < maxRetries) {
+        try {
+          // Сохраняем платеж
+          result = await _plannerRepo.savePayment(
+            plannerId: plannerId,
+            payment: paymentToSave,
+            allowCreate: event.create,
+          );
+
+          // Если сохранение успешно, выходим из цикла
+          if (result != null) {
+            print('Платеж успешно сохранен: ${result.paymentId}');
+            break;
+          } else {
+            print('Сохранение платежа вернуло null (попытка ${retryCount + 1}/$maxRetries)');
+          }
+        } catch (e) {
+          print('Ошибка при сохранении платежа (попытка ${retryCount + 1}/$maxRetries): $e');
+        }
+
+        // Увеличиваем счетчик попыток
+        retryCount++;
+
+        // Если достигнуто максимальное количество попыток, выбрасываем исключение
+        if (retryCount >= maxRetries) {
+          throw Exception('Не удалось сохранить платеж после $maxRetries попыток');
+        }
+
+        // Ждем перед следующей попыткой с экспоненциальной задержкой
+        await Future.delayed(Duration(milliseconds: 200 * (1 << retryCount)));
+      }
+
       if (result != null) {
+        // Добавляем задержку перед вычислением бюджета,
+        // чтобы дать базе данных время на завершение операции сохранения
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        // Вычисляем бюджет
         await _onCompute(const PlannerComputeBudgetEvent(), emit);
+      } else {
+        // Если результат null, значит сохранение не удалось
+        emit(state.copyWith(errors: {'Не удалось сохранить платеж'}));
       }
     } on Object catch (e) {
-      print(e);
-      rethrow;
+      print('Ошибка при обновлении платежа: $e');
+      emit(state.copyWith(errors: {'Ошибка при обновлении платежа: $e'}));
     }
   }
 

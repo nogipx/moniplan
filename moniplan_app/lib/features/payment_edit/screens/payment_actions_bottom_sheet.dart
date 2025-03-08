@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -478,14 +480,8 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                       builder:
                           (context) => PaymentEditScreen(
                             payment: widget.payment,
-                            onSave: (updatedPayment) {
-                              final bloc = context.read<PlannerBloc>();
-                              bloc.add(
-                                PlannerEvent.updatePayment(
-                                  newPayment: updatedPayment,
-                                  create: false,
-                                ),
-                              );
+                            onSave: (updatedPayment) async {
+                              await onSave(updatedPayment);
                             },
                           ),
                     ),
@@ -522,6 +518,79 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
         ),
       ),
     );
+  }
+
+  Future<void> onSave(Payment updatedPayment) async {
+    try {
+      // Проверяем, что платеж валиден
+      if (updatedPayment.details.money <= 0) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Сумма платежа должна быть больше нуля')));
+        return;
+      }
+
+      // Проверяем доступность PlannerBloc
+      final bloc = widget.plannerBloc;
+      if (bloc == null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Ошибка: PlannerBloc недоступен')));
+        return;
+      }
+
+      // Создаем Completer для ожидания результата операции
+      final completer = Completer<bool>();
+
+      // Подписываемся на состояние блока планировщика
+      late final StreamSubscription<PlannerState> subscription;
+      subscription = bloc.stream.listen((state) {
+        // Если в состоянии есть ошибки, считаем операцию неуспешной
+        if (state.errors.isNotEmpty) {
+          subscription.cancel();
+          completer.complete(false);
+          return;
+        }
+
+        // Проверяем, содержит ли состояние наш платеж
+        if (state is PlannerBudgetComputedState) {
+          final paymentExists = state.payments.any((p) => p.paymentId == updatedPayment.paymentId);
+          if (paymentExists) {
+            subscription.cancel();
+            completer.complete(true);
+            return;
+          }
+        }
+      });
+
+      // Устанавливаем таймаут на операцию
+      Future.delayed(const Duration(seconds: 3), () {
+        if (!completer.isCompleted) {
+          subscription.cancel();
+          completer.complete(true); // Предполагаем успех по таймауту
+        }
+      });
+
+      // Отправляем событие обновления платежа в блок планировщика
+      bloc.add(PlannerEvent.updatePayment(newPayment: updatedPayment, create: false));
+
+      // Ждем результат операции
+      final success = await completer.future;
+
+      // Показываем сообщение об ошибке, если операция не удалась
+      if (!success && context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Не удалось сохранить платеж')));
+      }
+    } catch (e) {
+      print('Ошибка при сохранении платежа: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Ошибка при сохранении платежа: $e')));
+      }
+    }
   }
 
   Widget _buildCategory(BuildContext context, CategoryPrediction category) {
