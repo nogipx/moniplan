@@ -13,18 +13,11 @@ import 'moniplan_adapters.dart';
 class InsightGeneratorImpl implements IInsightGenerator {
   final _logger = Logger('InsightGeneratorImpl');
   final IAnalyzerFactory _analyzerFactory;
-  final PaymentCategorizerService _categorizerService;
   final ICategoryPredictor _categoryPredictor;
 
-  InsightGeneratorImpl({
-    IAnalyzerFactory? analyzerFactory,
-    PaymentCategorizerService? categorizerService,
-    ICategoryPredictor? categoryPredictor,
-  }) : _analyzerFactory = analyzerFactory ?? AnalyzerFactoryImpl(),
-       _categorizerService = categorizerService ?? PaymentCategorizerService(),
-       _categoryPredictor =
-           categoryPredictor ??
-           TFLiteCategoryPredictor(categorizerService ?? PaymentCategorizerService());
+  InsightGeneratorImpl({IAnalyzerFactory? analyzerFactory, ICategoryPredictor? categoryPredictor})
+    : _analyzerFactory = analyzerFactory ?? AnalyzerFactoryImpl(),
+      _categoryPredictor = categoryPredictor ?? AppDi.instance.getPaymentCategorizer();
 
   @override
   Future<List<Insight>> generateInsights(Planner planner) async {
@@ -47,7 +40,7 @@ class InsightGeneratorImpl implements IInsightGenerator {
 
     // Регистрируем кастомные анализаторы и инициализируем
     _analyzerFactory.registerCustomAnalyzers(customAnalyzers);
-    _analyzerFactory.initAnalyzersData(periodAdapter, AppDi.instance.getPaymentCategorizer());
+    _analyzerFactory.initAnalyzersData(periodAdapter, _categoryPredictor);
 
     // Проверяем, достаточно ли данных для анализа
     final allCompletedOperations = periodAdapter.completedOperations;

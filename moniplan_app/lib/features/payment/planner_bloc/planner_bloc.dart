@@ -17,6 +17,29 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   final IPlannerRepo _plannerRepo;
   final String plannerId;
 
+  // Переменные для дебаунса
+  DateTime? _lastSaveTime;
+  static const _debounceTime = Duration(seconds: 5);
+
+  // Переменные для кэширования
+  List<Payment>? _cachedPayments;
+  Planner? _cachedPlanner;
+  DateTime? _lastPaymentsLoadTime;
+  DateTime? _lastPlannerLoadTime;
+  static const _cacheValidTime = Duration(seconds: 2);
+
+  // Флаг для отслеживания, идет ли сейчас загрузка данных
+  bool _isLoading = false;
+
+  // Переменные для кэширования результатов вычислений
+  PlannerState? _cachedState;
+  String? _cachedStateHash;
+
+  // Переменные для отслеживания обновлений actualInfo
+  DateTime? _lastActualInfoUpdateTime;
+  static const _actualInfoUpdateInterval = Duration(seconds: 10);
+  String? _lastActualInfoHash;
+
   PlannerBloc({required this.plannerId, required IPlannerRepo paymentPlannerRepo})
     : _plannerRepo = paymentPlannerRepo,
       super(PlannerInitialState()) {
@@ -33,17 +56,101 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     );
   }
 
+  // Метод для получения платежей с кэшированием
+  Future<List<Payment>> _getPaymentsWithCache() async {
+    final now = DateTime.now();
+
+    // Проверяем, есть ли кэш и не устарел ли он
+    if (_cachedPayments != null &&
+        _lastPaymentsLoadTime != null &&
+        now.difference(_lastPaymentsLoadTime!) < _cacheValidTime) {
+      print(
+        'PlannerBloc: Используем кэшированные платежи (возраст кэша: ${now.difference(_lastPaymentsLoadTime!).inMilliseconds} мс)',
+      );
+      return _cachedPayments!;
+    }
+
+    // Если уже идет загрузка, ждем ее завершения
+    if (_isLoading) {
+      print('PlannerBloc: Загрузка платежей уже идет, ждем...');
+      // Ждем небольшую паузу и проверяем снова
+      await Future.delayed(const Duration(milliseconds: 100));
+      return _getPaymentsWithCache();
+    }
+
+    // Загружаем платежи
+    _isLoading = true;
+    print('PlannerBloc: Загружаем платежи из базы данных');
+    try {
+      final payments = await _plannerRepo.getPaymentsByPlannerId(plannerId: plannerId);
+
+      // Обновляем кэш
+      _cachedPayments = payments;
+      _lastPaymentsLoadTime = now;
+
+      print('PlannerBloc: Платежи загружены и кэшированы (${payments.length} шт.)');
+      return payments;
+    } finally {
+      _isLoading = false;
+    }
+  }
+
+  // Метод для получения планера с кэшированием
+  Future<Planner?> _getPlannerWithCache() async {
+    final now = DateTime.now();
+
+    // Проверяем, есть ли кэш и не устарел ли он
+    if (_cachedPlanner != null &&
+        _lastPlannerLoadTime != null &&
+        now.difference(_lastPlannerLoadTime!) < _cacheValidTime) {
+      print(
+        'PlannerBloc: Используем кэшированный планер (возраст кэша: ${now.difference(_lastPlannerLoadTime!).inMilliseconds} мс)',
+      );
+      return _cachedPlanner;
+    }
+
+    // Загружаем планер
+    print('PlannerBloc: Загружаем планер из базы данных');
+    final planner = await _plannerRepo.getPlannerById(plannerId);
+
+    // Обновляем кэш
+    _cachedPlanner = planner;
+    _lastPlannerLoadTime = now;
+
+    print('PlannerBloc: Планер загружен и кэширован');
+    return planner;
+  }
+
+  // Метод для инвалидации кэша
+  void _invalidateCache() {
+    print('PlannerBloc: Инвалидация кэша');
+    _cachedPayments = null;
+    _cachedPlanner = null;
+    _lastPaymentsLoadTime = null;
+    _lastPlannerLoadTime = null;
+    _cachedState = null;
+    _cachedStateHash = null;
+    _lastActualInfoHash = null;
+    // Не сбрасываем _lastActualInfoUpdateTime, чтобы сохранить интервал между обновлениями
+  }
+
+  // Метод для вычисления хэша состояния
+  String _computeStateHash(Planner planner) {
+    final paymentsHash = planner.payments
+        .map((p) => '${p.paymentId}:${p.isDone}:${p.isEnabled}:${p.date.millisecondsSinceEpoch}')
+        .join(',');
+    return '${planner.id}:${planner.dateStart?.millisecondsSinceEpoch}:${planner.dateEnd?.millisecondsSinceEpoch}:$paymentsHash';
+  }
+
   FutureOr<void> _onCompute(PlannerComputeBudgetEvent event, Emitter<PlannerState> emit) async {
     final id = plannerId;
-    final payments = await _plannerRepo.getPaymentsByPlannerId(plannerId: id);
-    final planner = await _plannerRepo.getPlannerById(id);
+    final payments = await _getPaymentsWithCache();
+    final planner = await _getPlannerWithCache();
 
     if (planner != null) {
-      final newState = (await _computeStateFromPlanner(
-        planner.copyWith(payments: payments),
-      )).copyWith(plannerId: id);
+      final newState = await _computeStateFromPlanner(planner.copyWith(payments: payments));
 
-      emit(newState);
+      emit(newState.copyWith(plannerId: id));
     }
   }
 
@@ -103,6 +210,9 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       }
 
       if (result != null) {
+        // Инвалидируем кэш после успешного сохранения платежа
+        _invalidateCache();
+
         // Добавляем задержку перед вычислением бюджета,
         // чтобы дать базе данных время на завершение операции сохранения
         await Future.delayed(const Duration(milliseconds: 500));
@@ -125,6 +235,9 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   ) async {
     await _plannerRepo.deletePayment(plannerId: plannerId, paymentId: event.paymentId);
 
+    // Инвалидируем кэш после удаления платежа
+    _invalidateCache();
+
     await _onCompute(const PlannerComputeBudgetEvent(), emit);
   }
 
@@ -134,10 +247,24 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   ) async {
     await _plannerRepo.fixateRepeatedPayment(plannerId: plannerId, paymentId: event.paymentId);
 
+    // Инвалидируем кэш после фиксации повторяющегося платежа
+    _invalidateCache();
+
     await _onCompute(const PlannerComputeBudgetEvent(), emit);
   }
 
   Future<PlannerState> _computeStateFromPlanner(Planner planner) async {
+    // Вычисляем хэш текущего состояния
+    final stateHash = _computeStateHash(planner);
+
+    // Проверяем, изменилось ли состояние
+    if (_cachedState != null && _cachedStateHash == stateHash) {
+      print('PlannerBloc: Используем кэшированное состояние (хэш: $stateHash)');
+      return _cachedState!;
+    }
+
+    print('PlannerBloc: Вычисляем новое состояние (хэш: $stateHash)');
+
     var targetPlanner = planner.copyWith();
     if (planner.isGenerationAllowed) {
       final result =
@@ -195,6 +322,127 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       actualInfo: actualInfo,
     );
 
+    // Кэшируем новое состояние
+    _cachedState = newState;
+    _cachedStateHash = stateHash;
+
+    print('PlannerBloc: Новое состояние вычислено и кэшировано');
+
     return newState;
+  }
+
+  // Метод для обновления actualInfo в репозитории
+  Future<void> updateActualInfo() async {
+    print('PlannerBloc: Обновление actualInfo для планера $plannerId');
+
+    // Если текущее состояние содержит actualInfo, обновляем его в репозитории
+    if (state is PlannerBudgetComputedState) {
+      final currentState = state as PlannerBudgetComputedState;
+      if (currentState.actualInfo != null) {
+        // Вычисляем хэш actualInfo
+        final actualInfo = currentState.actualInfo!;
+        final actualInfoHash =
+            '${actualInfo.plannerId}:${actualInfo.updatedAt.millisecondsSinceEpoch}:${actualInfo.completedCount}:${actualInfo.waitingCount}:${actualInfo.disabledCount}:${actualInfo.totalCount}:${actualInfo.updatedAtBudget}';
+
+        // Проверяем, изменился ли actualInfo и прошло ли достаточно времени с последнего обновления
+        final now = DateTime.now();
+        if (_lastActualInfoHash == actualInfoHash &&
+            _lastActualInfoUpdateTime != null &&
+            now.difference(_lastActualInfoUpdateTime!) < _actualInfoUpdateInterval) {
+          print(
+            'PlannerBloc: Пропускаем обновление actualInfo (последнее обновление было ${now.difference(_lastActualInfoUpdateTime!).inSeconds} сек. назад, хэш не изменился)',
+          );
+          return;
+        }
+
+        // Обновляем actualInfo в репозитории
+        await _plannerRepo.updatePlannerActualInfo(
+          plannerId: plannerId,
+          plannerActualInfo: actualInfo,
+        );
+
+        // Обновляем время последнего обновления и хэш
+        _lastActualInfoUpdateTime = now;
+        _lastActualInfoHash = actualInfoHash;
+
+        print('PlannerBloc: actualInfo успешно обновлен');
+      } else {
+        print('PlannerBloc: actualInfo отсутствует в состоянии');
+      }
+    } else {
+      print('PlannerBloc: Состояние не является PlannerBudgetComputedState');
+    }
+  }
+
+  // Метод для сохранения actualInfo при выходе из экрана
+  Future<void> saveActualInfo() async {
+    print('PlannerBloc: Запрос на сохранение actualInfo для планера $plannerId');
+
+    // Проверяем, прошло ли достаточно времени с последнего сохранения
+    final now = DateTime.now();
+    if (_lastSaveTime != null && now.difference(_lastSaveTime!) < _debounceTime) {
+      // Если прошло меньше _debounceTime, не сохраняем
+      print(
+        'PlannerBloc: Сохранение отклонено из-за дебаунса (последнее сохранение было ${now.difference(_lastSaveTime!).inSeconds} сек. назад)',
+      );
+      return;
+    }
+
+    // Обновляем время последнего сохранения
+    _lastSaveTime = now;
+    print('PlannerBloc: Сохранение разрешено, обновляем время последнего сохранения');
+
+    // Если текущее состояние содержит actualInfo, обновляем его в репозитории
+    if (state is PlannerBudgetComputedState) {
+      final currentState = state as PlannerBudgetComputedState;
+      if (currentState.actualInfo != null) {
+        // Обновляем actualInfo в репозитории, игнорируя проверку хэша
+        await _plannerRepo.updatePlannerActualInfo(
+          plannerId: plannerId,
+          plannerActualInfo: currentState.actualInfo!,
+        );
+
+        // Обновляем время последнего обновления и хэш
+        _lastActualInfoUpdateTime = now;
+        _lastActualInfoHash =
+            null; // Сбрасываем хэш, чтобы следующее обновление прошло в любом случае
+
+        print('PlannerBloc: actualInfo успешно сохранен при выходе из экрана');
+      } else {
+        print('PlannerBloc: actualInfo отсутствует в состоянии при выходе из экрана');
+      }
+    } else {
+      print('PlannerBloc: Состояние не является PlannerBudgetComputedState при выходе из экрана');
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    print('PlannerBloc: Закрытие блока для планера $plannerId');
+
+    // Обновляем actualInfo в репозитории при закрытии блока
+    // Игнорируем дебаунс и проверку хэша, так как это последний шанс сохранить данные
+    if (state is PlannerBudgetComputedState) {
+      final currentState = state as PlannerBudgetComputedState;
+      if (currentState.actualInfo != null) {
+        // Обновляем actualInfo в репозитории
+        await _plannerRepo.updatePlannerActualInfo(
+          plannerId: plannerId,
+          plannerActualInfo: currentState.actualInfo!,
+        );
+
+        print('PlannerBloc: actualInfo успешно сохранен при закрытии блока');
+      } else {
+        print('PlannerBloc: actualInfo отсутствует в состоянии при закрытии блока');
+      }
+    } else {
+      print('PlannerBloc: Состояние не является PlannerBudgetComputedState при закрытии блока');
+    }
+
+    // Инвалидируем кэш при закрытии блока
+    _invalidateCache();
+
+    print('PlannerBloc: Блок для планера $plannerId закрыт');
+    await super.close();
   }
 }

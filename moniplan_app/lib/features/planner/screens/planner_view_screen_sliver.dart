@@ -48,6 +48,27 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
   bool _isFirstScrolled = false;
 
   @override
+  void dispose() {
+    print('PlannerViewScreen: Освобождение ресурсов');
+
+    // Получаем блок и вызываем метод обновления actualInfo
+    try {
+      final plannerBloc = context.read<PlannerBloc>();
+      print('PlannerViewScreen: Вызов saveActualInfo для планера ${plannerBloc.plannerId}');
+      plannerBloc.saveActualInfo();
+    } catch (e) {
+      print('PlannerViewScreen: Ошибка при сохранении actualInfo: $e');
+    }
+
+    // Освобождаем ресурсы контроллеров
+    _listController.dispose();
+    _scrollController.dispose();
+
+    print('PlannerViewScreen: Ресурсы освобождены');
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<PlannerBloc, PlannerState>(
       listener: (context, state) {

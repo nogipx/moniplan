@@ -91,11 +91,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
   }
 
   Future<void> _predictCategoryIfNeeded() async {
-    // Если у платежа уже есть название, не нужно предсказывать категорию
-    if (widget.payment.details.name.isNotEmpty) {
-      return;
-    }
-
+    // Предсказываем категории для всех платежей
     setState(() {
       _isLoadingCategory = true;
     });
@@ -261,19 +257,47 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
 
                   // Предсказанная категория (если есть)
                   const SizedBox(height: 12),
+                  if (_isLoadingCategory) ...[
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: context.color.tertiary,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Определение категорий...',
+                          style: context.text.bodySmall?.copyWith(color: context.color.tertiary),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                   ValueListenableBuilder(
                     valueListenable: _predictedCategories,
                     builder: (context, value, child) {
-                      return Visibility(
-                        visible: value.isNotEmpty,
-                        child: Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: value.map((e) => _buildCategory(context, e)).toList(),
-                        ),
+                      if (value.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+
+                      // Ограничиваем количество отображаемых категорий до 5
+                      final displayedCategories = value.length > 5 ? value.sublist(0, 5) : value;
+
+                      return Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children:
+                            displayedCategories.map((category) {
+                              return _buildCategory(context, category);
+                            }).toList(),
                       );
                     },
                   ),
+                  const SizedBox(height: 8),
 
                   // Информация о повторении платежа
                   if (widget.payment.isRepeat) ...[
@@ -593,24 +617,126 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
     }
   }
 
+  // Метод для получения иконки в зависимости от категории
+  IconData _getCategoryIcon(String category) {
+    final lowerCategory = category.toLowerCase();
+
+    if (lowerCategory.contains('продукт') ||
+        lowerCategory.contains('еда') ||
+        lowerCategory.contains('питание')) {
+      return Icons.restaurant;
+    } else if (lowerCategory.contains('транспорт') ||
+        lowerCategory.contains('такси') ||
+        lowerCategory.contains('метро')) {
+      return Icons.directions_car;
+    } else if (lowerCategory.contains('развлечен') ||
+        lowerCategory.contains('кино') ||
+        lowerCategory.contains('театр')) {
+      return Icons.movie;
+    } else if (lowerCategory.contains('здоровье') ||
+        lowerCategory.contains('медицин') ||
+        lowerCategory.contains('врач')) {
+      return Icons.medical_services;
+    } else if (lowerCategory.contains('одежда') || lowerCategory.contains('обувь')) {
+      return Icons.shopping_bag;
+    } else if (lowerCategory.contains('дом') ||
+        lowerCategory.contains('квартир') ||
+        lowerCategory.contains('жилье')) {
+      return Icons.home;
+    } else if (lowerCategory.contains('комунал') || lowerCategory.contains('услуг')) {
+      return Icons.water_drop;
+    } else if (lowerCategory.contains('связь') ||
+        lowerCategory.contains('телефон') ||
+        lowerCategory.contains('интернет')) {
+      return Icons.wifi;
+    } else if (lowerCategory.contains('образован') ||
+        lowerCategory.contains('учеба') ||
+        lowerCategory.contains('курс')) {
+      return Icons.school;
+    } else if (lowerCategory.contains('зарплат') ||
+        lowerCategory.contains('доход') ||
+        lowerCategory.contains('работ')) {
+      return Icons.work;
+    } else if (lowerCategory.contains('подарок') || lowerCategory.contains('презент')) {
+      return Icons.card_giftcard;
+    } else if (lowerCategory.contains('спорт') || lowerCategory.contains('фитнес')) {
+      return Icons.fitness_center;
+    } else if (lowerCategory.contains('путешеств') ||
+        lowerCategory.contains('отпуск') ||
+        lowerCategory.contains('отдых')) {
+      return Icons.beach_access;
+    } else if (lowerCategory.contains('кафе') || lowerCategory.contains('ресторан')) {
+      return Icons.restaurant_menu;
+    } else if (lowerCategory.contains('налог') || lowerCategory.contains('штраф')) {
+      return Icons.receipt_long;
+    } else if (lowerCategory.contains('техник') || lowerCategory.contains('электрон')) {
+      return Icons.devices;
+    } else if (lowerCategory.contains('подписк') || lowerCategory.contains('сервис')) {
+      return Icons.subscriptions;
+    } else if (lowerCategory.contains('красот') || lowerCategory.contains('космет')) {
+      return Icons.spa;
+    } else if (lowerCategory.contains('книг') || lowerCategory.contains('литератур')) {
+      return Icons.book;
+    } else if (lowerCategory.contains('музык') || lowerCategory.contains('концерт')) {
+      return Icons.music_note;
+    } else if (lowerCategory.contains('игр') || lowerCategory.contains('развлеч')) {
+      return Icons.games;
+    } else if (lowerCategory.contains('благотворит') || lowerCategory.contains('пожертв')) {
+      return Icons.volunteer_activism;
+    } else if (lowerCategory.contains('инвестиц') || lowerCategory.contains('акци')) {
+      return Icons.trending_up;
+    } else if (lowerCategory.contains('страхов')) {
+      return Icons.security;
+    } else if (lowerCategory.contains('ремонт')) {
+      return Icons.build;
+    } else if (lowerCategory.contains('мебель')) {
+      return Icons.chair;
+    } else if (lowerCategory.contains('животн') || lowerCategory.contains('питомц')) {
+      return Icons.pets;
+    }
+
+    // Иконка по умолчанию
+    return Icons.category;
+  }
+
   Widget _buildCategory(BuildContext context, CategoryPrediction category) {
+    // Определяем цвет чипа в зависимости от вероятности
+    final probability = category.probability;
+    Color chipColor;
+
+    if (probability > 0.7) {
+      // Высокая вероятность - информационный синий
+      chipColor = Color(0xFF2196F3); // Material Blue 500
+    } else if (probability > 0.4) {
+      // Средняя вероятность - бирюзовый
+      chipColor = Color(0xFF00ACC1); // Material Cyan 600
+    } else {
+      // Низкая вероятность - нейтральный серый с синим оттенком
+      chipColor = Color(0xFF607D8B); // Material Blue Grey 500
+    }
+
+    // Получаем иконку для категории
+    final iconData = _getCategoryIcon(category.category);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: context.color.tertiary.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(12),
+        color: chipColor.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.category, size: 16, color: context.color.tertiary),
-          const SizedBox(width: 8),
+          Icon(iconData, size: 14, color: chipColor),
+          const SizedBox(width: 4),
           Text(
-            '${category.category} (${(category.probability * 100).toStringAsFixed(1)}%)',
-            style: context.text.bodySmall?.copyWith(
-              color: context.color.tertiary,
-              fontWeight: FontWeight.w500,
-            ),
+            category.category,
+            style: TextStyle(color: chipColor, fontWeight: FontWeight.w500, fontSize: 12),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${(probability * 100).toInt()}%',
+            style: TextStyle(color: chipColor, fontWeight: FontWeight.bold, fontSize: 10),
           ),
         ],
       ),

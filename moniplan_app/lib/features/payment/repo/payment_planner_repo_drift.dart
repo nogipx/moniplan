@@ -6,6 +6,7 @@ import 'package:drift/drift.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:sqlite3/sqlite3.dart' show SqliteException;
+import 'dart:convert';
 
 import '../_index.dart';
 
@@ -324,8 +325,30 @@ final class PlannerRepoDrift implements IPlannerRepo {
     required String plannerId,
     required PlannerActualInfo plannerActualInfo,
   }) async {
-    // TODO: Реализовать обновление актуальной информации о планировщике
-    return null;
+    return _guard(name: 'updatePlannerActualInfo', () async {
+      try {
+        // Преобразуем доменную модель в DTO
+        final dto = _plannerActualInfoMapper.toDto(plannerActualInfo);
+
+        // Сначала удаляем существующую запись, если она есть
+        final selector = appDb.db.managers.plannerActualInfoDriftTable.filter(
+          (f) => f.plannerId.equals(plannerId),
+        );
+        await selector.delete();
+
+        // Затем вставляем новую запись
+        await appDb.db.managers.plannerActualInfoDriftTable.create(
+          (o) => dto,
+          mode: InsertMode.insertOrReplace,
+        );
+
+        // Возвращаем обновленную информацию
+        return plannerActualInfo;
+      } catch (e) {
+        print('Ошибка при обновлении актуальной информации о планировщике: $e');
+        return null;
+      }
+    });
   }
 
   Future<void> _deleteInfoForPlanner({required String plannerId}) {

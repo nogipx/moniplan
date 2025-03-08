@@ -29,13 +29,18 @@ class GetItAppDI implements AppDi {
       MonisyncRepoImpl(appDb: db, encryptKey: mockEncryptionKey),
     );
     _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
-    _getIt.registerSingleton<IInsightGenerator>(InsightGeneratorImpl());
 
     // Регистрируем сервис категоризации платежей
     final paymentCategorizerService = PaymentCategorizerService();
 
+    // Регистрируем предиктор категорий
     _getIt.registerSingleton<ICategoryPredictor>(
       TFLiteCategoryPredictor(paymentCategorizerService),
+    );
+
+    // Регистрируем генератор инсайтов
+    _getIt.registerSingleton<IInsightGenerator>(
+      InsightGeneratorImpl(categoryPredictor: _getIt.get<ICategoryPredictor>()),
     );
 
     // Инициализируем сервис категоризации платежей

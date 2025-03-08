@@ -16,6 +16,17 @@ class PaymentCategorizerService {
   static const String _categoryMappingPath = 'assets/tflite/category_mapping.json';
   static const String _metadataPath = 'assets/tflite/model_metadata.json';
 
+  // Статический счетчик для отслеживания количества созданных экземпляров
+  static int _instanceCount = 0;
+  final int _instanceId;
+
+  /// Конструктор
+  PaymentCategorizerService() : _instanceId = ++_instanceCount {
+    debugPrint(
+      'PaymentCategorizerService: создан экземпляр #$_instanceId (всего: $_instanceCount)',
+    );
+  }
+
   /// Максимальная длина последовательности для модели
   static const int maxSequenceLength = 96;
 
@@ -39,8 +50,12 @@ class PaymentCategorizerService {
 
   /// Инициализирует сервис, загружая модель и необходимые данные
   Future<void> initialize() async {
-    if (_isInitialized) return;
+    if (_isInitialized) {
+      debugPrint('PaymentCategorizerService #$_instanceId: уже инициализирован, пропускаем');
+      return;
+    }
 
+    debugPrint('PaymentCategorizerService #$_instanceId: начало инициализации');
     try {
       // Загружаем модель
       final interpreterOptions = InterpreterOptions();
@@ -69,12 +84,12 @@ class PaymentCategorizerService {
       await _loadVocabAndCategories();
 
       _isInitialized = true;
-      debugPrint('PaymentCategorizerService: инициализация завершена успешно');
+      debugPrint('PaymentCategorizerService #$_instanceId: инициализация завершена успешно');
 
       // Выводим информацию о модели
       _printModelInfo();
     } catch (e) {
-      debugPrint('PaymentCategorizerService: ошибка инициализации - $e');
+      debugPrint('PaymentCategorizerService #$_instanceId: ошибка инициализации - $e');
       rethrow;
     }
   }
@@ -169,13 +184,20 @@ class PaymentCategorizerService {
   /// Предсказывает категорию платежа на основе текста и флага дохода
   Future<List<CategoryPrediction>> predict(String text, bool isIncome) async {
     if (!_isInitialized) {
+      debugPrint('PaymentCategorizerService #$_instanceId: попытка предсказания без инициализации');
       throw Exception('PaymentCategorizerService не инициализирован');
     }
 
     if (_interpreter == null) {
+      debugPrint(
+        'PaymentCategorizerService #$_instanceId: TFLite интерпретатор не инициализирован',
+      );
       throw Exception('TFLite интерпретатор не инициализирован');
     }
 
+    debugPrint(
+      'PaymentCategorizerService #$_instanceId: предсказание категории для текста "$text" (доход: $isIncome)',
+    );
     try {
       // Токенизируем текст
       final sequence = _tokenize(text);
@@ -204,7 +226,11 @@ class PaymentCategorizerService {
         _interpreter!.runForMultipleInputs(inputs, outputs);
 
         // Обрабатываем результаты
-        return _processOutput(output[0]);
+        final result = _processOutput(output[0]);
+        debugPrint(
+          'PaymentCategorizerService #$_instanceId: предсказание успешно, найдено ${result.length} категорий',
+        );
+        return result;
       } catch (e) {
         debugPrint('Ошибка при выполнении предсказания: $e');
 
@@ -239,16 +265,26 @@ class PaymentCategorizerService {
             final adaptiveOutputs = {0: output};
             _interpreter!.runForMultipleInputs(adaptiveInputs, adaptiveOutputs);
 
-            return _processOutput(output[0]);
+            final result = _processOutput(output[0]);
+            debugPrint(
+              'PaymentCategorizerService #$_instanceId: предсказание успешно, найдено ${result.length} категорий',
+            );
+            return result;
           } else {
+            debugPrint(
+              'PaymentCategorizerService #$_instanceId: не удалось определить индексы входных тензоров по форме',
+            );
             throw Exception('Не удалось определить индексы входных тензоров по форме');
           }
         } catch (e2) {
+          debugPrint(
+            'PaymentCategorizerService #$_instanceId: не удалось выполнить предсказание: $e, $e2',
+          );
           throw Exception('Не удалось выполнить предсказание: $e, $e2');
         }
       }
     } catch (e) {
-      debugPrint('PaymentCategorizerService: ошибка предсказания - $e');
+      debugPrint('PaymentCategorizerService #$_instanceId: ошибка предсказания - $e');
       rethrow;
     }
   }
