@@ -4,6 +4,7 @@
 
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
+import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_app/features/monisync/repo/monisync_repo_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
@@ -29,6 +30,18 @@ class GetItAppDI implements AppDi {
     );
     _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
     _getIt.registerSingleton<IInsightGenerator>(InsightGeneratorImpl());
+
+    // Регистрируем сервис категоризации платежей
+    final paymentCategorizerService = PaymentCategorizerService();
+
+    _getIt.registerSingleton<ICategoryPredictor>(
+      TFLiteCategoryPredictor(paymentCategorizerService),
+    );
+
+    // Инициализируем сервис категоризации платежей
+    paymentCategorizerService.initialize().catchError((e) {
+      print('Ошибка инициализации PaymentCategorizerService: $e');
+    });
   }
 
   @override
@@ -46,5 +59,9 @@ class GetItAppDI implements AppDi {
   @override
   IInsightGenerator getInsightGenerator() => _getIt.get();
 
+  @override
+  ICategoryPredictor getPaymentCategorizer() => _getIt.get();
+
+  @override
   T get<T extends Object>() => _getIt.get<T>();
 }

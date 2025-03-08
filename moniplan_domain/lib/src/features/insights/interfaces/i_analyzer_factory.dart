@@ -7,7 +7,7 @@ import '../_index.dart';
 /// Интерфейс фабрики анализаторов
 abstract class IAnalyzerFactory {
   /// Инициализирует анализаторы
-  void initAnalyzersData(IFinancialSource source);
+  void initAnalyzersData(IFinancialSource source, ICategoryPredictor categorizer);
 
   /// Получает список всех доступных анализаторов с их описаниями
   List<AnalyzerDescriptor> getAvailableAnalyzers();

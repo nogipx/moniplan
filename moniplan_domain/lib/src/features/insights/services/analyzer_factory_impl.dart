@@ -14,7 +14,7 @@ class AnalyzerFactoryImpl implements IAnalyzerFactory {
 
   /// Инициализирует список доступных анализаторов
   @override
-  void initAnalyzersData(IFinancialSource source) {
+  void initAnalyzersData(IFinancialSource source, ICategoryPredictor categorizer) {
     _availableAnalyzers.clear();
     _analyzerFactories.clear();
 
@@ -51,7 +51,7 @@ class AnalyzerFactoryImpl implements IAnalyzerFactory {
       type: AnalyzerType.retrospective,
       order: 5,
       tags: ['categories', 'distribution', 'advanced', 'retrospective', 'ml'],
-      factory: () => CategoryDistributionAnalyzer(source),
+      factory: () => CategoryDistributionAnalyzer(source, categorizer),
     );
 
     // Прогностические анализаторы

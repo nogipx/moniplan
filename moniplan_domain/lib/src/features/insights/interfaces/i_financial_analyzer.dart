@@ -32,7 +32,7 @@ abstract interface class IFinancialAnalyzer {
   /// Выполняет анализ и возвращает список инсайтов
   ///
   /// [analysisData] - дополнительные данные для анализа (опционально)
-  AnalysisResult analyze({Map<String, dynamic>? analysisData});
+  Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData});
 
   /// Создает инсайт с добавлением информации об анализаторе
   ///
@@ -68,7 +68,8 @@ abstract base class IBaseFinancialAnalyzer implements IFinancialAnalyzer {
   List<IFinancialData> get availableOperations;
 
   @override
-  AnalysisResult analyze({Map<String, dynamic>? analysisData}) => throw UnimplementedError();
+  Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData}) =>
+      throw UnimplementedError();
 
   @override
   Insight createInsight({

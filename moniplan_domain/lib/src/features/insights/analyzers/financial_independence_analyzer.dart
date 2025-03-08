@@ -21,7 +21,7 @@ final class FinancialIndependenceAnalyzer extends CombinedAnalyzer {
   FinancialIndependenceAnalyzer(super.source);
 
   @override
-  AnalysisResult analyze({Map<String, dynamic>? analysisData}) {
+  Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData}) async {
     final insights = <Insight>[];
 
     // Используем геттер для получения только завершенных операций

@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:logging/logging.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 import 'moniplan_adapters.dart';
@@ -10,25 +12,45 @@ import 'moniplan_adapters.dart';
 /// Реализация генератора инсайтов
 class InsightGeneratorImpl implements IInsightGenerator {
   final _logger = Logger('InsightGeneratorImpl');
-
-  /// Фабрика анализаторов
   final IAnalyzerFactory _analyzerFactory;
+  final PaymentCategorizerService _categorizerService;
+  final ICategoryPredictor _categoryPredictor;
 
-  /// Конструктор
-  InsightGeneratorImpl({IAnalyzerFactory? analyzerFactory})
-    : _analyzerFactory = analyzerFactory ?? AnalyzerFactoryImpl();
+  InsightGeneratorImpl({
+    IAnalyzerFactory? analyzerFactory,
+    PaymentCategorizerService? categorizerService,
+    ICategoryPredictor? categoryPredictor,
+  }) : _analyzerFactory = analyzerFactory ?? AnalyzerFactoryImpl(),
+       _categorizerService = categorizerService ?? PaymentCategorizerService(),
+       _categoryPredictor =
+           categoryPredictor ??
+           TFLiteCategoryPredictor(categorizerService ?? PaymentCategorizerService());
 
   @override
   Future<List<Insight>> generateInsights(Planner planner) async {
     // Создаем адаптер для планера
     final periodAdapter = MoniplanPlannerFinancialSource(planner);
-    _analyzerFactory.initAnalyzersData(periodAdapter);
 
-    // Получаем завершенные и запланированные операции
-    final allCompletedOperations = periodAdapter.completedOperations;
-    final allPlannedOperations = periodAdapter.plannedOperations;
+    // Инициализируем предиктор категорий
+    if (!_categoryPredictor.isInitialized) {
+      await _categoryPredictor.initialize();
+    }
+
+    // Создаем кастомные анализаторы с ML категоризатором
+    final customAnalyzers = <String, IFinancialAnalyzer>{
+      'ml_category_distribution_analyzer': CategoryDistributionAnalyzer(
+        periodAdapter,
+        _categoryPredictor,
+      ),
+    };
+
+    // Регистрируем кастомные анализаторы и инициализируем
+    _analyzerFactory.registerCustomAnalyzers(customAnalyzers);
+    _analyzerFactory.initAnalyzersData(periodAdapter, AppDi.instance.getPaymentCategorizer());
 
     // Проверяем, достаточно ли данных для анализа
+    final allCompletedOperations = periodAdapter.completedOperations;
+    final allPlannedOperations = periodAdapter.plannedOperations;
     final hasCompletedData = allCompletedOperations.length >= 2;
     final hasPlannedData = allPlannedOperations.isNotEmpty;
 
@@ -39,16 +61,13 @@ class InsightGeneratorImpl implements IInsightGenerator {
       return [];
     }
 
-    // Создаем все анализаторы
+    // Создаем анализаторы и генерируем инсайты
     final analyzers = _analyzerFactory.createAllAnalyzers();
-
-    // Список для хранения всех инсайтов
     final results = <AnalysisResult>[];
 
-    // Для каждого анализатора генерируем инсайты
     for (final analyzer in analyzers) {
       try {
-        final result = analyzer.analyze();
+        final result = await analyzer.analyze();
         results.add(result);
       } catch (e) {
         print('Ошибка при генерации инсайтов с помощью ${analyzer.runtimeType}: $e');
@@ -81,9 +100,6 @@ class InsightGeneratorImpl implements IInsightGenerator {
   @override
   Future<List<Insight>> generateDailyInsights(Planner planner) async {
     final insights = await generateInsights(planner);
-    // Фильтруем инсайты, связанные с ежедневным анализом
-    // Так как нет специального типа для ежедневных инсайтов,
-    // используем фильтрацию по описанию или другим признакам
     return insights
         .where(
           (insight) =>

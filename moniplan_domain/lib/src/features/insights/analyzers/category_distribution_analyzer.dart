@@ -13,16 +13,15 @@ import '../categorization/_index.dart';
 /// распределение расходов по категориям
 final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
   /// Категоризатор платежей
-  final IPaymentCategorizer _categorizer;
+  final ICategoryPredictor _categorizer;
 
   /// Конструктор
-  CategoryDistributionAnalyzer(super.source, [IPaymentCategorizer? categorizer])
-    : _categorizer = categorizer ?? PaymentCategorizerFactory.createSimpleCategorizer();
+  CategoryDistributionAnalyzer(super.source, ICategoryPredictor categorizer)
+    : _categorizer = categorizer;
 
   @override
-  AnalysisResult analyze({Map<String, dynamic>? analysisData}) {
+  Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData}) async {
     final operations = availableOperations;
-    final insights = <Insight>[];
 
     // Фильтруем только расходы
     final expenses = operations.where((op) => op.type == FinancialOperationType.expense).toList();
@@ -31,8 +30,19 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
       return AnalysisResult.empty();
     }
 
+    // Категоризируем платежи без категорий и анализируем их
+    return _categorizeAndAnalyze(expenses, analysisData);
+  }
+
+  /// Категоризирует платежи и анализирует их
+  Future<AnalysisResult> _categorizeAndAnalyze(
+    List<IFinancialData> expenses,
+    Map<String, dynamic>? analysisData,
+  ) async {
+    final insights = <Insight>[];
+
     // Категоризируем платежи без категорий
-    final categorizedExpenses = _categorizeExpenses(expenses);
+    final categorizedExpenses = await _categorizeExpenses(expenses);
 
     // Анализируем распределение расходов по категориям
     insights.addAll(_analyzeDistribution(categorizedExpenses));
@@ -60,7 +70,7 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
   }
 
   /// Категоризирует расходы без категорий
-  List<IFinancialData> _categorizeExpenses(List<IFinancialData> expenses) {
+  Future<List<IFinancialData>> _categorizeExpenses(List<IFinancialData> expenses) async {
     // Разделяем расходы на те, у которых уже есть категория, и те, у которых её нет
     final withCategory = expenses.where((e) => e.category.isNotEmpty).toList();
     final withoutCategory = expenses.where((e) => e.category.isEmpty).toList();
@@ -70,25 +80,8 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
       return expenses;
     }
 
-    // Обучаем категоризатор на расходах с категориями
-    if (withCategory.isNotEmpty) {
-      _categorizer.train(withCategory);
-    }
-
     // Категоризируем расходы без категорий
-    final categorizedExpenses = <IFinancialData>[];
-    for (final expense in withoutCategory) {
-      final category = _categorizer.categorize(expense);
-
-      // Создаем новый объект с категорией
-      // В реальном приложении нужно будет реализовать механизм обновления категорий
-      final categorizedExpense = _CategorizedFinancialData(
-        originalData: expense,
-        category: category,
-      );
-
-      categorizedExpenses.add(categorizedExpense);
-    }
+    final categorizedExpenses = await _categorizer.predictCategories(withoutCategory);
 
     // Объединяем расходы с категориями и категоризированные расходы
     return [...withCategory, ...categorizedExpenses];

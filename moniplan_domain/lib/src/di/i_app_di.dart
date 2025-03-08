@@ -16,4 +16,6 @@ abstract interface class IAppDi {
   IStatisticsRepo getStatisticsRepo();
 
   IInsightGenerator getInsightGenerator();
+
+  ICategoryPredictor getPaymentCategorizer();
 }

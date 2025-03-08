@@ -66,9 +66,16 @@ class _PlannerViewScreenSliverState extends State<PlannerViewScreenSliver> {
               tooltip: 'Умные инсайты',
               onPressed: () async {
                 final planner = state.resultingPlanner;
+                final plannerBloc = context.read<PlannerBloc>();
                 if (context.mounted) {
                   Navigator.of(context).push<void>(
-                    MaterialPageRoute(builder: (context) => InsightsScreen(planner: planner)),
+                    MaterialPageRoute(
+                      builder:
+                          (context) => BlocProvider.value(
+                            value: plannerBloc,
+                            child: InsightsScreen(planner: planner),
+                          ),
+                    ),
                   );
                 }
               },

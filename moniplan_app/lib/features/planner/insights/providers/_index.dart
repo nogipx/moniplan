@@ -2,4 +2,5 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-export 'i_category_predictor.dart';
+export 'insight_generator_impl.dart';
+export 'moniplan_adapters.dart';

@@ -20,7 +20,7 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
   static const _minSavingsAmount = 1000.0;
 
   @override
-  AnalysisResult analyze({Map<String, dynamic>? analysisData}) {
+  Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData}) async {
     final insights = <Insight>[];
     final completedOperations =
         availableOperations.where((op) => op.status == FinancialOperationStatus.completed).toList();

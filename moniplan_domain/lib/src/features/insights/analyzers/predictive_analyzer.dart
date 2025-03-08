@@ -12,7 +12,7 @@ final class PredictiveAnalyzerImpl extends PredictiveAnalyzer {
   PredictiveAnalyzerImpl(super.source);
 
   @override
-  AnalysisResult analyze({Map<String, dynamic>? analysisData}) {
+  Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData}) async {
     final insights = <Insight>[];
     final operations = availableOperations;
     // Фильтруем только запланированные операции

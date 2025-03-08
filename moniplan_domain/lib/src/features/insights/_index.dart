@@ -21,3 +21,6 @@ export 'services/analyzer_factory_impl.dart';
 // Утилиты
 export 'utils/insight_utils.dart';
 export 'utils/payment_extraction_service.dart';
+
+// Категоризация
+export 'categorization/_index.dart';

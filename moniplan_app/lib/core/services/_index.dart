@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-export 'i_category_predictor.dart';
+export 'payment_categorizer_service.dart';
