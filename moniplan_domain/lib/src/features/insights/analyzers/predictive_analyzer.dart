@@ -6,12 +6,9 @@ import 'package:moniplan_domain/src/features/insights/interfaces/i_financial_ana
 import 'package:moniplan_domain/src/features/insights/interfaces/i_financial_data.dart';
 import 'package:moniplan_domain/src/features/insights/models/_index.dart';
 import 'package:moniplan_domain/src/features/insights/utils/insight_utils.dart';
-import 'package:uuid/uuid.dart';
 
 /// Анализатор для предиктивных инсайтов
 final class PredictiveAnalyzerImpl extends PredictiveAnalyzer {
-  final _uuid = Uuid();
-
   PredictiveAnalyzerImpl(super.source);
 
   @override
@@ -80,8 +77,7 @@ final class PredictiveAnalyzerImpl extends PredictiveAnalyzer {
         final isNegative = projectedBalance < 0;
 
         insights.add(
-          Insight(
-            id: _uuid.v4(),
+          createInsight(
             title: isNegative ? 'Возможный дефицит бюджета' : 'Прогноз остатка бюджета',
             description:
                 isNegative
@@ -116,8 +112,7 @@ final class PredictiveAnalyzerImpl extends PredictiveAnalyzer {
       final isNegative = plannedBalance < 0;
 
       insights.add(
-        Insight(
-          id: _uuid.v4(),
+        createInsight(
           title: isNegative ? 'Запланирован дефицит бюджета' : 'Запланирован профицит бюджета',
           description:
               isNegative

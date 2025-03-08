@@ -5,10 +5,8 @@
 // Экраны
 export 'screens/insights_screen.dart';
 export 'screens/insight_data_screen.dart';
-export 'screens/analyzer_settings_screen.dart';
 
 // Провайдеры
-export 'providers/analyzer_settings_provider.dart';
 export 'providers/insight_generator_impl.dart';
 export 'providers/moniplan_adapters.dart';
 

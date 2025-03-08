@@ -5,14 +5,10 @@
 import 'dart:math';
 import 'dart:developer' as dev;
 
-import 'package:uuid/uuid.dart';
-
 import '../_index.dart';
 
 /// Анализатор для выявления аномалий в финансовых данных
 final class AnomalyAnalyzer extends RetrospectiveAnalyzer {
-  final _uuid = Uuid();
-
   AnomalyAnalyzer(super.source);
 
   @override
@@ -77,8 +73,7 @@ final class AnomalyAnalyzer extends RetrospectiveAnalyzer {
               .round();
 
       insights.add(
-        Insight(
-          id: _uuid.v4(),
+        createInsight(
           title: 'Обнаружены необычно крупные расходы',
           description:
               'Я выявил $anomalyCount ${_pluralize(anomalyCount, 'необычно крупный расход', 'необычно крупных расхода', 'необычно крупных расходов')} '
@@ -149,8 +144,7 @@ final class AnomalyAnalyzer extends RetrospectiveAnalyzer {
       final additionalCount = categoryCount > 3 ? ' и еще ${categoryCount - 3}' : '';
 
       insights.add(
-        Insight(
-          id: _uuid.v4(),
+        createInsight(
           title: 'Необычные категории расходов',
           description:
               'Я обнаружил $paymentCount ${_pluralize(paymentCount, 'платеж', 'платежа', 'платежей')} '

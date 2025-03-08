@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:math';
-import 'package:uuid/uuid.dart';
 
 import '../_index.dart';
 
@@ -13,8 +12,6 @@ import '../_index.dart';
 /// Прогнозирует сроки достижения финансовой свободы
 /// Предлагает стратегии ускорения
 final class FinancialIndependenceAnalyzer extends CombinedAnalyzer {
-  final _uuid = Uuid();
-
   // Константы для расчетов
   static const _safeWithdrawalRate = 0.04; // 4% безопасная ставка изъятия
   static const _averageInvestmentReturn = 0.07; // 7% средняя доходность инвестиций
@@ -127,8 +124,7 @@ final class FinancialIndependenceAnalyzer extends CombinedAnalyzer {
 
   /// Создает инсайт о целевом капитале для финансовой независимости
   Insight _createFITargetInsight(double requiredCapital, double annualExpenses) {
-    return Insight(
-      id: _uuid.v4(),
+    return createInsight(
       title: 'Цель финансовой независимости',
       description:
           'Для достижения финансовой независимости тебе потребуется капитал около '
@@ -165,8 +161,7 @@ final class FinancialIndependenceAnalyzer extends CombinedAnalyzer {
                 '${InsightUtils.currencyFormat.format(monthlySavings)}, ты сможешь достичь финансовой '
                 'независимости примерно через $years ${_getYearsWord(years)}, в возрасте около $estimatedAge лет.';
 
-    return Insight(
-      id: _uuid.v4(),
+    return createInsight(
       title: 'Путь к финансовой независимости',
       description: description,
       type: InsightType.forecast,
@@ -192,8 +187,7 @@ final class FinancialIndependenceAnalyzer extends CombinedAnalyzer {
     // Рассчитываем, сколько нужно сократить расходы
     final expenseReduction = (monthlyExpenses * 0.1); // 10% от текущих расходов
 
-    return Insight(
-      id: _uuid.v4(),
+    return createInsight(
       title: 'Стратегии ускорения финансовой независимости',
       description:
           'Увеличение нормы сбережений с $savingsRatePercent% до $targetSavingsRatePercent% '
@@ -216,8 +210,7 @@ final class FinancialIndependenceAnalyzer extends CombinedAnalyzer {
   Insight _createNegativeCashflowInsight(double monthlyIncome, double monthlyExpenses) {
     final deficit = monthlyExpenses - monthlyIncome;
 
-    return Insight(
-      id: _uuid.v4(),
+    return createInsight(
       title: 'Первый шаг к финансовой независимости',
       description:
           'Сейчас твои расходы превышают доходы на ${InsightUtils.currencyFormat.format(deficit)} '

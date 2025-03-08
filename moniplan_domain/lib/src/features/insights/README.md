@@ -45,6 +45,7 @@
 - Хранение источника данных
 - Фильтрацию операций по временному признаку
 - Шаблонный метод для анализа
+- Создание инсайтов с автоматическим добавлением информации об анализаторе
 
 ## Фильтрация операций
 
@@ -83,6 +84,42 @@ List<IFinancialData> get combinedOperations =>
     getFilteredOperations(period, InsightTimeframe.combined);
 ```
 
+## Создание инсайтов
+
+Все анализаторы имеют доступ к методу `createInsight`, который создает инсайт с автоматическим добавлением информации об анализаторе:
+
+```dart
+Insight createInsight({
+  required String id,
+  required String title,
+  required String description,
+  required InsightType type,
+  required InsightImportance importance,
+  InsightTimeframe timeframe = InsightTimeframe.combined,
+  List<Payment>? relatedPayments,
+  Map<String, dynamic>? additionalData,
+}) {
+  // Создаем копию дополнительных данных, чтобы не изменять оригинал
+  final Map<String, dynamic> data = additionalData != null ? Map<String, dynamic>.from(additionalData) : {};
+  
+  // Добавляем информацию об анализаторе
+  data['analyzerType'] = runtimeType.toString();
+  
+  return Insight(
+    id: id,
+    title: title,
+    description: description,
+    type: type,
+    importance: importance,
+    timeframe: timeframe,
+    relatedPayments: relatedPayments,
+    additionalData: data,
+  );
+}
+```
+
+Это позволяет отслеживать, какой анализатор создал каждый инсайт, что полезно для отладки и анализа работы системы.
+
 ## Создание нового анализатора
 
 Для создания нового анализатора необходимо:
@@ -90,6 +127,7 @@ List<IFinancialData> get combinedOperations =>
 1. Выбрать подходящий базовый класс (BaseRetrospectiveAnalyzer, BasePredictiveAnalyzer или BaseCombinedAnalyzer)
 2. Реализовать метод `analyzeInternal`
 3. Использовать геттеры для доступа к отфильтрованным операциям
+4. Использовать метод `createInsight` для создания инсайтов
 
 Пример:
 
@@ -103,6 +141,19 @@ class MyAnalyzer extends BaseRetrospectiveAnalyzer {
     final operations = retrospectiveOperations;
     
     // Логика анализа...
+    
+    // Создаем инсайт с автоматическим добавлением информации об анализаторе
+    insights.add(createInsight(
+      id: uuid.v4(),
+      title: 'Мой инсайт',
+      description: 'Описание инсайта',
+      type: InsightType.advice,
+      importance: InsightImportance.medium,
+      timeframe: InsightTimeframe.retrospective,
+      additionalData: {
+        'someData': 'someValue',
+      },
+    ));
     
     return insights;
   }
@@ -118,19 +169,11 @@ class MyAnalyzer extends BaseRetrospectiveAnalyzer {
 3. Фильтровать анализаторы по типу или тегам
 4. Регистрировать пользовательские анализаторы
 
-## Настройки анализаторов
-
-Для управления настройками анализаторов используется сервис `AnalyzerSettingsService`, который реализует интерфейс `IAnalyzerSettingsService`. Сервис позволяет:
-
-1. Включать и отключать анализаторы
-2. Сохранять и загружать настройки
-3. Получать список включенных анализаторов
-
 ## Генератор инсайтов
 
 Для генерации инсайтов используется класс `InsightGeneratorImpl`, который реализует интерфейс `IInsightGenerator`. Генератор:
 
-1. Создает анализаторы с помощью фабрики
-2. Загружает настройки анализаторов
-3. Применяет анализаторы к финансовым данным
+1. Создает адаптер для финансовых данных
+2. Инициализирует анализаторы с помощью фабрики
+3. Применяет все доступные анализаторы к финансовым данным
 4. Возвращает список инсайтов 

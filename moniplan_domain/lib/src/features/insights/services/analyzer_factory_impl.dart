@@ -13,7 +13,11 @@ class AnalyzerFactoryImpl implements IAnalyzerFactory {
   final Map<String, IFinancialAnalyzer Function()> _analyzerFactories = {};
 
   /// Инициализирует список доступных анализаторов
-  void initializeAnalyzers(IFinancialSource source) {
+  @override
+  void initAnalyzersData(IFinancialSource source) {
+    _availableAnalyzers.clear();
+    _analyzerFactories.clear();
+
     // Регистрируем стандартные анализаторы
     _registerAnalyzer(
       id: 'anomaly_analyzer',

@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:uuid/uuid.dart';
 import 'package:collection/collection.dart';
 
 import '../_index.dart';
@@ -12,8 +11,6 @@ import '../_index.dart';
 /// Использует алгоритмы оптимизации для выявления возможностей экономии
 /// и более эффективного распределения средств
 final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
-  final _uuid = Uuid();
-
   BudgetOptimizationAnalyzer(super.source);
 
   // Минимальный процент экономии, который считается значимым
@@ -134,8 +131,7 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
           final relatedPayments = PaymentExtractionService.extractPayments(highExpenses);
 
           insights.add(
-            Insight(
-              id: _uuid.v4(),
+            createInsight(
               title: 'Возможность оптимизации расходов на $category',
               description:
                   'Я обнаружил, что твои расходы на $category иногда значительно выше обычного. '
@@ -231,8 +227,7 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
       final subCategoryAnalysis = _analyzeSubCategories(categoryExpenses);
 
       insights.add(
-        Insight(
-          id: _uuid.v4(),
+        createInsight(
           title: 'Высокая доля расходов на $category',
           description:
               'Я заметил, что $percent% твоих расходов приходится на категорию "$category". '
@@ -423,8 +418,7 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
           .join(', ');
 
       insights.add(
-        Insight(
-          id: _uuid.v4(),
+        createInsight(
           title: 'Обнаружен перерасход бюджета',
           description:
               'Я выявил значительный перерасход в нескольких категориях: $categoriesText. '
@@ -611,8 +605,7 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
         final relatedPayments = PaymentExtractionService.extractPayments(highMonthPayments);
 
         insights.add(
-          Insight(
-            id: _uuid.v4(),
+          createInsight(
             title: 'Сезонная оптимизация расходов на $category',
             description:
                 'Я заметил, что твои расходы на $category значительно выше в следующие месяцы: ${highMonthNames.join(', ')}. '

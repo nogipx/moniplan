@@ -2,9 +2,6 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'dart:math';
-import 'package:uuid/uuid.dart';
-
 import '../_index.dart';
 
 /// Анализатор финансовых коэффициентов
@@ -13,8 +10,6 @@ import '../_index.dart';
 /// Сравнивает с рекомендуемыми значениями
 /// Предлагает пути улучшения показателей
 final class FinancialRatioAnalyzer extends RetrospectiveAnalyzer {
-  final _uuid = Uuid();
-
   // Рекомендуемые значения коэффициентов
   static const _recommendedSavingsRatio = 0.2; // 20% от дохода
   static const _maxDebtToIncomeRatio = 0.4; // 40% от дохода
@@ -101,8 +96,7 @@ final class FinancialRatioAnalyzer extends RetrospectiveAnalyzer {
             : 'Отличная работа! Ты сберегаешь около $percentSavings% своего дохода, что выше рекомендуемых $recommendedPercent%. '
                 'Это хороший задел для достижения финансовых целей и обеспечения стабильности.';
 
-    return Insight(
-      id: _uuid.v4(),
+    return createInsight(
       title: title,
       description: description,
       type: InsightType.advice,
@@ -137,8 +131,7 @@ final class FinancialRatioAnalyzer extends RetrospectiveAnalyzer {
             : 'Твои расходы составляют около $percentExpenses% от дохода, что позволяет формировать сбережения. '
                 'Это хороший баланс между текущим потреблением и накоплениями на будущее.';
 
-    return Insight(
-      id: _uuid.v4(),
+    return createInsight(
       title: title,
       description: description,
       type: InsightType.advice,
@@ -174,8 +167,7 @@ final class FinancialRatioAnalyzer extends RetrospectiveAnalyzer {
             : 'Твоих сбережений хватит примерно на $roundedMonths месяцев расходов, что соответствует или превышает рекомендуемые $_recommendedEmergencyFundMonths месяца. '
                 'У тебя есть хорошая финансовая подушка безопасности на случай непредвиденных ситуаций.';
 
-    return Insight(
-      id: _uuid.v4(),
+    return createInsight(
       title: title,
       description: description,
       type: InsightType.advice,

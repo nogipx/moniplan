@@ -4,9 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
-import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
-import 'package:moniplan_app/features/planner/insights/widgets/insight_data_details.dart';
 
 /// Экран для отображения данных, использованных при анализе инсайта
 class InsightDataScreen extends StatelessWidget {
@@ -27,15 +25,9 @@ class InsightDataScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(insight.title),
+        title: Text('Данные анализа', style: context.text.displayMedium),
         backgroundColor: importanceColor.withOpacity(0.1),
         foregroundColor: importanceColor,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () => _showHelpDialog(context),
-          ),
-        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -64,11 +56,6 @@ class InsightDataScreen extends StatelessWidget {
                     // Связанные платежи
                     if (insight.relatedPayments != null && insight.relatedPayments!.isNotEmpty)
                       _buildRelatedPayments(context),
-
-                    const SizedBox(height: 24),
-
-                    // Рекомендации
-                    _buildRecommendations(context),
                   ],
                 ),
               ),
@@ -341,49 +328,6 @@ class InsightDataScreen extends StatelessWidget {
     );
   }
 
-  /// Строит блок с рекомендациями
-  Widget _buildRecommendations(BuildContext context) {
-    final recommendation = _getRecommendation();
-    final recommendationIcon = _getRecommendationIcon();
-    final recommendationColor = _getRecommendationColor();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Что делать?',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: context.color.onSurface,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: recommendationColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: recommendationColor.withOpacity(0.3)),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(recommendationIcon, color: recommendationColor, size: 24),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  recommendation,
-                  style: TextStyle(fontSize: 15, color: context.color.onSurface),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   /// Строит информационный чип
   Widget _buildInfoChip(BuildContext context, String text, IconData icon, Color color) {
     return Container(
@@ -485,37 +429,6 @@ class InsightDataScreen extends StatelessWidget {
         return Colors.orange;
       case InsightTimeframe.combined:
         return Colors.purple;
-    }
-  }
-
-  /// Получает рекомендацию в зависимости от типа инсайта
-  String _getRecommendation() {
-    switch (insight.type) {
-      case InsightType.expenseStructure:
-        return 'Проанализируй свои расходы по категориям. Если какая-то категория занимает слишком большую долю бюджета, подумай о способах сократить эти расходы или перераспределить средства более равномерно.';
-
-      case InsightType.pattern:
-        return 'Обрати внимание на выявленные закономерности в твоих финансовых привычках. Используй эту информацию для более эффективного планирования будущих расходов и доходов.';
-
-      case InsightType.forecast:
-        if (insight.importance == InsightImportance.critical ||
-            insight.importance == InsightImportance.high) {
-          return 'Твой текущий финансовый курс может привести к проблемам. Рассмотри возможность сократить некоторые необязательные расходы или найти дополнительные источники дохода в ближайшее время.';
-        } else {
-          return 'Твои финансы развиваются в правильном направлении. Продолжай следить за балансом доходов и расходов, чтобы сохранить финансовую стабильность.';
-        }
-
-      case InsightType.optimization:
-        return 'Рассмотри возможность оптимизировать свои расходы, отложив или отменив некоторые необязательные платежи. Это поможет улучшить твое финансовое положение и избежать возможных проблем в будущем.';
-
-      case InsightType.comparison:
-        return 'Сравни свои текущие финансовые показатели с предыдущими периодами. Это поможет тебе увидеть прогресс и определить области, требующие внимания.';
-
-      case InsightType.goal:
-        return 'Следуй своему финансовому плану и регулярно отслеживай прогресс в достижении поставленных целей. При необходимости корректируй свою стратегию.';
-
-      case InsightType.advice:
-        return 'Примени этот финансовый совет к своей ситуации. Даже небольшие изменения в финансовых привычках могут привести к значительным улучшениям в долгосрочной перспективе.';
     }
   }
 
@@ -654,83 +567,5 @@ class InsightDataScreen extends StatelessWidget {
     } else {
       return '${date.day}.${date.month}.${date.year}';
     }
-  }
-
-  /// Показывает диалог справки
-  void _showHelpDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('О данных для анализа'),
-            content: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'На этом экране показаны конкретные данные, которые были использованы для формирования инсайта.',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Ты можешь:', style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  _buildHelpItem(
-                    context,
-                    'Изучить ключевые факты',
-                    'Они помогут понять, на чем основан инсайт',
-                  ),
-                  _buildHelpItem(
-                    context,
-                    'Просмотреть связанные платежи',
-                    'Увидеть конкретные транзакции, повлиявшие на анализ',
-                  ),
-                  _buildHelpItem(
-                    context,
-                    'Получить рекомендации',
-                    'Узнать, какие действия стоит предпринять',
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Это поможет тебе принимать более обоснованные финансовые решения и улучшить свое финансовое положение.',
-                    style: TextStyle(fontStyle: FontStyle.italic),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Понятно'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  /// Строит элемент справки
-  Widget _buildHelpItem(BuildContext context, String title, String description) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.check_circle, size: 16, color: Colors.green),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  description,
-                  style: TextStyle(color: context.color.onSurface.withOpacity(0.7)),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

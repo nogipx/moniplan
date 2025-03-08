@@ -2,11 +2,13 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import '../models/analyzer_descriptor.dart';
-import 'i_financial_analyzer.dart';
+import '../_index.dart';
 
 /// Интерфейс фабрики анализаторов
 abstract class IAnalyzerFactory {
+  /// Инициализирует анализаторы
+  void initAnalyzersData(IFinancialSource source);
+
   /// Получает список всех доступных анализаторов с их описаниями
   List<AnalyzerDescriptor> getAvailableAnalyzers();
 

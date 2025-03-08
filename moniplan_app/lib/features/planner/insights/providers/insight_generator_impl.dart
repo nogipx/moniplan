@@ -3,23 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:logging/logging.dart';
-import 'package:moniplan_app/core/utils/shared_preferences_settings_storage.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 import 'moniplan_adapters.dart';
-
-/// Адаптер для преобразования SharedPreferencesSettingsStorage в ISettingsStorage
-class SettingsStorageAdapter implements ISettingsStorage {
-  final SettingsStorage _storage;
-
-  SettingsStorageAdapter(this._storage);
-
-  @override
-  Future<String?> getString(String key) => _storage.getString(key);
-
-  @override
-  Future<void> saveString(String key, String value) => _storage.saveString(key, value);
-}
 
 /// Реализация генератора инсайтов
 class InsightGeneratorImpl implements IInsightGenerator {
@@ -28,31 +14,15 @@ class InsightGeneratorImpl implements IInsightGenerator {
   /// Фабрика анализаторов
   final IAnalyzerFactory _analyzerFactory;
 
-  /// Сервис настроек анализаторов
-  final IAnalyzerSettingsService _settingsService;
-
   /// Конструктор
-  InsightGeneratorImpl({
-    IAnalyzerFactory? analyzerFactory,
-    IAnalyzerSettingsService? settingsService,
-  }) : _analyzerFactory = analyzerFactory ?? AnalyzerFactoryImpl(),
-       _settingsService =
-           settingsService ??
-           AnalyzerSettingsService(
-             analyzerFactory: analyzerFactory ?? AnalyzerFactoryImpl(),
-             settingsStorage: SettingsStorageAdapter(SharedPreferencesSettingsStorage()),
-           );
+  InsightGeneratorImpl({IAnalyzerFactory? analyzerFactory})
+    : _analyzerFactory = analyzerFactory ?? AnalyzerFactoryImpl();
 
   @override
   Future<List<Insight>> generateInsights(Planner planner) async {
-    // Загружаем настройки анализаторов
-    await _settingsService.loadSettings();
-
-    // Получаем идентификаторы включенных анализаторов
-    final enabledAnalyzerIds = _settingsService.getEnabledAnalyzerIds();
-
     // Создаем адаптер для планера
     final periodAdapter = MoniplanPlannerFinancialSource(planner);
+    _analyzerFactory.initAnalyzersData(periodAdapter);
 
     // Получаем завершенные и запланированные операции
     final allCompletedOperations = periodAdapter.completedOperations;
@@ -69,8 +39,8 @@ class InsightGeneratorImpl implements IInsightGenerator {
       return [];
     }
 
-    // Создаем анализаторы по идентификаторам
-    final analyzers = _analyzerFactory.createAnalyzers(enabledAnalyzerIds);
+    // Создаем все анализаторы
+    final analyzers = _analyzerFactory.createAllAnalyzers();
 
     // Список для хранения всех инсайтов
     final results = <AnalysisResult>[];

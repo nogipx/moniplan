@@ -12,8 +12,6 @@ import '../_index.dart';
 /// Выявляет категории с наибольшим ростом
 /// Предлагает стратегии контроля расходов
 final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
-  final _uuid = Uuid();
-
   // Пороговые значения для анализа
   static const _significantInflationPercent = 15.0; // 15% считается значительным ростом
   static const _minDataPeriodMonths = 3; // Минимальный период для анализа (в месяцах)
@@ -139,8 +137,7 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
             : 'Отличная работа! Твои расходы растут медленнее, чем доходы (на ${(-inflationGap).toStringAsFixed(1)}%). '
                 'Это позволяет увеличивать сбережения и создает запас прочности для твоего бюджета.';
 
-    return Insight(
-      id: _uuid.v4(),
+    return createInsight(
       title: title,
       description: description,
       type: InsightType.pattern,
@@ -209,8 +206,7 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
 
     if (topGrowthCategories.isEmpty) {
       // Если нет категорий с ростом, создаем позитивный инсайт
-      return Insight(
-        id: _uuid.v4(),
+      return createInsight(
         title: 'Стабильные расходы по категориям',
         description:
             'Отличная работа! Ни в одной категории расходов не наблюдается значительного роста. '
@@ -233,8 +229,7 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
         )
         .join(', ');
 
-    return Insight(
-      id: _uuid.v4(),
+    return createInsight(
       title: 'Категории с наибольшим ростом расходов',
       description:
           'Я заметил значительный рост расходов в следующих категориях: $categoriesDescription. '

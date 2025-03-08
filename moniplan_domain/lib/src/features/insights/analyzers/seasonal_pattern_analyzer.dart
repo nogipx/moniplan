@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:math';
-import 'package:uuid/uuid.dart';
 import 'package:collection/collection.dart';
 
 import '../_index.dart';
@@ -13,8 +12,6 @@ import '../_index.dart';
 /// Использует алгоритмы анализа временных рядов для выявления
 /// сезонных трендов в расходах и доходах
 final class SeasonalPatternAnalyzer extends RetrospectiveAnalyzer {
-  final _uuid = Uuid();
-
   SeasonalPatternAnalyzer(super.source);
 
   @override
@@ -123,8 +120,7 @@ final class SeasonalPatternAnalyzer extends RetrospectiveAnalyzer {
       final relatedPayments = PaymentExtractionService.extractPayments(highMonthPayments);
 
       insights.add(
-        Insight(
-          id: _uuid.v4(),
+        createInsight(
           title: 'Обнаружены сезонные пики расходов',
           description:
               'Я выявил сезонный паттерн в твоих расходах. В $highMonthsText твои расходы '
@@ -237,8 +233,7 @@ final class SeasonalPatternAnalyzer extends RetrospectiveAnalyzer {
       final relatedPayments = PaymentExtractionService.extractPayments(maxDayPayments);
 
       insights.add(
-        Insight(
-          id: _uuid.v4(),
+        createInsight(
           title: 'Выявлен пик расходов по дням недели',
           description:
               'Я обнаружил, что в ${weekdayNames[maxWeekday.key - 1]} твои расходы '
@@ -384,8 +379,7 @@ final class SeasonalPatternAnalyzer extends RetrospectiveAnalyzer {
       final topCategories = sortedCategories.take(3).map((e) => e.key).join(', ');
 
       insights.add(
-        Insight(
-          id: _uuid.v4(),
+        createInsight(
           title: 'Выявлен паттерн расходов по времени суток',
           description:
               'Я заметил, что $percentOfTotal% твоих расходов приходится на ${maxInterval.key}. '

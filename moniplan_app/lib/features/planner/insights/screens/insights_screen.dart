@@ -61,7 +61,7 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
 
     try {
       // Создаем генератор инсайтов с текущими настройками
-      final insightGenerator = InsightGeneratorImpl();
+      final insightGenerator = InsightGeneratorImpl(analyzerFactory: AnalyzerFactoryImpl());
 
       // Добавляем небольшую задержку, чтобы показать индикатор загрузки
       // Это нужно, так как сложные вычисления могут занять время
@@ -798,10 +798,6 @@ class InsightCard extends StatelessWidget {
                     const SizedBox(height: 16),
                     _buildRelatedPayments(context),
                   ],
-
-                  // Рекомендации и действия
-                  const SizedBox(height: 16),
-                  _buildRecommendations(context),
                 ],
               ),
             ),
