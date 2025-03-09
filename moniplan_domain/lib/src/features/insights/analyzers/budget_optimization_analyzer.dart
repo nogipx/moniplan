@@ -3,15 +3,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:collection/collection.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 import '../_index.dart';
+import '../categorization/_index.dart';
 
 /// Анализатор для оптимизации бюджета
 ///
 /// Использует алгоритмы оптимизации для выявления возможностей экономии
 /// и более эффективного распределения средств
 final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
-  BudgetOptimizationAnalyzer(super.source);
+  /// Категоризатор платежей
+  final ICategoryPredictor _categorizer;
+  final List<Payment> _payments;
+
+  BudgetOptimizationAnalyzer(super.source, ICategoryPredictor categorizer, List<Payment> payments)
+    : _categorizer = categorizer,
+      _payments = payments;
 
   // Минимальный процент экономии, который считается значимым
   static const _minSavingsPercent = 5;
@@ -32,21 +40,70 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
       return AnalysisResult.empty();
     }
 
+    // Категоризируем операции
+    final categorizedCompletedOperations = await _categorizeExpenses(completedOperations);
+    final categorizedPlannedOperations = await _categorizeExpenses(plannedOperations);
+
     // 1. Анализ повторяющихся расходов и поиск возможностей для оптимизации
-    insights.addAll(_analyzeRecurringExpenses(completedOperations));
+    insights.addAll(_analyzeRecurringExpenses(categorizedCompletedOperations));
 
     // 2. Анализ категорий с избыточными расходами
-    insights.addAll(_analyzeOverspendingCategories(completedOperations));
+    insights.addAll(_analyzeOverspendingCategories(categorizedCompletedOperations));
 
     // 3. Анализ возможностей для оптимизации на основе сравнения с запланированными операциями
-    if (plannedOperations.isNotEmpty) {
-      insights.addAll(_analyzeActualVsPlanned(completedOperations, plannedOperations));
+    if (categorizedPlannedOperations.isNotEmpty) {
+      insights.addAll(
+        _analyzeActualVsPlanned(categorizedCompletedOperations, categorizedPlannedOperations),
+      );
     }
 
     // 4. Анализ возможностей для оптимизации на основе сезонных паттернов
-    insights.addAll(_analyzeSeasonalOptimization(completedOperations));
+    insights.addAll(_analyzeSeasonalOptimization(categorizedCompletedOperations));
 
     return AnalysisResult(insights: insights, analysisData: analysisData ?? {});
+  }
+
+  /// Категоризирует расходы без категорий
+  Future<List<IFinancialData>> _categorizeExpenses(List<IFinancialData> expenses) async {
+    if (expenses.isEmpty) {
+      return [];
+    }
+
+    // Категоризируем расходы без категорий
+    final categorizedExpenses = await Future.wait(
+      expenses.map(
+        (e) async => MapEntry(
+          e,
+          await _categorizer.predictCategory(
+            Payment(
+              paymentId: e.id,
+              details: PaymentDetails(
+                name: e.category,
+                money: e.amount.toDouble(),
+                type:
+                    e.type == FinancialOperationType.expense
+                        ? PaymentType.expense
+                        : PaymentType.income,
+                currency: CurrencyData.create('RUB', 2),
+              ),
+              date: e.date,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Объединяем расходы с категориями и категоризированные расходы
+    return categorizedExpenses
+        .map(
+          (e) => _CategorizedFinancialData(
+            originalData: e.key,
+            // Используем предсказанную категорию, если она есть, иначе используем оригинальную категорию
+            category: e.value.isNotEmpty ? e.value.first.category : e.key.category,
+            categoryPredictions: e.value,
+          ),
+        )
+        .toList();
   }
 
   /// Анализирует повторяющиеся расходы и ищет возможности для оптимизации
@@ -134,11 +191,17 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
             createInsight(
               title: 'Возможность оптимизации расходов на $category',
               description:
+                  'Можно сэкономить около ${InsightUtils.currencyFormat.format(potentialSavings)} ($savingsPercent%) на расходах в категории $category.',
+              detailedDescription:
                   'Я обнаружил, что твои расходы на $category иногда значительно выше обычного. '
                   'Если бы ты оптимизировал эти расходы до среднего уровня, то мог бы сэкономить '
-                  'около ${InsightUtils.currencyFormat.format(potentialSavings)} (примерно $savingsPercent% от общих расходов в этой категории). '
+                  'около ${InsightUtils.currencyFormat.format(potentialSavings)} (примерно $savingsPercent% от общих расходов в этой категории).\n\n'
                   'Возможно, стоит проанализировать, почему некоторые платежи значительно выше других, '
-                  'и найти способы снизить эти пиковые расходы.',
+                  'и найти способы снизить эти пиковые расходы. Это может включать:\n'
+                  '• Поиск более выгодных предложений или акций\n'
+                  '• Планирование крупных покупок заранее\n'
+                  '• Распределение расходов более равномерно\n'
+                  '• Пересмотр необходимости некоторых трат',
               type: InsightType.optimization,
               importance: savingsPercent > 15 ? InsightImportance.high : InsightImportance.medium,
               timeframe: InsightTimeframe.combined,
@@ -229,11 +292,16 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
       insights.add(
         createInsight(
           title: 'Высокая доля расходов на $category',
-          description:
+          description: '$percent% расходов приходится на категорию "$category".',
+          detailedDescription:
               'Я заметил, что $percent% твоих расходов приходится на категорию "$category". '
               'Это значительная часть твоего бюджета. ${subCategoryAnalysis.isNotEmpty ? 'Особенно выделяются расходы на: ${subCategoryAnalysis.take(2).map((e) => "${e['name']} (${e['percent']}%)").join(', ')}. ' : ''}'
-              'Возможно, стоит пересмотреть эти расходы и найти способы их оптимизации. '
-              'Даже небольшое сокращение в этой категории может дать значительную экономию.',
+              'Возможно, стоит пересмотреть эти расходы и найти способы их оптимизации.\n\n'
+              'Когда одна категория занимает большую долю бюджета, это может указывать на:\n'
+              '• Необходимость пересмотреть приоритеты расходов\n'
+              '• Возможность найти более выгодные альтернативы\n'
+              '• Потенциал для экономии без существенного снижения качества жизни\n\n'
+              'Даже небольшое сокращение в этой категории может дать значительную экономию в абсолютных цифрах.',
           type: InsightType.optimization,
           importance: percent > 40 ? InsightImportance.high : InsightImportance.medium,
           timeframe: InsightTimeframe.combined,
@@ -421,10 +489,16 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
         createInsight(
           title: 'Обнаружен перерасход бюджета',
           description:
+              'Перерасход в категориях: ${topCategories.map((e) => e.key).join(', ')}. Общая сумма: ${InsightUtils.currencyFormat.format(totalOverspend)}.',
+          detailedDescription:
               'Я выявил значительный перерасход в нескольких категориях: $categoriesText. '
-              'Общая сумма перерасхода составляет ${InsightUtils.currencyFormat.format(totalOverspend)}. '
-              'Более тщательное планирование и контроль расходов в этих категориях '
-              'поможет тебе оптимизировать бюджет и избежать незапланированных трат.',
+              'Общая сумма перерасхода составляет ${InsightUtils.currencyFormat.format(totalOverspend)}.\n\n'
+              'Перерасход бюджета может привести к финансовым трудностям и снижению способности к накоплению сбережений. '
+              'Рекомендации для контроля расходов:\n'
+              '• Более тщательное планирование бюджета по категориям\n'
+              '• Регулярный мониторинг расходов в течение месяца\n'
+              '• Установка лимитов на расходы в проблемных категориях\n'
+              '• Поиск более доступных альтернатив для часто покупаемых товаров и услуг',
           type: InsightType.optimization,
           importance: totalOverspend > 5000 ? InsightImportance.high : InsightImportance.medium,
           timeframe: InsightTimeframe.combined,
@@ -608,10 +682,21 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
           createInsight(
             title: 'Сезонная оптимизация расходов на $category',
             description:
+                'Расходы на $category выше в месяцы: ${highMonthNames.join(', ')}. Потенциальная экономия: ${InsightUtils.currencyFormat.format(potentialSavingsTotal)}.',
+            detailedDescription:
                 'Я заметил, что твои расходы на $category значительно выше в следующие месяцы: ${highMonthNames.join(', ')}. '
                 'Если бы ты оптимизировал эти расходы до среднего уровня, то мог бы сэкономить '
-                'около ${InsightUtils.currencyFormat.format(potentialSavingsTotal)} в год. '
-                'Возможно, стоит заранее планировать бюджет на эти месяцы или искать альтернативные варианты.',
+                'около ${InsightUtils.currencyFormat.format(potentialSavingsTotal)} в год.\n\n'
+                'Сезонные колебания расходов могут быть связаны с различными факторами:\n'
+                '• Праздники и особые события\n'
+                '• Сезонные потребности (отопление зимой, кондиционирование летом)\n'
+                '• Отпуска и путешествия\n'
+                '• Начало учебного года или другие периодические события\n\n'
+                'Рекомендации для оптимизации:\n'
+                '• Заранее планируй бюджет на месяцы с высокими расходами\n'
+                '• Ищи альтернативные варианты или акции\n'
+                '• Распредели крупные покупки на несколько месяцев\n'
+                '• Создавай резервный фонд для сезонных расходов',
             type: InsightType.optimization,
             importance:
                 potentialSavingsTotal > 10000 ? InsightImportance.high : InsightImportance.medium,
@@ -641,4 +726,42 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
 
     return insights;
   }
+}
+
+/// Класс для хранения категоризированных финансовых данных
+class _CategorizedFinancialData implements IFinancialData {
+  final IFinancialData originalData;
+  final String category;
+  final List<CategoryPrediction> categoryPredictions;
+
+  _CategorizedFinancialData({
+    required this.originalData,
+    required this.category,
+    required this.categoryPredictions,
+  });
+
+  @override
+  String get id => originalData.id;
+
+  @override
+  DateTime get date => originalData.date;
+
+  @override
+  num get amount => originalData.amount;
+
+  @override
+  FinancialOperationType get type => originalData.type;
+
+  @override
+  FinancialOperationStatus get status => originalData.status;
+
+  @override
+  Map<String, dynamic>? get additionalData => {
+    ...?originalData.additionalData,
+    'categoryPredictions':
+        categoryPredictions
+            .map((p) => {'category': p.category, 'probability': p.probability})
+            .toList(),
+    'originalCategory': originalData.category,
+  };
 }

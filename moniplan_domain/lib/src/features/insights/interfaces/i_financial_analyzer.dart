@@ -46,6 +46,7 @@ abstract interface class IFinancialAnalyzer {
   Insight createInsight({
     required String title,
     required String description,
+    String? detailedDescription,
     required InsightType type,
     required InsightImportance importance,
     InsightTimeframe timeframe = InsightTimeframe.combined,
@@ -75,6 +76,7 @@ abstract base class IBaseFinancialAnalyzer implements IFinancialAnalyzer {
   Insight createInsight({
     required String title,
     required String description,
+    String? detailedDescription,
     required InsightType type,
     required InsightImportance importance,
     InsightTimeframe timeframe = InsightTimeframe.combined,
@@ -93,6 +95,7 @@ abstract base class IBaseFinancialAnalyzer implements IFinancialAnalyzer {
       id: id,
       title: title,
       description: description,
+      detailedDescription: detailedDescription,
       type: type,
       importance: importance,
       timeframe: timeframe,

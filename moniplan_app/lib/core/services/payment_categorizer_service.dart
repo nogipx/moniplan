@@ -195,9 +195,6 @@ class PaymentCategorizerService {
       throw Exception('TFLite интерпретатор не инициализирован');
     }
 
-    debugPrint(
-      'PaymentCategorizerService #$_instanceId: предсказание категории для текста "$text" (доход: $isIncome)',
-    );
     try {
       // Токенизируем текст
       final sequence = _tokenize(text);
@@ -227,9 +224,6 @@ class PaymentCategorizerService {
 
         // Обрабатываем результаты
         final result = _processOutput(output[0]);
-        debugPrint(
-          'PaymentCategorizerService #$_instanceId: предсказание успешно, найдено ${result.length} категорий',
-        );
         return result;
       } catch (e) {
         debugPrint('Ошибка при выполнении предсказания: $e');
@@ -266,9 +260,6 @@ class PaymentCategorizerService {
             _interpreter!.runForMultipleInputs(adaptiveInputs, adaptiveOutputs);
 
             final result = _processOutput(output[0]);
-            debugPrint(
-              'PaymentCategorizerService #$_instanceId: предсказание успешно, найдено ${result.length} категорий',
-            );
             return result;
           } else {
             debugPrint(

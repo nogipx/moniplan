@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:moniplan_domain/moniplan_domain.dart';
+import '../utils/payment_extraction_service.dart';
 
 /// Реализация фабрики анализаторов
 class AnalyzerFactoryImpl implements IAnalyzerFactory {
@@ -40,7 +41,12 @@ class AnalyzerFactoryImpl implements IAnalyzerFactory {
       type: AnalyzerType.retrospective,
       order: 4,
       tags: ['inflation', 'lifestyle', 'advanced', 'retrospective'],
-      factory: () => LifestyleInflationAnalyzer(source),
+      factory:
+          () => LifestyleInflationAnalyzer(
+            source,
+            categorizer,
+            PaymentExtractionService.extractPayments(source.operations) ?? [],
+          ),
     );
 
     // Прогностические анализаторы
@@ -62,7 +68,12 @@ class AnalyzerFactoryImpl implements IAnalyzerFactory {
       type: AnalyzerType.combined,
       order: 8,
       tags: ['optimization', 'budget', 'advanced', 'combined'],
-      factory: () => BudgetOptimizationAnalyzer(source),
+      factory:
+          () => BudgetOptimizationAnalyzer(
+            source,
+            categorizer,
+            PaymentExtractionService.extractPayments(source.operations) ?? [],
+          ),
     );
 
     _registerAnalyzer(

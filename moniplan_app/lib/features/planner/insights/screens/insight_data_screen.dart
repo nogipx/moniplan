@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import '../widgets/insight_charts.dart';
 
 /// Экран для отображения данных, использованных при анализе инсайта
 class InsightDataScreen extends StatelessWidget {
@@ -136,6 +137,9 @@ class InsightDataScreen extends StatelessWidget {
 
   /// Строит описание инсайта
   Widget _buildDescription(BuildContext context) {
+    // Используем detailedDescription, если оно доступно, иначе используем обычное description
+    final description = insight.detailedDescription ?? insight.description;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -148,9 +152,41 @@ class InsightDataScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(insight.description, style: TextStyle(fontSize: 15, color: context.color.onSurface)),
+        Text(
+          description,
+          style: TextStyle(fontSize: 15, color: context.color.onSurface),
+          textAlign: TextAlign.justify,
+        ),
+
+        // Добавляем графики, если они доступны для этого типа инсайта
+        if (insight.additionalData != null) _buildCharts(context),
       ],
     );
+  }
+
+  /// Строит графики для инсайта в зависимости от его типа
+  Widget _buildCharts(BuildContext context) {
+    if (insight.additionalData == null) {
+      return const SizedBox.shrink();
+    }
+
+    // Проверяем, является ли это инсайтом с предложениями категорий
+    if (insight.id == 'category_suggestion_insight') {
+      return InsightCharts.buildCategorySuggestionChart(context, insight.additionalData!);
+    }
+
+    switch (insight.type) {
+      case InsightType.expenseStructure:
+        return InsightCharts.buildExpenseStructurePieChart(context, insight.additionalData!);
+      case InsightType.comparison:
+        return InsightCharts.buildComparisonLineChart(context, insight.additionalData!);
+      case InsightType.pattern:
+        return InsightCharts.buildPatternBarChart(context, insight.additionalData!);
+      case InsightType.optimization:
+        return InsightCharts.buildOptimizationChart(context, insight.additionalData!);
+      default:
+        return const SizedBox.shrink();
+    }
   }
 
   /// Строит блок с данными, использованными для анализа

@@ -84,11 +84,12 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
               paymentId: e.id,
               details: PaymentDetails(
                 name: e.category,
+                money: e.amount.toDouble(),
                 type:
                     e.type == FinancialOperationType.expense
                         ? PaymentType.expense
                         : PaymentType.income,
-                currency: CurrencyData.create('', 2),
+                currency: CurrencyData.create('RUB', 2),
               ),
               date: e.date,
             ),
@@ -96,10 +97,16 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
         ),
       ),
     );
+
     // Объединяем расходы с категориями и категоризированные расходы
     return categorizedExpenses
         .map(
-          (e) => _CategorizedFinancialData(originalData: e.key, category: e.value.first.category),
+          (e) => _CategorizedFinancialData(
+            originalData: e.key,
+            // Используем предсказанную категорию, если она есть, иначе используем оригинальную категорию
+            category: e.value.isNotEmpty ? e.value.first.category : e.key.category,
+            categoryPredictions: e.value,
+          ),
         )
         .toList();
   }
@@ -138,14 +145,57 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
     final topCategoriesTotal = topCategories.fold<double>(0, (sum, entry) => sum + entry.value);
     final topCategoriesPercent = (topCategoriesTotal / totalExpenses * 100).round();
 
+    // Собираем информацию о категориях и операциях
+    final categoriesInfo = <Map<String, dynamic>>[];
+    for (final entry in sortedCategories) {
+      final category = entry.key;
+      final total = entry.value;
+      final percent = (total / totalExpenses * 100).round();
+
+      // Получаем операции для этой категории
+      final categoryExpenses = expensesByCategory[category] ?? [];
+
+      // Собираем информацию об операциях
+      final operationsInfo =
+          categoryExpenses.map((expense) {
+            // Проверяем, является ли операция категоризированной
+            final categorizedExpense = expense is _CategorizedFinancialData ? expense : null;
+
+            return {
+              'id': expense.id,
+              'name': expense.category,
+              'amount': expense.amount,
+              'date': expense.date.toIso8601String(),
+              'originalCategory': categorizedExpense?.originalData.category,
+              'predictions':
+                  categorizedExpense?.categoryPredictions.map((prediction) {
+                    return {'category': prediction.category, 'probability': prediction.probability};
+                  }).toList(),
+            };
+          }).toList();
+
+      categoriesInfo.add({
+        'category': category,
+        'total': total,
+        'percent': percent,
+        'operations': operationsInfo,
+      });
+    }
+
     // Создаем инсайт о распределении расходов по категориям
     insights.add(
       createInsight(
         title: 'Распределение расходов по категориям',
         description:
+            'Основные категории расходов: ${topCategories.map((e) => e.key).join(', ')}. На них приходится $topCategoriesPercent% всех трат.',
+        detailedDescription:
             'Основные категории твоих расходов: ${topCategories.map((e) => e.key).join(', ')}. '
             'На них приходится $topCategoriesPercent% всех расходов. '
-            'Самая крупная категория - "${topCategories.first.key}" (${(topCategories.first.value / totalExpenses * 100).round()}% расходов).',
+            'Самая крупная категория - "${topCategories.first.key}" (${(topCategories.first.value / totalExpenses * 100).round()}% расходов).\n\n'
+            'Анализ структуры расходов помогает понять, на что уходит большая часть денег, '
+            'и выявить возможности для оптимизации бюджета. '
+            'Обрати внимание на категории с наибольшей долей расходов - '
+            'возможно, именно там есть потенциал для экономии.',
         type: InsightType.expenseStructure,
         importance: InsightImportance.medium,
         additionalData: {
@@ -161,6 +211,8 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
                     },
                   )
                   .toList(),
+          'allCategories': categoriesInfo,
+          'usedCategorization': true,
         },
       ),
     );
@@ -241,9 +293,13 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
       insights.add(
         createInsight(
           title: 'Изменение расходов по категориям',
-          description:
+          description: 'Значительные изменения в категориях: $changesDescription.',
+          detailedDescription:
               'Я заметил значительные изменения в твоих расходах по некоторым категориям: $changesDescription. '
-              'Это может быть связано с изменением твоих привычек или сезонными факторами.',
+              'Это может быть связано с изменением твоих привычек или сезонными факторами.\n\n'
+              'Анализ динамики расходов помогает выявить тренды и изменения в твоем финансовом поведении. '
+              'Рост расходов в определенных категориях может указывать на изменение образа жизни или появление новых потребностей. '
+              'Снижение расходов может говорить об успешной оптимизации бюджета или изменении приоритетов.',
           type: InsightType.comparison,
           importance:
               significantChanges.any((entry) => entry.value.abs() > 50)
@@ -289,11 +345,18 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
 
 /// Обертка для финансовых данных с категорией
 class _CategorizedFinancialData implements IFinancialData {
+  @override
   final IFinancialData originalData;
+
   @override
   final String category;
+  final List<CategoryPrediction> categoryPredictions;
 
-  _CategorizedFinancialData({required this.originalData, required this.category});
+  _CategorizedFinancialData({
+    required this.originalData,
+    required this.category,
+    required this.categoryPredictions,
+  });
 
   @override
   num get amount => originalData.amount;
@@ -305,10 +368,10 @@ class _CategorizedFinancialData implements IFinancialData {
   String get id => originalData.id;
 
   @override
-  FinancialOperationStatus get status => originalData.status;
+  FinancialOperationType get type => originalData.type;
 
   @override
-  FinancialOperationType get type => originalData.type;
+  FinancialOperationStatus get status => originalData.status;
 
   @override
   Map<String, dynamic>? get additionalData => originalData.additionalData;

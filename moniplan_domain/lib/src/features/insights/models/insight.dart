@@ -68,8 +68,11 @@ class Insight with _$Insight {
     /// Заголовок инсайта
     required String title,
 
-    /// Подробное описание инсайта
+    /// Краткое описание инсайта для списка
     required String description,
+
+    /// Подробное описание инсайта для экрана деталей
+    String? detailedDescription,
 
     /// Тип инсайта
     required InsightType type,

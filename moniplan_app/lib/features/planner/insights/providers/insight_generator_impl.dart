@@ -36,6 +36,11 @@ class InsightGeneratorImpl implements IInsightGenerator {
         _categoryPredictor,
         planner.payments,
       ),
+      'category_suggestion_analyzer': CategorySuggestionAnalyzer(
+        periodAdapter,
+        _categoryPredictor,
+        planner.payments,
+      ),
     };
 
     // Регистрируем кастомные анализаторы и инициализируем

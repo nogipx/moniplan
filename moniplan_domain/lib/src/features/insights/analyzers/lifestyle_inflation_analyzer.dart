@@ -3,8 +3,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:uuid/uuid.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 import '../_index.dart';
+import '../categorization/_index.dart';
 
 /// Анализатор инфляции образа жизни
 ///
@@ -16,7 +18,13 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
   static const _significantInflationPercent = 15.0; // 15% считается значительным ростом
   static const _minDataPeriodMonths = 3; // Минимальный период для анализа (в месяцах)
 
-  LifestyleInflationAnalyzer(super.source);
+  /// Категоризатор платежей
+  final ICategoryPredictor _categorizer;
+  final List<Payment> _payments;
+
+  LifestyleInflationAnalyzer(super.source, ICategoryPredictor categorizer, List<Payment> payments)
+    : _categorizer = categorizer,
+      _payments = payments;
 
   @override
   Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData}) async {
@@ -44,10 +52,13 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
       return AnalysisResult.empty();
     }
 
+    // Категоризируем операции
+    final categorizedOperations = await _categorizeExpenses(completedOperations);
+
     // Разделяем данные на две половины для сравнения
-    final midpoint = completedOperations.length ~/ 2;
-    final firstHalf = completedOperations.sublist(0, midpoint);
-    final secondHalf = completedOperations.sublist(midpoint);
+    final midpoint = categorizedOperations.length ~/ 2;
+    final firstHalf = categorizedOperations.sublist(0, midpoint);
+    final secondHalf = categorizedOperations.sublist(midpoint);
 
     // Анализируем доходы и расходы в обоих периодах
     final firstHalfAnalysis = _analyzeOperations(firstHalf);
@@ -60,6 +71,45 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
     insights.add(_createCategoryInflationInsight(firstHalfAnalysis, secondHalfAnalysis));
 
     return AnalysisResult(insights: insights, analysisData: analysisData ?? {});
+  }
+
+  /// Категоризирует расходы без категорий
+  Future<List<IFinancialData>> _categorizeExpenses(List<IFinancialData> expenses) async {
+    // Категоризируем расходы без категорий
+    final categorizedExpenses = await Future.wait(
+      expenses.map(
+        (e) async => MapEntry(
+          e,
+          await _categorizer.predictCategory(
+            Payment(
+              paymentId: e.id,
+              details: PaymentDetails(
+                name: e.category,
+                money: e.amount.toDouble(),
+                type:
+                    e.type == FinancialOperationType.expense
+                        ? PaymentType.expense
+                        : PaymentType.income,
+                currency: CurrencyData.create('RUB', 2),
+              ),
+              date: e.date,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Объединяем расходы с категориями и категоризированные расходы
+    return categorizedExpenses
+        .map(
+          (e) => _CategorizedFinancialData(
+            originalData: e.key,
+            // Используем предсказанную категорию, если она есть, иначе используем оригинальную категорию
+            category: e.value.isNotEmpty ? e.value.first.category : e.key.category,
+            categoryPredictions: e.value,
+          ),
+        )
+        .toList();
   }
 
   /// Анализирует операции и возвращает структуру с результатами
@@ -131,15 +181,27 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
 
     final description =
         hasLifestyleInflation
+            ? 'Расходы растут на ${inflationGap.toStringAsFixed(1)}% быстрее доходов.'
+            : 'Расходы растут медленнее доходов на ${(-inflationGap).toStringAsFixed(1)}%.';
+
+    final detailedDescription =
+        hasLifestyleInflation
             ? 'Твои расходы растут на ${inflationGap.toStringAsFixed(1)}% быстрее, чем доходы. '
                 'Это может привести к финансовым трудностям в будущем. Рекомендуется пересмотреть '
-                'структуру расходов и найти возможности для экономии.'
+                'структуру расходов и найти возможности для экономии.\n\n'
+                'Инфляция образа жизни — это явление, при котором расходы растут быстрее, чем доходы, '
+                'из-за повышения уровня жизни или появления новых потребностей. '
+                'Это может привести к финансовому стрессу и снижению способности к накоплению сбережений.'
             : 'Отличная работа! Твои расходы растут медленнее, чем доходы (на ${(-inflationGap).toStringAsFixed(1)}%). '
-                'Это позволяет увеличивать сбережения и создает запас прочности для твоего бюджета.';
+                'Это позволяет увеличивать сбережения и создает запас прочности для твоего бюджета.\n\n'
+                'Контроль над ростом расходов — важный аспект финансового благополучия. '
+                'Когда расходы растут медленнее доходов, появляется возможность увеличивать сбережения, '
+                'инвестировать и создавать финансовую подушку безопасности.';
 
     return createInsight(
       title: title,
       description: description,
+      detailedDescription: detailedDescription,
       type: InsightType.pattern,
       importance:
           hasLifestyleInflation && isSignificant
@@ -208,9 +270,13 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
       // Если нет категорий с ростом, создаем позитивный инсайт
       return createInsight(
         title: 'Стабильные расходы по категориям',
-        description:
+        description: 'Ни в одной категории не наблюдается значительного роста расходов.',
+        detailedDescription:
             'Отличная работа! Ни в одной категории расходов не наблюдается значительного роста. '
-            'Это говорит о хорошем контроле над бюджетом и финансовой дисциплине.',
+            'Это говорит о хорошем контроле над бюджетом и финансовой дисциплине.\n\n'
+            'Стабильность расходов по категориям — важный показатель финансового здоровья. '
+            'Это означает, что ты хорошо контролируешь свои траты и не допускаешь необоснованного роста расходов. '
+            'Продолжай в том же духе!',
         type: InsightType.pattern,
         importance: InsightImportance.low,
         timeframe: InsightTimeframe.retrospective,
@@ -231,10 +297,14 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
 
     return createInsight(
       title: 'Категории с наибольшим ростом расходов',
-      description:
+      description: 'Значительный рост расходов в категориях: $categoriesDescription.',
+      detailedDescription:
           'Я заметил значительный рост расходов в следующих категориях: $categoriesDescription. '
           'Обрати внимание на эти категории, возможно, здесь есть потенциал для оптимизации расходов '
-          'и предотвращения инфляции образа жизни.',
+          'и предотвращения инфляции образа жизни.\n\n'
+          'Рост расходов в отдельных категориях может быть признаком изменения привычек или появления новых потребностей. '
+          'Анализ этих изменений поможет понять, являются ли они необходимыми или есть возможность оптимизировать расходы. '
+          'Регулярный мониторинг категорий с высоким ростом поможет предотвратить неконтролируемое увеличение расходов.',
       type: InsightType.pattern,
       importance: InsightImportance.medium,
       timeframe: InsightTimeframe.retrospective,
@@ -245,4 +315,42 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
       },
     );
   }
+}
+
+/// Класс для хранения категоризированных финансовых данных
+class _CategorizedFinancialData implements IFinancialData {
+  final IFinancialData originalData;
+  final String category;
+  final List<CategoryPrediction> categoryPredictions;
+
+  _CategorizedFinancialData({
+    required this.originalData,
+    required this.category,
+    required this.categoryPredictions,
+  });
+
+  @override
+  String get id => originalData.id;
+
+  @override
+  DateTime get date => originalData.date;
+
+  @override
+  num get amount => originalData.amount;
+
+  @override
+  FinancialOperationType get type => originalData.type;
+
+  @override
+  FinancialOperationStatus get status => originalData.status;
+
+  @override
+  Map<String, dynamic>? get additionalData => {
+    ...?originalData.additionalData,
+    'categoryPredictions':
+        categoryPredictions
+            .map((p) => {'category': p.category, 'probability': p.probability})
+            .toList(),
+    'originalCategory': originalData.category,
+  };
 }

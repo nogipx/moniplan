@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'insight_charts.dart';
 
 /// Виджет для отображения конкретных данных, использованных при анализе инсайта
 class InsightDataDetails extends StatefulWidget {
@@ -107,6 +108,11 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
 
   @override
   Widget build(BuildContext context) {
+    // Проверяем, является ли это инсайтом с предложениями категорий
+    if (widget.insight.id == 'category_suggestion_insight') {
+      return _buildCategorySuggestionData();
+    }
+
     if (widget.insight.relatedPayments == null || widget.insight.relatedPayments!.isEmpty) {
       return _buildNoRelatedPaymentsView(context);
     }
@@ -115,6 +121,9 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildHeader(),
+        const SizedBox(height: 16),
+        // Добавляем графики, если они доступны для этого типа инсайта
+        if (widget.insight.additionalData != null) _buildCharts(context),
         const SizedBox(height: 16),
         _buildFilters(),
         const SizedBox(height: 16),
@@ -133,99 +142,47 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
     );
   }
 
-  /// Строит представление, когда у инсайта нет связанных платежей
-  Widget _buildNoRelatedPaymentsView(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.info_outline, color: Colors.blue),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Агрегированные данные',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Этот инсайт был сформирован на основе агрегированных данных и общего анализа вашего бюджета. '
-                  'Для него нет конкретных связанных платежей, которые можно было бы показать.',
-                  style: TextStyle(color: context.color.onSurface.withOpacity(0.7)),
-                ),
-                const SizedBox(height: 16),
-                _buildCalculationMethodology(context),
-                const SizedBox(height: 16),
-                if (widget.planner != null && widget.planner!.payments.isNotEmpty)
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _filteredPayments = List<Payment>.from(widget.planner!.payments)
-                          ..sort((a, b) => b.date.compareTo(a.date));
+  /// Строит графики для инсайта в зависимости от его типа
+  Widget _buildCharts(BuildContext context) {
+    if (widget.insight.additionalData == null) {
+      return const SizedBox.shrink();
+    }
 
-                        // Собираем все категории
-                        _allCategories = {};
-                        for (final payment in _filteredPayments) {
-                          _allCategories.addAll(payment.details.tags);
-                        }
-                      });
-                    },
-                    icon: const Icon(Icons.visibility),
-                    label: const Text('Показать все платежи планера'),
-                  ),
-              ],
-            ),
-          ),
-          if (_filteredPayments.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.warning_amber_outlined, color: Colors.amber),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Отображаются все платежи планера. Они могут не иметь прямого отношения к данному инсайту.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: context.color.onSurface.withOpacity(0.7),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildFilters(),
-            const SizedBox(height: 16),
-            _buildSummary(),
-            const SizedBox(height: 16),
-            Expanded(child: _buildPaymentsList()),
-          ],
-        ],
+    Widget chart;
+
+    // Проверяем, является ли это инсайтом с предложениями категорий
+    if (widget.insight.id == 'category_suggestion_insight') {
+      chart = InsightCharts.buildCategorySuggestionChart(context, widget.insight.additionalData!);
+    } else {
+      switch (widget.insight.type) {
+        case InsightType.expenseStructure:
+          chart = InsightCharts.buildExpenseStructurePieChart(
+            context,
+            widget.insight.additionalData!,
+          );
+          break;
+        case InsightType.comparison:
+          chart = InsightCharts.buildComparisonLineChart(context, widget.insight.additionalData!);
+          break;
+        case InsightType.pattern:
+          chart = InsightCharts.buildPatternBarChart(context, widget.insight.additionalData!);
+          break;
+        case InsightType.optimization:
+          chart = InsightCharts.buildOptimizationChart(context, widget.insight.additionalData!);
+          break;
+        default:
+          return const SizedBox.shrink();
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.color.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: context.color.onSurface.withOpacity(0.1)),
       ),
+      child: chart,
     );
   }
 
@@ -1169,5 +1126,252 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
       default:
         return 'анализируемый период';
     }
+  }
+
+  /// Строит виджет для отображения данных о предложениях категорий
+  Widget _buildCategorySuggestionData() {
+    final additionalData = widget.insight.additionalData;
+    if (additionalData == null || !additionalData.containsKey('operations')) {
+      return _buildNoRelatedPaymentsView(context);
+    }
+
+    final operations = additionalData['operations'] as List<dynamic>;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeader(),
+        const SizedBox(height: 16),
+        // Добавляем графики, если они доступны для этого типа инсайта
+        if (widget.insight.additionalData != null) _buildCharts(context),
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Для следующих операций предлагаются более точные категории:',
+            style: context.text.bodyMedium,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: operations.length,
+            itemBuilder: (context, index) {
+              final operation = operations[index];
+              final name = operation['name'] as String;
+              final amount = operation['amount'] as num;
+              final date = DateTime.parse(operation['date'] as String);
+              final suggestions = operation['suggestions'] as List<dynamic>;
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              name,
+                              style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Text(
+                            _currencyFormat.format(amount),
+                            style: context.text.titleSmall?.copyWith(
+                              color: amount >= 0 ? context.color.primary : context.color.error,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Дата: ${_dateFormat.format(date)}',
+                        style: context.text.bodySmall?.copyWith(
+                          color: context.color.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Предлагаемые категории:',
+                        style: context.text.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children:
+                            suggestions.map<Widget>((suggestion) {
+                              final category = suggestion['category'] as String;
+                              final probability = suggestion['probability'] as double;
+
+                              // Определяем цвет в зависимости от вероятности
+                              Color chipColor;
+                              if (probability > 0.7) {
+                                chipColor = Color(0xFF2196F3); // Material Blue 500
+                              } else if (probability > 0.4) {
+                                chipColor = Color(0xFF00ACC1); // Material Cyan 600
+                              } else {
+                                chipColor = Color(0xFF607D8B); // Material Blue Grey 500
+                              }
+
+                              return Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: chipColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: chipColor, width: 1),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.category, size: 14, color: chipColor),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      category,
+                                      style: TextStyle(
+                                        color: chipColor,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 4,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: chipColor.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        '${(probability * 100).toInt()}%',
+                                        style: TextStyle(
+                                          color: chipColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Строит представление, когда у инсайта нет связанных платежей
+  Widget _buildNoRelatedPaymentsView(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 16),
+          // Добавляем графики, если они доступны для этого типа инсайта
+          if (widget.insight.additionalData != null) _buildCharts(context),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blue),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Colors.blue),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Агрегированные данные',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Этот инсайт был сформирован на основе агрегированных данных и общего анализа вашего бюджета. '
+                  'Для него нет конкретных связанных платежей, которые можно было бы показать.',
+                  style: TextStyle(color: context.color.onSurface.withOpacity(0.7)),
+                ),
+                const SizedBox(height: 16),
+                _buildCalculationMethodology(context),
+                const SizedBox(height: 16),
+                if (widget.planner != null && widget.planner!.payments.isNotEmpty)
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _filteredPayments = List<Payment>.from(widget.planner!.payments)
+                          ..sort((a, b) => b.date.compareTo(a.date));
+
+                        // Собираем все категории
+                        _allCategories = {};
+                        for (final payment in _filteredPayments) {
+                          _allCategories.addAll(payment.details.tags);
+                        }
+                      });
+                    },
+                    icon: const Icon(Icons.visibility),
+                    label: const Text('Показать все платежи планера'),
+                  ),
+              ],
+            ),
+          ),
+          if (_filteredPayments.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.amber),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.warning_amber_outlined, color: Colors.amber),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Отображаются все платежи планера. Они могут не иметь прямого отношения к данному инсайту.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: context.color.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildFilters(),
+            const SizedBox(height: 16),
+            _buildSummary(),
+            const SizedBox(height: 16),
+            Expanded(child: _buildPaymentsList()),
+          ],
+        ],
+      ),
+    );
   }
 }
