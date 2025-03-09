@@ -15,22 +15,26 @@ class BackupInfo {
   final DateTime? creationDate;
   final int plannersCount;
 
-  BackupInfo({
-    required this.file,
-    required this.creationDate,
-    required this.plannersCount,
-  });
+  BackupInfo({required this.file, required this.creationDate, required this.plannersCount});
 }
 
 abstract interface class IMonisyncRepo {
   String getBackupFileName(DateTime date);
 
-  Future<void> importDataFromFile({
-    required String filePath,
-  });
+  Future<void> importDataFromFile({required String filePath});
 
-  Future<ExportResult?> exportDataToFile({
-    required DateTime now,
+  Future<ExportResult?> exportDataToFile({required DateTime now, String targetFilePath = ''});
+
+  /// Экспортирует данные платежей в CSV файл с предсказанными категориями
+  ///
+  /// [plannerId] - ID планера, данные которого нужно экспортировать
+  /// [usePredictedCategories] - использовать ли предсказанные категории для платежей без категорий
+  /// [targetFilePath] - путь к файлу для сохранения (если пустой, будет сгенерирован автоматически)
+  ///
+  /// Возвращает результат экспорта с информацией о созданном файле
+  Future<ExportResult?> exportPaymentsToCSV({
+    required String plannerId,
+    bool usePredictedCategories = true,
     String targetFilePath = '',
   });
 

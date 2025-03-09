@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_domain/src/core/extensions/date_time_extensions.dart';
 
 /// Состояние для блока редактирования платежа
 class PaymentEditState extends Equatable {
@@ -154,7 +155,7 @@ class PaymentEditState extends Equatable {
   factory PaymentEditState.fromPayment(Payment? payment) {
     if (payment == null) {
       return PaymentEditState(
-        date: DateTime.now(),
+        date: DateTime.now().dayBound,
         showKeyboard: true,
         keyboardType: KeyboardType.amount,
       );
@@ -208,13 +209,18 @@ class PaymentEditState extends Equatable {
     final taxPercent = double.tryParse(tax.replaceAll(',', '.')) ?? 0;
     final taxRate = taxPercent / 100; // Преобразуем проценты в десятичную дробь
 
+    // Отбрасываем время у дат
+    final dateWithoutTime = date.dayBound;
+    final startDateWithoutTime = startDate?.dayBound;
+    final endDateWithoutTime = endDate?.dayBound;
+
     // Создаем или обновляем платеж
     return payment?.copyWith(
           isEnabled: true,
           isDone: isDone,
-          date: date,
-          dateStart: startDate,
-          dateEnd: endDate,
+          date: dateWithoutTime,
+          dateStart: startDateWithoutTime,
+          dateEnd: endDateWithoutTime,
           repeat: repeatPeriod,
           details: payment!.details.copyWith(
             name: title.isNotEmpty ? title : 'Без названия',
@@ -229,9 +235,9 @@ class PaymentEditState extends Equatable {
           paymentId: const Uuid().v4(),
           isEnabled: true,
           isDone: isDone,
-          date: date,
-          dateStart: startDate,
-          dateEnd: endDate,
+          date: dateWithoutTime,
+          dateStart: startDateWithoutTime,
+          dateEnd: endDateWithoutTime,
           repeat: repeatPeriod,
           details: PaymentDetails(
             name: title.isNotEmpty ? title : 'Без названия',

@@ -66,7 +66,9 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
 
   /// Обработчик изменения даты платежа
   void _onDateChanged(PaymentEditDateChanged event, Emitter<PaymentEditState> emit) {
-    emit(state.copyWith(date: event.date, clearErrorMessage: true));
+    // Отбрасываем время у даты
+    final dateWithoutTime = event.date.dayBound;
+    emit(state.copyWith(date: dateWithoutTime, clearErrorMessage: true));
     add(const PaymentEditUpdateDraft());
   }
 
@@ -87,13 +89,17 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
 
   /// Обработчик изменения даты начала повторения
   void _onStartDateChanged(PaymentEditStartDateChanged event, Emitter<PaymentEditState> emit) {
-    emit(state.copyWith(startDate: event.startDate, clearErrorMessage: true));
+    // Отбрасываем время у даты
+    final startDateWithoutTime = event.startDate?.dayBound;
+    emit(state.copyWith(startDate: startDateWithoutTime, clearErrorMessage: true));
     add(const PaymentEditUpdateDraft());
   }
 
   /// Обработчик изменения даты окончания повторения
   void _onEndDateChanged(PaymentEditEndDateChanged event, Emitter<PaymentEditState> emit) {
-    emit(state.copyWith(endDate: event.endDate, clearErrorMessage: true));
+    // Отбрасываем время у даты
+    final endDateWithoutTime = event.endDate?.dayBound;
+    emit(state.copyWith(endDate: endDateWithoutTime, clearErrorMessage: true));
     add(const PaymentEditUpdateDraft());
   }
 
