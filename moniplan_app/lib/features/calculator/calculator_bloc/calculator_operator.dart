@@ -16,6 +16,15 @@ enum CalculatorOperator {
   /// Деление (÷)
   divide('÷'),
 
+  /// Равно (=)
+  equals('='),
+
+  /// Очистка (C)
+  clear('C'),
+
+  /// Сброс (AC)
+  reset('R'),
+
   /// Пустой оператор (для сброса)
   none('');
 
@@ -38,6 +47,9 @@ enum CalculatorOperator {
   /// Получить символ для использования в выражениях
   String get expressionSymbol {
     switch (this) {
+      case CalculatorOperator.clear:
+      case CalculatorOperator.reset:
+        return '';
       case CalculatorOperator.multiply:
         return '*';
       case CalculatorOperator.divide:

@@ -4,6 +4,7 @@ import 'package:moniplan_app/features/calculator/_index.dart';
 import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/payment_edit_bloc.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:intl/intl.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 /// Компонент отображения полей ввода и результатов
 class InputDisplay extends StatefulWidget {
@@ -26,7 +27,6 @@ class InputDisplay extends StatefulWidget {
   final ValueChanged<double>? onTaxRateChanged;
 
   const InputDisplay({
-    Key? key,
     required this.state,
     required this.paymentType,
     required this.amountController,
@@ -36,7 +36,8 @@ class InputDisplay extends StatefulWidget {
     this.taxRate = 0.0,
     this.taxName = 'Налог',
     this.onTaxRateChanged,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<InputDisplay> createState() => _InputDisplayState();
@@ -105,49 +106,35 @@ class _InputDisplayState extends State<InputDisplay> {
       return text;
     }
 
-    // Если в строке есть точка, разделяем на целую и дробную части
-    if (text.contains('.')) {
-      final parts = text.split('.');
-      final integerPart = parts[0];
-      final decimalPart = parts.length > 1 ? parts[1] : '';
+    final parts = text.split('.');
+    final integerPart = parts[0];
+    final decimalPart = parts.length > 1 ? parts[1] : '';
 
-      // Форматируем целую часть
-      final formatter = NumberFormat('#,###', 'ru_RU');
-      String formattedInteger;
-      try {
-        formattedInteger = integerPart.isEmpty ? '0' : formatter.format(int.parse(integerPart));
-      } catch (e) {
-        // В случае ошибки возвращаем исходный текст
-        return text;
-      }
-
-      // Если дробная часть пустая или состоит только из нулей, возвращаем только целую часть
-      if (decimalPart.isEmpty || int.tryParse(decimalPart) == 0) {
-        return formattedInteger;
-      }
-
-      // Возвращаем отформатированное число с дробной частью
-      return '$formattedInteger.$decimalPart';
-    } else {
-      // Если нет дробной части, просто форматируем целое число
-      final formatter = NumberFormat('#,###', 'ru_RU');
-      try {
-        return formatter.format(int.parse(text));
-      } catch (e) {
-        // В случае ошибки возвращаем исходный текст
-        return text;
-      }
+    // Форматируем целую часть
+    final formatter = NumberFormat('#,###', 'ru_RU');
+    String formattedInteger;
+    try {
+      formattedInteger = integerPart.isEmpty ? '0' : formatter.format(int.parse(integerPart));
+    } catch (e) {
+      // В случае ошибки возвращаем исходный текст
+      return text;
     }
+
+    // Если дробная часть пустая или состоит только из нулей, возвращаем только целую часть
+    if (decimalPart.isEmpty || int.tryParse(decimalPart) == 0) {
+      return formattedInteger;
+    }
+
+    // Возвращаем отформатированное число с дробной частью
+    return '$formattedInteger.$decimalPart';
   }
 
   /// Результат вычислений и текущий оператор
   Widget _buildCalculationResult(BuildContext context) {
     // Используем цвета из темы приложения
     final Color resultColor =
-        widget.paymentType == PaymentType.expense
-            ? widget.theme.colorScheme.error
-            : widget.theme.colorScheme.primary;
-    final Color taxColor = widget.theme.colorScheme.secondary;
+        widget.paymentType == PaymentType.expense ? context.color.secondary : context.color.primary;
+    final Color taxColor = context.color.secondary;
 
     final String sign = widget.paymentType == PaymentType.expense ? '-' : '+';
     final num result = (num.tryParse(widget.state.result) ?? 0).abs();
@@ -183,9 +170,9 @@ class _InputDisplayState extends State<InputDisplay> {
       margin: const EdgeInsets.only(top: KeyboardConstants.defaultPadding),
       padding: const EdgeInsets.all(KeyboardConstants.smallPadding),
       decoration: BoxDecoration(
-        color: widget.theme.colorScheme.surfaceVariant.withOpacity(0.5),
+        color: context.color.surface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(KeyboardConstants.buttonBorderRadius),
-        border: Border.all(color: widget.theme.colorScheme.outline.withOpacity(0.1), width: 1),
+        border: Border.all(color: context.color.outline.withValues(alpha: 0.1), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -206,7 +193,7 @@ class _InputDisplayState extends State<InputDisplay> {
                           vertical: KeyboardConstants.tinyPadding,
                         ),
                         decoration: BoxDecoration(
-                          color: taxColor.withOpacity(0.1),
+                          color: taxColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
@@ -214,7 +201,7 @@ class _InputDisplayState extends State<InputDisplay> {
                           children: [
                             Text(
                               hasTax ? '$taxPercent%' : '0%',
-                              style: widget.theme.textTheme.bodyMedium?.copyWith(
+                              style: context.text.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.normal,
                                 color: taxColor,
                               ),
@@ -233,12 +220,12 @@ class _InputDisplayState extends State<InputDisplay> {
                           vertical: KeyboardConstants.tinyPadding,
                         ),
                         decoration: BoxDecoration(
-                          color: taxColor.withOpacity(0.15),
+                          color: taxColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           '% $formattedTax ₽',
-                          style: widget.theme.textTheme.bodyMedium?.copyWith(color: taxColor),
+                          style: context.text.bodyMedium?.copyWith(color: taxColor),
                         ),
                       ),
                   ],
@@ -255,12 +242,12 @@ class _InputDisplayState extends State<InputDisplay> {
                         vertical: KeyboardConstants.tinyPadding,
                       ),
                       decoration: BoxDecoration(
-                        color: resultColor.withOpacity(0.1),
+                        color: resultColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         '$sign $formattedResult ₽',
-                        style: widget.theme.textTheme.bodyLarge?.copyWith(
+                        style: context.text.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: resultColor,
                         ),
@@ -280,12 +267,12 @@ class _InputDisplayState extends State<InputDisplay> {
                         vertical: KeyboardConstants.tinyPadding,
                       ),
                       decoration: BoxDecoration(
-                        color: resultColor.withOpacity(0.15),
+                        color: resultColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         '$sign $formattedNetAmount ₽',
-                        style: widget.theme.textTheme.bodyLarge?.copyWith(
+                        style: context.text.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: resultColor,
                         ),
@@ -364,7 +351,7 @@ class _InputDisplayState extends State<InputDisplay> {
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Divider(
                         height: 1,
-                        color: widget.theme.colorScheme.outline.withOpacity(0.3),
+                        color: widget.theme.colorScheme.outline.withValues(alpha: 0.3),
                       ),
                     ),
 
@@ -400,7 +387,7 @@ class _InputDisplayState extends State<InputDisplay> {
                               color:
                                   isCustomSelected
                                       ? widget.theme.colorScheme.primary
-                                      : widget.theme.colorScheme.onSurface.withOpacity(0.3),
+                                      : widget.theme.colorScheme.onSurface.withValues(alpha: 0.3),
                             ),
                             onPressed: () {
                               final text = customController.text.trim();
@@ -460,7 +447,10 @@ class _InputDisplayState extends State<InputDisplay> {
       decoration: BoxDecoration(
         color: widget.theme.colorScheme.surface,
         border: Border(
-          bottom: BorderSide(color: widget.theme.colorScheme.outline.withOpacity(0.1), width: 1),
+          bottom: BorderSide(
+            color: widget.theme.colorScheme.outline.withValues(alpha: 0.1),
+            width: 1,
+          ),
         ),
       ),
       child: Column(
@@ -483,9 +473,7 @@ class _InputDisplayState extends State<InputDisplay> {
     required BuildContext context,
   }) {
     final Color fieldColor =
-        widget.paymentType == PaymentType.expense
-            ? widget.theme.colorScheme.error
-            : widget.theme.colorScheme.primary;
+        widget.paymentType == PaymentType.expense ? context.color.secondary : context.color.primary;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -493,7 +481,7 @@ class _InputDisplayState extends State<InputDisplay> {
         vertical: KeyboardConstants.smallPadding,
       ),
       decoration: BoxDecoration(
-        color: widget.theme.colorScheme.surfaceVariant,
+        color: context.color.surface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(KeyboardConstants.buttonBorderRadius),
         border: Border.all(color: fieldColor, width: 1),
       ),
@@ -507,7 +495,7 @@ class _InputDisplayState extends State<InputDisplay> {
           return Text(
             '$formattedText ₽',
             textAlign: TextAlign.right,
-            style: widget.theme.textTheme.headlineMedium?.copyWith(
+            style: context.text.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: fieldColor,
             ),

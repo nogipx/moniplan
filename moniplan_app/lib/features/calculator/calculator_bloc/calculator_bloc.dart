@@ -14,6 +14,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     on<OperationPressed>(_onOperationPressed);
     on<EqualsPressed>(_onEqualsPressed);
     on<SetInitialValue>(_onSetInitialValue);
+    on<ResetPressed>(_onResetPressed);
   }
 
   /// Обработка нажатия на цифру
@@ -330,13 +331,20 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     // Форматируем результат для отображения
     final formattedResult = CalculatorState.formatNumber(value);
 
-    final newState = state.copyWith(
+    final newState = CalculatorState(
       result: formattedResult,
       leftOperand: leftOperand,
       currentOperator: CalculatorOperator.none,
       rightOperand: null,
       hasResult: false,
+      initialValue: event.value,
     );
+    emit(newState);
+  }
+
+  /// Обработка сброса значения
+  void _onResetPressed(ResetPressed event, Emitter<CalculatorState> emit) {
+    final newState = CalculatorState(initialValue: state.initialValue, result: state.initialValue);
     emit(newState);
   }
 }

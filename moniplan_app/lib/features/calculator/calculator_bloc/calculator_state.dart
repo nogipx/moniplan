@@ -8,6 +8,9 @@ import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_oper
 
 /// Состояние калькулятора
 class CalculatorState extends Equatable {
+  /// Начальное значение
+  final String initialValue;
+
   /// Текущий результат вычисления
   final String result;
 
@@ -27,6 +30,7 @@ class CalculatorState extends Equatable {
   final bool isCalculatorMode;
 
   const CalculatorState({
+    this.initialValue = '',
     this.result = '0',
     this.leftOperand = 0,
     this.rightOperand,
@@ -51,6 +55,7 @@ class CalculatorState extends Equatable {
       currentOperator: currentOperator ?? this.currentOperator,
       hasResult: hasResult ?? this.hasResult,
       isCalculatorMode: isCalculatorMode ?? this.isCalculatorMode,
+      initialValue: initialValue,
     );
   }
 

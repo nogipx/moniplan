@@ -240,8 +240,8 @@ class _PaymentEditView extends StatelessWidget {
 
     // Получаем налог из платежа или из состояния
     double taxRate = 0.0;
-    if (state.payment != null && state.payment!.details.tax != null) {
-      taxRate = state.payment!.details.tax!;
+    if (state.payment != null) {
+      taxRate = state.payment!.details.tax;
     } else if (state.tax.isNotEmpty) {
       // Парсим налог из строки, заменяя запятую на точку
       final taxString = state.tax.replaceAll(',', '.');
@@ -657,8 +657,8 @@ class _PaymentEditView extends StatelessWidget {
 
     // Получаем налог из платежа или из состояния
     double taxRate = 0.0;
-    if (state.payment != null && state.payment!.details.tax != null) {
-      taxRate = state.payment!.details.tax!;
+    if (state.payment != null) {
+      taxRate = state.payment!.details.tax;
     } else if (state.tax.isNotEmpty) {
       // Парсим налог из строки, заменяя запятую на точку
       final taxString = state.tax.replaceAll(',', '.');

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_app/features/calculator/_index.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 /// Кастомная клавиатура для ввода платежей
 class PaymentKeyboard extends StatefulWidget {
@@ -33,7 +34,6 @@ class PaymentKeyboard extends StatefulWidget {
   final String? initialValue;
 
   const PaymentKeyboard({
-    Key? key,
     required this.amountController,
     required this.paymentType,
     required this.onPaymentTypeChanged,
@@ -42,7 +42,8 @@ class PaymentKeyboard extends StatefulWidget {
     this.showQuickButtons = true,
     this.isEditing = false,
     this.initialValue,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<PaymentKeyboard> createState() => _PaymentKeyboardState();
@@ -161,18 +162,6 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     }
   }
 
-  /// Применяет операцию к текущему значению
-  void _applyOperation(String operation) {
-    HapticFeedback.lightImpact();
-
-    try {
-      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
-      calculatorBloc.add(OperationPressed(operation));
-    } catch (e) {
-      print('Ошибка при применении операции: $e');
-    }
-  }
-
   /// Удаляет последний символ (backspace)
   void _backspace() {
     HapticFeedback.lightImpact();
@@ -185,41 +174,18 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     }
   }
 
-  /// Устанавливает значение напрямую
-  void _setValue(double value) {
-    HapticFeedback.lightImpact();
-
-    try {
-      // Устанавливаем значение напрямую в контроллер
-      _internalAmountController.text = value.toString();
-      _internalAmountController.selection = TextSelection.collapsed(
-        offset: value.toString().length,
-      );
-
-      // Обновляем состояние калькулятора
-      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
-      calculatorBloc.add(SetInitialValue(value.toString()));
-    } catch (e) {
-      print('Ошибка при установке значения: $e');
-    }
-  }
-
-  /// Сбрасывает значение на изначальное
-  void _resetValue() {
+  /// Очищает значение
+  void _clear() {
     HapticFeedback.mediumImpact();
 
     try {
-      if (widget.initialValue != null && widget.initialValue!.isNotEmpty) {
-        // Устанавливаем изначальное значение в контроллер
-        _internalAmountController.text = widget.initialValue!;
-        _internalAmountController.selection = TextSelection.collapsed(
-          offset: widget.initialValue!.length,
-        );
+      // Устанавливаем изначальное значение в контроллер
+      _internalAmountController.text = '';
+      _internalAmountController.selection = TextSelection.collapsed(offset: 0);
 
-        // Обновляем состояние калькулятора
-        final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
-        calculatorBloc.add(SetInitialValue(widget.initialValue!));
-      }
+      // Обновляем состояние калькулятора
+      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
+      calculatorBloc.add(ClearPressed());
     } catch (e) {
       print('Ошибка при сбросе значения: $e');
     }
@@ -261,19 +227,6 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     });
   }
 
-  /// Обрабатывает нажатие кнопки "="
-  void _handleEqualsPressed(CalculatorState calculatorState) {
-    // Отправляем событие EqualsPressed вместо OperationPressed('=')
-    HapticFeedback.lightImpact();
-
-    try {
-      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
-      calculatorBloc.add(EqualsPressed());
-    } catch (e) {
-      print('Ошибка при применении операции равенства: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return CalculatorBlocProvider(
@@ -290,25 +243,11 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
     final isExpense = widget.paymentType == PaymentType.expense;
-    final typeColor = isExpense ? theme.colorScheme.error : theme.colorScheme.primary;
+    final typeColor = isExpense ? context.color.secondary : context.color.primary;
     final typeText = isExpense ? 'Расход' : 'Доход';
 
     return Container(
       height: MediaQuery.of(context).size.height * KeyboardConstants.keyboardHeightFactor,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(KeyboardConstants.keyboardBorderRadius),
-          topRight: Radius.circular(KeyboardConstants.keyboardBorderRadius),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 12,
-            offset: const Offset(0, -3),
-          ),
-        ],
-      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -328,7 +267,6 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
 
           // Ряд с операциями
           OperationsRow(
-            onOperationPressed: _applyOperation,
             currentOperator: state.currentOperator,
             theme: theme,
             isDarkMode: isDarkMode,
@@ -340,9 +278,8 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
               child: NumericKeypad(
                 onDigitPressed: _addDigit,
                 onBackspacePressed: _backspace,
-                onQuickValuePressed: _setValue,
+                onClearPressed: widget.isEditing ? _clear : null,
                 isEditing: widget.isEditing,
-                onResetPressed: widget.isEditing ? _resetValue : null,
                 theme: theme,
                 isDarkMode: isDarkMode,
                 calculatorState: state,
@@ -350,34 +287,25 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
                 quickButtons: [
                   // Кнопка переключения типа платежа
                   QuickButton(
-                    value: 0,
                     text: typeText,
-                    backgroundColor: typeColor.withOpacity(0.2),
+                    backgroundColor: typeColor.withValues(alpha: 0.2),
                     textColor: typeColor,
+                    borderColor: Colors.transparent,
                     icon: isExpense ? Icons.arrow_upward : Icons.arrow_downward,
-                    onPressed: (value, calculatorState) {
-                      // Переключаем тип платежа
+                    onPressed: (calculatorState) {
                       final newType = isExpense ? PaymentType.income : PaymentType.expense;
                       widget.onPaymentTypeChanged(newType);
                       HapticFeedback.mediumImpact();
                     },
                   ),
                   QuickButton(
-                    value: 0,
-                    text: '=',
-                    backgroundColor: theme.colorScheme.primary.withOpacity(0.2),
-                    textColor: theme.colorScheme.primary,
-                    onPressed: (value, calculatorState) {
-                      _handleEqualsPressed(calculatorState);
-                    },
-                  ),
-                  QuickButton(
-                    value: 0,
                     text: 'Дальше',
-                    backgroundColor: theme.colorScheme.primary.withOpacity(0.2),
-                    textColor: theme.colorScheme.primary,
-                    onPressed: (value, calculatorState) {
+                    backgroundColor: context.color.tertiaryContainer.withValues(alpha: 0.2),
+                    textColor: context.color.onTertiaryContainer,
+                    borderColor: context.color.tertiaryContainer,
+                    onPressed: (calculatorState) {
                       _handleDonePressed(calculatorState);
+                      HapticFeedback.heavyImpact();
                     },
                   ),
                 ],

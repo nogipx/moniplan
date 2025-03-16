@@ -33,9 +33,6 @@ enum KeyboardType {
 
 /// Модель для кнопки быстрого доступа
 class QuickButton {
-  /// Значение, которое будет передано в обработчик
-  final double value;
-
   /// Текст, отображаемый на кнопке
   final String text;
 
@@ -49,14 +46,13 @@ class QuickButton {
   final Color? borderColor;
 
   /// Пользовательский обработчик нажатия с доступом к состоянию калькулятора
-  final Function(double value, CalculatorState state)? onPressed;
+  final Function(CalculatorState state)? onPressed;
 
   /// Иконка (опционально)
   final IconData? icon;
 
   /// Создает модель кнопки быстрого доступа
   const QuickButton({
-    required this.value,
     required this.text,
     this.backgroundColor,
     this.textColor,
@@ -73,12 +69,11 @@ class QuickButton {
     Color? backgroundColor,
     Color? textColor,
     Color? borderColor,
-    Function(double value, CalculatorState state)? onPressed,
+    Function(CalculatorState state)? onPressed,
     IconData? icon,
   }) {
     final displayValue = value.toInt() == value ? value.toInt().toString() : value.toString();
     return QuickButton(
-      value: value,
       text: text ?? '$displayValue$suffix',
       backgroundColor: backgroundColor,
       textColor: textColor,

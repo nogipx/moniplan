@@ -51,3 +51,6 @@ class SetInitialValue extends CalculatorEvent {
   @override
   List<Object?> get props => [value];
 }
+
+/// Сброс значения
+class ResetPressed extends CalculatorEvent {}
