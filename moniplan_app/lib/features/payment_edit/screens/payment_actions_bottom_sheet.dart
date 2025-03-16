@@ -8,19 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/di_get_it/app_di.dart';
-import 'package:moniplan_app/core/services/payment_categorizer_service.dart';
-import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/payment_edit/screens/payment_edit_screen.dart';
-import 'package:moniplan_app/features/planner/insights/providers/moniplan_adapters.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PaymentActionsBottomSheet extends StatefulWidget {
   final Payment payment;
   final Function()? onDelete;
-  final Function()? onDuplicate;
+  final Function()? onMove;
   final Function()? onFixation;
   final Function(Payment)? onToggleEnabled;
   final Function(Payment)? onToggleDone;
@@ -30,7 +27,7 @@ class PaymentActionsBottomSheet extends StatefulWidget {
   const PaymentActionsBottomSheet({
     required this.payment,
     this.onDelete,
-    this.onDuplicate,
+    this.onMove,
     this.onFixation,
     this.onToggleEnabled,
     this.onToggleDone,
@@ -43,7 +40,7 @@ class PaymentActionsBottomSheet extends StatefulWidget {
     required BuildContext context,
     required Payment payment,
     Function()? onDelete,
-    Function()? onDuplicate,
+    Function()? onMove,
     Function()? onFixation,
     Function(Payment)? onToggleEnabled,
     Function(Payment)? onToggleDone,
@@ -59,7 +56,7 @@ class PaymentActionsBottomSheet extends StatefulWidget {
           (context) => PaymentActionsBottomSheet(
             payment: payment,
             onDelete: onDelete,
-            onDuplicate: onDuplicate,
+            onMove: onMove,
             onFixation: onFixation,
             onToggleEnabled: onToggleEnabled,
             onToggleDone: onToggleDone,
@@ -419,15 +416,15 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  if (widget.onDuplicate != null)
+                  if (widget.onMove != null)
                     _buildCircleButton(
                       context,
-                      icon: Icons.copy,
-                      label: 'Дублировать',
+                      icon: Icons.date_range,
+                      label: 'Перенести',
                       color: context.color.secondary,
                       onTap: () {
-                        widget.onDuplicate?.call();
-                        Navigator.pop(context);
+                        Navigator.of(context).pop();
+                        widget.onMove?.call();
                       },
                     ),
 
@@ -546,14 +543,6 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
 
   Future<void> onSave(Payment updatedPayment) async {
     try {
-      // Проверяем, что платеж валиден
-      if (updatedPayment.details.money <= 0) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Сумма платежа должна быть больше нуля')));
-        return;
-      }
-
       // Проверяем доступность PlannerBloc
       final bloc = widget.plannerBloc;
       if (bloc == null) {
@@ -617,88 +606,6 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
     }
   }
 
-  // Метод для получения иконки в зависимости от категории
-  IconData _getCategoryIcon(String category) {
-    final lowerCategory = category.toLowerCase();
-
-    if (lowerCategory.contains('продукт') ||
-        lowerCategory.contains('еда') ||
-        lowerCategory.contains('питание')) {
-      return Icons.restaurant;
-    } else if (lowerCategory.contains('транспорт') ||
-        lowerCategory.contains('такси') ||
-        lowerCategory.contains('метро')) {
-      return Icons.directions_car;
-    } else if (lowerCategory.contains('развлечен') ||
-        lowerCategory.contains('кино') ||
-        lowerCategory.contains('театр')) {
-      return Icons.movie;
-    } else if (lowerCategory.contains('здоровье') ||
-        lowerCategory.contains('медицин') ||
-        lowerCategory.contains('врач')) {
-      return Icons.medical_services;
-    } else if (lowerCategory.contains('одежда') || lowerCategory.contains('обувь')) {
-      return Icons.shopping_bag;
-    } else if (lowerCategory.contains('дом') ||
-        lowerCategory.contains('квартир') ||
-        lowerCategory.contains('жилье')) {
-      return Icons.home;
-    } else if (lowerCategory.contains('комунал') || lowerCategory.contains('услуг')) {
-      return Icons.water_drop;
-    } else if (lowerCategory.contains('связь') ||
-        lowerCategory.contains('телефон') ||
-        lowerCategory.contains('интернет')) {
-      return Icons.wifi;
-    } else if (lowerCategory.contains('образован') ||
-        lowerCategory.contains('учеба') ||
-        lowerCategory.contains('курс')) {
-      return Icons.school;
-    } else if (lowerCategory.contains('зарплат') ||
-        lowerCategory.contains('доход') ||
-        lowerCategory.contains('работ')) {
-      return Icons.work;
-    } else if (lowerCategory.contains('подарок') || lowerCategory.contains('презент')) {
-      return Icons.card_giftcard;
-    } else if (lowerCategory.contains('спорт') || lowerCategory.contains('фитнес')) {
-      return Icons.fitness_center;
-    } else if (lowerCategory.contains('путешеств') ||
-        lowerCategory.contains('отпуск') ||
-        lowerCategory.contains('отдых')) {
-      return Icons.beach_access;
-    } else if (lowerCategory.contains('кафе') || lowerCategory.contains('ресторан')) {
-      return Icons.restaurant_menu;
-    } else if (lowerCategory.contains('налог') || lowerCategory.contains('штраф')) {
-      return Icons.receipt_long;
-    } else if (lowerCategory.contains('техник') || lowerCategory.contains('электрон')) {
-      return Icons.devices;
-    } else if (lowerCategory.contains('подписк') || lowerCategory.contains('сервис')) {
-      return Icons.subscriptions;
-    } else if (lowerCategory.contains('красот') || lowerCategory.contains('космет')) {
-      return Icons.spa;
-    } else if (lowerCategory.contains('книг') || lowerCategory.contains('литератур')) {
-      return Icons.book;
-    } else if (lowerCategory.contains('музык') || lowerCategory.contains('концерт')) {
-      return Icons.music_note;
-    } else if (lowerCategory.contains('игр') || lowerCategory.contains('развлеч')) {
-      return Icons.games;
-    } else if (lowerCategory.contains('благотворит') || lowerCategory.contains('пожертв')) {
-      return Icons.volunteer_activism;
-    } else if (lowerCategory.contains('инвестиц') || lowerCategory.contains('акци')) {
-      return Icons.trending_up;
-    } else if (lowerCategory.contains('страхов')) {
-      return Icons.security;
-    } else if (lowerCategory.contains('ремонт')) {
-      return Icons.build;
-    } else if (lowerCategory.contains('мебель')) {
-      return Icons.chair;
-    } else if (lowerCategory.contains('животн') || lowerCategory.contains('питомц')) {
-      return Icons.pets;
-    }
-
-    // Иконка по умолчанию
-    return Icons.category;
-  }
-
   Widget _buildCategory(BuildContext context, CategoryPrediction category) {
     // Определяем цвет чипа в зависимости от вероятности
     final probability = category.probability;
@@ -715,9 +622,6 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
       chipColor = Color(0xFF607D8B); // Material Blue Grey 500
     }
 
-    // Получаем иконку для категории
-    final iconData = _getCategoryIcon(category.category);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -727,8 +631,6 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(iconData, size: 14, color: chipColor),
-          const SizedBox(width: 4),
           Text(
             category.category,
             style: TextStyle(color: chipColor, fontWeight: FontWeight.w500, fontSize: 12),

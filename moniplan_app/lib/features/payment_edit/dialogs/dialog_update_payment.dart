@@ -9,6 +9,7 @@ import 'package:moniplan_app/features/payment_edit/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:oktoast/oktoast.dart';
 import 'dart:async';
+import 'package:intl/intl.dart';
 
 Future<void> updateDialog({
   required BuildContext context,
@@ -112,33 +113,35 @@ Future<void> updateDialog({
     );
   }
 
-  void duplicate() {
+  Future<DateTime?> selectDate(BuildContext context, DateTime initialDate) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null) {
+      // Отбрасываем время у даты
+      return picked.dayBound;
+    }
+    return null;
+  }
+
+  void move() {
     if (paymentToEdit == null || targetPayment == null) {
       return;
     }
 
-    final duplicationPayment = targetPayment.copyWith(
-      paymentId: const Uuid().v4(),
-      repeat: DateTimeRepeat.noRepeat,
-      dateStart: null,
-      dateEnd: null,
-    );
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => PaymentEditScreen(
-              payment: duplicationPayment,
-              onSave: (p) async {
-                final success = await save(p, create: true);
-                if (!success && context.mounted) {
-                  showToast('Не удалось сохранить платеж');
-                }
-              },
-            ),
-      ),
-    );
+    selectDate(context, targetPayment.date).then((selectedDate) {
+      if (selectedDate != null) {
+        final updatedPayment = targetPayment?.copyWith(date: selectedDate);
+        if (updatedPayment != null) {
+          save(updatedPayment);
+          showToast('Платёж перенесен на ${DateFormat('d MMMM y').format(selectedDate)}');
+        }
+      }
+    });
   }
 
   if (paymentToEdit == null) {
@@ -166,7 +169,7 @@ Future<void> updateDialog({
       context: context,
       payment: targetPayment!,
       onDelete: delete,
-      onDuplicate: duplicate,
+      onMove: move,
       onFixation: targetPayment.isRepeat ? fixate : null,
       onToggleEnabled: (payment) => save(payment),
       onToggleDone: (payment) => save(payment),
