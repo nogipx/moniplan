@@ -79,10 +79,24 @@ class _PaymentEditScreenState extends State<PaymentEditScreen> {
   }
 }
 
-class _PaymentEditView extends StatelessWidget {
+class _PaymentEditView extends StatefulWidget {
   final Function(Payment) onSave;
 
   const _PaymentEditView({required this.onSave});
+
+  @override
+  State<_PaymentEditView> createState() => _PaymentEditViewState();
+}
+
+class _PaymentEditViewState extends State<_PaymentEditView> {
+  // Используем FocusNode для управления фокусом
+  final ValueNotifier<bool> shouldAutoFocusKeyboard = ValueNotifier(true);
+
+  @override
+  void dispose() {
+    shouldAutoFocusKeyboard.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +110,7 @@ class _PaymentEditView extends StatelessWidget {
           // Проверяем, что платеж существует
           if (state.payment != null) {
             // Вызываем onSave перед закрытием экрана
-            onSave(state.payment!);
+            widget.onSave(state.payment!);
 
             // Добавляем небольшую задержку перед закрытием экрана,
             // чтобы дать время на сохранение платежа
@@ -140,19 +154,21 @@ class _PaymentEditView extends StatelessWidget {
                 ),
               ],
             ),
-            body: _buildBody(context, state),
-            bottomNavigationBar:
-                state.showKeyboard && state.currentStep != 0
-                    ? _buildKeyboard(context, state)
-                    : _buildBottomBar(context, state),
-            resizeToAvoidBottomInset: false, // Отключаем изменение размера при появлении клавиатуры
-            // Добавляем кнопки над системной клавиатурой
-            bottomSheet:
-                MediaQuery.of(context).viewInsets.bottom > 0
-                    ? Container(
+            // resizeToAvoidBottomInset: false,
+            body: Stack(
+              children: [
+                _buildBody(context, state),
+                // Показываем панель над клавиатурой
+                if (MediaQuery.of(context).viewInsets.bottom > 0)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    // bottom: MediaQuery.of(context).viewInsets.bottom,
+                    child: Container(
                       color: Theme.of(context).colorScheme.surface,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -171,8 +187,12 @@ class _PaymentEditView extends StatelessWidget {
                           ],
                         ),
                       ),
-                    )
-                    : null,
+                    ),
+                  ),
+              ],
+            ),
+            bottomNavigationBar: _buildBottomBar(context, state),
+            bottomSheet: null,
           ),
         );
       },
@@ -203,7 +223,7 @@ class _PaymentEditView extends StatelessWidget {
       case 0:
         return _buildAmountStep(context, state);
       case 1:
-        return _buildNameStep(context, state);
+        return _TitleInputStep(state: state, shouldAutoFocusKeyboard: shouldAutoFocusKeyboard);
       case 2:
         return _buildRepeatStep(context, state);
       default:
@@ -268,117 +288,6 @@ class _PaymentEditView extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-
-  // Шаг 2: Ввод названия и примечания
-  Widget _buildNameStep(BuildContext context, edit.PaymentEditState state) {
-    final theme = Theme.of(context);
-
-    // Используем данные из черновика платежа, если он доступен
-    final title = state.payment != null ? state.payment!.details.name : state.title;
-    final note = state.payment != null ? state.payment!.details.note : state.note;
-    final date = state.payment != null ? state.payment!.date : state.date;
-    final isDone = state.payment != null ? state.payment!.isDone : state.isDone;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Название и примечание', style: theme.textTheme.headlineSmall),
-        const SizedBox(height: 24),
-
-        // Дата платежа
-        InkWell(
-          onTap:
-              () => _selectDate(context, date, (date) {
-                if (date != null) {
-                  context.read<edit.PaymentEditBloc>().add(edit.PaymentEditDateChanged(date));
-                }
-              }),
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.calendar_today, color: theme.colorScheme.primary),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Дата платежа', style: theme.textTheme.bodyMedium),
-                    const SizedBox(height: 4),
-                    Text(DateFormat('d MMMM y').format(date), style: theme.textTheme.titleMedium),
-                  ],
-                ),
-                const Spacer(),
-                Icon(Icons.arrow_forward_ios, size: 16, color: theme.colorScheme.onSurfaceVariant),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        // Поле ввода названия
-        TextFormField(
-          initialValue: title,
-          style: theme.textTheme.titleLarge,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Название платежа',
-            hintText: 'Введите название',
-          ),
-          autofocus: false,
-          onChanged: (value) {
-            context.read<edit.PaymentEditBloc>().add(edit.PaymentEditTitleChanged(value));
-          },
-        ),
-
-        const SizedBox(height: 24),
-
-        // Поле для примечания
-        TextFormField(
-          initialValue: note,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Примечание',
-            hintText: 'Необязательно',
-          ),
-          maxLines: 3,
-          onChanged: (value) {
-            context.read<edit.PaymentEditBloc>().add(edit.PaymentEditNoteChanged(value));
-          },
-        ),
-
-        const SizedBox(height: 24),
-
-        // Статус выполнения
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.check_circle_outline, color: theme.colorScheme.primary),
-              const SizedBox(width: 16),
-              Text('Платеж выполнен', style: theme.textTheme.titleMedium),
-              const Spacer(),
-              Switch(
-                value: isDone,
-                onChanged: (value) {
-                  context.read<edit.PaymentEditBloc>().add(edit.PaymentEditIsDoneChanged(value));
-                },
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -628,60 +537,6 @@ class _PaymentEditView extends StatelessWidget {
     onDateSelected(picked);
   }
 
-  // Клавиатура для ввода суммы и налога
-  Widget _buildKeyboard(BuildContext context, edit.PaymentEditState state) {
-    // Используем тип платежа из черновика, если он доступен
-    final paymentType = state.payment != null ? state.payment!.details.type : state.type;
-
-    // Используем сумму из черновика платежа, если он доступен
-    String amount;
-    if (state.payment != null) {
-      // Получаем сумму платежа
-      final money = state.payment!.details.money.abs();
-
-      // Проверяем, является ли число целым
-      final isInteger = money == money.toInt();
-
-      // Форматируем число без десятичной точки для целых чисел
-      amount = isInteger ? money.toInt().toString() : money.toString();
-    } else {
-      // Проверяем, является ли сумма из состояния целым числом
-      final amountValue = double.tryParse(state.amount);
-      if (amountValue != null) {
-        final isInteger = amountValue == amountValue.toInt();
-        amount = isInteger ? amountValue.toInt().toString() : state.amount;
-      } else {
-        amount = state.amount;
-      }
-    }
-
-    // Получаем налог из платежа или из состояния
-    double taxRate = 0.0;
-    if (state.payment != null) {
-      taxRate = state.payment!.details.tax;
-    } else if (state.tax.isNotEmpty) {
-      // Парсим налог из строки, заменяя запятую на точку
-      final taxString = state.tax.replaceAll(',', '.');
-      taxRate = double.tryParse(taxString) ?? 0.0;
-      // Преобразуем из процентов в десятичную дробь
-      taxRate = taxRate / 100;
-    }
-
-    // Создаем локальный контроллер, если контроллер в блоке null
-    final amountController = TextEditingController(text: amount);
-
-    return keyboard.PaymentKeyboard(
-      amountController: amountController,
-      paymentType: paymentType,
-      taxRate: taxRate,
-      isEditing: state.payment != null,
-      initialValue: state.payment != null ? amount : null,
-      onPaymentTypeChanged: (newType) {
-        context.read<edit.PaymentEditBloc>().add(edit.PaymentEditTypeChanged(newType));
-      },
-    );
-  }
-
   // Нижняя панель с кнопками навигации
   Widget _buildBottomBar(BuildContext context, edit.PaymentEditState state) {
     final theme = Theme.of(context);
@@ -714,13 +569,7 @@ class _PaymentEditView extends StatelessWidget {
 
               return InkWell(
                 onTap: () {
-                  // Проверяем, можно ли перейти на этот шаг
-                  if (_canNavigateToStep(state, index)) {
-                    _navigateToStep(context, state, index);
-                  } else {
-                    // Показываем сообщение, что нужно заполнить предыдущие шаги
-                    showToast('Сначала заполните предыдущие шаги');
-                  }
+                  _navigateToStep(context, state, index);
                 },
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
@@ -892,26 +741,6 @@ class _PaymentEditView extends StatelessWidget {
     }
   }
 
-  // Проверяем, можно ли перейти на указанный шаг
-  bool _canNavigateToStep(edit.PaymentEditState state, int step) {
-    // На первый шаг можно перейти всегда
-    if (step == 0) return true;
-
-    // На второй шаг можно перейти, если заполнена сумма
-    if (step == 1) {
-      return state.amount.isNotEmpty && num.tryParse(state.amount) != null;
-    }
-
-    // На третий шаг можно перейти, если заполнены сумма и название
-    if (step == 2) {
-      return state.amount.isNotEmpty &&
-          num.tryParse(state.amount) != null &&
-          state.title.isNotEmpty;
-    }
-
-    return false;
-  }
-
   // Метод для сохранения текущего значения из калькулятора
   void _saveCurrentCalculatorValue(BuildContext context, edit.PaymentEditState state) {
     final bloc = context.read<edit.PaymentEditBloc>();
@@ -954,24 +783,175 @@ class _PaymentEditView extends StatelessWidget {
       await Future.delayed(const Duration(milliseconds: 500));
     }
 
-    // Проверяем, что сумма платежа больше нуля
+    // Проверяем, что сумма платежа является числом
     final amount = double.tryParse(state.amount);
-    if (amount == null || amount <= 0) {
+    if (amount == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Сумма платежа должна быть больше нуля')));
-      return;
-    }
-
-    // Проверяем, что название платежа не пустое
-    if (state.title.trim().isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Введите название платежа')));
+      ).showSnackBar(const SnackBar(content: Text('Сумма платежа должна быть числом')));
       return;
     }
 
     // Затем сохраняем платеж
     context.read<edit.PaymentEditBloc>().add(edit.PaymentEditSave());
+  }
+}
+
+class _TitleInputStep extends StatefulWidget {
+  final edit.PaymentEditState state;
+  final ValueNotifier<bool> shouldAutoFocusKeyboard;
+
+  const _TitleInputStep({required this.state, required this.shouldAutoFocusKeyboard});
+
+  @override
+  State<_TitleInputStep> createState() => _TitleInputStepState();
+}
+
+class _TitleInputStepState extends State<_TitleInputStep> {
+  final _focusNode = FocusNode();
+
+  @override
+  void didChangeDependencies() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (widget.shouldAutoFocusKeyboard.value) {
+        widget.shouldAutoFocusKeyboard.value = false;
+        _focusNode.requestFocus();
+      }
+    });
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Используем данные из черновика платежа, если он доступен
+    final title =
+        widget.state.payment != null ? widget.state.payment!.details.name : widget.state.title;
+    final note =
+        widget.state.payment != null ? widget.state.payment!.details.note : widget.state.note;
+    final date = widget.state.payment != null ? widget.state.payment!.date : widget.state.date;
+    final isDone =
+        widget.state.payment != null ? widget.state.payment!.isDone : widget.state.isDone;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Название и примечание', style: context.text.headlineSmall),
+        const SizedBox(height: 24),
+
+        // Дата платежа
+        InkWell(
+          onTap:
+              () => _selectDate(context, date, (date) {
+                if (date != null) {
+                  context.read<edit.PaymentEditBloc>().add(edit.PaymentEditDateChanged(date));
+                }
+              }),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: context.color.surfaceVariant,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.calendar_today, color: context.color.primary),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Дата платежа', style: context.text.bodyMedium),
+                    const SizedBox(height: 4),
+                    Text(DateFormat('d MMMM y').format(date), style: context.text.titleMedium),
+                  ],
+                ),
+                const Spacer(),
+                Icon(Icons.arrow_forward_ios, size: 16, color: context.color.onSurfaceVariant),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // Поле ввода названия с FocusNode
+        TextFormField(
+          initialValue: title,
+          style: context.text.titleLarge,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Название платежа',
+            hintText: 'Введите название',
+          ),
+          focusNode: _focusNode,
+          onChanged: (value) {
+            context.read<edit.PaymentEditBloc>().add(edit.PaymentEditTitleChanged(value));
+          },
+        ),
+
+        const SizedBox(height: 24),
+
+        // Поле для примечания
+        TextFormField(
+          initialValue: note,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Примечание',
+            hintText: 'Необязательно',
+          ),
+          maxLines: 3,
+          onChanged: (value) {
+            context.read<edit.PaymentEditBloc>().add(edit.PaymentEditNoteChanged(value));
+          },
+        ),
+
+        const SizedBox(height: 24),
+
+        // Статус выполнения
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: context.color.surfaceVariant,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.check_circle_outline, color: context.color.primary),
+              const SizedBox(width: 16),
+              Text('Платеж выполнен', style: context.text.titleMedium),
+              const Spacer(),
+              Switch(
+                value: isDone,
+                onChanged: (value) {
+                  context.read<edit.PaymentEditBloc>().add(edit.PaymentEditIsDoneChanged(value));
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Выбор даты (копия метода из родительского класса)
+  Future<void> _selectDate(
+    BuildContext context,
+    DateTime initialDate,
+    Function(DateTime?) onDateSelected,
+  ) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    onDateSelected(picked);
   }
 }

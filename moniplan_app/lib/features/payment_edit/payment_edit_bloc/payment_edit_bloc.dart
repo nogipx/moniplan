@@ -105,16 +105,9 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
 
   /// Обработчик перехода к следующему шагу
   void _onNextStep(PaymentEditNextStep event, Emitter<PaymentEditState> emit) {
-    // Если мы на первом шаге, проверяем, что сумма введена корректно
+    // Если мы на первом шаге, переходим ко второму шагу и закрываем клавиатуру
     if (state.currentStep == 0) {
-      if (!state.isValid) {
-        emit(state.copyWith(errorMessage: 'Введите корректную сумму платежа'));
-        showToast('Введите корректную сумму платежа');
-        return;
-      }
-
-      // Переходим ко второму шагу и закрываем клавиатуру
-      emit(state.copyWith(currentStep: 1, showKeyboard: false, clearErrorMessage: true));
+      emit(state.copyWith(currentStep: 1, clearErrorMessage: true));
       return;
     }
 
@@ -129,12 +122,6 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
 
   /// Обработчик перехода к предыдущему шагу
   void _onPreviousStep(PaymentEditPreviousStep event, Emitter<PaymentEditState> emit) {
-    // Если открыта клавиатура и мы не на первом шаге, закрываем её
-    if (state.showKeyboard && state.currentStep > 0) {
-      emit(state.copyWith(showKeyboard: false, clearErrorMessage: true));
-      return;
-    }
-
     // Переходим к предыдущему шагу
     if (state.currentStep > 0) {
       final newStep = state.currentStep - 1;
@@ -154,24 +141,13 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
   /// Обработчик сохранения платежа
   FutureOr<void> _onSave(PaymentEditSave event, Emitter<PaymentEditState> emit) async {
     try {
-      // Проверяем, что сумма платежа больше нуля
+      // Проверяем, что сумма платежа является числом
       final amount = double.tryParse(state.amount);
-      if (amount == null || amount <= 0) {
+      if (amount == null) {
         emit(
           state.copyWith(
             status: PaymentEditStatus.failure,
-            errorMessage: 'Сумма платежа должна быть больше нуля',
-          ),
-        );
-        return;
-      }
-
-      // Проверяем, что название платежа не пустое
-      if (state.title.trim().isEmpty) {
-        emit(
-          state.copyWith(
-            status: PaymentEditStatus.failure,
-            errorMessage: 'Введите название платежа',
+            errorMessage: 'Сумма платежа должна быть числом',
           ),
         );
         return;

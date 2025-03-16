@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
-import 'package:moniplan_domain/src/core/extensions/date_time_extensions.dart';
 
 /// Состояние для блока редактирования платежа
 class PaymentEditState extends Equatable {
@@ -39,9 +37,6 @@ class PaymentEditState extends Equatable {
 
   /// Текущий шаг редактирования (0 - сумма, 1 - название, 2 - повторение)
   final int currentStep;
-
-  /// Показывать ли клавиатуру
-  final bool showKeyboard;
 
   /// Тип активной клавиатуры
   final KeyboardType keyboardType;
@@ -84,7 +79,6 @@ class PaymentEditState extends Equatable {
       startDate: startDate,
       endDate: endDate,
       currentStep: currentStep,
-      showKeyboard: showKeyboard,
       keyboardType: keyboardType,
       status: status,
       errorMessage: errorMessage,
@@ -105,7 +99,6 @@ class PaymentEditState extends Equatable {
     required this.startDate,
     required this.endDate,
     required this.currentStep,
-    required this.showKeyboard,
     required this.keyboardType,
     required this.status,
     required this.errorMessage,
@@ -144,7 +137,6 @@ class PaymentEditState extends Equatable {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       currentStep: currentStep ?? this.currentStep,
-      showKeyboard: showKeyboard ?? this.showKeyboard,
       keyboardType: keyboardType ?? this.keyboardType,
       status: status ?? this.status,
       errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
@@ -193,7 +185,7 @@ class PaymentEditState extends Equatable {
 
     // Пытаемся преобразовать сумму в число
     final amountValue = double.tryParse(amount.replaceAll(',', '.'));
-    if (amountValue == null || amountValue <= 0) {
+    if (amountValue == null) {
       return false;
     }
 
@@ -223,7 +215,7 @@ class PaymentEditState extends Equatable {
           dateEnd: endDateWithoutTime,
           repeat: repeatPeriod,
           details: payment!.details.copyWith(
-            name: title.isNotEmpty ? title : 'Без названия',
+            name: title,
             note: note,
             money: amountValue.abs(),
             type: type,
@@ -240,7 +232,7 @@ class PaymentEditState extends Equatable {
           dateEnd: endDateWithoutTime,
           repeat: repeatPeriod,
           details: PaymentDetails(
-            name: title.isNotEmpty ? title : 'Без названия',
+            name: title,
             note: note,
             money: amountValue.abs(),
             type: type,
@@ -264,7 +256,6 @@ class PaymentEditState extends Equatable {
     startDate,
     endDate,
     currentStep,
-    showKeyboard,
     keyboardType,
     status,
     errorMessage,
