@@ -16,85 +16,15 @@ class PaymentListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCorrection = payment.type == PaymentType.correction;
     final shouldGrayscale = !payment.isEnabled || payment.isDone;
-    final isIncome = payment.type == PaymentType.income;
-
-    // Проверяем, отрицательный ли баланс
     final hasNegativeBalance = mediateSummary != null && mediateSummary! < 0;
-
-    // Определяем цвета в зависимости от баланса и состояния
-    final cardColor =
-        shouldGrayscale
-            ? context.color.surfaceContainerLowest
-            : hasNegativeBalance
-            ? context.color.errorContainer.withValues(alpha: .2)
-            : isIncome
-            ? context.color.primaryContainer.withValues(alpha: .4)
-            : context.color.surfaceContainerLow;
-
-    final textColor = shouldGrayscale ? context.color.onSurfaceVariant : context.color.onSurface;
-
-    final budgetPredictWidget =
-        mediateSummary != null
-            ? MoneyColoredWidget(
-              value: mediateSummary,
-              currency: payment.details.currency,
-              showPlusSign: false,
-              overridePositiveColor: context.color.tertiary,
-              overrideNegativeColor: context.color.error,
-              textStyle: context.theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: mediateSummary! < 0 ? FontWeight.w700 : FontWeight.w500,
-              ),
-            )
-            : const SizedBox();
-
-    final repeatWidget =
-        payment.isRepeat
-            ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  payment.repeat.shortName,
-                  style: context.theme.textTheme.labelMedium?.copyWith(
-                    color: shouldGrayscale ? textColor : context.color.primary,
-                  ),
-                ),
-                const SizedBox(width: 2),
-                Icon(
-                  Icons.refresh_rounded,
-                  size: 16,
-                  color: shouldGrayscale ? textColor : context.color.primary,
-                ),
-              ],
-            )
-            : const SizedBox();
-
-    final statusIcon =
-        !payment.isEnabled
-            ? Icon(
-              Icons.power_settings_new_rounded,
-              size: 18,
-              color: context.ext<MoniplanExtraColors>()?.moneyNegative,
-            )
-            : payment.isDone
-            ? Icon(
-              Icons.check_circle_outline_rounded,
-              size: 18,
-              color: context.ext<MoniplanExtraColors>()?.moneyPositive,
-            )
-            : null;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       elevation: shouldGrayscale ? 0 : 1,
-      color: cardColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side:
-            shouldGrayscale
-                ? BorderSide(color: context.color.outlineVariant, width: 0.5)
-                : BorderSide.none,
-      ),
+      color: _getCardColor(context, shouldGrayscale, hasNegativeBalance, isCorrection),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide.none),
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(12),
@@ -103,87 +33,191 @@ class PaymentListItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Иконка типа платежа или предупреждения
-                  Icon(
-                    hasNegativeBalance
-                        ? Icons.warning_amber_rounded
-                        : isIncome
-                        ? Icons.arrow_downward_rounded
-                        : Icons.arrow_upward_rounded,
-                    size: 18,
-                    color:
-                        shouldGrayscale
-                            ? textColor
-                            : hasNegativeBalance
-                            ? context.color.error
-                            : isIncome
-                            ? context.ext<MoniplanExtraColors>()?.moneyPositive
-                            : context.ext<MoniplanExtraColors>()?.moneyNegative,
-                  ),
-                  const SizedBox(width: 8),
-
-                  // Название платежа
-                  Expanded(
-                    child: Text(
-                      payment.details.name,
-                      style: context.theme.textTheme.titleMedium?.copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-
-                  // Статус платежа (если есть)
-                  if (statusIcon != null) ...[const SizedBox(width: 4), statusIcon],
-                ],
-              ),
-
+              _buildHeader(context, shouldGrayscale, hasNegativeBalance, isCorrection),
               const SizedBox(height: 8),
-
-              // Нижняя часть с суммой и дополнительной информацией
-              Stack(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Сумма платежа
-                      _buildMoneyWidget(
-                        context,
-                        payment.normalizedMoney,
-                        payment.details.currency,
-                        shouldGrayscale,
-                        textColor,
-                      ),
-
-                      Row(
-                        children: [
-                          // Индикатор повторяющегося платежа
-                          repeatWidget,
-
-                          // Прогноз бюджета
-                        ],
-                      ),
-                    ],
-                  ),
-                  if (payment.isEnabled && mediateSummary != null) ...[
-                    Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: _buildBudgetPredict(context, mediateSummary!, budgetPredictWidget),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+              _buildFooter(context, shouldGrayscale, isCorrection),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader(
+    BuildContext context,
+    bool shouldGrayscale,
+    bool hasNegativeBalance,
+    bool isCorrection,
+  ) {
+    final textColor = shouldGrayscale ? context.color.onSurfaceVariant : context.color.onSurface;
+    final statusIcon = _getStatusIcon(context);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Иконка типа платежа или предупреждения
+        Icon(
+          _getPaymentIcon(hasNegativeBalance, isCorrection),
+          size: 18,
+          color: _getIconColor(
+            context,
+            shouldGrayscale,
+            hasNegativeBalance,
+            isCorrection,
+            textColor,
+          ),
+        ),
+        const SizedBox(width: 8),
+
+        // Название платежа
+        Expanded(
+          child: Text(
+            isCorrection ? 'Коррекция баланса' : payment.details.name,
+            style: context.theme.textTheme.titleMedium?.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+
+        // Статус платежа (если есть)
+        if (statusIcon != null) ...[const SizedBox(width: 4), statusIcon],
+      ],
+    );
+  }
+
+  Widget _buildFooter(BuildContext context, bool shouldGrayscale, bool isCorrection) {
+    final textColor = shouldGrayscale ? context.color.onSurfaceVariant : context.color.onSurface;
+    final repeatWidget = _buildRepeatWidget(context, shouldGrayscale, textColor);
+    final budgetPredictWidget = _buildBudgetWidget(context);
+
+    return Stack(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Сумма платежа
+            Visibility(
+              visible: !isCorrection,
+              maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
+              child: _buildMoneyWidget(
+                context,
+                payment.normalizedMoney,
+                payment.details.currency,
+                shouldGrayscale,
+                textColor,
+              ),
+            ),
+            // Повторяющийся платеж
+            repeatWidget,
+          ],
+        ),
+        if (payment.isEnabled && mediateSummary != null) ...[
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: _buildBudgetPredict(context, mediateSummary!, budgetPredictWidget),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildBudgetWidget(BuildContext context) {
+    if (mediateSummary == null) return const SizedBox();
+
+    return MoneyColoredWidget(
+      value: mediateSummary,
+      currency: payment.details.currency,
+      showPlusSign: false,
+      overridePositiveColor: context.color.tertiary,
+      overrideNegativeColor: context.color.error,
+      textStyle: context.theme.textTheme.bodyMedium?.copyWith(
+        fontWeight: mediateSummary! < 0 ? FontWeight.w700 : FontWeight.w500,
+      ),
+    );
+  }
+
+  Widget? _getStatusIcon(BuildContext context) {
+    if (!payment.isEnabled) {
+      return Icon(
+        Icons.power_settings_new_rounded,
+        size: 18,
+        color: context.ext<MoniplanExtraColors>()?.moneyNegative,
+      );
+    } else if (payment.isDone) {
+      return Icon(
+        Icons.check_circle_outline_rounded,
+        size: 18,
+        color: context.ext<MoniplanExtraColors>()?.moneyPositive,
+      );
+    }
+    return null;
+  }
+
+  IconData _getPaymentIcon(bool hasNegativeBalance, bool isCorrection) {
+    if (hasNegativeBalance) return Icons.warning_amber_rounded;
+    if (isCorrection) return Icons.sync_alt;
+    return payment.type == PaymentType.income
+        ? Icons.arrow_downward_rounded
+        : Icons.arrow_upward_rounded;
+  }
+
+  Color _getIconColor(
+    BuildContext context,
+    bool shouldGrayscale,
+    bool hasNegativeBalance,
+    bool isCorrection,
+    Color textColor,
+  ) {
+    if (shouldGrayscale) return textColor;
+    if (hasNegativeBalance) return context.color.error;
+    if (isCorrection) return Colors.yellowAccent;
+
+    return payment.type == PaymentType.income
+        ? context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green
+        : context.ext<MoniplanExtraColors>()?.moneyNegative ?? Colors.red;
+  }
+
+  Color _getCardColor(
+    BuildContext context,
+    bool shouldGrayscale,
+    bool hasNegativeBalance,
+    bool isCorrection,
+  ) {
+    if (isCorrection) return context.color.surfaceContainerHighest;
+    if (shouldGrayscale) return context.color.surfaceContainerLowest;
+    if (hasNegativeBalance) return context.color.errorContainer.withValues(alpha: .2);
+
+    return payment.type == PaymentType.income
+        ? context.color.primaryContainer.withValues(alpha: .4)
+        : context.color.surfaceContainer;
+  }
+
+  Widget _buildRepeatWidget(BuildContext context, bool shouldGrayscale, Color textColor) {
+    if (!payment.isRepeat) return const SizedBox();
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          payment.repeat.shortName,
+          style: context.theme.textTheme.labelMedium?.copyWith(
+            color: shouldGrayscale ? textColor : context.color.primary,
+          ),
+        ),
+        const SizedBox(width: 2),
+        Icon(
+          Icons.refresh_rounded,
+          size: 16,
+          color: shouldGrayscale ? textColor : context.color.primary,
+        ),
+      ],
     );
   }
 
@@ -194,9 +228,6 @@ class PaymentListItem extends StatelessWidget {
     bool shouldGrayscale,
     Color textColor,
   ) {
-    // Для платежей мы не подсвечиваем отрицательные значения, так как это нормально для расходов
-    // Подсветка будет только в _buildBudgetPredict для отрицательного баланса
-
     return MoneyColoredWidget(
       value: value,
       currency: currency,
@@ -209,14 +240,10 @@ class PaymentListItem extends StatelessWidget {
 
   Widget _buildBudgetPredict(BuildContext context, num summary, Widget budgetPredictWidget) {
     final isNegative = summary < 0;
-
-    // Выбираем иконку и цвет в зависимости от знака баланса
     final IconData icon =
         isNegative ? Icons.warning_amber_rounded : Icons.account_balance_wallet_outlined;
-
     final color = isNegative ? context.color.error : context.color.tertiary;
 
-    // Для отрицательного баланса добавляем анимацию и контейнер
     if (isNegative) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -250,7 +277,6 @@ class PaymentListItem extends StatelessWidget {
       );
     }
 
-    // Для положительного баланса оставляем обычное отображение
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [Icon(icon, size: 16, color: color), const SizedBox(width: 4), budgetPredictWidget],

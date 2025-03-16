@@ -45,13 +45,20 @@ class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
     }
 
     for (final item in sortedPayments) {
-      // Учитываем платежи в зависимости от их статуса
+      // Учитываем платежи в зависимости от их статуса и типа
       // Если платеж выключен (isEnabled == false), не учитываем его в расчете
       // Если платеж включен (isEnabled == true), учитываем его
       final shouldCountInBudget = item.isEnabled;
-      final value = shouldCountInBudget ? item.normalizedMoney : 0;
 
-      tempBudget += value;
+      // Для коррекции устанавливаем баланс равным значению amount
+      if (item.type == PaymentType.correction && shouldCountInBudget) {
+        tempBudget = item.details.money;
+      } else {
+        // Для обычных платежей прибавляем/вычитаем сумму
+        final value = shouldCountInBudget ? item.normalizedMoney : 0;
+        tempBudget += value;
+      }
+
       budget[item] = tempBudget;
 
       // Обновляем lastUpdatedBudget только для текущих и прошедших дат

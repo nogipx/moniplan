@@ -8,23 +8,34 @@ import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class ExtendedAppFloatingButton extends StatelessWidget {
-  const ExtendedAppFloatingButton({super.key, required this.onPressed});
+  const ExtendedAppFloatingButton({
+    super.key,
+    required this.onPressed,
+    this.onLongPressed,
+    this.onDoubleTap,
+  });
 
   final VoidCallback onPressed;
+  final VoidCallback? onLongPressed;
+  final VoidCallback? onDoubleTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (context) => DriftDbViewer(AppDi.instance.getDb().db)));
-      },
-      onDoubleTap: () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
-      },
+      onLongPress:
+          onLongPressed ??
+          () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => DriftDbViewer(AppDi.instance.getDb().db)),
+            );
+          },
+      onDoubleTap:
+          onDoubleTap ??
+          () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
+          },
       child: FloatingActionButton(child: const Icon(Icons.add), onPressed: onPressed),
     );
   }

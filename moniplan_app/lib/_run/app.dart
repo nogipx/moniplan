@@ -39,6 +39,8 @@ class _MoniplanAppState extends State<MoniplanApp> {
   void initState() {
     super.initState();
 
+    _brightness = _platformBrigtness;
+
     // register(
     //   Service(
     //     name: 'Moniplan',

@@ -8,12 +8,13 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 ///
 /// Порядок сортировки:
 /// 1. По дате (если указано sortByDate = true)
-/// 2. По приоритету:
+/// 2. По типу (коррекция всегда в конце списка)
+/// 3. По приоритету:
 ///    - Выполненные платежи (isDone == true)
 ///    - Выключенные платежи (isEnabled == false)
 ///    - Активные незавершенные платежи (isDone == false && isEnabled == true)
-/// 3. По типу (доходы перед расходами)
-/// 4. По сумме (от большей к меньшей)
+/// 4. По типу (доходы перед расходами)
+/// 5. По сумме (от большей к меньшей)
 class SortPaymentsUsecase implements IUseCase<List<Payment>> {
   final List<Payment> payments;
 
@@ -24,6 +25,14 @@ class SortPaymentsUsecase implements IUseCase<List<Payment>> {
     final sortedPayments = List<Payment>.from(payments);
 
     sortedPayments.sort((a, b) {
+      // Коррекция всегда в конце (после всех других платежей)
+      if (a.type == PaymentType.correction && b.type != PaymentType.correction) {
+        return 1; // a (коррекция) идет после b
+      }
+      if (a.type != PaymentType.correction && b.type == PaymentType.correction) {
+        return -1; // a идет перед b (коррекция)
+      }
+
       // Создаем приоритет для каждого платежа:
       // 1 - выполненные (isDone == true)
       // 2 - выключенные (isEnabled == false)

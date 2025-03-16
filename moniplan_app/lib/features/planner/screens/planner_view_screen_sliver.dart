@@ -147,6 +147,9 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
               ),
             ),
             ExtendedAppFloatingButton(
+              onLongPressed: () {
+                _showCorrectionDialog(context);
+              },
               onPressed: () {
                 updateDialog(context: context, plannerRepo: AppDi.instance.getPlannerRepo());
               },
@@ -231,5 +234,69 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
         curve: (estimatedDistance) => Curves.fastLinearToSlowEaseIn,
       );
     }
+  }
+
+  void _showCorrectionDialog(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Коррекция баланса'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(hintText: 'Сумма'),
+                  autofocus: true,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: Text('Отмена')),
+              TextButton(
+                onPressed: () {
+                  if (controller.text.isNotEmpty) {
+                    final amount = double.tryParse(controller.text);
+                    if (amount != null) {
+                      _saveCorrectionPayment(amount);
+                      Navigator.pop(context);
+                    }
+                  }
+                },
+                child: Text('Сохранить'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _saveCorrectionPayment(double amount) {
+    final plannerBloc = context.read<PlannerBloc>();
+    final planner = plannerBloc.state.resultingPlanner;
+
+    // Получаем валюту из первого платежа или используем дефолтную
+    final currency = CurrencyData.create('RUB', 2, symbol: '₽');
+
+    // Создаем платеж типа correction
+    final payment = Payment(
+      paymentId: Uuid().v4(),
+      plannerId: planner.id,
+      date: DateTime.now(),
+      isDone: true,
+      details: PaymentDetails(
+        name: 'Коррекция баланса',
+        type: PaymentType.correction,
+        currency: currency,
+        money: amount,
+      ),
+    );
+
+    // Сохраняем платеж и обновляем бюджет
+    plannerBloc.add(PlannerEvent.updatePayment(newPayment: payment, create: true));
+    plannerBloc.add(const PlannerEvent.computeBudget());
   }
 }

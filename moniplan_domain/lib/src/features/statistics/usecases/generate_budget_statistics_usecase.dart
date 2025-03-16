@@ -45,23 +45,26 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
       return BudgetStatistics(totalBudget: {}, incomes: {}, expenses: {});
     }
 
-    final targetPlanner = GenerateNewPlannerUseCase(
-      customPlannerId: planner.id,
-      payments: payments,
-      dateStart: dateStart ?? planner.dateStart,
-      dateEnd: dateEnd ?? planner.dateEnd,
-      initialBudget: planner.initialBudget,
-    ).run().planner;
+    final targetPlanner =
+        GenerateNewPlannerUseCase(
+          customPlannerId: planner.id,
+          payments: payments,
+          dateStart: dateStart ?? planner.dateStart,
+          dateEnd: dateEnd ?? planner.dateEnd,
+          initialBudget: planner.initialBudget,
+        ).run().planner;
 
-    final paymentsByDate = GroupPaymentsByDateUsecase(
-      today: DateTime.now(),
-      payments: ConstrainItemsInPeriodUseCase(
-        items: targetPlanner.payments,
-        dateStart: targetPlanner.dateStart,
-        dateEnd: targetPlanner.dateEnd,
-        dateExtractor: (item) => item.date.dayBound,
-      ).run(),
-    ).run();
+    final paymentsByDate =
+        GroupPaymentsByDateUsecase(
+          today: DateTime.now(),
+          payments:
+              ConstrainItemsInPeriodUseCase(
+                items: targetPlanner.payments,
+                dateStart: targetPlanner.dateStart,
+                dateEnd: targetPlanner.dateEnd,
+                dateExtractor: (item) => item.date.dayBound,
+              ).run(),
+        ).run();
 
     final BudgetStatisticsTotal totalBudget = {};
     final Map<DateTime, num> incomes = {};
@@ -99,6 +102,15 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
       }
 
       runningTotal += dailyTotal;
+
+      // Если в этот день была коррекция, устанавливаем значение из последней коррекции
+      final lastCorrection =
+          dayPayments.where((p) => p.isEnabled && p.type == PaymentType.correction).lastOrNull;
+
+      if (lastCorrection != null) {
+        runningTotal = lastCorrection.details.money.toDouble();
+      }
+
       totalBudget[dayDate] = (totalBudget: runningTotal, allCompleted: allCompleted);
       if (dailyIncome > 0) {
         incomes[dayDate] = dailyIncome;
@@ -108,10 +120,6 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
       }
     }
 
-    return BudgetStatistics(
-      totalBudget: totalBudget,
-      incomes: incomes,
-      expenses: expenses,
-    );
+    return BudgetStatistics(totalBudget: totalBudget, incomes: incomes, expenses: expenses);
   }
 }
