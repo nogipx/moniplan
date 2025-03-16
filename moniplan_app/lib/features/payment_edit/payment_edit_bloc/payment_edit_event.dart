@@ -1,4 +1,3 @@
-import 'package:equatable/equatable.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 /// События для блока редактирования платежа

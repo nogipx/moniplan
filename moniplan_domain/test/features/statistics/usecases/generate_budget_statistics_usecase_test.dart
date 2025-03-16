@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:collection/collection.dart';
 
 // Тестовый репозиторий, который соответствует принципам классического тестирования
 class TestPlannerRepo implements IPlannerRepo {
@@ -48,14 +49,8 @@ class TestPlannerRepo implements IPlannerRepo {
   Future<void> deletePlanner(String id) async {}
 
   @override
-  Future<void> updatePaymentStatus({required String id, required bool isDone}) async {}
-
-  @override
-  Future<void> updatePaymentEnabled({required String id, required bool isEnabled}) async {}
-
-  @override
   Future<Payment?> getPaymentById({required String paymentId, required String plannerId}) async {
-    return payments.firstWhere((p) => p.paymentId == paymentId, orElse: () => null as Payment);
+    return payments.firstWhereOrNull((p) => p.paymentId == paymentId);
   }
 
   @override

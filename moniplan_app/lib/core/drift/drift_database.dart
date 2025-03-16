@@ -4,7 +4,6 @@
 
 import 'package:drift/drift.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
-import 'package:moniplan_app/features/payment/dao/payment_dao.dart';
 
 part 'drift_database.g.dart';
 

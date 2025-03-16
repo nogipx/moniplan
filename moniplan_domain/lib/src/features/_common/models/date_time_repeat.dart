@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:moniplan_domain/moniplan_domain.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 /// Конвертер для сериализации/десериализации DateTimeRepeat
 class DateTimeRepeatConverter implements JsonConverter<DateTimeRepeat, int> {

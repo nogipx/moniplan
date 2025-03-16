@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 class PaymentBuilder {

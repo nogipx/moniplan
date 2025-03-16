@@ -22,18 +22,10 @@ BorderSide? lerpBorderSide(BorderSide? a, BorderSide? b, double t) {
   }
 
   if (a == null) {
-    return BorderSide.lerp(
-      BorderSide(width: 0, color: b!.color.withAlpha(0)),
-      b,
-      t,
-    );
+    return BorderSide.lerp(BorderSide(width: 0, color: b!.color.withAlpha(0)), b, t);
   }
   if (b == null) {
-    return BorderSide.lerp(
-      a,
-      BorderSide(width: 0, color: a.color.withAlpha(0)),
-      t,
-    );
+    return BorderSide.lerp(a, BorderSide(width: 0, color: a.color.withAlpha(0)), t);
   }
   return BorderSide.lerp(a, b, t);
 }

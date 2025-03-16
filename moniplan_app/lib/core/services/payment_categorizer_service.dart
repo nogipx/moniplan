@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
@@ -63,7 +62,7 @@ class PaymentCategorizerService {
       // Для релизной сборки используем модель из assets
       if (kReleaseMode) {
         final modelData = await rootBundle.load(_modelPath);
-        _interpreter = await Interpreter.fromBuffer(
+        _interpreter = Interpreter.fromBuffer(
           modelData.buffer.asUint8List(),
           options: interpreterOptions,
         );
@@ -77,7 +76,7 @@ class PaymentCategorizerService {
           await modelFile.writeAsBytes(modelData.buffer.asUint8List());
         }
 
-        _interpreter = await Interpreter.fromFile(modelFile, options: interpreterOptions);
+        _interpreter = Interpreter.fromFile(modelFile, options: interpreterOptions);
       }
 
       // Загружаем словарь и маппинг категорий

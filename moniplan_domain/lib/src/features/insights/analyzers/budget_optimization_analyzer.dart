@@ -5,9 +5,6 @@
 import 'package:collection/collection.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-import '../_index.dart';
-import '../categorization/_index.dart';
-
 /// Анализатор для оптимизации бюджета
 ///
 /// Использует алгоритмы оптимизации для выявления возможностей экономии
@@ -15,11 +12,9 @@ import '../categorization/_index.dart';
 final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
   /// Категоризатор платежей
   final ICategoryPredictor _categorizer;
-  final List<Payment> _payments;
 
-  BudgetOptimizationAnalyzer(super.source, ICategoryPredictor categorizer, List<Payment> payments)
-    : _categorizer = categorizer,
-      _payments = payments;
+  BudgetOptimizationAnalyzer(super.source, ICategoryPredictor categorizer)
+    : _categorizer = categorizer;
 
   // Минимальный процент экономии, который считается значимым
   static const _minSavingsPercent = 5;
@@ -731,6 +726,7 @@ final class BudgetOptimizationAnalyzer extends CombinedAnalyzer {
 /// Класс для хранения категоризированных финансовых данных
 class _CategorizedFinancialData implements IFinancialData {
   final IFinancialData originalData;
+  @override
   final String category;
   final List<CategoryPrediction> categoryPredictions;
 

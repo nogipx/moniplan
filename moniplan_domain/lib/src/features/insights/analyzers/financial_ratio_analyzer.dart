@@ -12,7 +12,7 @@ import '../_index.dart';
 final class FinancialRatioAnalyzer extends RetrospectiveAnalyzer {
   // Рекомендуемые значения коэффициентов
   static const _recommendedSavingsRatio = 0.2; // 20% от дохода
-  static const _maxDebtToIncomeRatio = 0.4; // 40% от дохода
+  // 40% от дохода
   static const _recommendedEmergencyFundMonths = 3.0; // 3 месяца расходов
 
   FinancialRatioAnalyzer(super.source);

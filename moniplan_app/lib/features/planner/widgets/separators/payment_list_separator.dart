@@ -7,8 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_app/core/_index.dart';
 
 class PaymentListSeparator extends StatelessWidget {
   final DateTime currDate;

@@ -10,7 +10,6 @@ import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_bloc
 import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_event.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/_index.dart' as edit;
 import 'package:moniplan_app/features/calculator/widgets/payment_keyboard.dart' as keyboard;
 
@@ -311,7 +310,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant,
+            color: theme.colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -424,7 +423,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant,
+                color: theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -467,7 +466,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant,
+                color: theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -558,7 +557,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             border: Border(
-              top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1), width: 1),
+              top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1), width: 1),
             ),
           ),
           child: Row(
@@ -593,7 +592,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
                             color:
                                 isActive
                                     ? theme.colorScheme.primary
-                                    : theme.colorScheme.outline.withOpacity(0.3),
+                                    : theme.colorScheme.outline.withValues(alpha: 0.3),
                           ),
                           child: Center(
                             child: Text(
@@ -616,7 +615,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
                           color:
                               isActive
                                   ? theme.colorScheme.primary
-                                  : theme.colorScheme.onSurface.withOpacity(0.7),
+                                  : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                           fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -856,7 +855,7 @@ class _TitleInputStepState extends State<_TitleInputStep> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: context.color.surfaceVariant,
+              color: context.color.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -917,7 +916,7 @@ class _TitleInputStepState extends State<_TitleInputStep> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: context.color.surfaceVariant,
+            color: context.color.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(

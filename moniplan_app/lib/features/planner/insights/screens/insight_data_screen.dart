@@ -16,8 +16,7 @@ class InsightDataScreen extends StatelessWidget {
   final Planner planner;
 
   /// Конструктор
-  const InsightDataScreen({Key? key, required this.insight, required this.planner})
-    : super(key: key);
+  const InsightDataScreen({super.key, required this.insight, required this.planner});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +26,7 @@ class InsightDataScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Данные анализа', style: context.text.displayMedium),
-        backgroundColor: importanceColor.withOpacity(0.1),
+        backgroundColor: importanceColor.withValues(alpha: 0.1),
         foregroundColor: importanceColor,
       ),
       body: SafeArea(
@@ -73,7 +72,7 @@ class InsightDataScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: importanceColor.withOpacity(0.1),
+        color: importanceColor.withValues(alpha: 0.1),
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(16),
           bottomRight: Radius.circular(16),
@@ -222,7 +221,7 @@ class InsightDataScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: context.color.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: context.color.onSurface.withOpacity(0.1)),
+            border: Border.all(color: context.color.onSurface.withValues(alpha: 0.1)),
           ),
           child: ListView.separated(
             shrinkWrap: true,
@@ -230,7 +229,7 @@ class InsightDataScreen extends StatelessWidget {
             itemCount: filteredData.length,
             separatorBuilder:
                 (context, index) =>
-                    Divider(height: 1, color: context.color.onSurface.withOpacity(0.1)),
+                    Divider(height: 1, color: context.color.onSurface.withValues(alpha: 0.1)),
             itemBuilder: (context, index) {
               final entry = filteredData.entries.elementAt(index);
               return _buildDataItem(context, entry.key, entry.value);
@@ -305,7 +304,7 @@ class InsightDataScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: context.color.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: context.color.onSurface.withOpacity(0.1)),
+            border: Border.all(color: context.color.onSurface.withValues(alpha: 0.1)),
           ),
           child: ListView.separated(
             shrinkWrap: true,
@@ -313,7 +312,7 @@ class InsightDataScreen extends StatelessWidget {
             itemCount: payments.length,
             separatorBuilder:
                 (context, index) =>
-                    Divider(height: 1, color: context.color.onSurface.withOpacity(0.1)),
+                    Divider(height: 1, color: context.color.onSurface.withValues(alpha: 0.1)),
             itemBuilder: (context, index) {
               final payment = payments[index];
               return _buildPaymentItem(context, payment);
@@ -336,7 +335,7 @@ class InsightDataScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: Icon(icon, size: 16, color: color),
           ),
           const SizedBox(width: 12),
@@ -345,12 +344,15 @@ class InsightDataScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  payment.details.name ?? 'Без названия',
+                  payment.details.name,
                   style: TextStyle(fontWeight: FontWeight.bold, color: context.color.onSurface),
                 ),
                 Text(
                   _formatDate(payment.date),
-                  style: TextStyle(fontSize: 12, color: context.color.onSurface.withOpacity(0.7)),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: context.color.onSurface.withValues(alpha: 0.7),
+                  ),
                 ),
               ],
             ),
@@ -371,7 +373,7 @@ class InsightDataScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -468,40 +470,6 @@ class InsightDataScreen extends StatelessWidget {
     }
   }
 
-  /// Получает иконку для рекомендации
-  IconData _getRecommendationIcon() {
-    switch (insight.type) {
-      case InsightType.expenseStructure:
-        return Icons.pie_chart;
-      case InsightType.pattern:
-        return Icons.repeat;
-      case InsightType.forecast:
-        return insight.importance == InsightImportance.critical ||
-                insight.importance == InsightImportance.high
-            ? Icons.warning
-            : Icons.trending_up;
-      case InsightType.comparison:
-        return Icons.compare_arrows;
-      case InsightType.optimization:
-        return Icons.build;
-      case InsightType.goal:
-        return Icons.flag;
-      case InsightType.advice:
-        return Icons.lightbulb_outline;
-    }
-  }
-
-  /// Получает цвет для рекомендации
-  Color _getRecommendationColor() {
-    if (insight.type == InsightType.forecast &&
-        (insight.importance == InsightImportance.critical ||
-            insight.importance == InsightImportance.high)) {
-      return Colors.orange;
-    }
-
-    return _getColorForImportance(insight.importance);
-  }
-
   /// Возвращает цвет в зависимости от важности инсайта
   Color _getColorForImportance(InsightImportance importance) {
     switch (importance) {
@@ -574,7 +542,7 @@ class InsightDataScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
-          BoxShadow(color: color.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2)),
+          BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2)),
         ],
       ),
       child: Icon(iconData, color: color, size: 24),

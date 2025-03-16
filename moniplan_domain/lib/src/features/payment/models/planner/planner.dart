@@ -2,10 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-import '../_index.dart';
 
 part 'planner.freezed.dart';
 part 'planner.g.dart';

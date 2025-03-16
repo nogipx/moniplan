@@ -4,9 +4,6 @@
 
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-import '../_index.dart';
-import '../categorization/_index.dart';
-
 /// Анализатор для предложения категорий для операций
 ///
 /// Использует автоматическую категоризацию платежей и предлагает
@@ -14,12 +11,10 @@ import '../categorization/_index.dart';
 final class CategorySuggestionAnalyzer extends RetrospectiveAnalyzer {
   /// Категоризатор платежей
   final ICategoryPredictor _categorizer;
-  final List<Payment> _payments;
 
   /// Конструктор
-  CategorySuggestionAnalyzer(super.source, ICategoryPredictor categorizer, List<Payment> payments)
-    : _categorizer = categorizer,
-      _payments = payments;
+  CategorySuggestionAnalyzer(super.source, ICategoryPredictor categorizer)
+    : _categorizer = categorizer;
 
   @override
   Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData}) async {

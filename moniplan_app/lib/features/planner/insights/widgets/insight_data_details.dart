@@ -17,7 +17,7 @@ class InsightDataDetails extends StatefulWidget {
   final Planner? planner;
 
   /// Конструктор
-  const InsightDataDetails({Key? key, required this.insight, this.planner}) : super(key: key);
+  const InsightDataDetails({super.key, required this.insight, this.planner});
 
   @override
   State<InsightDataDetails> createState() => _InsightDataDetailsState();
@@ -93,7 +93,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
               // Фильтрация по поисковому запросу
               final matchesSearch =
                   searchQuery.isEmpty ||
-                  payment.details.name?.toLowerCase().contains(searchQuery) == true ||
+                  payment.details.name.toLowerCase().contains(searchQuery) == true ||
                   payment.details.note.toLowerCase().contains(searchQuery);
 
               // Фильтрация по категории
@@ -180,7 +180,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
       decoration: BoxDecoration(
         color: context.color.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.color.onSurface.withOpacity(0.1)),
+        border: Border.all(color: context.color.onSurface.withValues(alpha: 0.1)),
       ),
       child: chart,
     );
@@ -279,7 +279,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -323,7 +323,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 14, color: context.color.onSurface.withOpacity(0.7)),
+          style: TextStyle(fontSize: 14, color: context.color.onSurface.withValues(alpha: 0.7)),
         ),
         const SizedBox(height: 4),
         Row(
@@ -351,7 +351,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
             const SizedBox(height: 16),
             Text(
               'Нет платежей, соответствующих фильтрам',
-              style: TextStyle(fontSize: 16, color: context.color.onSurface.withOpacity(0.7)),
+              style: TextStyle(fontSize: 16, color: context.color.onSurface.withValues(alpha: 0.7)),
             ),
           ],
         ),
@@ -379,13 +379,10 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
       leading: Container(
         width: 40,
         height: 40,
-        decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
         child: Icon(icon, color: color),
       ),
-      title: Text(
-        payment.details.name ?? 'Без названия',
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
+      title: Text(payment.details.name, style: const TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -430,7 +427,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  payment.details.name ?? 'Без названия',
+                  payment.details.name,
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -475,7 +472,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
               label,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: context.color.onSurface.withOpacity(0.7),
+                color: context.color.onSurface.withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -504,7 +501,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
         final additionalData = widget.insight.additionalData;
         final hasLargestCategory =
             additionalData != null && additionalData.containsKey('largest_category');
-        final largestCategory = hasLargestCategory ? additionalData!['largest_category'] : null;
+        final largestCategory = hasLargestCategory ? additionalData['largest_category'] : null;
         final categoryPercentage =
             additionalData != null && additionalData.containsKey('category_percentage')
                 ? additionalData['category_percentage']
@@ -591,16 +588,12 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
           _buildMethodologyStep(
             3,
             'Выявление и классификация паттернов',
-            step3Text +
-                patternInfo +
-                'Для каждого паттерна была рассчитана статистическая значимость и устойчивость.',
+            '$step3Text$patternInfoДля каждого паттерна была рассчитана статистическая значимость и устойчивость.',
           ),
           _buildMethodologyStep(
             4,
             'Оценка достоверности и формирование прогноза',
-            step4Text +
-                confidenceInfo +
-                'На основе выявленных закономерностей был сформирован прогноз будущих платежей.',
+            '$step4Text$confidenceInfoНа основе выявленных закономерностей был сформирован прогноз будущих платежей.',
           ),
         ];
         break;
@@ -654,10 +647,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
           _buildMethodologyStep(
             4,
             'Формирование прогноза и оценка точности',
-            step4Text +
-                forecastInfo +
-                confidenceInfo +
-                'Были рассчитаны доверительные интервалы для прогноза и оценены возможные риски.',
+            '$step4Text$forecastInfo$confidenceInfoБыли рассчитаны доверительные интервалы для прогноза и оценены возможные риски.',
           ),
         ];
         break;
@@ -696,9 +686,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
           _buildMethodologyStep(
             1,
             'Выбор и подготовка периодов для сравнения',
-            step1Text +
-                periodInfo +
-                'Данные по обоим периодам были нормализованы для корректного сравнения.',
+            '$step1Text$periodInfoДанные по обоим периодам были нормализованы для корректного сравнения.',
           ),
           _buildMethodologyStep(
             2,
@@ -709,9 +697,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
           _buildMethodologyStep(
             3,
             'Расчет и анализ изменений',
-            step3Text +
-                changeInfo +
-                'Для каждой категории расходов были рассчитаны темпы роста/снижения и доли в общей структуре.',
+            '$step3Text$changeInfoДля каждой категории расходов были рассчитаны темпы роста/снижения и доли в общей структуре.',
           ),
           _buildMethodologyStep(
             4,
@@ -776,11 +762,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
           _buildMethodologyStep(
             4,
             'Формирование конкретной рекомендации',
-            step4Text +
-                recommendationInfo +
-                savingsInfo +
-                difficultyInfo +
-                'Рекомендация была сформулирована с учетом баланса между потенциальной выгодой и сложностью внедрения.',
+            '$step4Text$recommendationInfo$savingsInfo$difficultyInfoРекомендация была сформулирована с учетом баланса между потенциальной выгодой и сложностью внедрения.',
           ),
         ];
         break;
@@ -833,11 +815,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
           _buildMethodologyStep(
             3,
             'Анализ динамики и прогнозирование',
-            step3Text +
-                progressInfo +
-                timeInfo +
-                deviationInfo +
-                'Была проанализирована динамика накоплений и спрогнозировано время достижения цели при сохранении текущего темпа.',
+            '$step3Text$progressInfo$timeInfo$deviationInfoБыла проанализирована динамика накоплений и спрогнозировано время достижения цели при сохранении текущего темпа.',
           ),
           _buildMethodologyStep(
             4,
@@ -896,11 +874,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
           _buildMethodologyStep(
             3,
             'Выявление и анализ аномалий',
-            step3Text +
-                anomalyInfo +
-                deviationInfo +
-                zScoreInfo +
-                'Был проведен анализ причин возникновения аномалии и оценка ее влияния на общую финансовую картину.',
+            '$step3Text$anomalyInfo$deviationInfo$zScoreInfoБыл проведен анализ причин возникновения аномалии и оценка ее влияния на общую финансовую картину.',
           ),
           _buildMethodologyStep(
             4,
@@ -953,7 +927,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
       decoration: BoxDecoration(
         color: context.color.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: context.color.onSurface.withOpacity(0.1)),
+        border: Border.all(color: context.color.onSurface.withValues(alpha: 0.1)),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -1015,29 +989,13 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
       case InsightTimeframe.predictive:
         return 'прогнозируемых';
       case InsightTimeframe.combined:
-      default:
         return 'общих';
     }
   }
 
   /// Получает временной признак инсайта
   InsightTimeframe _getTimeframe(Insight insight) {
-    if (insight.timeframe != null) {
-      return insight.timeframe;
-    }
-
-    if (insight.additionalData != null && insight.additionalData!.containsKey('timeframe')) {
-      final timeframeStr = insight.additionalData!['timeframe'] as String?;
-      if (timeframeStr == 'retrospective' ||
-          timeframeStr == InsightTimeframe.retrospective.toString()) {
-        return InsightTimeframe.retrospective;
-      } else if (timeframeStr == 'predictive' ||
-          timeframeStr == InsightTimeframe.predictive.toString()) {
-        return InsightTimeframe.predictive;
-      }
-    }
-
-    return InsightTimeframe.combined;
+    return insight.timeframe;
   }
 
   /// Получает релевантные данные из additionalData
@@ -1123,7 +1081,6 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
       case InsightTimeframe.predictive:
         return 'следующие 3 месяца';
       case InsightTimeframe.combined:
-      default:
         return 'анализируемый период';
     }
   }
@@ -1224,7 +1181,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
                               return Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: chipColor.withOpacity(0.1),
+                                  color: chipColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(color: chipColor, width: 1),
                                 ),
@@ -1248,7 +1205,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: chipColor.withOpacity(0.2),
+                                        color: chipColor.withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
@@ -1290,7 +1247,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.blue),
             ),
@@ -1313,7 +1270,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
                 Text(
                   'Этот инсайт был сформирован на основе агрегированных данных и общего анализа вашего бюджета. '
                   'Для него нет конкретных связанных платежей, которые можно было бы показать.',
-                  style: TextStyle(color: context.color.onSurface.withOpacity(0.7)),
+                  style: TextStyle(color: context.color.onSurface.withValues(alpha: 0.7)),
                 ),
                 const SizedBox(height: 16),
                 _buildCalculationMethodology(context),
@@ -1343,7 +1300,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
+                color: Colors.amber.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.amber),
               ),
@@ -1356,7 +1313,7 @@ class _InsightDataDetailsState extends State<InsightDataDetails> {
                       'Отображаются все платежи планера. Они могут не иметь прямого отношения к данному инсайту.',
                       style: TextStyle(
                         fontSize: 12,
-                        color: context.color.onSurface.withOpacity(0.7),
+                        color: context.color.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ),

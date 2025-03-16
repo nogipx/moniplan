@@ -28,10 +28,10 @@ class MoneyFlowWidget extends StatelessWidget {
           colors: [
             balanceTrend
                 ? context.color.surfaceContainerHighest
-                : context.color.errorContainer.withOpacity(0.3),
+                : context.color.errorContainer.withValues(alpha: 0.3),
             balanceTrend
                 ? context.color.surfaceContainerHigh
-                : context.color.errorContainer.withOpacity(0.1),
+                : context.color.errorContainer.withValues(alpha: 0.1),
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -40,8 +40,8 @@ class MoneyFlowWidget extends StatelessWidget {
           BoxShadow(
             color:
                 balanceTrend
-                    ? context.color.shadow.withOpacity(0.1)
-                    : context.color.error.withOpacity(0.1),
+                    ? context.color.shadow.withValues(alpha: 0.1)
+                    : context.color.error.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

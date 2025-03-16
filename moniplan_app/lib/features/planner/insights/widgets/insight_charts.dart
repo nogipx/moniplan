@@ -5,7 +5,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 /// Виджет для отображения графиков в инсайтах
@@ -678,7 +677,7 @@ class InsightCharts {
         const SizedBox(height: 8),
         Text(
           'Количество операций с предложенной категорией',
-          style: TextStyle(fontSize: 12, color: context.color.onSurface.withOpacity(0.7)),
+          style: TextStyle(fontSize: 12, color: context.color.onSurface.withValues(alpha: 0.7)),
           textAlign: TextAlign.center,
         ),
       ],
@@ -1122,7 +1121,7 @@ class _Badge extends StatelessWidget {
         border: Border.all(color: borderColor, width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             offset: const Offset(3, 3),
             blurRadius: 3,
           ),

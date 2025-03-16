@@ -62,42 +62,9 @@ class InsightUtils {
 
     for (final insight in insights) {
       // Если timeframe не установлен, определяем его на основе типа инсайта
-      if (insight.timeframe == null) {
-        InsightTimeframe timeframe;
-
-        // Определяем timeframe на основе типа инсайта
-        switch (insight.type) {
-          case InsightType.forecast:
-            timeframe = InsightTimeframe.predictive;
-            break;
-          case InsightType.pattern:
-          case InsightType.expenseStructure:
-            timeframe = InsightTimeframe.retrospective;
-            break;
-          case InsightType.comparison:
-          case InsightType.optimization:
-          case InsightType.goal:
-          case InsightType.advice:
-          default:
-            // Для остальных типов определяем по содержанию
-            if (insight.title.toLowerCase().contains('прогноз') ||
-                insight.title.toLowerCase().contains('будущ') ||
-                insight.description.toLowerCase().contains('прогноз') ||
-                insight.description.toLowerCase().contains('будущ')) {
-              timeframe = InsightTimeframe.predictive;
-            } else {
-              timeframe = InsightTimeframe.retrospective;
-            }
-            break;
+      // Если timeframe уже установлен, просто добавляем инсайт в результат
+      result.add(insight);
         }
-
-        // Создаем новый инсайт с правильным timeframe
-        result.add(setTimeframe(insight, timeframe));
-      } else {
-        // Если timeframe уже установлен, просто добавляем инсайт в результат
-        result.add(insight);
-      }
-    }
 
     return result;
   }

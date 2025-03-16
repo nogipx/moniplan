@@ -155,10 +155,8 @@ class PaymentEditState extends Equatable {
 
     // Преобразуем налог из десятичной дроби в проценты
     String taxPercent = '';
-    if (payment.details.tax != null) {
-      taxPercent = (payment.details.tax! * 100).toInt().toString();
-    }
-
+    taxPercent = (payment.details.tax * 100).toInt().toString();
+  
     return PaymentEditState(
       payment: payment,
       title: payment.details.name,

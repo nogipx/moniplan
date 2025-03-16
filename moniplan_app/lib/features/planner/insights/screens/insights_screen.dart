@@ -3,13 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/payment/planner_bloc/_index.dart';
 import 'package:moniplan_app/features/planner/insights/providers/insight_generator_impl.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
-import 'package:moniplan_app/features/planner/insights/widgets/_index.dart';
 import 'package:moniplan_app/features/planner/insights/screens/_index.dart';
 
 /// Экран для отображения инсайтов по планировщику
@@ -18,20 +14,18 @@ class InsightsScreen extends StatefulWidget {
   final Planner planner;
 
   /// Конструктор
-  const InsightsScreen({Key? key, required this.planner}) : super(key: key);
+  const InsightsScreen({super.key, required this.planner});
 
   @override
   State<InsightsScreen> createState() => _InsightsScreenState();
 }
 
 class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProviderStateMixin {
-  late final IInsightGenerator _insightGenerator;
   late final TabController _tabController;
   bool _isLoading = true;
   List<Insight> _allInsights = [];
   List<Insight> _retrospectiveInsights = [];
   List<Insight> _predictiveInsights = [];
-  List<Insight> _combinedInsights = [];
 
   // Фильтры для инсайтов
   bool _showAnomalies = false;
@@ -45,7 +39,6 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _insightGenerator = AppDi.instance.get<IInsightGenerator>();
     _tabController = TabController(length: 3, vsync: this);
     _loadInsights();
   }
@@ -81,7 +74,6 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
         _allInsights = futures[0];
         _retrospectiveInsights = futures[1];
         _predictiveInsights = futures[2];
-        _combinedInsights = futures[3];
         _isLoading = false;
       });
     } catch (e) {
@@ -261,9 +253,9 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.1),
+        color: Colors.green.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.withOpacity(0.3)),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -486,9 +478,9 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.amber.withOpacity(0.1),
+                        color: Colors.amber.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                        border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -595,9 +587,9 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
+                          color: Colors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.green.withOpacity(0.3)),
+                          border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -636,7 +628,7 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
+                          color: Colors.blue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Column(
@@ -685,9 +677,9 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: Colors.blue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -728,8 +720,7 @@ class InsightCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   /// Конструктор
-  const InsightCard({Key? key, required this.insight, required this.planner, this.onTap})
-    : super(key: key);
+  const InsightCard({super.key, required this.insight, required this.planner, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -741,7 +732,7 @@ class InsightCard extends StatelessWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: importanceColor.withOpacity(0.3), width: 1),
+        side: BorderSide(color: importanceColor.withValues(alpha: 0.3), width: 1),
       ),
       child: InkWell(
         onTap: onTap,
@@ -752,7 +743,7 @@ class InsightCard extends StatelessWidget {
             // Заголовок с цветовой полосой важности
             Container(
               decoration: BoxDecoration(
-                color: importanceColor.withOpacity(0.1),
+                color: importanceColor.withValues(alpha: 0.1),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(12),
                   topRight: Radius.circular(12),
@@ -914,7 +905,7 @@ class InsightCard extends StatelessWidget {
             _buildFactItem(
               context,
               'Изменение',
-              '${isIncrease ? '+' : ''}${change}%',
+              '${isIncrease ? '+' : ''}$change%',
               isIncrease ? Icons.trending_up : Icons.trending_down,
               color: isIncrease ? Colors.red : Colors.green,
             ),
@@ -1018,7 +1009,7 @@ class InsightCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.color.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: context.color.onSurface.withOpacity(0.1)),
+        border: Border.all(color: context.color.onSurface.withValues(alpha: 0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1030,7 +1021,10 @@ class InsightCard extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 12, color: context.color.onSurface.withOpacity(0.7)),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: context.color.onSurface.withValues(alpha: 0.7),
+                ),
               ),
               Text(
                 value,
@@ -1073,7 +1067,7 @@ class InsightCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: context.color.surface,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: context.color.onSurface.withOpacity(0.1)),
+            border: Border.all(color: context.color.onSurface.withValues(alpha: 0.1)),
           ),
           child: Column(
             children: [
@@ -1094,7 +1088,7 @@ class InsightCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              payment.details.name ?? "Без описания",
+                              payment.details.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(color: context.color.onSurface),
@@ -1118,7 +1112,7 @@ class InsightCard extends StatelessWidget {
                   child: Text(
                     'И еще ${payments.length - 3} платежей...',
                     style: TextStyle(
-                      color: context.color.onSurface.withOpacity(0.6),
+                      color: context.color.onSurface.withValues(alpha: 0.6),
                       fontStyle: FontStyle.italic,
                       fontSize: 12,
                     ),
@@ -1128,103 +1122,6 @@ class InsightCard extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  /// Строит блок с рекомендациями
-  Widget _buildRecommendations(BuildContext context) {
-    String recommendation = '';
-    IconData recommendationIcon = Icons.lightbulb_outline;
-    Color recommendationColor = context.color.primary;
-
-    // Формируем рекомендацию в зависимости от типа инсайта
-    switch (insight.type) {
-      case InsightType.expenseStructure:
-        recommendation =
-            'Обрати внимание на распределение расходов по категориям. Возможно, стоит пересмотреть бюджет на некоторые категории.';
-        recommendationIcon = Icons.pie_chart;
-        break;
-
-      case InsightType.pattern:
-        recommendation = 'Учитывай выявленные закономерности при планировании будущих расходов.';
-        recommendationIcon = Icons.repeat;
-        break;
-
-      case InsightType.forecast:
-        if (insight.importance == InsightImportance.critical ||
-            insight.importance == InsightImportance.high) {
-          recommendation =
-              'Рассмотри возможность сокращения некоторых расходов или увеличения доходов в ближайшее время.';
-          recommendationIcon = Icons.warning;
-          recommendationColor = Colors.orange;
-        } else {
-          recommendation =
-              'Продолжай следить за своими расходами и доходами, чтобы сохранить финансовую стабильность.';
-          recommendationIcon = Icons.trending_up;
-        }
-        break;
-
-      case InsightType.optimization:
-        recommendation =
-            'Рассмотри возможность отложить или отменить некоторые платежи для оптимизации бюджета.';
-        recommendationIcon = Icons.build;
-        break;
-
-      case InsightType.advice:
-        recommendation = 'Следуй этому совету для улучшения своего финансового положения.';
-        recommendationIcon = Icons.lightbulb_outline;
-        break;
-
-      default:
-        recommendation =
-            'Используй этот инсайт для принятия более обоснованных финансовых решений.';
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: recommendationColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(recommendationIcon, color: recommendationColor, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Рекомендация:',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: recommendationColor),
-                ),
-                const SizedBox(height: 4),
-                Text(recommendation, style: TextStyle(color: context.color.onSurface)),
-                if (insight.importance == InsightImportance.critical ||
-                    insight.importance == InsightImportance.high) ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton.icon(
-                        icon: const Icon(Icons.analytics_outlined, size: 16),
-                        label: const Text('Подробнее'),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        onPressed: onTap,
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1257,9 +1154,9 @@ class InsightCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1359,7 +1256,7 @@ class InsightCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
-          BoxShadow(color: color.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2)),
+          BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2)),
         ],
       ),
       child: Icon(iconData, color: color, size: 20),

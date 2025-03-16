@@ -132,32 +132,31 @@ class AppButtonStyle {
     bool? enableFeedback,
     AlignmentGeometry? alignment,
     InteractiveInkFeatureFactory? splashFactory,
-  }) =>
-      AppButtonStyle(
-        colors: colors ?? this.colors,
-        textStyle: textStyle ?? this.textStyle,
-        backgroundColor: backgroundColor ?? this.backgroundColor,
-        foregroundColor: foregroundColor ?? this.foregroundColor,
-        overlayColor: overlayColor ?? this.overlayColor,
-        shadowColor: shadowColor ?? this.shadowColor,
-        surfaceTintColor: surfaceTintColor ?? this.surfaceTintColor,
-        elevation: elevation ?? this.elevation,
-        padding: padding ?? this.padding,
-        minimumSize: minimumSize ?? this.minimumSize,
-        fixedSize: fixedSize ?? this.fixedSize,
-        maximumSize: maximumSize ?? this.maximumSize,
-        iconColor: iconColor ?? this.iconColor,
-        iconSize: iconSize ?? this.iconSize,
-        side: side ?? this.side,
-        shape: shape ?? this.shape,
-        mouseCursor: mouseCursor ?? this.mouseCursor,
-        visualDensity: visualDensity ?? this.visualDensity,
-        tapTargetSize: tapTargetSize ?? this.tapTargetSize,
-        animationDuration: animationDuration ?? this.animationDuration,
-        enableFeedback: enableFeedback ?? this.enableFeedback,
-        alignment: alignment ?? this.alignment,
-        splashFactory: splashFactory ?? this.splashFactory,
-      );
+  }) => AppButtonStyle(
+    colors: colors ?? this.colors,
+    textStyle: textStyle ?? this.textStyle,
+    backgroundColor: backgroundColor ?? this.backgroundColor,
+    foregroundColor: foregroundColor ?? this.foregroundColor,
+    overlayColor: overlayColor ?? this.overlayColor,
+    shadowColor: shadowColor ?? this.shadowColor,
+    surfaceTintColor: surfaceTintColor ?? this.surfaceTintColor,
+    elevation: elevation ?? this.elevation,
+    padding: padding ?? this.padding,
+    minimumSize: minimumSize ?? this.minimumSize,
+    fixedSize: fixedSize ?? this.fixedSize,
+    maximumSize: maximumSize ?? this.maximumSize,
+    iconColor: iconColor ?? this.iconColor,
+    iconSize: iconSize ?? this.iconSize,
+    side: side ?? this.side,
+    shape: shape ?? this.shape,
+    mouseCursor: mouseCursor ?? this.mouseCursor,
+    visualDensity: visualDensity ?? this.visualDensity,
+    tapTargetSize: tapTargetSize ?? this.tapTargetSize,
+    animationDuration: animationDuration ?? this.animationDuration,
+    enableFeedback: enableFeedback ?? this.enableFeedback,
+    alignment: alignment ?? this.alignment,
+    splashFactory: splashFactory ?? this.splashFactory,
+  );
 
   /// Интерполяция для анимированных переходов между [ButtonStyle]
   AppButtonStyle lerp(AppButtonStyle? b, double t) {
@@ -168,14 +167,26 @@ class AppButtonStyle {
     return AppButtonStyle(
       colors: colors.lerp(colors, t),
       textStyle: WidgetStateProperty.lerp<TextStyle?>(textStyle, b?.textStyle, t, TextStyle.lerp),
-      backgroundColor:
-          WidgetStateProperty.lerp<Color?>(backgroundColor, b?.backgroundColor, t, Color.lerp),
-      foregroundColor:
-          WidgetStateProperty.lerp<Color?>(foregroundColor, b?.foregroundColor, t, Color.lerp),
+      backgroundColor: WidgetStateProperty.lerp<Color?>(
+        backgroundColor,
+        b?.backgroundColor,
+        t,
+        Color.lerp,
+      ),
+      foregroundColor: WidgetStateProperty.lerp<Color?>(
+        foregroundColor,
+        b?.foregroundColor,
+        t,
+        Color.lerp,
+      ),
       overlayColor: WidgetStateProperty.lerp<Color?>(overlayColor, b?.overlayColor, t, Color.lerp),
       shadowColor: WidgetStateProperty.lerp<Color?>(shadowColor, b?.shadowColor, t, Color.lerp),
-      surfaceTintColor:
-          WidgetStateProperty.lerp<Color?>(surfaceTintColor, b?.surfaceTintColor, t, Color.lerp),
+      surfaceTintColor: WidgetStateProperty.lerp<Color?>(
+        surfaceTintColor,
+        b?.surfaceTintColor,
+        t,
+        Color.lerp,
+      ),
       elevation: WidgetStateProperty.lerp<double?>(elevation, b?.elevation, t, lerpDouble),
       padding: WidgetStateProperty.lerp<EdgeInsetsGeometry?>(
         padding,
@@ -202,96 +213,74 @@ class AppButtonStyle {
 
   /// Возвращает стиль кнопки, соответствующий Material 3
   ButtonStyle get value => ButtonStyle(
-        textStyle: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.disabled)) {
-              return TextStyle(
-                color: colors.scheme.onSurface.withOpacity(0.38),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              );
-            }
-            return TextStyle(
-              color: colors.scheme.onPrimary,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            );
-          },
-        ),
-        backgroundColor: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.disabled)) {
-              return colors.scheme.surface.withOpacity(0.12);
-            }
-            return colors.scheme.primary;
-          },
-        ),
-        foregroundColor: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.disabled)) {
-              return colors.scheme.onSurface.withOpacity(0.38);
-            }
-            return colors.scheme.onPrimary;
-          },
-        ),
-        overlayColor: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.pressed)) {
-              return colors.scheme.primary.withOpacity(0.12);
-            }
-            if (states.contains(WidgetState.hovered)) {
-              return colors.scheme.primary.withOpacity(0.08);
-            }
-            return null;
-          },
-        ),
-        shadowColor: WidgetStateProperty.all(Colors.black.withOpacity(0.15)),
-        surfaceTintColor: WidgetStateProperty.all(colors.scheme.primary),
-        elevation: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.disabled)) {
-              return 0;
-            }
-            return 4;
-          },
-        ),
-        padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
-        minimumSize: WidgetStateProperty.all(kButtonMinimumSize),
-        fixedSize: null,
-        maximumSize: null,
-        iconColor: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.disabled)) {
-              return colors.scheme.onSurface.withOpacity(0.38);
-            }
-            return colors.scheme.onPrimary;
-          },
-        ),
-        iconSize: WidgetStateProperty.all(24),
-        side: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.disabled)) {
-              return BorderSide(color: colors.scheme.onSurface.withOpacity(0.12));
-            }
-            return BorderSide(color: colors.scheme.primary, width: 1);
-          },
-        ),
-        shape: WidgetStateProperty.all(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-        mouseCursor: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.disabled)) {
-              return SystemMouseCursors.forbidden;
-            }
-            return SystemMouseCursors.click;
-          },
-        ),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        tapTargetSize: MaterialTapTargetSize.padded,
-        animationDuration: const Duration(milliseconds: 200),
-        enableFeedback: true,
-        alignment: Alignment.center,
-        splashFactory: InkRipple.splashFactory,
-      );
+    textStyle: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return TextStyle(
+          color: colors.scheme.onSurface.withValues(alpha: 0.38),
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        );
+      }
+      return TextStyle(color: colors.scheme.onPrimary, fontSize: 14, fontWeight: FontWeight.w500);
+    }),
+    backgroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return colors.scheme.surface.withValues(alpha: 0.12);
+      }
+      return colors.scheme.primary;
+    }),
+    foregroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return colors.scheme.onSurface.withValues(alpha: 0.38);
+      }
+      return colors.scheme.onPrimary;
+    }),
+    overlayColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.pressed)) {
+        return colors.scheme.primary.withValues(alpha: 0.12);
+      }
+      if (states.contains(WidgetState.hovered)) {
+        return colors.scheme.primary.withValues(alpha: 0.08);
+      }
+      return null;
+    }),
+    shadowColor: WidgetStateProperty.all(Colors.black.withValues(alpha: 0.15)),
+    surfaceTintColor: WidgetStateProperty.all(colors.scheme.primary),
+    elevation: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return 0;
+      }
+      return 4;
+    }),
+    padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
+    minimumSize: WidgetStateProperty.all(kButtonMinimumSize),
+    fixedSize: null,
+    maximumSize: null,
+    iconColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return colors.scheme.onSurface.withValues(alpha: 0.38);
+      }
+      return colors.scheme.onPrimary;
+    }),
+    iconSize: WidgetStateProperty.all(24),
+    side: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return BorderSide(color: colors.scheme.onSurface.withValues(alpha: 0.12));
+      }
+      return BorderSide(color: colors.scheme.primary, width: 1);
+    }),
+    shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+    mouseCursor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return SystemMouseCursors.forbidden;
+      }
+      return SystemMouseCursors.click;
+    }),
+    visualDensity: VisualDensity.adaptivePlatformDensity,
+    tapTargetSize: MaterialTapTargetSize.padded,
+    animationDuration: const Duration(milliseconds: 200),
+    enableFeedback: true,
+    alignment: Alignment.center,
+    splashFactory: InkRipple.splashFactory,
+  );
 }

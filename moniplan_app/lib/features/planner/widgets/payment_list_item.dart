@@ -221,12 +221,12 @@ class PaymentListItem extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
-          color: context.color.errorContainer.withOpacity(0.3),
+          color: context.color.errorContainer.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: context.color.error.withOpacity(0.5), width: 1),
+          border: Border.all(color: context.color.error.withValues(alpha: 0.5), width: 1),
           boxShadow: [
             BoxShadow(
-              color: context.color.error.withOpacity(0.2),
+              color: context.color.error.withValues(alpha: 0.2),
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),

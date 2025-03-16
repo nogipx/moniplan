@@ -139,7 +139,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     final paymentsHash = planner.payments
         .map((p) => '${p.paymentId}:${p.isDone}:${p.isEnabled}:${p.date.millisecondsSinceEpoch}')
         .join(',');
-    return '${planner.id}:${planner.dateStart?.millisecondsSinceEpoch}:${planner.dateEnd?.millisecondsSinceEpoch}:$paymentsHash';
+    return '${planner.id}:${planner.dateStart.millisecondsSinceEpoch}:${planner.dateEnd.millisecondsSinceEpoch}:$paymentsHash';
   }
 
   FutureOr<void> _onCompute(PlannerComputeBudgetEvent event, Emitter<PlannerState> emit) async {

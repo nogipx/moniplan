@@ -2,11 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:uuid/uuid.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
-
-import '../_index.dart';
-import '../categorization/_index.dart';
 
 /// Анализатор инфляции образа жизни
 ///
@@ -20,11 +16,9 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
 
   /// Категоризатор платежей
   final ICategoryPredictor _categorizer;
-  final List<Payment> _payments;
 
-  LifestyleInflationAnalyzer(super.source, ICategoryPredictor categorizer, List<Payment> payments)
-    : _categorizer = categorizer,
-      _payments = payments;
+  LifestyleInflationAnalyzer(super.source, ICategoryPredictor categorizer)
+    : _categorizer = categorizer;
 
   @override
   Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData}) async {
@@ -320,6 +314,7 @@ final class LifestyleInflationAnalyzer extends RetrospectiveAnalyzer {
 /// Класс для хранения категоризированных финансовых данных
 class _CategorizedFinancialData implements IFinancialData {
   final IFinancialData originalData;
+  @override
   final String category;
   final List<CategoryPrediction> categoryPredictions;
 

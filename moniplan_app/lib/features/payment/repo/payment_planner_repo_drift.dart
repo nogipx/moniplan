@@ -5,8 +5,6 @@
 import 'package:drift/drift.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
-import 'package:sqlite3/sqlite3.dart' show SqliteException;
-import 'dart:convert';
 
 import '../_index.dart';
 

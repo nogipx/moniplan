@@ -9,8 +9,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/di_get_it/app_di.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
-import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
-import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/payment_edit/screens/payment_edit_screen.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -139,7 +137,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
-              color: context.color.shadow.withOpacity(0.2),
+              color: context.color.shadow.withValues(alpha: 0.2),
               blurRadius: 10,
               spreadRadius: 1,
             ),
@@ -156,7 +154,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: context.color.onSurfaceVariant.withOpacity(0.4),
+                  color: context.color.onSurfaceVariant.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -685,7 +683,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: chipColor.withOpacity(0.08),
+        color: chipColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -842,78 +840,6 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
     );
   }
 
-  // Показывает информацию о разнице дней между текущей датой и датой платежа
-  void _showDaysInfo(BuildContext context, DateTime today) {
-    final difference = widget.payment.date.difference(today).inDays;
-    final absValue = difference.abs();
-
-    String message;
-    if (difference == 0) {
-      message = 'Сегодня';
-    } else if (difference > 0) {
-      message = 'Через $absValue ${_getDaysForm(absValue)}';
-    } else {
-      message = '$absValue ${_getDaysForm(absValue)} назад';
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  // Показывает диалог с информацией о дне
-  void _showDaySummary(BuildContext context) {
-    final plannerState = context.read<PlannerBloc>().state;
-
-    if (plannerState is! PlannerBudgetComputedState) {
-      return;
-    }
-
-    // Находим платежи за выбранный день
-    final dayPayments =
-        plannerState.payments.where((p) => p.date.isSameDay(widget.payment.date)).toList();
-
-    // Вычисляем доходы и расходы за день
-    num dayIncome = 0;
-    num dayOutcome = 0;
-
-    for (final payment in dayPayments) {
-      if (payment.type == PaymentType.income) {
-        dayIncome += payment.normalizedMoney;
-      } else if (payment.type == PaymentType.expense) {
-        dayOutcome += payment.normalizedMoney.abs();
-      }
-    }
-
-    final dayBalance = dayIncome - dayOutcome;
-    final totalBalance = plannerState.moneyFlow.balance;
-
-    DaySummaryDialog.show(
-      context: context,
-      date: widget.payment.date,
-      payments: dayPayments,
-      dayIncome: dayIncome,
-      dayOutcome: dayOutcome,
-      dayBalance: dayBalance,
-      totalBalance: totalBalance,
-    );
-  }
-
-  // Возвращает правильную форму слова "день" в зависимости от числа
-  String _getDaysForm(int days) {
-    if (days % 10 == 1 && days % 100 != 11) {
-      return 'день';
-    } else if ([2, 3, 4].contains(days % 10) && ![12, 13, 14].contains(days % 100)) {
-      return 'дня';
-    } else {
-      return 'дней';
-    }
-  }
-
   // Возвращает текстовое описание периода повторения
   String _getRepeatText(DateTimeRepeat repeat) {
     return repeat.displayName;
@@ -952,7 +878,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
           child: Container(
             width: 60,
             height: 60,
-            decoration: BoxDecoration(color: color.withOpacity(0.12), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
             child: Center(child: Icon(icon, color: color, size: 28)),
           ),
         ),

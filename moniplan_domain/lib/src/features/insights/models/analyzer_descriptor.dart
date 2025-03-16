@@ -4,7 +4,6 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../interfaces/i_financial_analyzer.dart';
 
 part 'analyzer_descriptor.freezed.dart';
 part 'analyzer_descriptor.g.dart';

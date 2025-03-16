@@ -30,8 +30,6 @@ class _PaymentListDaySeparatorState extends State<PaymentListDaySeparator> {
   Widget build(BuildContext context) {
     final isSameDay = widget.today.isSameDay(widget.date);
     final isSameYear = widget.today.year == widget.date.year;
-    final isWeekend =
-        widget.date.weekday == DateTime.saturday || widget.date.weekday == DateTime.sunday;
 
     // Упрощаем цветовую схему - только сегодняшний день выделяем
     Color textColor;
@@ -58,7 +56,7 @@ class _PaymentListDaySeparatorState extends State<PaymentListDaySeparator> {
             borderRadius: BorderRadius.circular(20),
             border:
                 isSameDay
-                    ? Border.all(color: context.color.primary.withOpacity(0.5), width: 0.5)
+                    ? Border.all(color: context.color.primary.withValues(alpha: 0.5), width: 0.5)
                     : null,
           ),
           child: Row(
@@ -82,7 +80,7 @@ class _PaymentListDaySeparatorState extends State<PaymentListDaySeparator> {
               Text(
                 _getWeekdayShort(widget.date),
                 style: context.text.labelSmall?.copyWith(
-                  color: textColor.withOpacity(0.8),
+                  color: textColor.withValues(alpha: 0.8),
                   fontWeight: FontWeight.w400,
                 ),
               ),

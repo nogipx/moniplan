@@ -56,8 +56,6 @@ dependencies:
   path_provider: ^2.1.5
   path: ^1.9.1
 
-  # Analytics
-  posthog_flutter: ^4.8.0
   # Persistence
   drift: ^2.22.1
 
@@ -68,6 +66,8 @@ dependencies:
   # Codegen
   encrypt: 5.0.3
   expressions: ^0.2.5+2
+  equatable: ^2.0.7
+  stack_trace: ^1.12.1
 
 dev_dependencies:
   flutter_lints: ^5.0.0

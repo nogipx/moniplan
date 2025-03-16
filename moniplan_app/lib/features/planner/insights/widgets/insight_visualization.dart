@@ -6,7 +6,6 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
-import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:moniplan_app/features/planner/insights/screens/_index.dart';
 
@@ -19,8 +18,7 @@ class InsightVisualization extends StatelessWidget {
   final Planner planner;
 
   /// Конструктор
-  const InsightVisualization({Key? key, required this.insight, required this.planner})
-    : super(key: key);
+  const InsightVisualization({super.key, required this.insight, required this.planner});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +46,7 @@ class InsightVisualization extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 5,
               offset: const Offset(0, 2),
             ),
@@ -62,11 +60,18 @@ class InsightVisualization extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.touch_app, size: 14, color: context.color.onSurface.withOpacity(0.5)),
+                  Icon(
+                    Icons.touch_app,
+                    size: 14,
+                    color: context.color.onSurface.withValues(alpha: 0.5),
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     'Нажмите для увеличения',
-                    style: TextStyle(fontSize: 12, color: context.color.onSurface.withOpacity(0.5)),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: context.color.onSurface.withValues(alpha: 0.5),
+                    ),
                   ),
                 ],
               ),
@@ -245,7 +250,7 @@ class InsightVisualization extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: context.color.primary.withOpacity(0.1),
+                color: context.color.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: context.color.primary),
@@ -258,7 +263,10 @@ class InsightVisualization extends StatelessWidget {
                   Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 14, color: context.color.onSurface.withOpacity(0.7)),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: context.color.onSurface.withValues(alpha: 0.7),
+                    ),
                   ),
                 ],
               ),
@@ -266,7 +274,7 @@ class InsightVisualization extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios,
               size: 16,
-              color: context.color.onSurface.withOpacity(0.5),
+              color: context.color.onSurface.withValues(alpha: 0.5),
             ),
           ],
         ),
@@ -313,7 +321,7 @@ class InsightVisualization extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: typeColor.withOpacity(0.1),
+        color: typeColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -329,12 +337,12 @@ class InsightVisualization extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'Период: $startDateStr - $endDateStr',
-            style: TextStyle(fontSize: 12, color: context.color.onSurface.withOpacity(0.7)),
+            style: TextStyle(fontSize: 12, color: context.color.onSurface.withValues(alpha: 0.7)),
           ),
           const SizedBox(height: 4),
           Text(
             'Количество платежей: ${insight.relatedPayments!.length}',
-            style: TextStyle(fontSize: 12, color: context.color.onSurface.withOpacity(0.7)),
+            style: TextStyle(fontSize: 12, color: context.color.onSurface.withValues(alpha: 0.7)),
           ),
         ],
       ),
@@ -348,7 +356,7 @@ class InsightVisualization extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.color.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: context.color.onSurface.withOpacity(0.1)),
+        border: Border.all(color: context.color.onSurface.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1064,7 +1072,7 @@ class InsightVisualization extends StatelessWidget {
                   barWidth: 3,
                   isStrokeCapRound: true,
                   dotData: const FlDotData(show: true),
-                  belowBarData: BarAreaData(show: true, color: Colors.blue.withOpacity(0.2)),
+                  belowBarData: BarAreaData(show: true, color: Colors.blue.withValues(alpha: 0.2)),
                 ),
               ],
               lineTouchData: LineTouchData(
@@ -1100,7 +1108,6 @@ class InsightVisualization extends StatelessWidget {
       return _buildDemoForecastChart(context);
     }
 
-    // TODO: Реализовать построение графика на основе реальных данных прогноза
     return _buildDemoForecastChart(context);
   }
 
@@ -1177,7 +1184,7 @@ class InsightVisualization extends StatelessWidget {
                   barWidth: 3,
                   isStrokeCapRound: true,
                   dotData: const FlDotData(show: true),
-                  belowBarData: BarAreaData(show: true, color: Colors.blue.withOpacity(0.2)),
+                  belowBarData: BarAreaData(show: true, color: Colors.blue.withValues(alpha: 0.2)),
                 ),
                 // Прогнозные данные
                 LineChartBarData(
@@ -1188,7 +1195,10 @@ class InsightVisualization extends StatelessWidget {
                   isStrokeCapRound: true,
                   dotData: const FlDotData(show: true),
                   dashArray: [5, 5], // Пунктирная линия для прогноза
-                  belowBarData: BarAreaData(show: true, color: Colors.orange.withOpacity(0.2)),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    color: Colors.orange.withValues(alpha: 0.2),
+                  ),
                 ),
               ],
               lineTouchData: LineTouchData(

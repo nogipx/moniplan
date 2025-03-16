@@ -17,7 +17,6 @@ import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -48,14 +47,6 @@ class _MoniplanAppState extends State<MoniplanApp> {
     //   ),
     // );
 
-    Posthog().capture(eventName: 'testEvent', properties: {'msg': 'hi'});
-    _brightness = _platformBrigtness;
-
-    Posthog().reloadFeatureFlags().then((a) {
-      Posthog().isFeatureEnabled('Test').then((e) {
-        print('FEATURE TEST: $e');
-      });
-    });
     WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged = _onBrightnessChanged;
   }
 
@@ -97,10 +88,6 @@ class _MoniplanAppState extends State<MoniplanApp> {
               ],
               supportedLocales: S.delegate.supportedLocales,
               locale: const Locale('ru'), // Укажите текущую локаль
-              navigatorObservers: [
-                // The PosthogObserver records screen views automatically
-                PosthogObserver(),
-              ],
               builder:
                   (context, child) => ResponsiveBreakpoints.builder(
                     child: child!,

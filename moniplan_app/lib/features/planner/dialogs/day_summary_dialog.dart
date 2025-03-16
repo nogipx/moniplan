@@ -3,9 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'dart:math' as math;
@@ -86,11 +84,11 @@ class _DaySummaryDialogState extends State<DaySummaryDialog> with SingleTickerPr
         borderRadius: BorderRadius.circular(16),
         side:
             hasTotalNegativeBalance
-                ? BorderSide(color: context.color.error.withOpacity(0.5), width: 2)
+                ? BorderSide(color: context.color.error.withValues(alpha: 0.5), width: 2)
                 : BorderSide.none,
       ),
       backgroundColor:
-          hasTotalNegativeBalance ? context.color.errorContainer.withOpacity(0.1) : null,
+          hasTotalNegativeBalance ? context.color.errorContainer.withValues(alpha: 0.1) : null,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -224,12 +222,12 @@ class _DaySummaryDialogState extends State<DaySummaryDialog> with SingleTickerPr
             margin: const EdgeInsets.symmetric(vertical: 4.0),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: context.color.errorContainer.withOpacity(
-                0.1 + 0.1 * _animationController.value,
+              color: context.color.errorContainer.withValues(
+                alpha: 0.1 + 0.1 * _animationController.value,
               ),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: color.withOpacity(0.3 + 0.3 * _animationController.value),
+                color: color.withValues(alpha: 0.3 + 0.3 * _animationController.value),
                 width: 1,
               ),
             ),

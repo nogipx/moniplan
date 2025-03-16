@@ -8,8 +8,6 @@ import 'dart:typed_data';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/core/services/payment_categorizer_service.dart';
-import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
@@ -125,7 +123,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     for (final payment in payments) {
       final id = payment.paymentId;
       final date = dateFormat.format(payment.date);
-      final name = _escapeCSV(payment.details.name ?? '');
+      final name = _escapeCSV(payment.details.name);
       final amount = payment.details.money.toString();
       final currency = payment.details.currency.isoCode;
       final type = payment.type.toString().split('.').last;
@@ -210,7 +208,6 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
   @override
   Future<bool> checkNeedSync() {
-    // TODO: implement checkNeedSync
     throw UnimplementedError();
   }
 

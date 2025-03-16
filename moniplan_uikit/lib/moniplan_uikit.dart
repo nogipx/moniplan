@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-library moniplan_uikit;
+library;
 
 export 'package:flex_seed_scheme/flex_seed_scheme.dart';
 

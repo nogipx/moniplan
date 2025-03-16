@@ -15,8 +15,6 @@ final class FinancialIndependenceAnalyzer extends CombinedAnalyzer {
   // Константы для расчетов
   static const _safeWithdrawalRate = 0.04; // 4% безопасная ставка изъятия
   static const _averageInvestmentReturn = 0.07; // 7% средняя доходность инвестиций
-  static const _inflationRate = 0.04; // 4% средняя инфляция
-  static const _yearsToProject = 30;
 
   FinancialIndependenceAnalyzer(super.source);
 

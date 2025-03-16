@@ -4,7 +4,6 @@
 
 import 'package:logging/logging.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 import 'moniplan_adapters.dart';
@@ -34,13 +33,8 @@ class InsightGeneratorImpl implements IInsightGenerator {
       'ml_category_distribution_analyzer': CategoryDistributionAnalyzer(
         periodAdapter,
         _categoryPredictor,
-        planner.payments,
       ),
-      'category_suggestion_analyzer': CategorySuggestionAnalyzer(
-        periodAdapter,
-        _categoryPredictor,
-        planner.payments,
-      ),
+      'category_suggestion_analyzer': CategorySuggestionAnalyzer(periodAdapter, _categoryPredictor),
     };
 
     // Регистрируем кастомные анализаторы и инициализируем

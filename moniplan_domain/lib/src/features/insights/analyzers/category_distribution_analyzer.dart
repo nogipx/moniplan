@@ -5,9 +5,6 @@
 import 'package:collection/collection.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-import '../_index.dart';
-import '../categorization/_index.dart';
-
 /// Анализатор распределения расходов по категориям
 ///
 /// Использует автоматическую категоризацию платежей и анализирует
@@ -15,12 +12,10 @@ import '../categorization/_index.dart';
 final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
   /// Категоризатор платежей
   final ICategoryPredictor _categorizer;
-  final List<Payment> _payments;
 
   /// Конструктор
-  CategoryDistributionAnalyzer(super.source, ICategoryPredictor categorizer, List<Payment> payments)
-    : _categorizer = categorizer,
-      _payments = payments;
+  CategoryDistributionAnalyzer(super.source, ICategoryPredictor categorizer)
+    : _categorizer = categorizer;
 
   @override
   Future<AnalysisResult> analyze({Map<String, dynamic>? analysisData}) async {
@@ -345,7 +340,6 @@ final class CategoryDistributionAnalyzer extends RetrospectiveAnalyzer {
 
 /// Обертка для финансовых данных с категорией
 class _CategorizedFinancialData implements IFinancialData {
-  @override
   final IFinancialData originalData;
 
   @override

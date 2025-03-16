@@ -38,9 +38,7 @@ class MoniplanLog implements AppLog {
     String? method,
     int? statusCode,
     String? url,
-  }) {
-    // TODO: implement network
-  }
+  }) {}
 
   @override
   void trace(Object? msg, {bool trace = false}) {
