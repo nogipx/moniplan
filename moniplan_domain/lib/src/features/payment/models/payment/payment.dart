@@ -3,8 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // ignore_for_file: invalid_annotation_target
-import 'package:equatable/equatable.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 part 'payment.freezed.dart';
@@ -72,6 +70,15 @@ class Payment with _$Payment, EquatableMixin {
   bool get isRepeatParent => isRepeat && isParent;
 
   num get normalizedMoney => details.normalizedMoney;
+
+  Payment copyBaseData() => Payment(
+    paymentId: '',
+    details: details,
+    date: date,
+    plannerId: plannerId,
+    isEnabled: true,
+    isDone: false,
+  );
 
   @override
   List<Object?> get props => [

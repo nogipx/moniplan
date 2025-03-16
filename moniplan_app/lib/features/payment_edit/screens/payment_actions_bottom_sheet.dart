@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/di_get_it/app_di.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
+import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/payment_edit/screens/payment_edit_screen.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
@@ -53,15 +54,18 @@ class PaymentActionsBottomSheet extends StatefulWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder:
-          (context) => PaymentActionsBottomSheet(
-            payment: payment,
-            onDelete: onDelete,
-            onMove: onMove,
-            onFixation: onFixation,
-            onToggleEnabled: onToggleEnabled,
-            onToggleDone: onToggleDone,
-            plannerBloc: plannerBloc,
-            isVirtualPaymentSelected: isVirtualPaymentSelected,
+          (context) => BlocProvider.value(
+            value: plannerBloc,
+            child: PaymentActionsBottomSheet(
+              payment: payment,
+              onDelete: onDelete,
+              onMove: onMove,
+              onFixation: onFixation,
+              onToggleEnabled: onToggleEnabled,
+              onToggleDone: onToggleDone,
+              plannerBloc: plannerBloc,
+              isVirtualPaymentSelected: isVirtualPaymentSelected,
+            ),
           ),
     );
   }
@@ -492,30 +496,81 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
             // Кнопка редактирования внизу
             Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => PaymentEditScreen(
-                            payment: widget.payment,
-                            onSave: (updatedPayment) async {
-                              await onSave(updatedPayment);
-                            },
-                          ),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.arrow_downward_rounded),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.color.surfaceContainerLow,
+                        foregroundColor: context.color.onSurface,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
                     ),
-                  );
-                },
-                icon: const Icon(Icons.edit),
-                label: const Text('Изменить'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: context.color.primaryContainer,
-                  foregroundColor: context.color.onPrimaryContainer,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 4,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => PaymentEditScreen(
+                                  payment: widget.payment,
+                                  onSave: (updatedPayment) async {
+                                    await onSave(updatedPayment);
+                                  },
+                                ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.edit),
+                      label: const Text('Изменить'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.color.primaryContainer,
+                        foregroundColor: context.color.onPrimaryContainer,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 1,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => PaymentEditScreen(
+                                  payment: widget.payment.copyBaseData(),
+                                  onSave: (updatedPayment) async {
+                                    await onSave(updatedPayment);
+                                  },
+                                ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.copy),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.color.surfaceContainerLow,
+                        foregroundColor: context.color.onSurface,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -585,7 +640,12 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
       });
 
       // Отправляем событие обновления платежа в блок планировщика
-      bloc.add(PlannerEvent.updatePayment(newPayment: updatedPayment, create: false));
+      bloc.add(
+        PlannerEvent.updatePayment(
+          newPayment: updatedPayment,
+          create: updatedPayment.paymentId.isEmpty,
+        ),
+      );
 
       // Ждем результат операции
       final success = await completer.future;
