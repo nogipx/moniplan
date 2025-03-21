@@ -59,7 +59,7 @@ class SortPaymentsUsecase implements IUseCase<List<Payment>> {
       }
 
       // Наконец, сортируем по сумме (по убыванию)
-      return b.normalizedMoney.abs().compareTo(a.normalizedMoney.abs());
+      return b.normalizedMoney.abs().compareTo(a.normalizedMoney.abs()) * -1;
     });
 
     return sortedPayments;
