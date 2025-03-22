@@ -17,10 +17,7 @@ dependencies:
     path: ../moniplan_domain
   moniplan_uikit:
     path: ../moniplan_uikit
-  licensify:
-    git:
-      url: https://github.com/nogipx/licensify
-      ref: main
+  licensify: ^1.4.0
 
   # UI
   responsive_framework: ^1.5.1
@@ -52,6 +49,10 @@ dependencies:
   intl: ^0.19.0
   package_info_plus: ^8.3.0
   device_info_plus: ^11.3.2
+  encrypt: 5.0.3
+  equatable: ^2.0.7
+  expressions: ^0.2.5+2
+  stack_trace: ^1.12.1
 
   # Persistent
   shared_preferences: ^2.3.3
@@ -67,11 +68,6 @@ dependencies:
   bloc: ^9.0.0
   bloc_concurrency: ^0.3.0
 
-  # Codegen
-  encrypt: 5.0.3
-  expressions: ^0.2.5+2
-  equatable: ^2.0.7
-  stack_trace: ^1.12.1
 
 dev_dependencies:
   flutter_lints: ^5.0.0
@@ -90,7 +86,9 @@ dev_dependencies:
   # Tools
   packo: 0.5.1
 
-
+dependency_overrides:
+  pointycastle: ^3.6.2
+  
 flutter:
   uses-material-design: true
   fonts:

@@ -10,7 +10,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:logging/logging.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/log/app_log_impl.dart';
-import 'package:moniplan_app/features/license/test_license.dart';
 import 'package:moniplan_app/i18n/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
@@ -42,8 +41,6 @@ Future<void> main() async {
           );
         });
         await AppDi.instance.setup();
-
-        await testLicense();
 
         initializeMessages('ru');
         initializeDateFormatting('ru');
