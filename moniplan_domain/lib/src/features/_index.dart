@@ -7,4 +7,3 @@ export 'monisync/_index.dart';
 export 'payment/_index.dart';
 export 'statistics/_index.dart';
 export 'insights/_index.dart';
-export 'license/_index.dart';
