@@ -38,6 +38,9 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
   // Инициализируем сервис генерации лицензий
   final _licenseGeneratorService = LicenseGeneratorService();
 
+  // Добавляем поле для хранения настроек функций лицензии
+  Map<String, dynamic>? _licenseFeatures;
+
   @override
   void initState() {
     super.initState();
@@ -122,11 +125,12 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
       final metadata = _parseMetadata() ?? {};
       metadata['generatedAt'] = DateTime.now().toIso8601String();
 
-      // Генерируем лицензию с помощью сервиса
+      // Генерируем лицензию с помощью сервиса, передавая функции
       final license = _licenseGeneratorService.generateLicense(
         appId: _appIdController.text,
         expirationDate: expirationDateTime,
         type: _selectedType,
+        features: _licenseFeatures ?? {},
         metadata: metadata,
       );
 
@@ -326,6 +330,11 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
 
             const SizedBox(height: 16),
 
+            // Секция настройки функций лицензии
+            _buildFeaturesSection(),
+
+            const SizedBox(height: 16),
+
             // Поле для метаданных
             TextField(
               controller: _metadataController,
@@ -434,5 +443,246 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
         ),
       ),
     );
+  }
+
+  /// Строит секцию для настройки функций лицензии
+  Widget _buildFeaturesSection() {
+    return ExpansionTile(
+      title: const Text('Настройка функций лицензии'),
+      subtitle: const Text('Переопределить стандартные ограничения'),
+      children: [
+        // Настройка maxPlanners
+        _buildNumericLimitField(
+          'Максимальное количество планеров',
+          'Сколько планеров пользователь может создать (-1 = без ограничений)',
+          (value) {
+            final features = _getLicenseFeatures();
+            features['maxPlanners'] = value;
+          },
+          _getFeaturesDefaultValue(_selectedType, 'maxPlanners'),
+        ),
+
+        // Настройка maxForecastMonths
+        _buildNumericLimitField(
+          'Максимальный период прогнозирования (месяцы)',
+          'На сколько месяцев вперед можно планировать (-1 = без ограничений)',
+          (value) {
+            final features = _getLicenseFeatures();
+            features['maxForecastMonths'] = value;
+          },
+          _getFeaturesDefaultValue(_selectedType, 'maxForecastMonths'),
+        ),
+
+        // Настройка maxCategories
+        _buildNumericLimitField(
+          'Максимальное количество категорий',
+          'Сколько категорий пользователь может создать (-1 = без ограничений)',
+          (value) {
+            final features = _getLicenseFeatures();
+            features['maxCategories'] = value;
+          },
+          _getFeaturesDefaultValue(_selectedType, 'maxCategories'),
+        ),
+
+        // Настройка maxDevices
+        _buildNumericLimitField(
+          'Максимальное количество устройств',
+          'На скольких устройствах можно использовать лицензию (-1 = без ограничений)',
+          (value) {
+            final features = _getLicenseFeatures();
+            features['maxDevices'] = value;
+          },
+          _getFeaturesDefaultValue(_selectedType, 'maxDevices'),
+        ),
+
+        const Divider(),
+
+        // Настройка enableSync
+        _buildBooleanFeatureField(
+          'Включить синхронизацию',
+          'Разрешить синхронизацию данных между устройствами',
+          (value) {
+            final features = _getLicenseFeatures();
+            features['enableSync'] = value;
+          },
+          _getFeaturesDefaultValue(_selectedType, 'enableSync'),
+        ),
+
+        // Настройка enableAdvancedAnalytics
+        _buildBooleanFeatureField(
+          'Включить расширенную аналитику',
+          'Разрешить доступ к расширенным отчетам',
+          (value) {
+            final features = _getLicenseFeatures();
+            features['enableAdvancedAnalytics'] = value;
+          },
+          _getFeaturesDefaultValue(_selectedType, 'enableAdvancedAnalytics'),
+        ),
+
+        // Настройка enableExport
+        _buildBooleanFeatureField(
+          'Включить экспорт данных',
+          'Разрешить экспорт данных в различные форматы',
+          (value) {
+            final features = _getLicenseFeatures();
+            features['enableExport'] = value;
+          },
+          _getFeaturesDefaultValue(_selectedType, 'enableExport'),
+        ),
+
+        // Настройка enableAiPredictions
+        _buildBooleanFeatureField(
+          'Включить ИИ-предсказания',
+          'Разрешить использование ИИ для прогнозирования',
+          (value) {
+            final features = _getLicenseFeatures();
+            features['enableAiPredictions'] = value;
+          },
+          _getFeaturesDefaultValue(_selectedType, 'enableAiPredictions'),
+        ),
+
+        // Настройка enableAutoCategories
+        _buildBooleanFeatureField(
+          'Включить автоматическую категоризацию',
+          'Разрешить автоматическое определение категорий',
+          (value) {
+            final features = _getLicenseFeatures();
+            features['enableAutoCategories'] = value;
+          },
+          _getFeaturesDefaultValue(_selectedType, 'enableAutoCategories'),
+        ),
+      ],
+    );
+  }
+
+  /// Возвращает значение функции по умолчанию для указанного типа лицензии
+  dynamic _getFeaturesDefaultValue(LicenseType type, String key) {
+    final Map<String, dynamic> features;
+
+    switch (type) {
+      case LicenseType.trial:
+        features = {
+          'maxPlanners': 1,
+          'maxForecastMonths': 1,
+          'maxCategories': 5,
+          'maxDevices': 1,
+          'enableSync': false,
+          'enableAdvancedAnalytics': false,
+          'enableExport': false,
+          'enableAiPredictions': false,
+          'enableAutoCategories': false,
+        };
+        break;
+      case LicenseType.standard:
+        features = {
+          'maxPlanners': 3,
+          'maxForecastMonths': 3,
+          'maxCategories': 15,
+          'maxDevices': 2,
+          'enableSync': true,
+          'enableAdvancedAnalytics': false,
+          'enableExport': true,
+          'enableAiPredictions': false,
+          'enableAutoCategories': false,
+        };
+        break;
+      case LicenseType.pro:
+        features = {
+          'maxPlanners': -1,
+          'maxForecastMonths': -1,
+          'maxCategories': -1,
+          'maxDevices': -1,
+          'enableSync': true,
+          'enableAdvancedAnalytics': true,
+          'enableExport': true,
+          'enableAiPredictions': true,
+          'enableAutoCategories': true,
+        };
+        break;
+      default:
+        features = {
+          'maxPlanners': 1,
+          'maxForecastMonths': 1,
+          'maxCategories': 5,
+          'maxDevices': 1,
+          'enableSync': false,
+          'enableAdvancedAnalytics': false,
+          'enableExport': false,
+          'enableAiPredictions': false,
+          'enableAutoCategories': false,
+        };
+    }
+
+    return features[key];
+  }
+
+  /// Строит поле для ввода числового ограничения
+  Widget _buildNumericLimitField(
+    String title,
+    String description,
+    Function(int) onChanged,
+    int defaultValue,
+  ) {
+    final controller = TextEditingController(text: defaultValue.toString());
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(description, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: controller,
+            keyboardType: TextInputType.numberWithOptions(signed: true),
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              helperText: '-1 = без ограничений, 0 = отключено',
+            ),
+            onChanged: (value) {
+              int? intValue = int.tryParse(value);
+              if (intValue != null) {
+                onChanged(intValue);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Строит поле для включения/выключения булевой функции
+  Widget _buildBooleanFeatureField(
+    String title,
+    String description,
+    Function(bool) onChanged,
+    bool defaultValue,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text(description, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              ],
+            ),
+          ),
+          Switch(value: defaultValue, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+
+  /// Возвращает объект с настройками функций лицензии
+  Map<String, dynamic> _getLicenseFeatures() {
+    _licenseFeatures ??= {};
+    return _licenseFeatures!;
   }
 }

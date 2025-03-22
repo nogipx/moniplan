@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
-import 'package:moniplan_app/core/config/env.dart';
+import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_app/features/license/repository/moniplan_license_repository.dart';
 import 'package:moniplan_app/features/license/repository/secure_license_storage.dart';
@@ -47,14 +47,21 @@ class GetItAppDI implements AppDi {
       InsightGeneratorImpl(categoryPredictor: _getIt.get<ICategoryPredictor>()),
     );
 
-    _getIt.registerSingleton<IMoniplanLicenseRepo>(
-      MoniplanLicenseRepository(
-        licenseStorage: SecureLicenseStorage(FlutterSecureStorage()),
-        licenseValidator: LicenseValidator(
-          publicKey: utf8.decode(base64Decode(SecureEnv.publicKey)),
-        ),
-      ),
+    // Регистрируем репозиторий лицензий
+    final licenseRepo = MoniplanLicenseRepository(
+      licenseStorage: SecureLicenseStorage(FlutterSecureStorage()),
+      licenseValidator: LicenseValidator(publicKey: utf8.decode(base64Decode(SecureEnv.publicKey))),
     );
+    _getIt.registerSingleton<IMoniplanLicenseRepo>(licenseRepo);
+
+    // Регистрируем сервис лицензионных функций
+    final licenseFeaturesService = LicenseFeaturesService(licenseRepo);
+    _getIt.registerSingleton<LicenseFeaturesService>(licenseFeaturesService);
+
+    // Инициализируем сервис лицензионных функций
+    licenseFeaturesService.initialize().catchError((e) {
+      print('Ошибка инициализации LicenseFeaturesService: $e');
+    });
 
     // Инициализируем сервис категоризации платежей
     paymentCategorizerService.initialize().catchError((e) {
@@ -82,6 +89,9 @@ class GetItAppDI implements AppDi {
 
   @override
   IMoniplanLicenseRepo getLicenseRepo() => _getIt.get();
+
+  @override
+  LicenseFeaturesService getLicenseFeaturesService() => _getIt.get();
 
   @override
   T get<T extends Object>() => _getIt.get<T>();

@@ -20,4 +20,6 @@ abstract interface class IAppDi {
   ICategoryPredictor getPaymentCategorizer();
 
   IMoniplanLicenseRepo getLicenseRepo();
+
+  LicenseFeaturesService getLicenseFeaturesService();
 }

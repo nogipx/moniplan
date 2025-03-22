@@ -11,15 +11,24 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 
 class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
   final IMoniplanLicenseRepo _repository;
+  final LicenseFeaturesService _licenseFeaturesService;
 
-  LicenseBloc({required IMoniplanLicenseRepo repository})
-    : _repository = repository,
-      super(const LicenseInitialState()) {
+  LicenseBloc({
+    required IMoniplanLicenseRepo repository,
+    required LicenseFeaturesService licenseFeaturesService,
+  }) : _repository = repository,
+       _licenseFeaturesService = licenseFeaturesService,
+       super(const LicenseInitialState()) {
     on<LicenseAddedEvent>(_onLicenseAdded);
     on<LicenseLoadedEvent>(_onLicenseLoaded);
     on<LicenseUpdatedEvent>(_onLicenseUpdated);
     on<LicenseDeletedEvent>(_onLicenseDeleted);
     on<LicenseStatusCheckedEvent>(_onLicenseStatusChecked);
+  }
+
+  /// Обновляет сервис лицензионных функций после изменения состояния лицензии
+  Future<void> _refreshLicenseFeatures() async {
+    await _licenseFeaturesService.refreshLicense();
   }
 
   Future<void> _onLicenseAdded(LicenseAddedEvent event, Emitter<LicenseState> emit) async {
@@ -29,15 +38,34 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
       // Проверяем валидность лицензии перед сохранением
       final licenseBytes = Uint8List.fromList(event.licenseBytes);
       final license = await _repository.decodeLicense(licenseBytes: licenseBytes);
-      final checkLicenseResult = await _repository.getLicenseStatus(license: license);
 
-      if (license != null && checkLicenseResult.isActive) {
-        // Сохраняем лицензию
-        await _repository.saveLicense(license);
-        emit(LicenseValidState(license: license));
-      } else {
-        // Ошибка валидации
-        emit(LicenseErrorState(message: 'Ошибка валидации лицензии', error: checkLicenseResult));
+      if (license == null) {
+        emit(const LicenseErrorState(message: 'Не удалось декодировать лицензию'));
+        return;
+      }
+
+      // Сохраняем лицензию в любом случае
+      await _repository.saveLicense(license);
+
+      // Обновляем сервис лицензионных функций
+      await _refreshLicenseFeatures();
+
+      // Получаем статус через сервис лицензионных функций
+      final licenseStatusType = await _licenseFeaturesService.getLicenseStatusType();
+
+      switch (licenseStatusType) {
+        case LicenseStatusType.valid:
+          emit(LicenseValidState(license: license));
+          break;
+        case LicenseStatusType.expired:
+          emit(LicenseExpiredState(license: license));
+          break;
+        case LicenseStatusType.invalid:
+          emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
+          break;
+        default:
+          // Этот случай не должен наступить, т.к. лицензия существует
+          emit(LicenseInvalidState(message: 'Неизвестный статус лицензии', license: license));
       }
     } catch (e) {
       emit(LicenseErrorState(message: 'Не удалось добавить лицензию: ${e.toString()}', error: e));
@@ -51,18 +79,25 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
       final license = await _repository.getCurrentLicense();
 
       if (license != null) {
-        // Проверяем статус лицензии
-        final checkLicenseResult = await _repository.getLicenseStatus(license: license);
+        // Обновляем сервис лицензионных функций
+        await _refreshLicenseFeatures();
 
-        if (checkLicenseResult.isActive) {
-          // Проверяем срок действия
-          if (license.isExpired) {
-            emit(LicenseExpiredState(license: license));
-          } else {
+        // Получаем статус через сервис лицензионных функций
+        final licenseStatusType = await _licenseFeaturesService.getLicenseStatusType();
+
+        switch (licenseStatusType) {
+          case LicenseStatusType.valid:
             emit(LicenseValidState(license: license));
-          }
-        } else {
-          emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
+            break;
+          case LicenseStatusType.expired:
+            emit(LicenseExpiredState(license: license));
+            break;
+          case LicenseStatusType.invalid:
+            emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
+            break;
+          default:
+            // Этот случай не должен наступить, т.к. лицензия существует
+            emit(LicenseInvalidState(message: 'Неизвестный статус лицензии', license: license));
         }
       } else {
         emit(const LicenseNotFoundState());
@@ -79,15 +114,37 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
       // Проверяем валидность новой лицензии перед обновлением
       final licenseBytes = Uint8List.fromList(event.licenseBytes);
       final license = await _repository.decodeLicense(licenseBytes: licenseBytes);
-      final checkLicenseResult = await _repository.getLicenseStatus(license: license);
-      if (license != null && checkLicenseResult.isActive) {
-        // Удаляем старую лицензию и сохраняем новую
-        await _repository.removeLicense();
-        await _repository.saveLicense(license);
 
-        emit(LicenseValidState(license: license));
-      } else {
-        emit(LicenseErrorState(message: 'Ошибка валидации лицензии', error: checkLicenseResult));
+      if (license == null) {
+        emit(const LicenseErrorState(message: 'Не удалось декодировать лицензию'));
+        return;
+      }
+
+      // Удаляем старую лицензию
+      await _repository.removeLicense();
+
+      // Сохраняем новую лицензию независимо от её статуса
+      await _repository.saveLicense(license);
+
+      // Обновляем сервис лицензионных функций
+      await _refreshLicenseFeatures();
+
+      // Получаем статус через сервис лицензионных функций
+      final licenseStatusType = await _licenseFeaturesService.getLicenseStatusType();
+
+      switch (licenseStatusType) {
+        case LicenseStatusType.valid:
+          emit(LicenseValidState(license: license));
+          break;
+        case LicenseStatusType.expired:
+          emit(LicenseExpiredState(license: license));
+          break;
+        case LicenseStatusType.invalid:
+          emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
+          break;
+        default:
+          // Этот случай не должен наступить, т.к. лицензия существует
+          emit(LicenseInvalidState(message: 'Неизвестный статус лицензии', license: license));
       }
     } catch (e) {
       emit(LicenseErrorState(message: 'Не удалось обновить лицензию: ${e.toString()}', error: e));
@@ -99,6 +156,10 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
 
     try {
       await _repository.removeLicense();
+
+      // Обновляем сервис лицензионных функций
+      await _refreshLicenseFeatures();
+
       emit(const LicenseNotFoundState());
     } catch (e) {
       emit(LicenseErrorState(message: 'Не удалось удалить лицензию: ${e.toString()}', error: e));
@@ -115,18 +176,25 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
       final license = await _repository.getCurrentLicense();
 
       if (license != null) {
-        // Проверяем статус лицензии
-        final result = await _repository.getLicenseStatus();
+        // Обновляем сервис лицензионных функций
+        await _refreshLicenseFeatures();
 
-        if (result.isActive) {
-          // Проверяем срок действия
-          if (license.isExpired) {
-            emit(LicenseExpiredState(license: license));
-          } else {
+        // Получаем статус через сервис лицензионных функций
+        final licenseStatusType = await _licenseFeaturesService.getLicenseStatusType();
+
+        switch (licenseStatusType) {
+          case LicenseStatusType.valid:
             emit(LicenseValidState(license: license));
-          }
-        } else {
-          emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
+            break;
+          case LicenseStatusType.expired:
+            emit(LicenseExpiredState(license: license));
+            break;
+          case LicenseStatusType.invalid:
+            emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
+            break;
+          default:
+            // Этот случай не должен наступить, т.к. лицензия существует
+            emit(LicenseInvalidState(message: 'Неизвестный статус лицензии', license: license));
         }
       } else {
         emit(const LicenseNotFoundState());

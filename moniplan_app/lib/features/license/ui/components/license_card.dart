@@ -28,15 +28,20 @@ class LicenseCard extends StatelessWidget {
     Color statusColor = Colors.green;
     String statusText = 'Активна';
     IconData statusIcon = Icons.check_circle;
+    String? statusDescription;
 
     if (isExpired) {
       statusColor = Colors.orange;
-      statusText = 'Истек срок действия';
+      statusText = 'Срок действия истек';
       statusIcon = Icons.warning_amber;
+      statusDescription = 'Лицензия просрочена. Доступны только базовые функции.';
     } else if (!isValid) {
       statusColor = Colors.red;
       statusText = 'Недействительна';
       statusIcon = Icons.error;
+      statusDescription = 'Лицензия недействительна. Доступны только базовые функции.';
+    } else {
+      statusDescription = 'Все функции лицензии доступны.';
     }
 
     return Card(
@@ -72,9 +77,16 @@ class LicenseCard extends StatelessWidget {
                             color: statusColor,
                           ),
                         ),
+                        if (statusDescription != null) ...[
+                          const SizedBox(height: 4),
+                          Text(statusDescription, style: TextStyle(color: statusColor)),
+                        ],
                         if (errorMessage != null) ...[
                           const SizedBox(height: 4),
-                          Text(errorMessage!, style: TextStyle(color: statusColor)),
+                          Text(
+                            errorMessage!,
+                            style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ],
                     ),

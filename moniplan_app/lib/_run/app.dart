@@ -77,9 +77,10 @@ class _MoniplanAppState extends State<MoniplanApp> {
         ),
         BlocProvider(
           create:
-              (context) =>
-                  LicenseBloc(repository: AppDi.instance.getLicenseRepo())
-                    ..add(const LicenseLoadedEvent()),
+              (context) => LicenseBloc(
+                repository: AppDi.instance.getLicenseRepo(),
+                licenseFeaturesService: AppDi.instance.getLicenseFeaturesService(),
+              )..add(const LicenseLoadedEvent()),
         ),
       ],
       child: AnimatedBuilder(

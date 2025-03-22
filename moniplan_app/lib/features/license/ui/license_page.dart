@@ -61,7 +61,12 @@ class LicensePage extends StatelessWidget {
           }
 
           if (state is LicenseExpiredState) {
-            return _LicenseView(license: state.license, isValid: false, isExpired: true);
+            return _LicenseView(
+              license: state.license,
+              isValid: false,
+              isExpired: true,
+              errorMessage: 'Необходимо продлить лицензию',
+            );
           }
 
           if (state is LicenseInvalidState) {
@@ -73,7 +78,23 @@ class LicensePage extends StatelessWidget {
             );
           }
 
-          return Center(child: Text('Неизвестное состояние: ${state.runtimeType}'));
+          // Для других состояний показываем сообщение об ошибке
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('Ошибка состояния лицензии: ${state.runtimeType}'),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () => context.read<LicenseBloc>().add(const LicenseLoadedEvent()),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Обновить'),
+                ),
+              ],
+            ),
+          );
         },
       ),
     );

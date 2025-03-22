@@ -6,5 +6,5 @@ export 'core/_index.dart';
 export 'db/_index.dart';
 export 'di/_index.dart';
 export 'extensions/_index.dart';
-export 'features/_index.dart';
+export 'features/_index.dart' hide DateTimeExtensions;
 export 'logger/_index.dart';
