@@ -4,8 +4,7 @@
 
 import 'dart:async';
 
-import '../entities/license_status.dart';
-import 'check_license_usecase.dart';
+import 'package:nogipx_license/nogipx_license.dart';
 
 /// Сценарий использования для мониторинга статуса лицензии
 class MonitorLicenseUseCase {

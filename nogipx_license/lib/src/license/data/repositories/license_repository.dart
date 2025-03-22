@@ -6,10 +6,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import '../../domain/entities/license.dart';
-import '../../domain/repositories/i_license_repository.dart';
-import '../../domain/repositories/i_license_storage.dart';
-import '../models/license_model.dart';
+import 'package:nogipx_license/nogipx_license.dart';
 
 /// Реализация репозитория лицензий
 class LicenseRepository implements ILicenseRepository {

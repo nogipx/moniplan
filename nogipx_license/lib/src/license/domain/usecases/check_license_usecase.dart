@@ -4,9 +4,7 @@
 
 import 'dart:typed_data';
 
-import '../entities/license_status.dart';
-import '../repositories/i_license_repository.dart';
-import '../repositories/i_license_validator.dart';
+import 'package:nogipx_license/nogipx_license.dart';
 
 /// Сценарий использования для проверки лицензии
 class CheckLicenseUseCase {

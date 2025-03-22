@@ -7,16 +7,18 @@ import 'dart:typed_data';
 import 'package:test/test.dart';
 
 import 'package:nogipx_license/nogipx_license.dart';
-import '../../helpers/test_factory.dart';
+import '../../helpers/test_constants.dart';
 
 void main() {
   group('LicenseRepository', () {
     late InMemoryLicenseStorage storage;
     late LicenseRepository sut;
+    late GenerateLicenseUseCase licenseGenerator;
 
     setUp(() {
       storage = InMemoryLicenseStorage();
       sut = LicenseRepository(storage: storage);
+      licenseGenerator = GenerateLicenseUseCase(privateKey: TestConstants.privateKey);
     });
 
     test('возвращает_null_если_лицензия_отсутствует', () async {
@@ -31,8 +33,11 @@ void main() {
 
     test('загружает_валидную_лицензию_из_хранилища', () async {
       // Arrange
-      final license = TestLicenseFactory.createLicense();
-      final licenseData = TestLicenseFactory.licenseToBytes(license);
+      final license = licenseGenerator.generateLicense(
+        appId: TestConstants.appId,
+        expirationDate: DateTime.now().add(Duration(days: 30)),
+      );
+      final licenseData = licenseGenerator.licenseToBytes(license);
 
       // Сохраняем лицензию в хранилище
       await storage.saveLicenseData(licenseData);
@@ -50,7 +55,12 @@ void main() {
     test('возвращает_null_при_повреждении_данных', () async {
       // Arrange - сохраняем невалидные данные
       await storage.saveLicenseData(
-        TestLicenseFactory.licenseToBytes(TestLicenseFactory.createLicense()),
+        licenseGenerator.licenseToBytes(
+          licenseGenerator.generateLicense(
+            appId: TestConstants.appId,
+            expirationDate: DateTime.now().add(Duration(days: 30)),
+          ),
+        ),
       );
       // Портим данные
       await storage.saveLicenseData(Uint8List.fromList('invalid json'.codeUnits));
@@ -64,7 +74,10 @@ void main() {
 
     test('успешно_сохраняет_лицензию', () async {
       // Arrange
-      final license = TestLicenseFactory.createLicense();
+      final license = licenseGenerator.generateLicense(
+        appId: TestConstants.appId,
+        expirationDate: DateTime.now().add(Duration(days: 30)),
+      );
 
       // Act
       final result = await sut.saveLicense(license);
@@ -80,8 +93,11 @@ void main() {
 
     test('сохраняет_лицензию_из_массива_байтов', () async {
       // Arrange
-      final license = TestLicenseFactory.createLicense();
-      final licenseData = TestLicenseFactory.licenseToBytes(license);
+      final license = licenseGenerator.generateLicense(
+        appId: TestConstants.appId,
+        expirationDate: DateTime.now().add(Duration(days: 30)),
+      );
+      final licenseData = licenseGenerator.licenseToBytes(license);
 
       // Act
       final result = await sut.saveLicenseFromBytes(licenseData);
@@ -101,8 +117,11 @@ void main() {
       final tempFile = File('${tempDir.path}/test_license.dat');
 
       // Создаем лицензию и записываем ее в файл
-      final license = TestLicenseFactory.createLicense();
-      final licenseData = TestLicenseFactory.licenseToBytes(license);
+      final license = licenseGenerator.generateLicense(
+        appId: TestConstants.appId,
+        expirationDate: DateTime.now().add(Duration(days: 30)),
+      );
+      final licenseData = licenseGenerator.licenseToBytes(license);
       await tempFile.writeAsBytes(licenseData);
 
       // Act
@@ -133,7 +152,10 @@ void main() {
 
     test('успешно_удаляет_существующую_лицензию', () async {
       // Arrange - сохраняем лицензию, чтобы было что удалять
-      final license = TestLicenseFactory.createLicense();
+      final license = licenseGenerator.generateLicense(
+        appId: TestConstants.appId,
+        expirationDate: DateTime.now().add(Duration(days: 30)),
+      );
       await sut.saveLicense(license);
 
       // Act

@@ -3,8 +3,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:test/test.dart';
-import 'package:crypto/crypto.dart';
+import 'package:basic_utils/basic_utils.dart';
+import 'package:pointycastle/export.dart';
 
 import 'package:nogipx_license/nogipx_license.dart';
 import '../../helpers/test_constants.dart';
@@ -15,7 +18,10 @@ void main() {
       // Arrange
       final sut = GenerateLicenseUseCase(privateKey: TestConstants.privateKey);
       final expirationDate =
-          DateTime.now().add(Duration(days: TestConstants.defaultLicenseDuration)).toUtc();
+          DateTime.now()
+              .add(Duration(days: TestConstants.defaultLicenseDuration))
+              .toUtc()
+              .roundToMinutes();
       final features = {'maxUsers': 10, 'canExport': true};
 
       // Act
@@ -36,11 +42,14 @@ void main() {
       expect(license.createdAt.isUtc, isTrue);
     });
 
-    test('правильно_вычисляет_подпись_HMAC', () {
+    test('создает_действительную_подпись_RSA', () {
       // Arrange
       final sut = GenerateLicenseUseCase(privateKey: TestConstants.privateKey);
       final expirationDate =
-          DateTime.now().add(Duration(days: TestConstants.defaultLicenseDuration)).toUtc();
+          DateTime.now()
+              .add(Duration(days: TestConstants.defaultLicenseDuration))
+              .toUtc()
+              .roundToMinutes();
 
       // Act
       final license = sut.generateLicense(
@@ -48,15 +57,51 @@ void main() {
         expirationDate: expirationDate,
       );
 
-      // Manually verify the signature
-      final dataToVerify =
-          '${license.id}:${TestConstants.appId}:${expirationDate.toIso8601String()}:${license.type.name}';
-      final hmac = Hmac(sha256, utf8.encode(TestConstants.privateKey));
-      final digest = hmac.convert(utf8.encode(dataToVerify));
-      final expectedSignature = digest.toString();
+      // Verify the signature using the validator
+      final validator = LicenseValidator(publicKey: TestConstants.publicKey);
+      final isValid = validator.validateSignature(license);
 
       // Assert
-      expect(license.signature, equals(expectedSignature));
+      expect(isValid, isTrue);
+    });
+
+    test('подпись_валидна_только_для_правильной_пары_ключей', () {
+      // Arrange
+      final sut = GenerateLicenseUseCase(privateKey: TestConstants.privateKey);
+      final expirationDate =
+          DateTime.now()
+              .add(Duration(days: TestConstants.defaultLicenseDuration))
+              .toUtc()
+              .roundToMinutes();
+
+      // Генерируем новую пару ключей
+      final differentKeys = RsaKeyGenerator.generateKeyPairAsPem(bitLength: 2048);
+
+      // Act
+      final license = sut.generateLicense(
+        appId: TestConstants.appId,
+        expirationDate: expirationDate,
+      );
+
+      // Verify with wrong public key
+      final wrongValidator = LicenseValidator(publicKey: differentKeys.publicKey);
+      final isValidWithWrongKey = wrongValidator.validateSignature(license);
+
+      // Verify with correct public key
+      final correctValidator = LicenseValidator(publicKey: TestConstants.publicKey);
+      final isValidWithCorrectKey = correctValidator.validateSignature(license);
+
+      // Assert
+      expect(
+        isValidWithWrongKey,
+        isFalse,
+        reason: 'Подпись не должна быть валидна с неправильным публичным ключом',
+      );
+      expect(
+        isValidWithCorrectKey,
+        isTrue,
+        reason: 'Подпись должна быть валидна с правильным публичным ключом',
+      );
     });
 
     test('по_умолчанию_создает_пробную_лицензию', () {
@@ -95,24 +140,6 @@ void main() {
       expect(jsonData['signature'], equals(license.signature));
       expect(jsonData['type'], equals(license.type.name));
       expect(jsonData['features']['maxUsers'], equals(5));
-    });
-
-    test('форматирует_JSON_с_отступами_при_необходимости', () {
-      // Arrange
-      final sut = GenerateLicenseUseCase(privateKey: TestConstants.privateKey);
-      final license = sut.generateLicense(
-        appId: TestConstants.appId,
-        expirationDate: DateTime.now().add(Duration(days: TestConstants.defaultLicenseDuration)),
-      );
-
-      // Act
-      final bytes = sut.licenseToBytes(license, prettyPrint: true);
-      final jsonString = utf8.decode(bytes);
-
-      // Assert
-      // Проверяем форматирование JSON (наличие отступов и переносов строк)
-      expect(jsonString, contains('\n'));
-      expect(jsonString, contains('  "'));
     });
   });
 }

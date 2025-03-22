@@ -2,8 +2,14 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// ignore_for_file: unnecessary_string_escapes
+
+import 'dart:convert';
+
+import 'package:nogipx_license/nogipx_license.dart';
+
 /// Константы для тестирования модуля лицензирования
-class TestConstants {
+class TestLicense {
   // Тестовый публичный ключ для проверки подписи лицензии
   static const publicKey = '''-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtlwatfQBSfYEbCYMTRnkZRnUtdtD/BgFGcQEXFxV1ywWCZ/6gmj4+qcZSueQ1jhnoFYk+tDVTeAxvxFRkfoxjEzdOaaIyKpM6ING3NS6JW1NfjhWalQ30FM0IfjsDK1ByghNffY+MaH1ObGOQV+0Tg5GNXWXdFwHSdy2IlBe9q+2PQAfK0J0g/vXa84T4w6Lzy1J7x0qNEN05J74SAGgnvDdDtUuuIeQIvYpUwrYiB+B2zpO5aLGQAAKxtjvMwJy4TJLMcJhHWvLxeaX5FcDey4Nmu90hiKyura34MzTR0r4OpeOj8GHw/Q0Q5yS6aN+ihMERc1OTMptYP85OylpwQIDAQAB
@@ -13,9 +19,24 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtlwatfQBSfYEbCYMTRnkZRnUtdtD/BgFGcQE
   static const privateKey = '''-----BEGIN RSA PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC2XBq19AFJ9gRsJgxNGeRlGdS120P8GAUZxARcXFXXLBYJn/qCaPj6pxlK55DWOGegViT60NVN4DG/EVGR+jGMTN05pojIqkzog0bc1LolbU1+OFZqVDfQUzQh+OwMrUHKCE199j4xofU5sY5BX7RODkY1dZd0XAdJ3LYiUF72r7Y9AB8rQnSD+9drzhPjDovPLUnvHSo0Q3TknvhIAaCe8N0O1S64h5Ai9ilTCtiIH4HbOk7losZAAArG2O8zAnLhMksxwmEda8vF5pfkVwN7Lg2a73SGIrK6trfgzNNHSvg6l46PwYfD9DRDnJLpo36KEwRFzU5Mym1g/zk7KWnBAgMBAAECggEAVJOwMb6LEH4BPBWDdAjztG5ACN46kEOlrfcLHLkYePTx/aHMgkpkW4A/i02OD8TWTvdVLFzJ6VX3TIogPmd/LnaBzhiubP8LL3WfWpFxCiXBIK7JaYRI5J6KWc1E0XZTwnuKUUbxPnzCqvDuLOTRz7fwGSBCT83U9Y1fjdefy6IWyN97N+TlwiOgtnxUvRFRXyZSs6E4lQ7QII/mtNyLePEHy5y38FfKhuj6nSwvHE0M7aSoRFIcu6JlGWD97WhxybOEMCg6oswSw1G0Bi6JhUwAUryirHpWp8XOwZIxHhQNVTKybjAMt8JrrkVC+0orYMF54IbT4/D53EwE1e6ErwKBgQDs/FM6OXKeDqewFsmXdDLeHmV5jNS0sQM4hWuANu6AJMeBmU268vcFEhvgcoEh3arb/emebI5SIuWLFFgaKVs7tz1EZC+eBWGthj/tOyLZB+CIKfhnDrlJ+bByc+Jal/7YcUq1MyLV/MhynN/LH0Ky8KtrVKzLt2rtae1SM7FvTwKBgQDE/cQxn0sdF3RpjBlXjXoW/ZlC0FrPN1zYRh6EKtYfD/b6Lz6yHga8BMzhYN7GwKfNkvMkxKzeBI9Sk6OTZ1B/cnH/YargeqVjD0pdIFDMyH+XP4sYqKLCfQtR80+b6KOfymDESCDsz790YRtGySbBfjxOQdPmzFRlkCiryG3R7wKBgAS2M5VpxPydf/oBSfrH5acC5bOX+DarekvqYyvGa9GCabEK8j+wSvb/2CwLOsQImzgKgVWUBPRfGz87pVDH17eFOiOc9lFm+/0uOSEnVtcH0BAE/ZpW8Zol67sq0KpKcVeuUPTvUlb80qNsuQpZ0cKrBE16/oCCYg7cV0qWGoYDAoGAPbAmP0/d6tdMej0INpW0VPzHgNfUiC2TIpsatVLgyMtsET64SHkErN5n9nAqc10jb0oEYFBCvif5ZeecAu4IlFCXiFzicPeXUSUZqX4UL3zeD9QzT96HUZZs9BXYqT859jEfCnh37xDDqMM8EnetbkyEwBD3NcBo8YEqa1kRovsCgYEA4eVC+YLgWoVYPQcf6cqITIPM1Yq8KH2Pmgl0hwXzV0ul63tC+YtwJMbK2+U65udJGLB4UTGnyc2oUNENlTym75K5ItILuuo2h9A4rv9Qksm5mO6j9L7dXQFgSqskkQsDFG063Fehd7ItcWtLa9s37m6b5zFyyUaf9HcIBbawTnk=
 -----END RSA PRIVATE KEY-----''';
-  // Тестовый идентификатор приложения
-  static const appId = 'com.moniplan.app';
 
-  // Срок действия тестовой лицензии (в днях)
-  static const defaultLicenseDuration = 30;
+  // Тестовый идентификатор приложения
+  static const appId = 'moniplan.nogipx.dev';
+
+  static const licenseId = 'test-license-id';
+
+  static var trialLicenseJson =
+      '{\"id\":\"eb69ef14-f137-4e94-934e-9022a7ddae73\",\"appId\":\"moniplan.nogipx.dev\",\"expirationDate\":\"2025-04-21T12:36:00.000Z\",\"createdAt\":\"2025-03-22T12:36:00.000Z\",\"signature\":\"ZoGRjGeZKlu6X7lXS293hFGwS9+caNRSbb5cPbIqOeEqm0EDMxMthqaBslwcU2eLHhK6Aye3KVlmerzwMPXXYJxD5ExgbW7h/t3Ldif4p7ZwniZp/wfIDUUKCFIyQwJY+1h50DHfKOXYHat4W8Udfi+/jKszqg9Y1V/ifrKTGLBHumd/pqYyG/4qVDEF/tA6LG3JFiu0q6v4CzYnb3Ou8vfIYQwkJCC7EgGT2Nr4b1TE9zF4tiXrRMwH9vyY8dilxLW5yd/E2k/B40RREhjUBRk8g2gdm0HnNdibNE8gNDTJZrkRiqOqs607dbqm60iKEFHjddxtd6MSpmQFcpnadg==\",\"type\":\"trial\",\"features\":{},\"metadata\":null}';
+}
+
+/// Тестовая лицензия
+Future<void> testLicense() async {
+  final license = LicenseModel.fromJson(jsonDecode(TestLicense.trialLicenseJson)).toDomain();
+
+  final validate = CheckLicenseUseCase(
+    repository: LicenseRepository(storage: InMemoryLicenseStorage()),
+    validator: LicenseValidator(publicKey: TestLicense.publicKey),
+  );
+  final result = await validate.checkLicenseFromBytes(license.bytes);
+  print(result);
 }

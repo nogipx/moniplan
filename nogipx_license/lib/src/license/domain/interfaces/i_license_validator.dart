@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import '../entities/license.dart';
+import 'package:nogipx_license/nogipx_license.dart';
 
 /// Интерфейс для валидации лицензии
 abstract class ILicenseValidator {

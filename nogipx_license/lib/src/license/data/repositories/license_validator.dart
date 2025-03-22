@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:convert';
+import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
-
-import '../../domain/entities/license.dart';
-import '../../domain/repositories/i_license_validator.dart';
+import 'package:basic_utils/basic_utils.dart';
+import 'package:nogipx_license/nogipx_license.dart';
+import 'package:pointycastle/export.dart';
 
 /// Реализация валидатора лицензии
 class LicenseValidator implements ILicenseValidator {
-  /// Ключ для проверки подписи
+  /// Публичный ключ для проверки подписи
   final String _publicKey;
 
   /// Конструктор
@@ -20,18 +20,27 @@ class LicenseValidator implements ILicenseValidator {
   @override
   bool validateSignature(License license) {
     try {
+      // Получаем округленную дату истечения лицензии
+      final roundedExpirationDate = license.expirationDate.roundToMinutes();
+
       // Формируем данные для проверки подписи
       final dataToVerify =
-          '${license.id}:${license.appId}:${license.expirationDate.toIso8601String()}:${license.type.name}';
+          '${license.id}:${license.appId}:${roundedExpirationDate.toIso8601String()}:${license.type.name}';
 
-      // Создаем подпись
-      final hmac = Hmac(sha256, utf8.encode(_publicKey));
-      final digest = hmac.convert(utf8.encode(dataToVerify));
-      final calculatedSignature = digest.toString();
+      // Подготавливаем публичный ключ
+      final publicKey = CryptoUtils.rsaPublicKeyFromPem(_publicKey);
 
-      // Сравниваем с подписью в лицензии
-      return calculatedSignature == license.signature;
+      // Декодируем подпись из Base64
+      final signatureBytes = base64Decode(license.signature);
+
+      // Проверяем подпись с помощью RSA-SHA512
+      final verifier = RSASigner(SHA512Digest(), '0609608648016503040203');
+      verifier.init(false, PublicKeyParameter<RSAPublicKey>(publicKey));
+
+      final signatureParams = Uint8List.fromList(utf8.encode(dataToVerify));
+      return verifier.verifySignature(signatureParams, RSASignature(signatureBytes));
     } catch (e) {
+      print('Ошибка проверки подписи: $e');
       return false;
     }
   }

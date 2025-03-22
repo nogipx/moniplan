@@ -4,7 +4,7 @@
 
 import 'dart:typed_data';
 
-import '../../domain/entities/license.dart';
+import 'package:nogipx_license/nogipx_license.dart';
 
 /// Интерфейс репозитория для работы с лицензиями
 abstract class ILicenseRepository {

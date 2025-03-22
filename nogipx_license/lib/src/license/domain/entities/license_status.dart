@@ -39,12 +39,14 @@ class NoLicenseStatus extends LicenseStatus {
 
 /// Лицензия активна
 class ActiveLicenseStatus extends LicenseStatus {
+  @override
   final License license;
   const ActiveLicenseStatus(this.license);
 }
 
 /// Лицензия истекла
 class ExpiredLicenseStatus extends LicenseStatus {
+  @override
   final License license;
   const ExpiredLicenseStatus(this.license);
 }

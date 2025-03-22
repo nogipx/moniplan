@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import '../../domain/entities/license.dart';
+import 'package:nogipx_license/nogipx_license.dart';
 
 part 'license_model.freezed.dart';
 part 'license_model.g.dart';

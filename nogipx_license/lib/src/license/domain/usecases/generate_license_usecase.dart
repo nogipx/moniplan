@@ -5,14 +5,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
+import 'package:basic_utils/basic_utils.dart';
+import 'package:nogipx_license/nogipx_license.dart';
+import 'package:pointycastle/export.dart';
 import 'package:uuid/uuid.dart';
-
-import '../entities/license.dart';
 
 /// Сценарий использования для генерации лицензии
 class GenerateLicenseUseCase {
-  /// Ключ для подписи лицензии
+  /// Приватный ключ для подписи лицензии
   final String _privateKey;
 
   /// Конструктор
@@ -27,18 +27,23 @@ class GenerateLicenseUseCase {
     Map<String, dynamic>? metadata,
   }) {
     final id = const Uuid().v4();
-    final createdAt = DateTime.now().toUtc();
 
-    // Преобразуем дату истечения в UTC
-    final utcExpirationDate = expirationDate.isUtc ? expirationDate : expirationDate.toUtc();
+    // Округляем время создания до минут
+    final createdAt = DateTime.now().toUtc().roundToMinutes();
+
+    // Преобразуем дату истечения в UTC и округляем до минут
+    final utcExpirationDate = expirationDate.roundToMinutes();
 
     // Формируем данные для подписи
     final dataToSign = '$id:$appId:${utcExpirationDate.toIso8601String()}:${type.name}';
 
-    // Создаем подпись
-    final hmac = Hmac(sha256, utf8.encode(_privateKey));
-    final digest = hmac.convert(utf8.encode(dataToSign));
-    final signature = digest.toString();
+    // Создаем RSA подпись с приватным ключом
+    final privateKey = CryptoUtils.rsaPrivateKeyFromPem(_privateKey);
+    final signer = RSASigner(SHA512Digest(), '0609608648016503040203');
+    signer.init(true, PrivateKeyParameter<RSAPrivateKey>(privateKey));
+
+    final signatureBytes = signer.generateSignature(Uint8List.fromList(utf8.encode(dataToSign)));
+    final signature = base64Encode(signatureBytes.bytes);
 
     // Создаем лицензию
     return License(
@@ -54,7 +59,7 @@ class GenerateLicenseUseCase {
   }
 
   /// Преобразует лицензию в бинарные данные
-  Uint8List licenseToBytes(License license, {bool prettyPrint = false}) {
+  Uint8List licenseToBytes(License license) {
     // Преобразуем в JSON
     final Map<String, dynamic> jsonData = {
       'id': license.id,
@@ -68,8 +73,7 @@ class GenerateLicenseUseCase {
     };
 
     // Сериализуем в строку JSON
-    final jsonString =
-        prettyPrint ? JsonEncoder.withIndent('  ').convert(jsonData) : jsonEncode(jsonData);
+    final jsonString = jsonEncode(jsonData);
 
     // Преобразуем в бинарные данные
     return utf8.encode(jsonString);
