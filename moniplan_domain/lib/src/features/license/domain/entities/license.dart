@@ -2,6 +2,9 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 /// Типы лицензий
 enum LicenseType { trial, standard, pro }
 
@@ -49,4 +52,19 @@ class License {
 
   /// Возвращает оставшееся количество дней
   int get remainingDays => expirationDate.difference(DateTime.now().toUtc()).inDays;
+
+  /// Преобразует лицензию в массив байтов
+  Uint8List get bytes => utf8.encode(jsonEncode(toJson()));
+
+  /// Преобразует лицензию в JSON
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'appId': appId,
+    'expirationDate': expirationDate.toIso8601String(),
+    'createdAt': createdAt.toIso8601String(),
+    'signature': signature,
+    'type': type.name,
+    'features': features,
+    'metadata': metadata,
+  };
 }
