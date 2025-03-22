@@ -18,4 +18,6 @@ abstract interface class IAppDi {
   IInsightGenerator getInsightGenerator();
 
   ICategoryPredictor getPaymentCategorizer();
+
+  IMoniplanLicenseRepo getLicenseRepo();
 }

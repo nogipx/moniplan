@@ -2,9 +2,12 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
 import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
+import 'package:moniplan_app/features/license/repository/moniplan_license_repository.dart';
+import 'package:moniplan_app/features/license/repository/secure_license_storage.dart';
 import 'package:moniplan_app/features/monisync/repo/monisync_repo_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
@@ -13,6 +16,7 @@ import 'package:moniplan_app/features/statistic/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 const mockEncryptionKey = 'J33L06KoJbO1okTNJ1sHNV1DS5UiVtLPLmWn0RZbxGk=';
+const mockPublicKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiAKBgHCO7QY5Z+Q+';
 
 class GetItAppDI implements AppDi {
   final _getIt = GetIt.instance;
@@ -43,6 +47,13 @@ class GetItAppDI implements AppDi {
       InsightGeneratorImpl(categoryPredictor: _getIt.get<ICategoryPredictor>()),
     );
 
+    _getIt.registerSingleton<IMoniplanLicenseRepo>(
+      MoniplanLicenseRepository(
+        licenseStorage: SecureLicenseStorage(FlutterSecureStorage()),
+        licenseValidator: LicenseValidator(publicKey: mockPublicKey),
+      ),
+    );
+
     // Инициализируем сервис категоризации платежей
     paymentCategorizerService.initialize().catchError((e) {
       print('Ошибка инициализации PaymentCategorizerService: $e');
@@ -66,6 +77,9 @@ class GetItAppDI implements AppDi {
 
   @override
   ICategoryPredictor getPaymentCategorizer() => _getIt.get();
+
+  @override
+  IMoniplanLicenseRepo getLicenseRepo() => _getIt.get();
 
   @override
   T get<T extends Object>() => _getIt.get<T>();
