@@ -54,6 +54,7 @@ dependencies:
   expressions: ^0.2.5+2
   stack_trace: ^1.12.1
   flutter_secure_storage: ^9.2.4
+  envied: ^1.1.1
 
   # Persistent
   shared_preferences: ^2.3.3
@@ -83,6 +84,7 @@ dev_dependencies:
   freezed: ^2.5.8
   json_serializable: ^6.9.0
   drift_dev: ^2.22.1
+  envied_generator: ^1.1.1
 
   # Tools
   packo: 0.5.1

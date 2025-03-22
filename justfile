@@ -6,11 +6,17 @@ pubget_all:
 runner_all:
     fvm dart run packo runner -r
 
+runner_app:
+    fvm dart run packo runner -b moniplan_app
+
 runner_core:
     fvm dart run packo runner -b moniplan_core
 
 runner_domain:
     fvm dart run packo runner -b moniplan_domain
+
+runner_clean:
+    cd moniplan_app && fvm dart run build_runner clean
 
 generate_arb:
     fvm dart run packo runner -b moniplan_domain

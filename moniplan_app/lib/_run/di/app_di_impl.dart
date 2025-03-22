@@ -2,9 +2,12 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
+import 'package:moniplan_app/core/config/env.dart';
 import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_app/features/license/repository/moniplan_license_repository.dart';
 import 'package:moniplan_app/features/license/repository/secure_license_storage.dart';
@@ -14,9 +17,6 @@ import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/statistic/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
-
-const mockEncryptionKey = 'J33L06KoJbO1okTNJ1sHNV1DS5UiVtLPLmWn0RZbxGk=';
-const mockPublicKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiAKBgHCO7QY5Z+Q+';
 
 class GetItAppDI implements AppDi {
   final _getIt = GetIt.instance;
@@ -30,7 +30,7 @@ class GetItAppDI implements AppDi {
     _getIt.registerSingleton<AppDb>(db);
     _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: db));
     _getIt.registerSingleton<IMonisyncRepo>(
-      MonisyncRepoImpl(appDb: db, encryptKey: mockEncryptionKey),
+      MonisyncRepoImpl(appDb: db, encryptKey: SecureEnv.dbEncryptionKey ?? ''),
     );
     _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
 
@@ -50,7 +50,9 @@ class GetItAppDI implements AppDi {
     _getIt.registerSingleton<IMoniplanLicenseRepo>(
       MoniplanLicenseRepository(
         licenseStorage: SecureLicenseStorage(FlutterSecureStorage()),
-        licenseValidator: LicenseValidator(publicKey: mockPublicKey),
+        licenseValidator: LicenseValidator(
+          publicKey: utf8.decode(base64Decode(SecureEnv.publicKey)),
+        ),
       ),
     );
 

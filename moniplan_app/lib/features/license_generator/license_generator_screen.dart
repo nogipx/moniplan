@@ -20,7 +20,7 @@ class _LicenseGeneratorScreenState extends State<LicenseGeneratorScreen> {
   final _licenseService = LicenseGeneratorService();
 
   // Значения полей формы
-  String _appId = 'com.example.app';
+  String _appId = 'moniplan.nogipx.dev';
   LicenseType _licenseType = LicenseType.pro;
   DateTime _expirationDate = DateTime.now().add(const Duration(days: 365));
   final Map<String, dynamic> _features = {};
@@ -58,7 +58,7 @@ class _LicenseGeneratorScreenState extends State<LicenseGeneratorScreen> {
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'ID приложения',
-                  hintText: 'com.example.app',
+                  hintText: 'moniplan.nogipx.dev',
                 ),
                 initialValue: _appId,
                 validator: (value) {

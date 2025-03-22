@@ -2,10 +2,12 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:licensify/licensify.dart';
+import 'package:moniplan_app/core/config/env.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -13,7 +15,10 @@ import 'package:share_plus/share_plus.dart';
 class LicenseGeneratorService {
   final GenerateLicenseUseCase _generator;
 
-  LicenseGeneratorService() : _generator = GenerateLicenseUseCase(privateKey: 'privateKey');
+  LicenseGeneratorService()
+    : _generator = GenerateLicenseUseCase(
+        privateKey: utf8.decode(base64Decode(SecureEnv.privateKey ?? '')),
+      );
 
   /// Генерирует лицензию с указанными параметрами и возвращает байты лицензии
   License generateLicense({

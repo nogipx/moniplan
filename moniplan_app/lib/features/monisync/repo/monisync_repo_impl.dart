@@ -16,7 +16,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   final String encryptKey;
   final AppDb appDb;
 
-  MonisyncRepoImpl({required this.appDb, this.encryptKey = ''});
+  MonisyncRepoImpl({required this.appDb, required this.encryptKey});
 
   @override
   Future<ExportResult?> exportDataToFile({
@@ -202,7 +202,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final file = File(filePath);
 
     if (await file.exists()) {
-      await appDb.overrideDefaultFromFile(newDbFile: file, encryptKey: mockEncryptionKey);
+      await appDb.overrideDefaultFromFile(newDbFile: file, encryptKey: encryptKey);
     }
   }
 
@@ -220,7 +220,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
-    await appDb.openTemporaryFromFile(dbFile: file, encryptKey: mockEncryptionKey);
+    await appDb.openTemporaryFromFile(dbFile: file, encryptKey: encryptKey);
 
     final planners = await AppDi.instance.getPlannerRepo().getPlanners();
     final lastUpdate =
