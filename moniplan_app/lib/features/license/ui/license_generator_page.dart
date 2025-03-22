@@ -24,9 +24,16 @@ class LicenseGeneratorPage extends StatefulWidget {
 
 class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
   final _expirationDateController = TextEditingController();
+  final _metadataController = TextEditingController();
+  final _appIdController = TextEditingController(text: 'moniplan.nogipx.dev');
+
   DateTime _expirationDate = DateTime.now().add(const Duration(days: 365));
+  TimeOfDay _expirationTime = TimeOfDay.now();
   String? _generatedLicensePath;
+  LicenseType _selectedType = LicenseType.pro;
   bool _isLoading = false;
+  bool _isSharingLoading = false;
+  bool _isApplyingLoading = false;
 
   // Инициализируем сервис генерации лицензий
   final _licenseGeneratorService = LicenseGeneratorService();
@@ -39,7 +46,24 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
 
   void _updateExpirationDateField() {
     final formatter = DateFormat('dd.MM.yyyy HH:mm');
-    _expirationDateController.text = formatter.format(_expirationDate);
+    final combined = DateTime(
+      _expirationDate.year,
+      _expirationDate.month,
+      _expirationDate.day,
+      _expirationTime.hour,
+      _expirationTime.minute,
+    );
+    _expirationDateController.text = formatter.format(combined);
+  }
+
+  DateTime _getCombinedDateTime() {
+    return DateTime(
+      _expirationDate.year,
+      _expirationDate.month,
+      _expirationDate.day,
+      _expirationTime.hour,
+      _expirationTime.minute,
+    );
   }
 
   Future<void> _selectExpirationDate() async {
@@ -58,24 +82,58 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
     }
   }
 
+  Future<void> _selectExpirationTime() async {
+    final pickedTime = await showTimePicker(context: context, initialTime: _expirationTime);
+
+    if (pickedTime != null && pickedTime != _expirationTime) {
+      setState(() {
+        _expirationTime = pickedTime;
+        _updateExpirationDateField();
+      });
+    }
+  }
+
+  Map<String, dynamic>? _parseMetadata() {
+    if (_metadataController.text.isEmpty) return null;
+
+    try {
+      // Пробуем распарсить JSON
+      final metadataMap = jsonDecode(_metadataController.text);
+      if (metadataMap is Map<String, dynamic>) {
+        return metadataMap;
+      }
+      return null;
+    } catch (_) {
+      // Если не JSON, то создаем простую запись с описанием
+      return {'description': _metadataController.text};
+    }
+  }
+
   Future<void> _generateLicense() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
+      // Получаем комбинированную дату и время
+      final expirationDateTime = _getCombinedDateTime();
+
+      // Получаем метаданные
+      final metadata = _parseMetadata() ?? {};
+      metadata['generatedAt'] = DateTime.now().toIso8601String();
+
       // Генерируем лицензию с помощью сервиса
       final license = _licenseGeneratorService.generateLicense(
-        appId: 'moniplan.nogipx.dev',
-        expirationDate: _expirationDate,
-        type: LicenseType.pro,
-        metadata: {'generatedAt': DateTime.now().toIso8601String()},
+        appId: _appIdController.text,
+        expirationDate: expirationDateTime,
+        type: _selectedType,
+        metadata: metadata,
       );
 
       // Сохраняем лицензию в файл
       final tempDir = await getTemporaryDirectory();
       final licenseFileName =
-          'moniplan_license_${DateFormat('yyyyMMdd').format(DateTime.now())}.licensify';
+          'moniplan_license_${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}.licensify';
       final licenseFile = File('${tempDir.path}/$licenseFileName');
       await licenseFile.writeAsBytes(license.bytes);
 
@@ -104,6 +162,10 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
   Future<void> _shareLicense() async {
     if (_generatedLicensePath == null) return;
 
+    setState(() {
+      _isSharingLoading = true;
+    });
+
     try {
       await Share.shareXFiles([XFile(_generatedLicensePath!)], text: 'Лицензия Moniplan');
     } catch (e) {
@@ -113,11 +175,19 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
           backgroundColor: Colors.red,
         ),
       );
+    } finally {
+      setState(() {
+        _isSharingLoading = false;
+      });
     }
   }
 
   Future<void> _applyLicense() async {
     if (_generatedLicensePath == null) return;
+
+    setState(() {
+      _isApplyingLoading = true;
+    });
 
     try {
       final licenseFile = File(_generatedLicensePath!);
@@ -136,18 +206,25 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
         Navigator.of(context).pop();
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Ошибка при применении лицензии: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка при применении лицензии: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      setState(() {
+        _isApplyingLoading = false;
+      });
     }
   }
 
   @override
   void dispose() {
     _expirationDateController.dispose();
+    _metadataController.dispose();
+    _appIdController.dispose();
     super.dispose();
   }
 
@@ -167,16 +244,97 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
             ),
             const SizedBox(height: 32),
 
+            // Поле для выбора AppID
+            TextField(
+              controller: _appIdController,
+              decoration: const InputDecoration(
+                labelText: 'ID приложения',
+                border: OutlineInputBorder(),
+                helperText: 'Уникальный идентификатор приложения',
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
             // Поле для выбора даты окончания лицензии
             TextField(
               controller: _expirationDateController,
               decoration: const InputDecoration(
-                labelText: 'Дата окончания',
+                labelText: 'Дата и время окончания',
                 border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.calendar_today),
+                helperText: 'Нажмите для выбора даты и времени',
               ),
               readOnly: true,
-              onTap: _selectExpirationDate,
+              onTap: () async {
+                await _selectExpirationDate();
+                if (mounted) {
+                  await _selectExpirationTime();
+                }
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // Выбор типа лицензии
+            DropdownButtonFormField<LicenseType>(
+              decoration: const InputDecoration(
+                labelText: 'Тип лицензии',
+                border: OutlineInputBorder(),
+                helperText: 'Выберите уровень доступа',
+              ),
+              value: _selectedType,
+              items: [
+                DropdownMenuItem(
+                  value: LicenseType.trial,
+                  child: Row(
+                    children: [
+                      Icon(Icons.timer, color: Colors.orange.shade300, size: 18),
+                      const SizedBox(width: 8),
+                      const Text('Пробная (Trial)'),
+                    ],
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: LicenseType.standard,
+                  child: Row(
+                    children: [
+                      Icon(Icons.verified_user, color: Colors.blue.shade300, size: 18),
+                      const SizedBox(width: 8),
+                      const Text('Стандартная (Standard)'),
+                    ],
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: LicenseType.pro,
+                  child: Row(
+                    children: [
+                      Icon(Icons.workspace_premium, color: Colors.green.shade300, size: 18),
+                      const SizedBox(width: 8),
+                      const Text('Профессиональная (Pro)'),
+                    ],
+                  ),
+                ),
+              ],
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedType = value;
+                  });
+                }
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // Поле для метаданных
+            TextField(
+              controller: _metadataController,
+              decoration: const InputDecoration(
+                labelText: 'Метаданные лицензии',
+                border: OutlineInputBorder(),
+                helperText: 'Описание, информация о владельце, JSON и т.д.',
+              ),
+              maxLines: 3,
             ),
 
             const SizedBox(height: 32),
@@ -211,14 +369,19 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
               const SizedBox(height: 16),
 
               Card(
+                elevation: 4,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Путь к файлу: $_generatedLicensePath'),
+                      Text('Приложение: ${_appIdController.text}'),
                       const SizedBox(height: 8),
-                      Text('Дата окончания: ${DateFormat('dd.MM.yyyy').format(_expirationDate)}'),
+                      Text('Тип лицензии: ${_selectedType.name}'),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Дата окончания: ${DateFormat('dd.MM.yyyy HH:mm').format(_getCombinedDateTime())}',
+                      ),
                     ],
                   ),
                 ),
@@ -230,16 +393,33 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: _shareLicense,
-                      icon: const Icon(Icons.share),
+                      onPressed: _isSharingLoading ? null : _shareLicense,
+                      icon:
+                          _isSharingLoading
+                              ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                              : const Icon(Icons.share),
                       label: const Text('Поделиться'),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: _applyLicense,
-                      icon: const Icon(Icons.check_circle),
+                      onPressed: _isApplyingLoading ? null : _applyLicense,
+                      icon:
+                          _isApplyingLoading
+                              ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : const Icon(Icons.check_circle),
                       label: const Text('Применить'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
