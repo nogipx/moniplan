@@ -45,36 +45,6 @@ class DateTimeRepeat {
     id: 1,
     shortName: '1d',
   );
-  static const twoDays = DateTimeRepeat._(
-    type: DateTimeRepeatType.day,
-    value: 2,
-    id: 2,
-    shortName: '2d',
-  );
-  static const threeDays = DateTimeRepeat._(
-    type: DateTimeRepeatType.day,
-    value: 3,
-    id: 3,
-    shortName: '3d',
-  );
-  static const fourDays = DateTimeRepeat._(
-    type: DateTimeRepeatType.day,
-    value: 4,
-    id: 4,
-    shortName: '4d',
-  );
-  static const fiveDays = DateTimeRepeat._(
-    type: DateTimeRepeatType.day,
-    value: 5,
-    id: 5,
-    shortName: '5d',
-  );
-  static const sixDays = DateTimeRepeat._(
-    type: DateTimeRepeatType.day,
-    value: 6,
-    id: 6,
-    shortName: '6d',
-  );
 
   // Недели
   static const week = DateTimeRepeat._(
@@ -83,24 +53,6 @@ class DateTimeRepeat {
     id: 7,
     shortName: '1w',
   );
-  static const twoWeek = DateTimeRepeat._(
-    type: DateTimeRepeatType.week,
-    value: 2,
-    id: 8,
-    shortName: '2w',
-  );
-  static const threeWeek = DateTimeRepeat._(
-    type: DateTimeRepeatType.week,
-    value: 3,
-    id: 9,
-    shortName: '3w',
-  );
-  static const fourWeek = DateTimeRepeat._(
-    type: DateTimeRepeatType.week,
-    value: 4,
-    id: 10,
-    shortName: '4w',
-  );
 
   // Месяцы
   static const month = DateTimeRepeat._(
@@ -108,18 +60,6 @@ class DateTimeRepeat {
     value: 1,
     id: 11,
     shortName: '1m',
-  );
-  static const threeMonths = DateTimeRepeat._(
-    type: DateTimeRepeatType.month,
-    value: 3,
-    id: 13,
-    shortName: '3m',
-  );
-  static const sixMonths = DateTimeRepeat._(
-    type: DateTimeRepeatType.month,
-    value: 6,
-    id: 16,
-    shortName: '6m',
   );
 
   // Годы
@@ -131,23 +71,7 @@ class DateTimeRepeat {
   );
 
   // Список всех предопределенных периодов
-  static const List<DateTimeRepeat> values = [
-    noRepeat,
-    day,
-    twoDays,
-    threeDays,
-    fourDays,
-    fiveDays,
-    sixDays,
-    week,
-    twoWeek,
-    threeWeek,
-    fourWeek,
-    month,
-    threeMonths,
-    sixMonths,
-    year,
-  ];
+  static const List<DateTimeRepeat> values = [noRepeat, day, week, month, year];
 
   // Создание пользовательского периода повторения
   static DateTimeRepeat custom({required DateTimeRepeatType type, required int value}) {
