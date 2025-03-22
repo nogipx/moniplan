@@ -597,6 +597,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  licensify:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: main
+      resolved-ref: "45195a4fe19548d1e0fb6917a17fe5a270ca00dd"
+      url: "https://github.com/nogipx/licensify"
+    source: git
+    version: "1.0.0"
   lints:
     dependency: transitive
     description:
@@ -683,13 +692,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
-  nogipx_license:
-    dependency: "direct main"
-    description:
-      path: "../nogipx_license"
-      relative: true
-    source: path
-    version: "1.0.0"
   oktoast:
     dependency: "direct main"
     description:

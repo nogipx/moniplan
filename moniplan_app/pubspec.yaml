@@ -17,8 +17,10 @@ dependencies:
     path: ../moniplan_domain
   moniplan_uikit:
     path: ../moniplan_uikit
-  nogipx_license:
-    path: ../nogipx_license
+  licensify:
+    git:
+      url: https://github.com/nogipx/licensify
+      ref: main
 
   # UI
   responsive_framework: ^1.5.1

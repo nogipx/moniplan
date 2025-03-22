@@ -6,7 +6,7 @@
 
 import 'dart:convert';
 
-import 'package:nogipx_license/nogipx_license.dart';
+import 'package:licensify/licensify.dart';
 
 /// Константы для тестирования модуля лицензирования
 class TestLicense {
