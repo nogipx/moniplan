@@ -24,6 +24,9 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
 
   @override
   Future<LicenseStatus> getLicenseStatus({License? license}) async {
+    if (license != null) {
+      return _licenseChecker.checkLicenseFromBytes(license.bytes);
+    }
     final status = await _licenseChecker.checkCurrentLicense();
     return status;
   }

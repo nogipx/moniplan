@@ -9,6 +9,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
 import 'package:moniplan_app/features/_common/periodic_theme_changer/_index.dart';
+import 'package:moniplan_app/features/license/_index.dart';
 import 'package:moniplan_app/features/planners_list/_index.dart';
 import 'package:moniplan_app/features/receive_import_sharing/bloc/_index.dart';
 import 'package:moniplan_app/features/receive_import_sharing/receive_import_wrapper.dart';
@@ -73,6 +74,12 @@ class _MoniplanAppState extends State<MoniplanApp> {
         BlocProvider(
           create:
               (context) => ReceiveImportSharingBloc(monisyncRepo: AppDi.instance.getMonisyncRepo()),
+        ),
+        BlocProvider(
+          create:
+              (context) =>
+                  LicenseBloc(repository: AppDi.instance.getLicenseRepo())
+                    ..add(const LicenseLoadedEvent()),
         ),
       ],
       child: AnimatedBuilder(

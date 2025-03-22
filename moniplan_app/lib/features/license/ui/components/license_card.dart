@@ -22,7 +22,7 @@ class LicenseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd.MM.yyyy');
+    final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
     final theme = Theme.of(context);
 
     Color statusColor = Colors.green;

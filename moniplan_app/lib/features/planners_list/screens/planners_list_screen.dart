@@ -5,8 +5,9 @@
 import 'dart:async';
 
 import 'package:drift_db_viewer/drift_db_viewer.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide LicensePage;
 import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/features/license/_index.dart';
 import 'package:moniplan_app/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/planners_list/_index.dart';
@@ -61,13 +62,27 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                   ),
                 ),
                 ElevatedButton.icon(
-                  icon: Icon(Icons.import_export_outlined, size: 18),
+                  icon: const Icon(Icons.import_export_outlined, size: 18),
                   label: const Text('MoniSync'),
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {
                           return const MonisyncScreen();
+                        },
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: AppSpace.s10),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.vpn_key_outlined, size: 18),
+                  label: const Text('Лицензия'),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return const LicensePage();
                         },
                       ),
                     );

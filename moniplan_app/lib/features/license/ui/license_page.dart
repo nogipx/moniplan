@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:licensify/licensify.dart';
 import 'package:moniplan_app/features/license/bloc/_index.dart';
 import 'package:moniplan_app/features/license/ui/components/_index.dart';
+import 'package:moniplan_app/features/license/ui/license_generator_page.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class LicensePage extends StatelessWidget {
   const LicensePage({super.key});
@@ -19,12 +21,21 @@ class LicensePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Управление лицензией'),
+        title: Text('Управление лицензией', style: context.text.displaySmall),
         actions: [
           IconButton(
             onPressed: () => context.read<LicenseBloc>().add(const LicenseLoadedEvent()),
             icon: const Icon(Icons.refresh),
             tooltip: 'Обновить статус',
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (context) => const LicenseGeneratorPage()));
+            },
+            icon: const Icon(Icons.build),
+            tooltip: 'Генератор лицензий',
           ),
         ],
       ),
@@ -160,13 +171,15 @@ class _LicenseView extends StatelessWidget {
 
 Future<void> _uploadLicense(BuildContext context, {bool isUpdate = false}) async {
   try {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['lic', 'license', 'txt'],
-    );
+    final result = await FilePicker.platform.pickFiles(type: FileType.any);
 
     if (result != null && result.files.single.path != null) {
-      final file = File(result.files.single.path!);
+      final path = result.files.single.path;
+      if (path == null || !path.endsWith('.licensify')) {
+        return;
+      }
+
+      final file = File(path);
       final bytes = await file.readAsBytes();
 
       if (isUpdate) {
