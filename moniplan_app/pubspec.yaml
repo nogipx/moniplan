@@ -17,7 +17,7 @@ dependencies:
     path: ../moniplan_domain
   moniplan_uikit:
     path: ../moniplan_uikit
-  licensify: ^1.4.0
+  licensify: ^1.6.1
 
   # Features
   feature_flutter: ^2.0.0

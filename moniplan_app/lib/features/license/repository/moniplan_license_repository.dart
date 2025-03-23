@@ -12,8 +12,8 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
   }) : _licenseRepository = LicenseRepository(storage: licenseStorage),
        _licenseValidator = licenseValidator;
 
-  CheckLicenseUseCase get _licenseChecker =>
-      CheckLicenseUseCase(repository: _licenseRepository, validator: _licenseValidator);
+  LicenseValidateUseCase get _validateUseCase =>
+      LicenseValidateUseCase(validator: _licenseValidator, schema: moniplanLicenseSchema);
 
   @override
   Future<License?> getCurrentLicense() async {
@@ -25,9 +25,10 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
   @override
   Future<LicenseStatus> getLicenseStatus({License? license}) async {
     if (license != null) {
-      return _licenseChecker.checkLicenseFromBytes(license.bytes);
+      return _validateUseCase(license);
     }
-    final status = await _licenseChecker.checkCurrentLicense();
+    final currentLicense = await getCurrentLicense();
+    final status = await _validateUseCase(currentLicense);
     return status;
   }
 
@@ -46,7 +47,7 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
     if (licenseBytes == null) {
       return null;
     }
-    final licenseJson = LicenseFileFormat.decodeFromBytes(licenseBytes);
+    final licenseJson = LicenseEncoder.decodeFromBytes(licenseBytes);
     if (licenseJson == null) {
       return null;
     }

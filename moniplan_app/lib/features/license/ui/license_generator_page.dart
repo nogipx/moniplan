@@ -126,7 +126,7 @@ class _LicenseGeneratorPageState extends State<LicenseGeneratorPage> {
       metadata['generatedAt'] = DateTime.now().toIso8601String();
 
       // Генерируем лицензию с помощью сервиса, передавая функции
-      final license = _licenseGeneratorService.generateLicense(
+      final license = await _licenseGeneratorService.generateLicense(
         appId: _appIdController.text,
         expirationDate: expirationDateTime,
         type: _selectedType,

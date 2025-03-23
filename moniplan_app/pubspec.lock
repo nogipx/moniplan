@@ -681,10 +681,10 @@ packages:
     dependency: "direct main"
     description:
       name: licensify
-      sha256: e1cc6a979926e4b36762594cc58cb380fd5ec1324b201eac69a1c24c35c7e56d
+      sha256: b4b99ec09e0fa43befecdfb03bb68de7ec2b68081170f46ce5f534316db03c59
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.0"
+    version: "1.6.1"
   lints:
     dependency: transitive
     description:
