@@ -80,6 +80,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
               (context) => LicenseBloc(
                 repository: AppDi.instance.getLicenseRepo(),
                 licenseFeaturesService: AppDi.instance.getLicenseFeaturesService(),
+                featuresManager: AppDi.instance.getFeaturesManager(),
               )..add(const LicenseLoadedEvent()),
         ),
       ],

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
 
 class MonisyncScreen extends StatefulWidget {
@@ -54,7 +55,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Экспорт и импорт данных')),
+      appBar: AppBar(title: Text('Экспорт и импорт данных', style: context.text.displaySmall)),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())

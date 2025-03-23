@@ -63,6 +63,12 @@ class GetItAppDI implements AppDi {
       print('Ошибка инициализации LicenseFeaturesService: $e');
     });
 
+    // Инициализируем менеджер фичей
+    _getIt.registerSingleton<MoniplanFeaturesManager>(
+      MoniplanFeaturesManager(licenseFeaturesService: licenseFeaturesService)
+        ..forceReloadFeatures(),
+    );
+
     // Инициализируем сервис категоризации платежей
     paymentCategorizerService.initialize().catchError((e) {
       print('Ошибка инициализации PaymentCategorizerService: $e');
@@ -92,6 +98,9 @@ class GetItAppDI implements AppDi {
 
   @override
   LicenseFeaturesService getLicenseFeaturesService() => _getIt.get();
+
+  @override
+  MoniplanFeaturesManager getFeaturesManager() => _getIt.get();
 
   @override
   T get<T extends Object>() => _getIt.get<T>();

@@ -61,19 +61,6 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                     ),
                   ),
                 ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.import_export_outlined, size: 18),
-                  label: const Text('MoniSync'),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return const MonisyncScreen();
-                        },
-                      ),
-                    );
-                  },
-                ),
                 const SizedBox(width: AppSpace.s10),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.vpn_key_outlined, size: 18),
@@ -83,6 +70,20 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                       MaterialPageRoute(
                         builder: (context) {
                           return const LicensePage();
+                        },
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: AppSpace.s10),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.import_export_outlined, size: 18),
+                  label: const Text('MoniSync'),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return const MonisyncScreen();
                         },
                       ),
                     );

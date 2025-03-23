@@ -4,7 +4,7 @@
 
 import 'dart:typed_data';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloc/bloc.dart';
 import 'package:moniplan_app/features/license/bloc/license_event.dart';
 import 'package:moniplan_app/features/license/bloc/license_state.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
@@ -12,12 +12,14 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
   final IMoniplanLicenseRepo _repository;
   final LicenseFeaturesService _licenseFeaturesService;
-
+  final MoniplanFeaturesManager _featuresManager;
   LicenseBloc({
     required IMoniplanLicenseRepo repository,
     required LicenseFeaturesService licenseFeaturesService,
+    required MoniplanFeaturesManager featuresManager,
   }) : _repository = repository,
        _licenseFeaturesService = licenseFeaturesService,
+       _featuresManager = featuresManager,
        super(const LicenseInitialState()) {
     on<LicenseAddedEvent>(_onLicenseAdded);
     on<LicenseLoadedEvent>(_onLicenseLoaded);
@@ -26,9 +28,21 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
     on<LicenseStatusCheckedEvent>(_onLicenseStatusChecked);
   }
 
-  /// Обновляет сервис лицензионных функций после изменения состояния лицензии
+  /// Обновляет сервис лицензионных возможностей
   Future<void> _refreshLicenseFeatures() async {
-    await _licenseFeaturesService.refreshLicense();
+    try {
+      // Обновляем лицензию в сервисе функций
+      await _licenseFeaturesService.refreshLicense();
+
+      // Если AppFeaturesManager инициализирован, обновляем фичефлаги
+      try {
+        _featuresManager.forceReloadFeatures();
+      } catch (e) {
+        // AppFeaturesManager может быть не инициализирован
+      }
+    } catch (e) {
+      // Игнорируем ошибки
+    }
   }
 
   Future<void> _onLicenseAdded(LicenseAddedEvent event, Emitter<LicenseState> emit) async {

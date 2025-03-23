@@ -11,8 +11,5 @@ abstract class AppDi implements IAppDi {
   @override
   AppDb getDb();
 
-  @override
-  LicenseFeaturesService getLicenseFeaturesService();
-
   T get<T extends Object>();
 }

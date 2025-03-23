@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_app/features/planner/widgets/money_flow_widget.dart';
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 import '../bloc/statistics_bloc.dart';
 import '_index.dart';
 
@@ -32,7 +33,7 @@ class PlannerStatisticsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Статистика бюджета'),
+        title: Text('Статистика бюджета', style: context.text.displaySmall),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

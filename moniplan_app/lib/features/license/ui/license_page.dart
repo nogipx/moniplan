@@ -7,10 +7,12 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import 'package:feature_flutter/feature_flutter.dart';
 import 'package:licensify/licensify.dart';
+import 'package:moniplan_app/core/di_get_it/_index.dart';
 import 'package:moniplan_app/features/license/bloc/_index.dart';
 import 'package:moniplan_app/features/license/ui/components/_index.dart';
+import 'package:moniplan_app/features/license/ui/feature_display_page.dart';
 import 'package:moniplan_app/features/license/ui/license_generator_page.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
@@ -24,11 +26,6 @@ class LicensePage extends StatelessWidget {
         title: Text('Управление лицензией', style: context.text.displaySmall),
         actions: [
           IconButton(
-            onPressed: () => context.read<LicenseBloc>().add(const LicenseLoadedEvent()),
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Обновить статус',
-          ),
-          IconButton(
             onPressed: () {
               Navigator.of(
                 context,
@@ -36,6 +33,19 @@ class LicensePage extends StatelessWidget {
             },
             icon: const Icon(Icons.build),
             tooltip: 'Генератор лицензий',
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const FeatureDisplayPage();
+                  },
+                ),
+              );
+            },
+            icon: const Icon(Icons.toggle_on_outlined),
+            tooltip: 'Функции лицензии',
           ),
         ],
       ),

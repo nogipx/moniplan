@@ -19,6 +19,9 @@ dependencies:
     path: ../moniplan_uikit
   licensify: ^1.4.0
 
+  # Features
+  feature_flutter: ^2.0.0
+
   # UI
   responsive_framework: ^1.5.1
   draggable_scrollbar: 0.1.0
