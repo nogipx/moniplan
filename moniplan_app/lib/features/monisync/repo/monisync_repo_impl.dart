@@ -9,6 +9,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/features/monisync/encrypters/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
@@ -41,10 +42,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
       if (keyBase64.isNotEmpty) {
         final iv = encrypt.IV.fromSecureRandom(8); // Используем IV длиной 8 байт для Salsa20
-        final encryptionHelper = EncryptionHelper(
+        final encryptionHelper = Salsa20MonisyncEncrypter(
           encrypter: encrypt.Encrypter(encrypt.Salsa20(encrypt.Key.fromBase64(keyBase64))),
         );
-        final encryptedBytes = encryptionHelper.encryptBytes(originalBytes, iv: iv);
+        final encryptedBytes = encryptionHelper.encryptBytes(originalBytes, options: {'iv': iv});
 
         // Добавляем IV в начало зашифрованных данных (первые 8 байт - IV)
         final ivBytes = iv.bytes;

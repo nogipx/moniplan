@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/db/drift_open_temporary_connection.dart';
 import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/features/monisync/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
@@ -87,10 +88,8 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
         final iv = encrypt.IV(ivBytes);
         final encryptedData = newBytes.sublist(8);
 
-        final encryptionHelper = EncryptionHelper(
-          encrypter: encrypt.Encrypter(encrypt.Salsa20(encrypt.Key.fromBase64(keyBase64))),
-        );
-        tempBytes = encryptionHelper.decryptBytes(encryptedData, iv: iv);
+        final encryptionHelper = AesMonisyncEncrypter(keyBase64);
+        tempBytes = encryptionHelper.decryptBytes(encryptedData, options: {'iv': iv});
       }
 
       final connection = driftOpenTemporary(bytes: tempBytes);
@@ -120,15 +119,8 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       Uint8List tempBytes = newBytes;
 
       if (keyBase64.isNotEmpty) {
-        // Извлекаем IV из начала файла (первые 8 байт для Salsa20)
-        final ivBytes = newBytes.sublist(0, 8);
-        final iv = encrypt.IV(ivBytes);
-        final encryptedData = newBytes.sublist(8);
-
-        final encryptionHelper = EncryptionHelper(
-          encrypter: encrypt.Encrypter(encrypt.Salsa20(encrypt.Key.fromBase64(keyBase64))),
-        );
-        tempBytes = encryptionHelper.decryptBytes(encryptedData, iv: iv);
+        final encryptionHelper = AesMonisyncEncrypter(keyBase64);
+        tempBytes = encryptionHelper.decryptBytes(newBytes);
       }
 
       final dbFile = await getDatabaseFile();

@@ -17,6 +17,9 @@ import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/statistic/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
+const mockEncryptionKey = 'J33L06KoJbO1okTNJ1sHNV1DS5UiVtLPLmWn0RZbxGk=';
+const mockPublicKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiAKBgHCO7QY5Z+Q+';
+
 class GetItAppDI implements AppDi {
   final _getIt = GetIt.instance;
 
@@ -29,7 +32,7 @@ class GetItAppDI implements AppDi {
     _getIt.registerSingleton<AppDb>(db);
     _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: db));
     _getIt.registerSingleton<IMonisyncRepo>(
-      MonisyncRepoImpl(appDb: db, keyBase64: SecureEnv.dbEncryptionKey),
+      MonisyncRepoImpl(appDb: db, keyBase64: mockEncryptionKey),
     );
     _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
 
