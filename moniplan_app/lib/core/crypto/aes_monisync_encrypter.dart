@@ -9,35 +9,32 @@ import 'dart:typed_data';
 import 'package:encrypt/encrypt.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-final class AesMonisyncEncrypter extends IAppEncrypter {
+final class AesMonisyncEncrypter extends AppEncrypter {
   final Encrypter _encrypter;
 
-  AesMonisyncEncrypter(super.key, {super.enableEncryptionMarker})
+  AesMonisyncEncrypter(super.key, {super.enableMetadata = true})
     : _encrypter = Encrypter(AES(Key.fromBase64(key.base64Value)));
 
   @override
-  Uint8List encryptBytes(Uint8List bytes, {Map<String, dynamic>? options}) {
+  Uint8List encryptInternal(Uint8List data, {Map<String, dynamic>? options}) {
     final iv = options?['iv'] as IV?;
     if (options?.containsKey('iv') == true && iv == null) {
       throw ArgumentError('IV is required for AES encryption');
     }
     final aesIv = iv ?? IV.fromSecureRandom(16);
-    final encrypted = _encrypter.encryptBytes(bytes, iv: aesIv);
-    final encryptedWithIv = Uint8List.fromList(aesIv.bytes + encrypted.bytes);
-    return super.encryptBytes(encryptedWithIv);
+    final encrypted = _encrypter.encryptBytes(data, iv: aesIv);
+    return Uint8List.fromList(aesIv.bytes + encrypted.bytes);
   }
 
   @override
-  Uint8List decryptBytes(Uint8List bytes, {Map<String, dynamic>? options}) {
+  Uint8List decryptInternal(Uint8List data, {Map<String, dynamic>? options}) {
     final iv = options?['iv'] as IV?;
     if (options?.containsKey('iv') == true && iv == null) {
       throw ArgumentError('IV is required for AES decryption');
     }
-    final effectiveBytes = super.decryptBytes(bytes);
 
-    final aesIv = iv ?? IV(effectiveBytes.sublist(0, 16));
-    final encryptedBytes = effectiveBytes.sublist(16);
-    final decrypted = _encrypter.decryptBytes(Encrypted(encryptedBytes), iv: aesIv);
-    return Uint8List.fromList(decrypted);
+    final aesIv = iv ?? IV(data.sublist(0, 16));
+    final encryptedBytes = data.sublist(16);
+    return Uint8List.fromList(_encrypter.decryptBytes(Encrypted(encryptedBytes), iv: aesIv));
   }
 }

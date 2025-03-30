@@ -14,8 +14,16 @@ class BackupInfo {
   final File file;
   final DateTime? creationDate;
   final int plannersCount;
+  final bool isEncrypted;
+  final bool hasPassword;
 
-  BackupInfo({required this.file, required this.creationDate, required this.plannersCount});
+  BackupInfo({
+    required this.file,
+    required this.creationDate,
+    required this.plannersCount,
+    this.isEncrypted = false,
+    this.hasPassword = false,
+  });
 }
 
 abstract interface class IMonisyncRepo {

@@ -218,15 +218,14 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
       final bytes = await file.readAsBytes();
 
-      // Проверяем наличие маркера защищенного файла
-      if (bytes.length < IAppEncrypter.encryptMarkerBytes.length) {
-        return false;
+      // Проверяем наличие метаданных
+      if (IAppEncrypter.hasMetadata(bytes)) {
+        // Извлекаем метаданные и проверяем, защищен ли файл паролем
+        final metadata = IAppEncrypter.extractMetadata(bytes);
+        return metadata?.hasPassword ?? false;
       }
 
-      final marker = bytes.sublist(0, IAppEncrypter.encryptMarkerBytes.length);
-      final markerString = String.fromCharCodes(marker);
-
-      return markerString.startsWith(IAppEncrypter.encryptMarker);
+      return false;
     } catch (e) {
       return false;
     }
@@ -240,15 +239,14 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       final bytes = await file.readAsBytes();
       bool isEncrypted = await isFilePasswordProtected(filePath);
 
-      if (isEncrypted && password != null && password.isNotEmpty) {
-        // Если файл зашифрован и предоставлен пароль, создаем временный файл с расшифрованными данными
-        final passwordEncrypter = await AppDi.instance.getEncrypter(
-          AppEncrypterFactoryArgs(password: password),
+      if (isEncrypted) {
+        final encrypter = await AppDi.instance.getEncrypter(
+          AppEncrypterFactoryArgs(password: password ?? ''),
         );
 
         try {
           // Расшифровываем данные
-          final decryptedBytes = passwordEncrypter.decryptBytes(bytes);
+          final decryptedBytes = encrypter.decryptBytes(bytes);
 
           // Создаем временный файл
           final tempDir = await getTemporaryDirectory();
@@ -258,7 +256,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
           await tempFile.writeAsBytes(decryptedBytes);
 
           // Импортируем из временного файла
-          await appDb.overrideDefaultFromFile(newDbFile: tempFile, encrypter: passwordEncrypter);
+          await appDb.overrideDefaultFromFile(newDbFile: tempFile);
 
           // Удаляем временный файл
           if (await tempFile.exists()) {
@@ -271,7 +269,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         throw Exception('Для импорта зашифрованного файла требуется пароль');
       } else {
         // Файл не зашифрован, просто импортируем
-        await appDb.overrideDefaultFromFile(newDbFile: file, encrypter: encrypter);
+        await appDb.overrideDefaultFromFile(newDbFile: file);
       }
     }
   }
@@ -290,16 +288,29 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
-    // Проверяем, не является ли файл зашифрованным
-    final isEncrypted = await isFilePasswordProtected(cleanedPath);
+    if (!await file.exists()) {
+      return null;
+    }
 
-    if (isEncrypted) {
-      // Если файл зашифрован, возвращаем информацию только о файле без содержимого
-      return BackupInfo(file: File(filePath), creationDate: null, plannersCount: 0);
+    final bytes = await file.readAsBytes();
+
+    // Проверяем, есть ли у файла метаданные
+    if (IAppEncrypter.hasMetadata(bytes)) {
+      final metadata = IAppEncrypter.extractMetadata(bytes);
+      if (metadata?.isEncrypted == true) {
+        // Если файл зашифрован, возвращаем информацию только о файле без содержимого
+        return BackupInfo(
+          file: File(filePath),
+          creationDate: null,
+          plannersCount: 0,
+          isEncrypted: true,
+          hasPassword: metadata?.hasPassword ?? false,
+        );
+      }
     }
 
     // Для незашифрованных файлов - стандартная логика
-    await appDb.openTemporaryFromFile(dbFile: file, encrypter: encrypter);
+    await appDb.openTemporaryFromFile(dbFile: file);
 
     final planners = await AppDi.instance.getPlannerRepo().getPlanners();
     final lastUpdate =
@@ -313,6 +324,8 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       file: File(filePath),
       creationDate: lastUpdate?.updatedAt,
       plannersCount: planners.length,
+      isEncrypted: false,
+      hasPassword: false,
     );
   }
 }

@@ -67,7 +67,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   @override
-  Future<void> openTemporaryFromFile({required File dbFile, IAppEncrypter? encrypter}) async {
+  Future<void> openTemporaryFromFile({required File dbFile}) async {
     try {
       final cleanedPath = dbFile.path.replaceAll('file://', '');
       final file = File(cleanedPath);
@@ -78,9 +78,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       await Future.delayed(_reopenWaitDuration);
 
       final newBytes = await file.readAsBytes();
-      Uint8List tempBytes = encrypter?.decryptBytes(newBytes) ?? newBytes;
-
-      final connection = driftOpenTemporary(bytes: tempBytes);
+      final connection = driftOpenTemporary(bytes: newBytes);
 
       final tempDb = MoniplanDriftDb(dbExecutor: connection);
       _db = tempDb;
@@ -93,7 +91,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   @override
-  Future<void> overrideDefaultFromFile({required File newDbFile, IAppEncrypter? encrypter}) async {
+  Future<void> overrideDefaultFromFile({required File newDbFile}) async {
     try {
       final cleanedPath = newDbFile.path.replaceAll('file://', '');
       final file = File(cleanedPath);
@@ -104,10 +102,9 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       await Future.delayed(_reopenWaitDuration);
 
       final newBytes = await file.readAsBytes();
-      Uint8List tempBytes = encrypter?.decryptBytes(newBytes) ?? newBytes;
 
       final dbFile = await getDatabaseFile();
-      await dbFile.writeAsBytes(tempBytes);
+      await dbFile.writeAsBytes(newBytes);
 
       await openDefault();
     } on Object catch (error, trace) {

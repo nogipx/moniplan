@@ -4,8 +4,6 @@
 
 import 'dart:io';
 
-import 'package:moniplan_domain/moniplan_domain.dart';
-
 typedef IAppDbFactory = IAppDb Function();
 
 abstract class IAppDb {
@@ -13,9 +11,9 @@ abstract class IAppDb {
 
   Future<void> openDefault();
 
-  Future<void> overrideDefaultFromFile({required File newDbFile, IAppEncrypter? encrypter});
+  Future<void> overrideDefaultFromFile({required File newDbFile});
 
-  Future<void> openTemporaryFromFile({required File dbFile, IAppEncrypter? encrypter});
+  Future<void> openTemporaryFromFile({required File dbFile});
 
   Future<String> getPath();
 }

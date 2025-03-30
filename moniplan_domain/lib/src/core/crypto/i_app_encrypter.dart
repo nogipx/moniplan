@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '_index.dart';
 
@@ -10,33 +9,44 @@ class AppEncrypterFactoryArgs {
   const AppEncrypterFactoryArgs({this.forceOldEncryption = false, this.password = ''});
 }
 
+/// Интерфейс для шифровальщиков приложения
 abstract base class IAppEncrypter {
-  static const encryptMarker = 'ENCRYPTED:';
-  static final encryptMarkerBytes = Uint8List.fromList(encryptMarker.codeUnits);
-
-  Uint8List get getEncryptMarkerBytes =>
-      enableEncryptionMarker ? encryptMarkerBytes : Uint8List.fromList([]);
-
+  /// Ключ шифрования
   final AppEncryptionKey key;
-  final bool enableEncryptionMarker;
 
-  const IAppEncrypter(this.key, {this.enableEncryptionMarker = false});
+  const IAppEncrypter(this.key);
 
-  /// Must be called in end of the overriden method to add encryption marker
-  @mustCallSuper
-  Uint8List encryptBytes(Uint8List bytes, {Map<String, dynamic>? options}) {
-    if (enableEncryptionMarker) {
-      return Uint8List.fromList(getEncryptMarkerBytes + bytes);
+  /// Определяет, защищён ли бекап паролем
+  bool get isPasswordProtected => key is PasswordEncryptionKey && key.rawValue.isNotEmpty;
+
+  /// Шифрует массив байтов
+  Uint8List encryptBytes(Uint8List bytes, {Map<String, dynamic>? options});
+
+  /// Расшифровывает массив байтов
+  Uint8List decryptBytes(Uint8List bytes, {Map<String, dynamic>? options});
+
+  /// Проверяет, содержит ли файл метаданные
+  static bool hasMetadata(Uint8List bytes) {
+    if (bytes.length < BackupMetadata.metadataMarkerBytes.length) {
+      return false;
     }
-    return bytes;
+
+    final markerBytes = bytes.sublist(0, BackupMetadata.metadataMarkerBytes.length);
+    for (var i = 0; i < BackupMetadata.metadataMarkerBytes.length; i++) {
+      if (markerBytes[i] != BackupMetadata.metadataMarkerBytes[i]) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
-  /// Must be called in start of the overriden method to remove encryption marker
-  @mustCallSuper
-  Uint8List decryptBytes(Uint8List bytes, {Map<String, dynamic>? options}) {
-    if (enableEncryptionMarker) {
-      return bytes.sublist(0, getEncryptMarkerBytes.length);
+  /// Извлекает метаданные из байтов без изменения самих байтов
+  static BackupMetadata? extractMetadata(Uint8List bytes) {
+    if (!hasMetadata(bytes)) {
+      return null;
     }
-    return bytes;
+
+    return BackupMetadata.fromBytes(bytes);
   }
 }
