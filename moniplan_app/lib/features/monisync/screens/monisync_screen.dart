@@ -516,6 +516,8 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
           _isLoading = true;
         });
 
+        // customKey = _passwordToKey('041020');
+
         await _monisyncRepo.importDataFromFile(filePath: filePath, customKey: customKey);
 
         showToast('Данные успешно импортированы');

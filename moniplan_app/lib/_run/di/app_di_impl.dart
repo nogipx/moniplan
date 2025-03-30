@@ -32,7 +32,7 @@ class GetItAppDI implements AppDi {
     _getIt.registerSingleton<AppDb>(db);
     _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: db));
     _getIt.registerSingleton<IMonisyncRepo>(
-      MonisyncRepoImpl(appDb: db, keyBase64: mockEncryptionKey),
+      MonisyncRepoImpl(appDb: db, keyBase64: SecureEnv.dbEncryptionKeyOld1),
     );
     _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
 

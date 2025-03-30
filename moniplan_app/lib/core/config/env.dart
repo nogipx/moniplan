@@ -13,4 +13,7 @@ abstract class SecureEnv {
 
   @EnviedField(varName: 'DB_ENCRYPTION_KEY')
   static String dbEncryptionKey = _SecureEnv.dbEncryptionKey;
+
+  @EnviedField(varName: 'DB_ENCRYPTION_KEY_OLD_1')
+  static String dbEncryptionKeyOld1 = _SecureEnv.dbEncryptionKeyOld1;
 }
