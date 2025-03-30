@@ -8,7 +8,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
 import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
-import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_app/features/license/repository/moniplan_license_repository.dart';
 import 'package:moniplan_app/features/license/repository/secure_license_storage.dart';
 import 'package:moniplan_app/features/monisync/repo/monisync_repo_impl.dart';
@@ -30,7 +29,7 @@ class GetItAppDI implements AppDi {
     _getIt.registerSingleton<AppDb>(db);
     _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: db));
     _getIt.registerSingleton<IMonisyncRepo>(
-      MonisyncRepoImpl(appDb: db, encryptKey: SecureEnv.dbEncryptionKey ?? ''),
+      MonisyncRepoImpl(appDb: db, keyBase64: SecureEnv.dbEncryptionKey),
     );
     _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
 
@@ -47,12 +46,16 @@ class GetItAppDI implements AppDi {
       InsightGeneratorImpl(categoryPredictor: _getIt.get<ICategoryPredictor>()),
     );
 
+    final publicKey = LicensifyKeyImporter.importPublicKeyFromString(
+      utf8.decode(base64.decode(SecureEnv.publicKey)),
+    );
     // Регистрируем репозиторий лицензий
     final licenseRepo = MoniplanLicenseRepository(
       licenseStorage: SecureLicenseStorage(FlutterSecureStorage()),
-      licenseValidator: LicenseValidator(publicKey: utf8.decode(base64Decode(SecureEnv.publicKey))),
+      licenseValidator: publicKey.licenseValidator,
     );
     _getIt.registerSingleton<IMoniplanLicenseRepo>(licenseRepo);
+    _getIt.registerSingleton<LicensifyPublicKey>(publicKey);
 
     // Регистрируем сервис лицензионных функций
     final licenseFeaturesService = LicenseFeaturesService(licenseRepo);

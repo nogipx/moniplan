@@ -37,12 +37,5 @@
       "args": ["build", "apk", "--release"],
       "cwd": "moniplan_app"
     },
-    {
-      "name": "Create .dmg",
-      "type": "shell",
-      "request": "launch",
-      "command": "create-dmg 'build/macos/Build/Products/Release/moniplan.app' --out '~/Desktop/moniplan.dmg' --overwrite --dmg-title 'moniplan'",
-      "cwd": "${workspaceFolder}"
-    }
   ]
 }

@@ -6,14 +6,11 @@ import 'package:envied/envied.dart';
 
 part 'env.g.dart';
 
-@Envied(path: '.env', obfuscate: true, allowOptionalFields: true)
+@Envied(obfuscate: true, requireEnvFile: true)
 abstract class SecureEnv {
   @EnviedField(varName: 'PUBLIC_KEY')
   static String publicKey = _SecureEnv.publicKey;
 
-  @EnviedField(varName: 'PRIVATE_KEY', optional: true)
-  static String? privateKey = _SecureEnv.privateKey;
-
-  @EnviedField(varName: 'DB_ENCRYPTION_KEY', optional: true)
-  static String? dbEncryptionKey = _SecureEnv.dbEncryptionKey;
+  @EnviedField(varName: 'DB_ENCRYPTION_KEY')
+  static String dbEncryptionKey = _SecureEnv.dbEncryptionKey;
 }

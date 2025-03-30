@@ -10,39 +10,25 @@ import 'package:encrypt/encrypt.dart';
 class EncryptionHelper {
   final Encrypter _encrypter;
 
-  EncryptionHelper(String keyBase64) : _encrypter = Encrypter(AES(Key.fromBase64(keyBase64)));
+  EncryptionHelper({required Encrypter encrypter}) : _encrypter = encrypter;
 
-  Uint8List encryptFile({
-    required File dbFile,
-    required String key,
-  }) {
-    if (key.isNotEmpty) {
-      return encryptBytes(dbFile.readAsBytesSync());
-    }
-    throw Exception('Encryption key is empty');
+  Uint8List encryptFile({required File dbFile, IV? iv}) {
+    return encryptBytes(dbFile.readAsBytesSync(), iv: iv);
   }
 
-  Uint8List decryptFile({
-    required File dbFile,
-    required String key,
-  }) {
-    if (key.isNotEmpty) {
-      return decryptBytes(dbFile.readAsBytesSync());
-    }
-    throw Exception('Encryption key is empty');
+  Uint8List decryptFile({required File dbFile, IV? iv}) {
+    return decryptBytes(dbFile.readAsBytesSync(), iv: iv);
   }
 
-  Uint8List encryptBytes(Uint8List bytes) {
-    final iv = IV.fromSecureRandom(16);
-    final encrypted = _encrypter.encryptBytes(bytes, iv: iv);
-    final encryptedWithIv = Uint8List.fromList(iv.bytes + encrypted.bytes);
-    return encryptedWithIv;
+  Uint8List encryptBytes(Uint8List bytes, {IV? iv}) {
+    // Для Salsa20 нужен IV длиной 8 байт
+    final salsa20Iv = iv ?? IV.fromLength(8);
+    return _encrypter.encryptBytes(bytes, iv: salsa20Iv).bytes;
   }
 
-  Uint8List decryptBytes(Uint8List bytes) {
-    final iv = IV(bytes.sublist(0, 16));
-    final encryptedBytes = bytes.sublist(16);
-    final decrypted = _encrypter.decryptBytes(Encrypted(encryptedBytes), iv: iv);
-    return Uint8List.fromList(decrypted);
+  Uint8List decryptBytes(Uint8List bytes, {IV? iv}) {
+    // Для Salsa20 нужен IV длиной 8 байт
+    final salsa20Iv = iv ?? IV.fromLength(8);
+    return Uint8List.fromList(_encrypter.decryptBytes(Encrypted(bytes), iv: salsa20Iv));
   }
 }

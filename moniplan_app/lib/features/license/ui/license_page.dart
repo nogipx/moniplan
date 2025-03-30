@@ -13,7 +13,6 @@ import 'package:moniplan_app/core/di_get_it/_index.dart';
 import 'package:moniplan_app/features/license/bloc/_index.dart';
 import 'package:moniplan_app/features/license/ui/components/_index.dart';
 import 'package:moniplan_app/features/license/ui/feature_display_page.dart';
-import 'package:moniplan_app/features/license/ui/license_generator_page.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class LicensePage extends StatelessWidget {
@@ -25,15 +24,6 @@ class LicensePage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Управление лицензией', style: context.text.displaySmall),
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (context) => const LicenseGeneratorPage()));
-            },
-            icon: const Icon(Icons.build),
-            tooltip: 'Генератор лицензий',
-          ),
           IconButton(
             onPressed: () {
               Navigator.of(context).push(

@@ -11,13 +11,7 @@ abstract class IAppDb {
 
   Future<void> openDefault();
 
-  Future<void> overrideDefaultFromFile({
-    required File newDbFile,
-    String encryptKey = '',
-  });
+  Future<void> overrideDefaultFromFile({required File newDbFile, required String keyBase64});
 
-  Future<void> openTemporaryFromFile({
-    required File dbFile,
-    String encryptKey = '',
-  });
+  Future<void> openTemporaryFromFile({required File dbFile, required String keyBase64});
 }

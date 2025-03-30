@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:moniplan_domain/moniplan_domain.dart';
@@ -12,9 +13,6 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
   }) : _licenseRepository = LicenseRepository(storage: licenseStorage),
        _licenseValidator = licenseValidator;
 
-  LicenseValidateUseCase get _validateUseCase =>
-      LicenseValidateUseCase(validator: _licenseValidator, schema: moniplanLicenseSchema);
-
   @override
   Future<License?> getCurrentLicense() async {
     final license = await _licenseRepository.getCurrentLicense();
@@ -24,12 +22,26 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
 
   @override
   Future<LicenseStatus> getLicenseStatus({License? license}) async {
-    if (license != null) {
-      return _validateUseCase(license);
+    final effectiveLicense = license ?? await getCurrentLicense();
+    if (effectiveLicense == null) {
+      return NoLicenseStatus();
     }
-    final currentLicense = await getCurrentLicense();
-    final status = await _validateUseCase(currentLicense);
-    return status;
+
+    if (!_licenseValidator.validateSignature(effectiveLicense).isValid) {
+      return InvalidLicenseSignatureStatus();
+    }
+
+    if (!_licenseValidator.validateExpiration(effectiveLicense).isValid) {
+      return ExpiredLicenseStatus(effectiveLicense);
+    }
+
+    final schema = _getLicenseSchema();
+    final schemaResult = _licenseValidator.validateSchema(effectiveLicense, schema);
+    if (!schemaResult.isValid) {
+      return InvalidLicenseSchemaStatus(schemaResult);
+    }
+
+    return ActiveLicenseStatus(effectiveLicense);
   }
 
   @override
@@ -47,12 +59,24 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
     if (licenseBytes == null) {
       return null;
     }
-    final licenseJson = LicenseEncoder.decodeFromBytes(licenseBytes);
-    if (licenseJson == null) {
-      return null;
-    }
-
-    final licenseModel = LicenseModel.fromJson(licenseJson);
-    return licenseModel.toDomain();
+    final license = LicenseEncoder.decodeFromBytes(licenseBytes);
+    return license;
   }
+}
+
+/// Определение схемы лицензии для проверки
+LicenseSchema _getLicenseSchema() {
+  return LicenseSchema(
+    featureSchema: {
+      'monisync': SchemaField(type: FieldType.boolean, required: true),
+      'analytics': SchemaField(type: FieldType.boolean, required: true),
+    },
+    metadataSchema: {
+      'user_hash': SchemaField(type: FieldType.string, required: true),
+      'issuer_id': SchemaField(type: FieldType.string, required: true),
+      'device_hash': SchemaField(type: FieldType.string, required: true),
+    },
+    allowUnknownFeatures: true,
+    allowUnknownMetadata: true,
+  );
 }

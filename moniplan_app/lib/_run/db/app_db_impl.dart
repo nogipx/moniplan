@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:drift/drift.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/foundation.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/db/drift_open_temporary_connection.dart';
@@ -67,7 +68,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   @override
-  Future<void> openTemporaryFromFile({required File dbFile, String encryptKey = ''}) async {
+  Future<void> openTemporaryFromFile({required File dbFile, String keyBase64 = ''}) async {
     try {
       final cleanedPath = dbFile.path.replaceAll('file://', '');
       final file = File(cleanedPath);
@@ -80,9 +81,16 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       final newBytes = await file.readAsBytes();
       Uint8List tempBytes = newBytes;
 
-      if (encryptKey.isNotEmpty) {
-        final encryptionHelper = EncryptionHelper(encryptKey);
-        tempBytes = encryptionHelper.decryptBytes(newBytes);
+      if (keyBase64.isNotEmpty) {
+        // Извлекаем IV из начала файла (первые 8 байт для Salsa20)
+        final ivBytes = newBytes.sublist(0, 8);
+        final iv = encrypt.IV(ivBytes);
+        final encryptedData = newBytes.sublist(8);
+
+        final encryptionHelper = EncryptionHelper(
+          encrypter: encrypt.Encrypter(encrypt.Salsa20(encrypt.Key.fromBase64(keyBase64))),
+        );
+        tempBytes = encryptionHelper.decryptBytes(encryptedData, iv: iv);
       }
 
       final connection = driftOpenTemporary(bytes: tempBytes);
@@ -98,7 +106,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   @override
-  Future<void> overrideDefaultFromFile({required File newDbFile, String encryptKey = ''}) async {
+  Future<void> overrideDefaultFromFile({required File newDbFile, String keyBase64 = ''}) async {
     try {
       final cleanedPath = newDbFile.path.replaceAll('file://', '');
       final file = File(cleanedPath);
@@ -111,9 +119,16 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       final newBytes = await file.readAsBytes();
       Uint8List tempBytes = newBytes;
 
-      if (encryptKey.isNotEmpty) {
-        final encryptionHelper = EncryptionHelper(encryptKey);
-        tempBytes = encryptionHelper.decryptBytes(newBytes);
+      if (keyBase64.isNotEmpty) {
+        // Извлекаем IV из начала файла (первые 8 байт для Salsa20)
+        final ivBytes = newBytes.sublist(0, 8);
+        final iv = encrypt.IV(ivBytes);
+        final encryptedData = newBytes.sublist(8);
+
+        final encryptionHelper = EncryptionHelper(
+          encrypter: encrypt.Encrypter(encrypt.Salsa20(encrypt.Key.fromBase64(keyBase64))),
+        );
+        tempBytes = encryptionHelper.decryptBytes(encryptedData, iv: iv);
       }
 
       final dbFile = await getDatabaseFile();

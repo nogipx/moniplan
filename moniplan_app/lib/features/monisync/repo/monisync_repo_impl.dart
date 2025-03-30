@@ -5,6 +5,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
@@ -13,10 +14,10 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MonisyncRepoImpl implements IMonisyncRepo {
-  final String encryptKey;
+  final String keyBase64;
   final AppDb appDb;
 
-  MonisyncRepoImpl({required this.appDb, required this.encryptKey});
+  MonisyncRepoImpl({required this.appDb, required this.keyBase64});
 
   @override
   Future<ExportResult?> exportDataToFile({
@@ -38,9 +39,18 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       final originalBytes = await file.readAsBytes();
       Uint8List bytesToWrite = originalBytes;
 
-      if (encryptKey.isNotEmpty) {
-        final encryptionHelper = EncryptionHelper(encryptKey);
-        bytesToWrite = encryptionHelper.encryptBytes(originalBytes);
+      if (keyBase64.isNotEmpty) {
+        final iv = encrypt.IV.fromSecureRandom(8); // Используем IV длиной 8 байт для Salsa20
+        final encryptionHelper = EncryptionHelper(
+          encrypter: encrypt.Encrypter(encrypt.Salsa20(encrypt.Key.fromBase64(keyBase64))),
+        );
+        final encryptedBytes = encryptionHelper.encryptBytes(originalBytes, iv: iv);
+
+        // Добавляем IV в начало зашифрованных данных (первые 8 байт - IV)
+        final ivBytes = iv.bytes;
+        bytesToWrite = Uint8List(ivBytes.length + encryptedBytes.length);
+        bytesToWrite.setRange(0, ivBytes.length, ivBytes);
+        bytesToWrite.setRange(ivBytes.length, bytesToWrite.length, encryptedBytes);
       }
 
       if (!exportFile.existsSync()) {
@@ -202,7 +212,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final file = File(filePath);
 
     if (await file.exists()) {
-      await appDb.overrideDefaultFromFile(newDbFile: file, encryptKey: encryptKey);
+      await appDb.overrideDefaultFromFile(newDbFile: file, keyBase64: keyBase64);
     }
   }
 
@@ -220,7 +230,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
-    await appDb.openTemporaryFromFile(dbFile: file, encryptKey: encryptKey);
+    await appDb.openTemporaryFromFile(dbFile: file, keyBase64: keyBase64);
 
     final planners = await AppDi.instance.getPlannerRepo().getPlanners();
     final lastUpdate =
