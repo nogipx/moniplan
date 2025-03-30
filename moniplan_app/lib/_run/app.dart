@@ -71,10 +71,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
   Widget app(AppTheme theme, Widget home) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create:
-              (context) => ReceiveImportSharingBloc(monisyncRepo: AppDi.instance.getMonisyncRepo()),
-        ),
+        BlocProvider(create: (context) => ReceiveImportSharingBloc(appDi: AppDi.instance)),
         BlocProvider(
           create:
               (context) => LicenseBloc(

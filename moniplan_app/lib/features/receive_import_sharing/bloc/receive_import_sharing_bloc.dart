@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
@@ -16,11 +17,11 @@ part 'receive_import_sharing_state.dart';
 /// Because it depends on platform it could depend on library.
 class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportState> {
   final _log = AppLog('ReceiveImportSharingBloc');
-  final IMonisyncRepo _monisyncRepo;
+  final IAppDi appDi;
+  IMonisyncRepo? _monisyncRepo;
 
-  ReceiveImportSharingBloc({required IMonisyncRepo monisyncRepo, AppLog? log})
-    : _monisyncRepo = monisyncRepo,
-      super(ReceiveImportInitialState()) {
+  ReceiveImportSharingBloc({required this.appDi, AppLog? log})
+    : super(ReceiveImportInitialState()) {
     on<ReceiveImportStartReceiveEvent>(_onStartReceive);
     on<ReceiveImportStopReceiveEvent>(_onStopReceive);
     on<ReceiveImportOnDataEvent>(_onData);
@@ -34,6 +35,8 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     ReceiveImportStartReceiveEvent event,
     Emitter<ReceiveImportState> emit,
   ) async {
+    _monisyncRepo = await appDi.getMonisyncRepo();
+
     if (event.shouldRestart) {
       _intentStream?.cancel();
     } else if (_intentStream != null) {
@@ -57,6 +60,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
   ) {
     _intentStream?.cancel();
     _intentStream = null;
+    _monisyncRepo = null;
 
     emit(ReceiveImportActiveState(isActive: false));
   }
@@ -77,7 +81,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
           continue;
         }
 
-        final backupInfo = await _monisyncRepo.readBackupInfo(file.path);
+        final backupInfo = await _monisyncRepo?.readBackupInfo(file.path);
         if (backupInfo != null) {
           backupInfos.add(backupInfo);
         }
@@ -106,7 +110,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     }
 
     try {
-      await _monisyncRepo.importDataFromFile(filePath: filePath);
+      await _monisyncRepo?.importDataFromFile(filePath: filePath);
       _log.business('Succesfull import db');
       emit(ReceiveImportResultState(result: ReceiveImportResult.imported));
     } on Object catch (error, trace) {

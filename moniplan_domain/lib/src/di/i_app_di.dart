@@ -11,7 +11,9 @@ abstract interface class IAppDi {
 
   IPlannerRepo getPlannerRepo();
 
-  IMonisyncRepo getMonisyncRepo();
+  Future<IMonisyncRepo> getMonisyncRepo();
+
+  Future<IAppEncrypter> getEncrypter(AppEncrypterFactoryArgs args);
 
   IStatisticsRepo getStatisticsRepo();
 

@@ -5,13 +5,13 @@
 import 'dart:typed_data';
 
 import 'package:encrypt/encrypt.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
-import '_interface.dart';
-
-final class Salsa20MonisyncEncrypter implements IMonisyncEncrypter {
+final class Salsa20MonisyncEncrypter extends IAppEncrypter {
   final Encrypter _encrypter;
 
-  Salsa20MonisyncEncrypter({required Encrypter encrypter}) : _encrypter = encrypter;
+  Salsa20MonisyncEncrypter(super.key, {super.enableEncryptionMarker = true})
+    : _encrypter = Encrypter(Salsa20(Key.fromBase64(key.base64Value)));
 
   @override
   Uint8List encryptBytes(Uint8List bytes, {Map<String, dynamic>? options}) {
@@ -21,7 +21,9 @@ final class Salsa20MonisyncEncrypter implements IMonisyncEncrypter {
     }
 
     final salsa20Iv = iv ?? IV.fromLength(8);
-    return _encrypter.encryptBytes(bytes, iv: salsa20Iv).bytes;
+    final encrypted = _encrypter.encryptBytes(bytes, iv: salsa20Iv);
+    final encryptedWithIv = Uint8List.fromList(salsa20Iv.bytes + encrypted.bytes);
+    return super.encryptBytes(encryptedWithIv);
   }
 
   @override
@@ -31,7 +33,8 @@ final class Salsa20MonisyncEncrypter implements IMonisyncEncrypter {
       throw ArgumentError('IV is required for Salsa20 decryption');
     }
 
+    final effectiveBytes = super.decryptBytes(bytes);
     final salsa20Iv = iv ?? IV.fromLength(8);
-    return Uint8List.fromList(_encrypter.decryptBytes(Encrypted(bytes), iv: salsa20Iv));
+    return Uint8List.fromList(_encrypter.decryptBytes(Encrypted(effectiveBytes), iv: salsa20Iv));
   }
 }

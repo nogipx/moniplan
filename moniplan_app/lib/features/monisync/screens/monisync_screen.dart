@@ -3,8 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:io';
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -22,8 +20,8 @@ class MonisyncScreen extends StatefulWidget {
 }
 
 class _MonisyncScreenState extends State<MonisyncScreen> {
-  final _monisyncRepo = AppDi.instance.getMonisyncRepo();
-  final _plannerRepo = AppDi.instance.getPlannerRepo();
+  IMonisyncRepo? _monisyncRepo;
+  final IPlannerRepo _plannerRepo = AppDi.instance.getPlannerRepo();
   final _log = AppLog('MoniSync');
 
   List<Planner> _planners = [];
@@ -36,6 +34,8 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
   }
 
   Future<void> _loadPlanners() async {
+    _monisyncRepo = await AppDi.instance.getMonisyncRepo();
+
     setState(() {
       _isLoading = true;
     });
@@ -222,12 +222,6 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     );
   }
 
-  String _passwordToKey(String password) {
-    final bytes = utf8.encode(password);
-    final digest = sha256.convert(bytes);
-    return base64.encode(digest.bytes);
-  }
-
   Future<void> _exportFilePicker() async {
     // Показываем модальное окно с выбором защиты
     final usePassword =
@@ -271,17 +265,16 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
         ) ??
         false;
 
-    String? customKey;
+    String? password;
 
     if (usePassword) {
-      final password = await _showPasswordDialog(context);
-      if (password == null) {
+      final pass = await _showPasswordDialog(context);
+      if (pass == null) {
         // Пользователь отменил ввод пароля
         return;
       }
 
-      // Конвертируем пароль в ключ через SHA-256
-      customKey = _passwordToKey(password);
+      password = pass;
     }
 
     setState(() {
@@ -290,14 +283,14 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
 
     try {
       final now = DateTime.now();
-      final exportResult = await _monisyncRepo.exportDataToFile(now: now, customKey: customKey);
+      final exportResult = await _monisyncRepo?.exportDataToFile(now: now, password: password);
 
       if (exportResult != null) {
         final bytes = exportResult.file.readAsBytesSync();
 
         final result = await FilePicker.platform.saveFile(
           dialogTitle: 'Сохранение резервной копии',
-          fileName: _monisyncRepo.getBackupFileName(now),
+          fileName: _monisyncRepo?.getBackupFileName(now),
           bytes: bytes,
         );
 
@@ -435,7 +428,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
           true; // По умолчанию используем предсказания
 
       // Экспортируем данные
-      final exportResult = await _monisyncRepo.exportPaymentsToCSV(
+      final exportResult = await _monisyncRepo?.exportPaymentsToCSV(
         plannerId: plannerId,
         usePredictedCategories: usePredictedCategories,
       );
@@ -473,11 +466,11 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
       final filePath = result.files.single.path!;
 
       // Автоматически определяем, защищен ли файл паролем
-      final isPasswordProtected = await _monisyncRepo.isFilePasswordProtected(filePath);
+      final isPasswordProtected = await _monisyncRepo?.isFilePasswordProtected(filePath);
 
-      String? customKey;
+      String? password;
 
-      if (isPasswordProtected) {
+      if (isPasswordProtected ?? false) {
         // Показываем информационный диалог
         await showDialog(
           context: context,
@@ -501,14 +494,14 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
               ),
         );
 
-        final password = await _showPasswordDialog(context, isExport: false);
-        if (password == null) {
+        final pass = await _showPasswordDialog(context, isExport: false);
+        if (pass == null) {
           // Пользователь отменил ввод пароля
           return;
         }
 
         // Конвертируем пароль в ключ через SHA-256
-        customKey = _passwordToKey(password);
+        password = pass;
       }
 
       try {
@@ -518,14 +511,16 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
 
         // customKey = _passwordToKey('041020');
 
-        await _monisyncRepo.importDataFromFile(filePath: filePath, customKey: customKey);
+        await _monisyncRepo?.importDataFromFile(filePath: filePath, password: password);
 
         showToast('Данные успешно импортированы');
         await _loadPlanners(); // Перезагружаем планеры после импорта
       } catch (e) {
         _log.error('Ошибка импорта', error: e);
         showToast(
-          isPasswordProtected ? 'Ошибка импорта: неверный пароль' : 'Ошибка при импорте данных',
+          isPasswordProtected ?? false
+              ? 'Ошибка импорта: неверный пароль'
+              : 'Ошибка при импорте данных',
         );
 
         // Показываем подробное сообщение об ошибке
@@ -540,7 +535,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
                     Icon(Icons.error_outline, size: 48, color: Colors.red),
                     SizedBox(height: 16),
                     Text(
-                      isPasswordProtected
+                      isPasswordProtected ?? false
                           ? 'Не удалось расшифровать файл. Проверьте правильность введенного пароля.'
                           : 'Не удалось импортировать данные. Возможно, файл поврежден.',
                     ),

@@ -5,30 +5,24 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/monisync/encrypters/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MonisyncRepoImpl implements IMonisyncRepo {
-  // Маркер для зашифрованных файлов
-  static const _encryptedFileMarker = 'ENCRYPTED:';
-  static final _markerBytes = Uint8List.fromList(_encryptedFileMarker.codeUnits);
-
-  final String keyBase64;
+  final IAppEncrypter encrypter;
   final AppDb appDb;
 
-  MonisyncRepoImpl({required this.appDb, required this.keyBase64});
+  MonisyncRepoImpl({required this.encrypter, required this.appDb});
 
   @override
   Future<ExportResult?> exportDataToFile({
     required DateTime now,
     String targetFilePath = '',
-    String? customKey,
+    String? password,
   }) async {
     final dbFile = await getDatabaseFile();
     final file = File(dbFile.path);
@@ -46,26 +40,18 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       final originalBytes = await file.readAsBytes();
       Uint8List bytesToWrite = originalBytes;
 
-      // Используем пользовательский ключ, если он предоставлен, иначе стандартный
-      final keyToUse = customKey ?? keyBase64;
-
-      if (keyToUse.isNotEmpty) {
-        final iv = encrypt.IV.fromSecureRandom(8); // Используем IV длиной 8 байт для Salsa20
-        final encryptionHelper = Salsa20MonisyncEncrypter(
-          encrypter: encrypt.Encrypter(encrypt.Salsa20(encrypt.Key.fromBase64(keyBase64))),
+      // Если передан пользовательский ключ, создаем соответствующий энкриптер
+      if (password != null && password.isNotEmpty) {
+        // Используем PasswordMonisyncEncrypter для шифрования с паролем
+        final passwordEncrypter = await AppDi.instance.getEncrypter(
+          AppEncrypterFactoryArgs(password: password),
         );
-        final encryptedBytes = encryptionHelper.encryptBytes(originalBytes, options: {'iv': iv});
 
-        // Добавляем маркер защищенного файла и IV в начало зашифрованных данных
-        final ivBytes = iv.bytes;
-        bytesToWrite = Uint8List(_markerBytes.length + ivBytes.length + encryptedBytes.length);
-        bytesToWrite.setRange(0, _markerBytes.length, _markerBytes);
-        bytesToWrite.setRange(_markerBytes.length, _markerBytes.length + ivBytes.length, ivBytes);
-        bytesToWrite.setRange(
-          _markerBytes.length + ivBytes.length,
-          bytesToWrite.length,
-          encryptedBytes,
-        );
+        // Шифруем данные
+        bytesToWrite = passwordEncrypter.encryptBytes(originalBytes);
+      } else {
+        // Используем стандартный энкриптер, переданный в конструктор
+        bytesToWrite = encrypter.encryptBytes(originalBytes);
       }
 
       if (!exportFile.existsSync()) {
@@ -233,27 +219,60 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       final bytes = await file.readAsBytes();
 
       // Проверяем наличие маркера защищенного файла
-      if (bytes.length < _markerBytes.length) {
+      if (bytes.length < IAppEncrypter.encryptMarkerBytes.length) {
         return false;
       }
 
-      final marker = bytes.sublist(0, _markerBytes.length);
+      final marker = bytes.sublist(0, IAppEncrypter.encryptMarkerBytes.length);
       final markerString = String.fromCharCodes(marker);
 
-      return markerString == _encryptedFileMarker;
+      return markerString.startsWith(IAppEncrypter.encryptMarker);
     } catch (e) {
       return false;
     }
   }
 
   @override
-  Future<void> importDataFromFile({required String filePath, String? customKey}) async {
+  Future<void> importDataFromFile({required String filePath, String? password}) async {
     final file = File(filePath);
 
     if (await file.exists()) {
-      // Используем пользовательский ключ, если он предоставлен, иначе стандартный
-      final keyToUse = customKey ?? keyBase64;
-      await appDb.overrideDefaultFromFile(newDbFile: file, keyBase64: keyToUse);
+      final bytes = await file.readAsBytes();
+      bool isEncrypted = await isFilePasswordProtected(filePath);
+
+      if (isEncrypted && password != null && password.isNotEmpty) {
+        // Если файл зашифрован и предоставлен пароль, создаем временный файл с расшифрованными данными
+        final passwordEncrypter = await AppDi.instance.getEncrypter(
+          AppEncrypterFactoryArgs(password: password),
+        );
+
+        try {
+          // Расшифровываем данные
+          final decryptedBytes = passwordEncrypter.decryptBytes(bytes);
+
+          // Создаем временный файл
+          final tempDir = await getTemporaryDirectory();
+          final tempFile = File(
+            '${tempDir.path}/temp_db_${DateTime.now().millisecondsSinceEpoch}.db',
+          );
+          await tempFile.writeAsBytes(decryptedBytes);
+
+          // Импортируем из временного файла
+          await appDb.overrideDefaultFromFile(newDbFile: tempFile, encrypter: passwordEncrypter);
+
+          // Удаляем временный файл
+          if (await tempFile.exists()) {
+            await tempFile.delete();
+          }
+        } catch (e) {
+          throw Exception('Не удалось расшифровать файл. Возможно, пароль неверный: $e');
+        }
+      } else if (isEncrypted && (password == null || password.isEmpty)) {
+        throw Exception('Для импорта зашифрованного файла требуется пароль');
+      } else {
+        // Файл не зашифрован, просто импортируем
+        await appDb.overrideDefaultFromFile(newDbFile: file, encrypter: encrypter);
+      }
     }
   }
 
@@ -271,7 +290,16 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
-    await appDb.openTemporaryFromFile(dbFile: file, keyBase64: keyBase64);
+    // Проверяем, не является ли файл зашифрованным
+    final isEncrypted = await isFilePasswordProtected(cleanedPath);
+
+    if (isEncrypted) {
+      // Если файл зашифрован, возвращаем информацию только о файле без содержимого
+      return BackupInfo(file: File(filePath), creationDate: null, plannersCount: 0);
+    }
+
+    // Для незашифрованных файлов - стандартная логика
+    await appDb.openTemporaryFromFile(dbFile: file, encrypter: encrypter);
 
     final planners = await AppDi.instance.getPlannerRepo().getPlanners();
     final lastUpdate =

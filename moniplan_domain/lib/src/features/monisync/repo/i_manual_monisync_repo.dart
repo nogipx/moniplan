@@ -21,12 +21,12 @@ class BackupInfo {
 abstract interface class IMonisyncRepo {
   String getBackupFileName(DateTime date);
 
-  Future<void> importDataFromFile({required String filePath, String? customKey});
+  Future<void> importDataFromFile({required String filePath, String? password});
 
   Future<ExportResult?> exportDataToFile({
     required DateTime now,
     String targetFilePath = '',
-    String? customKey,
+    String? password,
   });
 
   /// Проверяет, защищен ли файл паролем
