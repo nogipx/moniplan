@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:io';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -125,12 +127,172 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
   //   }
   // }
 
-  Future<void> _exportFilePicker() async {
-    final now = DateTime.now();
-    final exportResult = await _monisyncRepo.exportDataToFile(now: now);
+  // Улучшенный UI для ввода пароля с дополнительными функциями
+  Future<String?> _showPasswordDialog(BuildContext context, {bool isExport = true}) {
+    final controller = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool showPassword = false;
 
-    if (exportResult != null) {
-      try {
+    return showDialog<String>(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setState) => AlertDialog(
+                  title: Text(
+                    isExport ? 'Защита экспорта' : 'Ввод пароля',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  content: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isExport
+                              ? 'Создайте пароль для защиты ваших данных'
+                              : 'Введите пароль для расшифровки файла',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: controller,
+                          obscureText: !showPassword,
+                          decoration: InputDecoration(
+                            labelText: 'Пароль',
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            suffixIcon: IconButton(
+                              icon: Icon(showPassword ? Icons.visibility_off : Icons.visibility),
+                              onPressed: () => setState(() => showPassword = !showPassword),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                          ),
+                          validator: (value) {
+                            if (isExport && (value == null || value.length < 6)) {
+                              return 'Пароль должен содержать минимум 6 символов';
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        if (isExport)
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.red.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.warning_amber, color: Colors.red),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Запомните этот пароль! Без него вы не сможете восстановить данные.',
+                                    style: TextStyle(fontSize: 12, color: Colors.red.shade800),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Отмена')),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (!isExport || formKey.currentState!.validate()) {
+                          Navigator.of(context).pop(controller.text);
+                        }
+                      },
+                      child: Text('Подтвердить'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  ],
+                ),
+          ),
+    );
+  }
+
+  String _passwordToKey(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return base64.encode(digest.bytes);
+  }
+
+  Future<void> _exportFilePicker() async {
+    // Показываем модальное окно с выбором защиты
+    final usePassword =
+        await showModalBottomSheet<bool>(
+          context: context,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          builder:
+              (context) => Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Экспорт данных',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Выберите вариант защиты экспортируемых данных:',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(height: 24),
+                    ListTile(
+                      leading: Icon(Icons.no_encryption, color: Colors.grey),
+                      title: Text('Без защиты'),
+                      subtitle: Text('Любой сможет импортировать файл без пароля'),
+                      onTap: () => Navigator.of(context).pop(false),
+                    ),
+                    Divider(),
+                    ListTile(
+                      leading: Icon(Icons.enhanced_encryption, color: Colors.green),
+                      title: Text('Защита паролем'),
+                      subtitle: Text('Для импорта файла потребуется ввести пароль'),
+                      onTap: () => Navigator.of(context).pop(true),
+                    ),
+                  ],
+                ),
+              ),
+        ) ??
+        false;
+
+    String? customKey;
+
+    if (usePassword) {
+      final password = await _showPasswordDialog(context);
+      if (password == null) {
+        // Пользователь отменил ввод пароля
+        return;
+      }
+
+      // Конвертируем пароль в ключ через SHA-256
+      customKey = _passwordToKey(password);
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final now = DateTime.now();
+      final exportResult = await _monisyncRepo.exportDataToFile(now: now, customKey: customKey);
+
+      if (exportResult != null) {
         final bytes = exportResult.file.readAsBytesSync();
 
         final result = await FilePicker.platform.saveFile(
@@ -141,13 +303,49 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
 
         if (result != null) {
           final saveFile = await File(result).writeAsBytes(bytes);
-          showToast('Резервная копия сохранена: ${saveFile.path}');
+
+          showToast(
+            usePassword ? 'Резервная копия с паролем сохранена' : 'Резервная копия сохранена',
+          );
+
+          // Показываем диалог успешного экспорта
+          if (usePassword) {
+            await showDialog(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                    title: Text('Экспорт завершен'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check_circle, size: 48, color: Colors.green),
+                        SizedBox(height: 16),
+                        Text('Резервная копия успешно сохранена и защищена паролем.'),
+                        SizedBox(height: 8),
+                        Text(
+                          'Не забудьте пароль, иначе вы не сможете восстановить данные!',
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text('ОК'),
+                      ),
+                    ],
+                  ),
+            );
+          }
         }
-      } on Object catch (error, trace) {
-        _log.error('Ошибка экспорта', error: error, trace: trace);
-        showToast('Ошибка при экспорте данных');
-        rethrow;
       }
+    } on Object catch (error, trace) {
+      _log.error('Ошибка экспорта', error: error, trace: trace);
+      showToast('Ошибка при экспорте данных');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -273,16 +471,89 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
 
     if (result != null) {
       final filePath = result.files.single.path!;
+
+      // Автоматически определяем, защищен ли файл паролем
+      final isPasswordProtected = await _monisyncRepo.isFilePasswordProtected(filePath);
+
+      String? customKey;
+
+      if (isPasswordProtected) {
+        // Показываем информационный диалог
+        await showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: Text('Файл защищен паролем'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.lock, size: 48, color: Colors.amber),
+                    SizedBox(height: 16),
+                    Text('Выбранный файл защищен паролем. Введите пароль для расшифровки.'),
+                  ],
+                ),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('Понятно'),
+                  ),
+                ],
+              ),
+        );
+
+        final password = await _showPasswordDialog(context, isExport: false);
+        if (password == null) {
+          // Пользователь отменил ввод пароля
+          return;
+        }
+
+        // Конвертируем пароль в ключ через SHA-256
+        customKey = _passwordToKey(password);
+      }
+
       try {
-        await _monisyncRepo.importDataFromFile(filePath: filePath);
+        setState(() {
+          _isLoading = true;
+        });
+
+        await _monisyncRepo.importDataFromFile(filePath: filePath, customKey: customKey);
+
         showToast('Данные успешно импортированы');
         await _loadPlanners(); // Перезагружаем планеры после импорта
       } catch (e) {
         _log.error('Ошибка импорта', error: e);
-        showToast('Ошибка при импорте данных');
+        showToast(
+          isPasswordProtected ? 'Ошибка импорта: неверный пароль' : 'Ошибка при импорте данных',
+        );
+
+        // Показываем подробное сообщение об ошибке
+        await showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: Text('Ошибка импорта'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.error_outline, size: 48, color: Colors.red),
+                    SizedBox(height: 16),
+                    Text(
+                      isPasswordProtected
+                          ? 'Не удалось расшифровать файл. Проверьте правильность введенного пароля.'
+                          : 'Не удалось импортировать данные. Возможно, файл поврежден.',
+                    ),
+                  ],
+                ),
+                actions: [
+                  ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: Text('ОК')),
+                ],
+              ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
-    } else {
-      // User canceled the picker
     }
   }
 }

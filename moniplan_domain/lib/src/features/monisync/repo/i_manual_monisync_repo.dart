@@ -21,9 +21,16 @@ class BackupInfo {
 abstract interface class IMonisyncRepo {
   String getBackupFileName(DateTime date);
 
-  Future<void> importDataFromFile({required String filePath});
+  Future<void> importDataFromFile({required String filePath, String? customKey});
 
-  Future<ExportResult?> exportDataToFile({required DateTime now, String targetFilePath = ''});
+  Future<ExportResult?> exportDataToFile({
+    required DateTime now,
+    String targetFilePath = '',
+    String? customKey,
+  });
+
+  /// Проверяет, защищен ли файл паролем
+  Future<bool> isFilePasswordProtected(String filePath);
 
   /// Экспортирует данные платежей в CSV файл с предсказанными категориями
   ///

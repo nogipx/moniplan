@@ -83,10 +83,24 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       Uint8List tempBytes = newBytes;
 
       if (keyBase64.isNotEmpty) {
-        // Извлекаем IV из начала файла (первые 8 байт для Salsa20)
-        final ivBytes = newBytes.sublist(0, 8);
+        // Проверяем наличие маркера зашифрованного файла
+        const markerText = 'ENCRYPTED:';
+        final markerBytes = markerText.codeUnits;
+
+        int ivOffset = 0;
+        if (newBytes.length > markerBytes.length) {
+          final possibleMarker = newBytes.sublist(0, markerBytes.length);
+          final markerString = String.fromCharCodes(possibleMarker);
+
+          if (markerString == markerText) {
+            ivOffset = markerBytes.length;
+          }
+        }
+
+        // Извлекаем IV из файла после маркера (если он есть)
+        final ivBytes = newBytes.sublist(ivOffset, ivOffset + 8);
         final iv = encrypt.IV(ivBytes);
-        final encryptedData = newBytes.sublist(8);
+        final encryptedData = newBytes.sublist(ivOffset + 8);
 
         final encryptionHelper = AesMonisyncEncrypter(keyBase64);
         tempBytes = encryptionHelper.decryptBytes(encryptedData, options: {'iv': iv});
@@ -121,6 +135,29 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       if (keyBase64.isNotEmpty) {
         final encryptionHelper = AesMonisyncEncrypter(keyBase64);
         tempBytes = encryptionHelper.decryptBytes(newBytes);
+        // Проверяем наличие маркера зашифрованного файла
+        const markerText = 'ENCRYPTED:';
+        final markerBytes = markerText.codeUnits;
+
+        int ivOffset = 0;
+        if (newBytes.length > markerBytes.length) {
+          final possibleMarker = newBytes.sublist(0, markerBytes.length);
+          final markerString = String.fromCharCodes(possibleMarker);
+
+          if (markerString == markerText) {
+            ivOffset = markerBytes.length;
+          }
+        }
+
+        // Извлекаем IV из файла после маркера (если он есть)
+        final ivBytes = newBytes.sublist(ivOffset, ivOffset + 8);
+        final iv = encrypt.IV(ivBytes);
+        final encryptedData = newBytes.sublist(ivOffset + 8);
+
+        final encryptionHelper = EncryptionHelper(
+          encrypter: encrypt.Encrypter(encrypt.Salsa20(encrypt.Key.fromBase64(keyBase64))),
+        );
+        tempBytes = encryptionHelper.decryptBytes(encryptedData, iv: iv);
       }
 
       final dbFile = await getDatabaseFile();

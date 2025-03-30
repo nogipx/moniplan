@@ -15,6 +15,10 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MonisyncRepoImpl implements IMonisyncRepo {
+  // Маркер для зашифрованных файлов
+  static const _encryptedFileMarker = 'ENCRYPTED:';
+  static final _markerBytes = Uint8List.fromList(_encryptedFileMarker.codeUnits);
+
   final String keyBase64;
   final AppDb appDb;
 
@@ -24,8 +28,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   Future<ExportResult?> exportDataToFile({
     required DateTime now,
     String targetFilePath = '',
+    String? customKey,
   }) async {
-    final file = await getDatabaseFile();
+    final dbFile = await getDatabaseFile();
+    final file = File(dbFile.path);
 
     if (await file.exists()) {
       File exportFile;
@@ -40,18 +46,26 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       final originalBytes = await file.readAsBytes();
       Uint8List bytesToWrite = originalBytes;
 
-      if (keyBase64.isNotEmpty) {
+      // Используем пользовательский ключ, если он предоставлен, иначе стандартный
+      final keyToUse = customKey ?? keyBase64;
+
+      if (keyToUse.isNotEmpty) {
         final iv = encrypt.IV.fromSecureRandom(8); // Используем IV длиной 8 байт для Salsa20
         final encryptionHelper = Salsa20MonisyncEncrypter(
           encrypter: encrypt.Encrypter(encrypt.Salsa20(encrypt.Key.fromBase64(keyBase64))),
         );
         final encryptedBytes = encryptionHelper.encryptBytes(originalBytes, options: {'iv': iv});
 
-        // Добавляем IV в начало зашифрованных данных (первые 8 байт - IV)
+        // Добавляем маркер защищенного файла и IV в начало зашифрованных данных
         final ivBytes = iv.bytes;
-        bytesToWrite = Uint8List(ivBytes.length + encryptedBytes.length);
-        bytesToWrite.setRange(0, ivBytes.length, ivBytes);
-        bytesToWrite.setRange(ivBytes.length, bytesToWrite.length, encryptedBytes);
+        bytesToWrite = Uint8List(_markerBytes.length + ivBytes.length + encryptedBytes.length);
+        bytesToWrite.setRange(0, _markerBytes.length, _markerBytes);
+        bytesToWrite.setRange(_markerBytes.length, _markerBytes.length + ivBytes.length, ivBytes);
+        bytesToWrite.setRange(
+          _markerBytes.length + ivBytes.length,
+          bytesToWrite.length,
+          encryptedBytes,
+        );
       }
 
       if (!exportFile.existsSync()) {
@@ -209,11 +223,37 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   @override
-  Future<void> importDataFromFile({required String filePath}) async {
+  Future<bool> isFilePasswordProtected(String filePath) async {
+    try {
+      final file = File(filePath);
+      if (!await file.exists()) {
+        return false;
+      }
+
+      final bytes = await file.readAsBytes();
+
+      // Проверяем наличие маркера защищенного файла
+      if (bytes.length < _markerBytes.length) {
+        return false;
+      }
+
+      final marker = bytes.sublist(0, _markerBytes.length);
+      final markerString = String.fromCharCodes(marker);
+
+      return markerString == _encryptedFileMarker;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> importDataFromFile({required String filePath, String? customKey}) async {
     final file = File(filePath);
 
     if (await file.exists()) {
-      await appDb.overrideDefaultFromFile(newDbFile: file, keyBase64: keyBase64);
+      // Используем пользовательский ключ, если он предоставлен, иначе стандартный
+      final keyToUse = customKey ?? keyBase64;
+      await appDb.overrideDefaultFromFile(newDbFile: file, keyBase64: keyToUse);
     }
   }
 
