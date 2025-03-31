@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'dart:collection';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -9,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/monisync/keys.dart';
+import 'package:moniplan_app/features/payment/repo/payment_planner_repo_drift.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -41,27 +43,17 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       final originalBytes = await file.readAsBytes();
       Uint8List bytesToWrite = originalBytes;
 
-      // Если передан пользовательский ключ, создаем соответствующий энкриптер
-      if (password != null && password.isNotEmpty) {
-        // Используем PasswordMonisyncEncrypter для шифрования с паролем
-        final passwordEncrypter = await AppDi.instance.getEncrypter(
-          AppEncrypterFactoryArgs(password: password),
-        );
+      // Используем PasswordMonisyncEncrypter для шифрования с паролем
+      final encrypter = await AppDi.instance.getEncrypter(
+        AppEncrypterFactoryArgs(
+          password: password ?? '',
+          preferNewEncryption: true,
+          enableMetadata: true,
+        ),
+      );
 
-        // Шифруем данные с автоматическим добавлением метаданных
-        bytesToWrite = passwordEncrypter.encryptBytes(
-          originalBytes,
-          options: {'addMetadata': true},
-        );
-      } else {
-        // Используем стандартный энкриптер, переданный в конструктор,
-        // и добавляем метаданные о том, что файл не зашифрован паролем
-        bytesToWrite = BackupMetadata.addMetadataToBytes(
-          originalBytes,
-          isEncrypted: false,
-          hasPassword: false,
-        );
-      }
+      // Шифруем данные с автоматическим добавлением метаданных
+      bytesToWrite = encrypter.encryptBytes(originalBytes);
 
       if (!exportFile.existsSync()) {
         await exportFile.create();
@@ -111,9 +103,8 @@ class MonisyncRepoImpl implements IMonisyncRepo {
           await predictor.initialize();
           _log.debug('Предиктор категорий инициализирован');
         }
-      } catch (e) {
-        _log.error('Ошибка при получении или инициализации предиктора: $e');
-        _log.error('Стек ошибки: ${StackTrace.current}');
+      } catch (e, trace) {
+        _log.error('Ошибка при получении или инициализации предиктора: $e', trace: trace);
       }
     }
 
@@ -170,10 +161,9 @@ class MonisyncRepoImpl implements IMonisyncRepo {
           } else {
             _log.debug('Нет предсказаний для платежа: ${payment.details.name}');
           }
-        } catch (e) {
+        } catch (e, trace) {
           // Игнорируем ошибки предсказания
-          _log.error('Ошибка предсказания категории для платежа $id: $e');
-          _log.error('Стек ошибки: ${StackTrace.current}');
+          _log.error('Ошибка предсказания категории для платежа $id: $e', trace: trace);
         }
       }
 
@@ -241,7 +231,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   @override
-  Future<void> importDataFromFile({required String filePath, String? password}) async {
+  Future<void> importDataFromFile({required String filePath, String? password = '041020'}) async {
     final file = File(filePath);
     if (!await file.exists()) {
       throw Exception('Файл не найден');
@@ -250,40 +240,20 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     final bytes = await file.readAsBytes();
     final (_, originalBytes) = BackupMetadata.extractMetadataFromBytes(bytes);
 
-    Uint8List decryptedBytes = originalBytes;
-    for (final key in [
-      OldMockedEncryptionKey(),
-      OldEnviedEncryptionKey(),
-      MonisyncEncryptionKeyV2(),
-    ]) {
-      try {
-        final encrypter =
-            key is MonisyncEncryptionKeyV2
-                ? Salsa20MonisyncEncrypter(key, enableMetadata: true)
-                : AesMonisyncEncrypter(key, enableMetadata: true);
-        decryptedBytes = encrypter.decryptBytes(bytes);
-        break;
-      } catch (_) {
-        continue;
-      }
+    final decryptedBytes = await _tryDecrypt(originalBytes, password: password);
+    if (decryptedBytes == null) {
+      throw Exception('Не удалось расшифровать файл');
     }
-
-    // Создаем временный файл без метаданных
-    final tempDir = await getTemporaryDirectory();
-    final tempFile = File('${tempDir.path}/temp_db_${DateTime.now().millisecondsSinceEpoch}.db');
-    await tempFile.writeAsBytes(decryptedBytes);
 
     // Импортируем из временного файла
-    await appDb.overrideDefaultFromFile(newDbFile: tempFile);
-
-    // Удаляем временный файл
-    if (await tempFile.exists()) {
-      await tempFile.delete();
-    }
+    await appDb.overwriteWithBytes(bytes: decryptedBytes);
   }
 
   @override
-  Future<BackupInfo?> readBackupInfo(String filePath, IAppEncrypter encrypter) async {
+  Future<BackupInfo?> readBackupInfo({
+    required String filePath,
+    String? password = '041020',
+  }) async {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
@@ -292,105 +262,81 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     }
 
     final bytes = await file.readAsBytes();
-    final (_, originalBytes) = BackupMetadata.extractMetadataFromBytes(bytes);
+    final (metadata, originalBytes) = BackupMetadata.extractMetadataFromBytes(bytes);
+    Uint8List? effectiveBytes = originalBytes;
 
-    Uint8List decryptedBytes = originalBytes;
-    for (final key in [
-      OldMockedEncryptionKey(),
-      OldEnviedEncryptionKey(),
-      MonisyncEncryptionKeyV2(),
-    ]) {
+    // Пытаемся расшифровать файл
+    effectiveBytes = await _tryDecrypt(originalBytes, password: password);
+
+    // Если расшифровать не удалось, но есть метаданные - возвращаем базовую информацию
+    if (effectiveBytes == null) {
+      return BackupInfo(
+        file: File(filePath),
+        creationDate: null,
+        plannersCount: 0,
+        backupMetadata: metadata,
+        isLegacyBackup: false,
+        additionalInfo:
+            metadata.isEncrypted == true
+                ? {'key_type': metadata.hasPassword ? 'password' : 'app_key', 'format': 'metadata'}
+                : {'error': 'Не удалось расшифровать файл'},
+      );
+    }
+
+    await AppDb.instance.close();
+    await driftWriteTemporary(bytes: effectiveBytes);
+
+    final tempDb = AppDb.detachedInMemory();
+    await tempDb.open();
+    final plannerRepo = PlannerRepoDrift(appDb: tempDb);
+
+    final planners = await plannerRepo.getPlanners();
+    final lastUpdate =
+        await tempDb.db.managers.globalLastUpdate
+            .filter((f) => f.lastUpdateId.equals('1'))
+            .getSingleOrNull();
+    await tempDb.close();
+
+    await AppDb.instance.open();
+
+    return BackupInfo(
+      file: File(filePath),
+      creationDate: lastUpdate?.updatedAt,
+      plannersCount: planners.length,
+      isLegacyBackup: false,
+      backupMetadata: metadata,
+    );
+  }
+
+  Future<Uint8List?> _tryDecrypt(Uint8List bytes, {String? password}) async {
+    return _tryDecryptWithKeys(
+      bytes,
+      LinkedHashMap.from({
+        OldMockedEncryptionKey(): (key) => AesMonisyncEncrypter(key, enableMetadata: true),
+        OldEnviedEncryptionKey(): (key) => AesMonisyncEncrypter(key, enableMetadata: true),
+        MonisyncEncryptionKeyV2(): (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
+        if (password != null)
+          PasswordEncryptionKey.fromPassword(password):
+              (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
+      }),
+    );
+  }
+
+  Future<Uint8List?> _tryDecryptWithKeys(
+    Uint8List bytes,
+    Map<AppEncryptionKey, IAppEncrypter Function(AppEncryptionKey)> keyToEncrypter,
+  ) async {
+    for (final key in keyToEncrypter.keys) {
       try {
-        final encrypter =
-            key is MonisyncEncryptionKeyV2
-                ? Salsa20MonisyncEncrypter(key, enableMetadata: true)
-                : AesMonisyncEncrypter(key, enableMetadata: true);
-        decryptedBytes = encrypter.decryptBytes(bytes);
-        break;
+        final encrypter = keyToEncrypter[key]!(key);
+        final decryptedBytes = encrypter.decryptBytes(bytes);
+        return decryptedBytes;
       } catch (_) {
         continue;
       }
     }
 
-    // Проверяем, есть ли у файла метаданные
-    if (IAppEncrypter.hasMetadata(bytes)) {
-      final metadata = IAppEncrypter.extractMetadata(bytes);
-      if (metadata?.isEncrypted == true) {
-        // Если файл зашифрован, возвращаем информацию только о файле без содержимого
-        return BackupInfo(
-          file: File(filePath),
-          creationDate: null,
-          plannersCount: 0,
-          backupMetadata: metadata,
-          isLegacyBackup: false,
-          additionalInfo: {
-            'key_type': metadata?.hasPassword == true ? 'password' : 'app_key',
-            'format': 'metadata',
-          },
-        );
-      }
-    }
-
-    // Для незашифрованных файлов - стандартная логика
-    try {
-      final tempDir = await getTemporaryDirectory();
-      final dbFile = File('${tempDir.path}/temp_db_${DateTime.now().millisecondsSinceEpoch}.db');
-
-      Uint8List? decryptedBytes;
-      AppEncryptionKey? encryptionKey;
-      BackupMetadata? backupMetadata;
-      for (final key in [OldMockedEncryptionKey(), OldEnviedEncryptionKey()]) {
-        try {
-          final encrypter = AesMonisyncEncrypter(key, enableMetadata: true);
-          decryptedBytes = encrypter.decryptBytes(bytes);
-          backupMetadata = BackupMetadata.fromBytes(bytes);
-
-          encryptionKey = key;
-          break;
-        } catch (_) {
-          continue;
-        }
-      }
-
-      if (decryptedBytes == null) {
-        throw Exception('Не удалось расшифровать файл');
-      }
-      await dbFile.writeAsBytes(decryptedBytes);
-      await appDb.openTemporaryFromFile(dbFile: dbFile);
-
-      final planners = await AppDi.instance.getPlannerRepo().getPlanners();
-      final lastUpdate =
-          await appDb.db.managers.globalLastUpdate
-              .filter((f) => f.lastUpdateId.equals('1'))
-              .getSingleOrNull();
-
-      await appDb.openDefault();
-
-      return BackupInfo(
-        file: File(filePath),
-        creationDate: lastUpdate?.updatedAt,
-        plannersCount: planners.length,
-        isLegacyBackup: false,
-        backupMetadata: backupMetadata,
-        encryptionKey: encryptionKey,
-      );
-    } catch (e) {
-      _log.error('Ошибка при чтении информации о бекапе: $e');
-
-      try {
-        await appDb.openDefault();
-      } catch (_) {}
-
-      // Если не удалось открыть файл, возвращаем базовую информацию
-      return BackupInfo(
-        file: File(filePath),
-        creationDate: null,
-        plannersCount: 0,
-        isLegacyBackup: false,
-        backupMetadata: BackupMetadata(isEncrypted: false, hasPassword: false),
-        additionalInfo: {'error': e.toString()},
-      );
-    }
+    return null;
   }
 
   @override

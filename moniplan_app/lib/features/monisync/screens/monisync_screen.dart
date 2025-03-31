@@ -740,15 +740,9 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
 
     if (result != null) {
       final filePath = result.files.single.path!;
-      final (metadata, bytes) = BackupMetadata.extractMetadataFromBytes(
-        File(filePath).readAsBytesSync(),
-      );
-      final appEncrypter = await AppDi.instance.getEncrypter(
-        AppEncrypterFactoryArgs(forceUseSavedPassword: metadata.hasPassword),
-      );
 
       // Получаем информацию о файле бэкапа
-      final backupInfo = await _monisyncRepo?.readBackupInfo(filePath, appEncrypter);
+      final backupInfo = await _monisyncRepo?.readBackupInfo(filePath: filePath);
 
       if (backupInfo == null) {
         showToast('Не удалось прочитать информацию о файле');

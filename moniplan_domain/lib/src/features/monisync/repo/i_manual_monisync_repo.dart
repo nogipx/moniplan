@@ -63,5 +63,5 @@ abstract interface class IMonisyncRepo {
 
   Future<bool> checkNeedSync();
 
-  Future<BackupInfo?> readBackupInfo(String filePath, IAppEncrypter encrypter);
+  Future<BackupInfo?> readBackupInfo({required String filePath, String? password});
 }

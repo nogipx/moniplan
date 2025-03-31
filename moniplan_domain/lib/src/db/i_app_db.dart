@@ -2,18 +2,16 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'dart:io';
+import 'dart:typed_data';
 
 typedef IAppDbFactory = IAppDb Function();
 
 abstract class IAppDb {
   Future<void> close();
 
-  Future<void> openDefault();
+  Future<void> open();
 
-  Future<void> overrideDefaultFromFile({required File newDbFile});
-
-  Future<void> openTemporaryFromFile({required File dbFile});
+  Future<void> overwriteWithBytes({required Uint8List bytes});
 
   Future<String> getPath();
 }

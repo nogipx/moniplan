@@ -27,13 +27,16 @@ class GetItAppDI implements AppDi {
 
   @override
   Future<void> setup() async {
-    AppDb.factory = () => AppDbImpl();
+    final dbImpl = AppDbImpl(getDatabaseFile, log: AppLog('AppDbImpl'));
+    _getIt.registerSingleton<AppDbImpl>(dbImpl, dispose: (impl) => impl.close());
+
+    AppDb.factory = () => dbImpl;
     final db = AppDb();
-    await db.openDefault();
+    await db.open();
 
     _getIt.registerSingleton<AppDb>(db);
     _getIt.registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform);
-    _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: db));
+    _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: dbImpl));
 
     _getIt.registerFactoryParamAsync<IAppEncrypter, AppEncrypterFactoryArgs, dynamic>(
       encrypterFactory,

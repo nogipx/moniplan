@@ -17,7 +17,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 Future<void> main() async {
-  AppLog.factory = (name) => ConsoleAppLog(name);
+  AppLog.factory =
+      (name) => ConsoleAppLog(name, skipPathContainsPaths: {'console_log'}, skipFrames: 2);
   AppDi.instance = GetItAppDI();
 
   final zoneLog = AppLog('ZoneGuarded');

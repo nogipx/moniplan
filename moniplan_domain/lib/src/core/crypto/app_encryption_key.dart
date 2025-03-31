@@ -57,7 +57,7 @@ base class PasswordEncryptionKey extends AppEncryptionKey {
   String get id => 'password_hashed_encryption_key';
 
   @override
-  String get rawValue => utf8.decode(_passwordDigest);
+  String get rawValue => base64.encode(_passwordDigest);
 
   @override
   String get base64Value => base64.encode(_passwordDigest);

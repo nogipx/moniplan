@@ -82,7 +82,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
         ),
       ],
       child: AnimatedBuilder(
-        animation: AppDbImpl(),
+        animation: AppDi.instance.get<AppDbImpl>(),
         builder: (context, _) {
           return OKToast(
             child: MaterialApp(

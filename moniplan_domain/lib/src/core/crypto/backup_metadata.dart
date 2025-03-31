@@ -89,6 +89,8 @@ class BackupMetadata {
     }
 
     final metadata = BackupMetadata.fromBytes(bytes);
+
+    // Отрезаем все до и включая сепаратор
     final originalBytes = bytes.sublist(separatorIndex + 1);
 
     return (metadata, originalBytes);

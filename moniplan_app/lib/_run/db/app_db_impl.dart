@@ -8,31 +8,27 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:moniplan_app/_run/_index.dart';
-import 'package:moniplan_app/_run/db/drift_open_temporary_connection.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 class AppDbImpl extends ChangeNotifier implements AppDb {
-  static AppDbImpl? _instance;
-  static AppLog? _log;
   static const _reopenWaitDuration = Duration(milliseconds: 500);
 
-  MoniplanDriftDb? _db;
   StreamSubscription? _listenChanges;
+  AppLog? _log;
 
   @override
   MoniplanDriftDb get db => _db!;
+  MoniplanDriftDb? _db;
 
-  AppDbImpl._();
+  final SqliteFileProvider _dbFileProvider;
+  final bool _inMemory;
 
-  factory AppDbImpl() {
-    _log ??= AppLog('AppDbImpl');
-    if (_instance != null) {
-      return _instance!;
-    }
-    _instance = AppDbImpl._();
-    return _instance!;
+  AppDbImpl._(this._dbFileProvider, this._log, this._inMemory);
+
+  factory AppDbImpl(SqliteFileProvider dbFileProvider, {AppLog? log, bool inMemory = false}) {
+    return AppDbImpl._(dbFileProvider, log ?? AppLog('AppDbImpl'), inMemory);
   }
 
   @override
@@ -51,64 +47,43 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   @override
-  Future<void> openDefault() async {
+  Future<void> open() async {
     try {
       await close();
       await Future.delayed(_reopenWaitDuration);
-      final executor = await driftOpenDefault();
-      _db = MoniplanDriftDb(dbExecutor: executor);
+
+      if (_inMemory) {
+        final bytes = await _dbFileProvider().then((value) => value.readAsBytes());
+        final executor = await driftOpenInMemory(bytes);
+        _db = MoniplanDriftDb(dbExecutor: executor);
+      } else {
+        final executor = await driftOpen(_dbFileProvider);
+        _db = MoniplanDriftDb(dbExecutor: executor);
+      }
+
       _startWatchChanges();
 
       notifyListeners();
     } on Object catch (error, trace) {
-      _log?.critical('openDefault', error: error, trace: trace);
+      _log?.critical('open', error: error, trace: trace);
       rethrow;
     }
   }
 
   @override
-  Future<void> openTemporaryFromFile({required File dbFile}) async {
+  Future<void> overwriteWithBytes({required Uint8List bytes}) async {
     try {
-      final cleanedPath = dbFile.path.replaceAll('file://', '');
-      final file = File(cleanedPath);
-      if (!file.existsSync()) {
-        throw Exception('File $dbFile not found.');
-      }
       await close();
       await Future.delayed(_reopenWaitDuration);
 
-      final newBytes = await file.readAsBytes();
-      final connection = driftOpenTemporary(bytes: newBytes);
+      final newBytes = bytes;
 
-      final tempDb = MoniplanDriftDb(dbExecutor: connection);
-      _db = tempDb;
-
-      notifyListeners();
-    } on Object catch (error, trace) {
-      _log?.critical('openFromFile', error: error, trace: trace);
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> overrideDefaultFromFile({required File newDbFile}) async {
-    try {
-      final cleanedPath = newDbFile.path.replaceAll('file://', '');
-      final file = File(cleanedPath);
-      if (!file.existsSync()) {
-        throw Exception('File $newDbFile not found.');
-      }
-      await close();
-      await Future.delayed(_reopenWaitDuration);
-
-      final newBytes = await file.readAsBytes();
-
-      final dbFile = await getDatabaseFile();
+      final dbFile = await _dbFileProvider();
       await dbFile.writeAsBytes(newBytes);
 
-      await openDefault();
+      await open();
     } on Object catch (error, trace) {
-      _log?.critical('overrideDefaultFromFile', error: error, trace: trace);
+      _log?.critical('overwriteWithBytes', error: error, trace: trace);
       rethrow;
     }
   }
@@ -147,7 +122,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
   @override
   Future<String> getPath() async {
-    final file = await getDatabaseFile();
+    final file = await _dbFileProvider();
     return file.path;
   }
 }

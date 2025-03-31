@@ -3,13 +3,18 @@ import 'dart:typed_data';
 import '_index.dart';
 
 class AppEncrypterFactoryArgs {
-  final bool forceUseSavedPassword;
-  final bool forceUseLegacyEncryption;
+  final bool enableMetadata;
   final String password;
 
+  final bool forceUseSavedPassword;
+  final bool forceUseLegacyEncryption;
+  final bool preferNewEncryption;
+
   const AppEncrypterFactoryArgs({
+    this.enableMetadata = true,
     this.forceUseSavedPassword = false,
     this.forceUseLegacyEncryption = false,
+    this.preferNewEncryption = true,
     this.password = '',
   });
 }

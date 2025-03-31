@@ -76,17 +76,9 @@ final class ConsoleAppLog implements AppLog {
     try {
       final traceStr = (trace ?? StackTrace.current).toString().split('\n');
       final filteredFrames =
-          skipFrames != null && skipFrames >= 0 ? traceStr.take(skipFrames).toList() : traceStr;
-
-      var skipped = 0;
+          skipFrames != null && skipFrames >= 0 ? traceStr.skip(skipFrames).toList() : traceStr;
 
       for (final line in filteredFrames) {
-        // Пропускаем дополнительные фреймы если нужно
-        if (skipFrames != null && skipped < skipFrames) {
-          skipped++;
-          continue;
-        }
-
         final match = _locationRegex.firstMatch(line);
         if (match != null) {
           final path = match.group(1)?.replaceFirst('(', '');

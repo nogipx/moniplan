@@ -5,25 +5,53 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 Future<IAppEncrypter> encrypterFactory(AppEncrypterFactoryArgs? args, dynamic _) async {
+  final enableMetadata = args?.enableMetadata ?? true;
+  final preferNewEncryption = args?.preferNewEncryption ?? true;
+  final forceUseSavedPassword = args?.forceUseSavedPassword ?? false;
+  final forceUseLegacyEncryption = args?.forceUseLegacyEncryption ?? false;
+
+  /// Если пользователь передал пароль, используем его
   if (args?.password != null && args!.password.isNotEmpty) {
-    return Salsa20MonisyncEncrypter(PasswordEncryptionKey.fromPassword(args.password));
+    return Salsa20MonisyncEncrypter(
+      PasswordEncryptionKey.fromPassword(args.password),
+      enableMetadata: enableMetadata,
+    );
   }
 
   final passwordHash = await FlutterSecureStorage().read(key: 'password_hashed');
-  if (args?.forceUseSavedPassword == true && passwordHash != null) {
-    return Salsa20MonisyncEncrypter(PasswordEncryptionKey.fromHash(passwordHash));
+
+  /// Если пользователь запросил использование сохраненного пароля,
+  /// и он существует, используем его
+  if (forceUseSavedPassword && passwordHash != null) {
+    return Salsa20MonisyncEncrypter(
+      PasswordEncryptionKey.fromHash(passwordHash),
+      enableMetadata: enableMetadata,
+    );
   }
-  if (args?.forceUseLegacyEncryption == true) {
-    return AesMonisyncEncrypter(OldMockedEncryptionKey());
+
+  /// Если пользователь запросил использование старого алгоритма шифрования,
+  /// используем его
+  if (forceUseLegacyEncryption) {
+    return AesMonisyncEncrypter(OldMockedEncryptionKey(), enableMetadata: enableMetadata);
   }
 
   final packageInfo = await PackageInfo.fromPlatform();
   if (passwordHash == null) {
     final buildNumber = int.tryParse(packageInfo.buildNumber);
-    if (buildNumber != null && buildNumber <= 32) {
-      return AesMonisyncEncrypter(OldEnviedEncryptionKey());
+
+    /// Если версия приложения меньше или равна 32,
+    /// и пользователь не запросил использование нового алгоритма шифрования,
+    /// используем старый алгоритм
+    if (buildNumber != null && buildNumber <= 32 && !preferNewEncryption) {
+      return AesMonisyncEncrypter(OldEnviedEncryptionKey(), enableMetadata: enableMetadata);
     }
-    return Salsa20MonisyncEncrypter(MonisyncEncryptionKeyV2());
+
+    /// Иначе используем новый алгоритм
+    return Salsa20MonisyncEncrypter(MonisyncEncryptionKeyV2(), enableMetadata: enableMetadata);
   }
-  return Salsa20MonisyncEncrypter(PasswordEncryptionKey.fromHash(passwordHash));
+
+  return Salsa20MonisyncEncrypter(
+    PasswordEncryptionKey.fromHash(passwordHash),
+    enableMetadata: enableMetadata,
+  );
 }

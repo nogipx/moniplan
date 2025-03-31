@@ -81,9 +81,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
           continue;
         }
 
-        final appEncrypter = await appDi.getEncrypter();
-
-        final backupInfo = await _monisyncRepo?.readBackupInfo(file.path, appEncrypter);
+        final backupInfo = await _monisyncRepo?.readBackupInfo(filePath: file.path);
         if (backupInfo != null) {
           backupInfos.add(backupInfo);
         }
