@@ -35,7 +35,7 @@ license:
     reuse annotate -c "Karim \"nogipx\" Mamatkazin <nogipx@gmail.com>" -l "GPL-3.0-or-later" --skip-unrecognised -r moniplan_domain/lib
     reuse annotate -c "Karim \"nogipx\" Mamatkazin <nogipx@gmail.com>" -l "GPL-3.0-or-later" --skip-unrecognised -r moniplan_uikit/lib
 
-build_dmg:
+release_dmg:
     cd moniplan_app/macos && pod install --repo-update 
     cd moniplan_app && fvm flutter build macos --release --obfuscate --split-debug-info=./.debug-info
     mkdir -p ../.artifacts
@@ -43,6 +43,12 @@ build_dmg:
     cd moniplan_app && /opt/homebrew/bin/create-dmg \
       "../.artifacts/moniplan.dmg" \
       "build/macos/Build/Products/Release/moniplan.app"
+      
+release_apk:
+    cd moniplan_app && fvm flutter build apk --release --obfuscate --split-debug-info=./.debug-info
+    mkdir -p ../.artifacts
+    rm -f ../.artifacts/moniplan.apk || true
+    cd moniplan_app && cp build/app/outputs/flutter-apk/app-release.apk ../.artifacts/moniplan_$(fvm dart run packo helpers --current-version).apk
 
 update_env:
     if [ -f moniplan_app/lib/core/config/env.g.dart ]; then rm moniplan_app/lib/core/config/env.g.dart; fi

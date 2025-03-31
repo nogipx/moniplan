@@ -37,9 +37,10 @@ dist/
 .pub-cache/
 .debug-info/
 .pub/
-.artifacts
+.artifacts/
 /build/
 .env
+.kotlin/
 
 # Web related
 lib/generated_plugin_registrant.dart
