@@ -11,10 +11,7 @@ class MoneyFlowUseCase implements IUseCase<MoneyFlowUseCaseResult> {
   final num initialBudget;
   final Iterable<Payment> payments;
 
-  const MoneyFlowUseCase({
-    this.payments = const [],
-    this.initialBudget = 0,
-  });
+  const MoneyFlowUseCase({this.payments = const [], this.initialBudget = 0});
 
   @override
   MoneyFlowUseCaseResult run() {
@@ -48,11 +45,13 @@ class MoneyFlowUseCaseResult {
   final num totalOutcome;
   final num balance;
   final num initialBalance;
+  final Map<String, dynamic>? additionalData;
 
   const MoneyFlowUseCaseResult({
     this.totalIncome = 0,
     this.totalOutcome = 0,
     this.balance = 0,
     this.initialBalance = 0,
+    this.additionalData,
   });
 }

@@ -8,6 +8,11 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
   final String plannerId;
   final AppLog? log;
 
+  // Флаг режима отображения
+  bool _showCompletedOnly = true;
+
+  bool get showCompletedOnly => _showCompletedOnly;
+
   StatisticsBloc({required this.repository, required this.plannerId, this.log})
     : super(const StatisticsState.initial()) {
     on<StatisticsEvent>((event, emit) async {
@@ -15,6 +20,7 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
         started: (e) => _onStarted(e, emit),
         periodChanged: (e) => _onPeriodChanged(e, emit),
         refreshRequested: (e) => _onRefreshRequested(e, emit),
+        viewModeChanged: (e) => _onViewModeChanged(e, emit),
       );
     });
   }
@@ -25,7 +31,7 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     try {
       final statistics = await repository.getStatistics(plannerId: plannerId);
       log?.debug('Statistics loaded successfully for plannerId: $plannerId');
-      emit(StatisticsState.loaded(statistics));
+      emit(StatisticsState.loaded(statistics, showCompletedOnly: _showCompletedOnly));
     } catch (e) {
       log?.error('Failed to load statistics for plannerId: $plannerId', error: e);
       emit(StatisticsState.error(e.toString()));
@@ -40,7 +46,7 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     try {
       if (event.startDate == null || event.endDate == null) {
         final statistics = await repository.getStatistics(plannerId: plannerId);
-        emit(StatisticsState.loaded(statistics));
+        emit(StatisticsState.loaded(statistics, showCompletedOnly: _showCompletedOnly));
         return;
       }
       final statistics = await repository.getStatisticsForPeriod(
@@ -51,7 +57,7 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
       log?.debug(
         'Statistics loaded successfully for plannerId: $plannerId from ${event.startDate} to ${event.endDate}',
       );
-      emit(StatisticsState.loaded(statistics));
+      emit(StatisticsState.loaded(statistics, showCompletedOnly: _showCompletedOnly));
     } catch (e) {
       log?.error(
         'Failed to load statistics for plannerId: $plannerId from ${event.startDate} to ${event.endDate}',
@@ -61,10 +67,24 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
     }
   }
 
+  Future<void> _onViewModeChanged(_ViewModeChanged event, Emitter<StatisticsState> emit) async {
+    log?.debug('Changing view mode to showCompletedOnly: ${event.showCompletedOnly}');
+    _showCompletedOnly = event.showCompletedOnly;
+
+    // Если у нас уже есть загруженные данные, просто обновляем состояние с новым режимом
+    final currentState = state;
+    if (currentState is _Loaded) {
+      emit(currentState.copyWith(showCompletedOnly: _showCompletedOnly));
+    } else {
+      // Если данных еще нет, инициируем загрузку
+      await _onRefreshRequested(const _RefreshRequested(), emit);
+    }
+  }
+
   Future<void> _onRefreshRequested(_RefreshRequested event, Emitter<StatisticsState> emit) async {
     try {
       final statistics = await repository.getStatistics(plannerId: plannerId);
-      emit(StatisticsState.loaded(statistics));
+      emit(StatisticsState.loaded(statistics, showCompletedOnly: _showCompletedOnly));
     } catch (e) {
       emit(StatisticsState.error(e.toString()));
     }
@@ -77,12 +97,17 @@ class StatisticsEvent with _$StatisticsEvent {
   const factory StatisticsEvent.periodChanged({DateTime? startDate, DateTime? endDate}) =
       _PeriodChanged;
   const factory StatisticsEvent.refreshRequested() = _RefreshRequested;
+  const factory StatisticsEvent.viewModeChanged({required bool showCompletedOnly}) =
+      _ViewModeChanged;
 }
 
 @freezed
 class StatisticsState with _$StatisticsState {
   const factory StatisticsState.initial() = _Initial;
   const factory StatisticsState.loading() = _Loading;
-  const factory StatisticsState.loaded(BudgetStatistics statistics) = _Loaded;
+  const factory StatisticsState.loaded(
+    BudgetStatistics statistics, {
+    required bool showCompletedOnly,
+  }) = _Loaded;
   const factory StatisticsState.error(String message) = _Error;
 }

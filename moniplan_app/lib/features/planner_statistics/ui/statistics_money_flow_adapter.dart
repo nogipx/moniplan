@@ -13,6 +13,12 @@ class StatisticsMoneyFlowAdapter {
     final totalIncome = statistics.incomes.values.fold<num>(0, (sum, value) => sum + value);
     final totalOutcome = statistics.expenses.values.fold<num>(0, (sum, value) => sum + value);
 
+    // Вычисляем общую сумму коррекций, если они есть
+    final totalCorrections = statistics.corrections.values.fold<num>(
+      0,
+      (sum, value) => sum + value,
+    );
+
     // Вычисляем начальный и конечный баланс
     final dates = statistics.totalBudget.keys.toList()..sort();
 
@@ -28,11 +34,17 @@ class StatisticsMoneyFlowAdapter {
     final initialBalance = statistics.totalBudget[firstDate]?.totalBudget ?? 0;
     final finalBalance = statistics.totalBudget[lastDate]?.totalBudget ?? 0;
 
+    // Вычисляем реальный баланс с учетом коррекций
     return MoneyFlowUseCaseResult(
       totalIncome: totalIncome,
       totalOutcome: totalOutcome,
       initialBalance: initialBalance,
       balance: finalBalance,
+      // Добавляем информацию о коррекциях в additionalData
+      additionalData: {
+        'corrections': totalCorrections,
+        'hasCorrections': statistics.corrections.isNotEmpty,
+      },
     );
   }
 }

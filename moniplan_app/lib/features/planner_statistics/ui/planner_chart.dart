@@ -1,258 +1,387 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:moniplan_app/utils/_index.dart';
+import 'package:intl/intl.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
-class PlannerChart extends StatefulWidget {
-  final BudgetStatisticsTotal totalBudget;
-  final Map<DateTime, num> incomes;
-  final Map<DateTime, num> expenses;
+// Модель точки графика
+class ChartPoint {
+  final double y;
+  final String? label;
 
-  const PlannerChart({
-    required this.totalBudget,
-    required this.incomes,
-    required this.expenses,
-    super.key,
-  });
-
-  @override
-  State<PlannerChart> createState() => _PlannerChartState();
+  ChartPoint({required this.y, this.label});
 }
 
-class _PlannerChartState extends State<PlannerChart> {
-  // Определяем первую дату для каждого нового месяца
-  List<FlSpot> allDoneDatesSpots = [];
-  List<FlSpot> remainingDatesSpots = [];
-  double maxY = 0;
-  double minY = 0;
+// Модель индикатора даты
+class DateIndicator {
+  final DateTime date;
+  final String label;
+  final Color color;
 
-  @override
-  void initState() {
-    super.initState();
-    _initializeChartData();
-  }
+  DateIndicator({required this.date, required this.label, required this.color});
+}
 
-  void _initializeChartData() {
-    if (widget.totalBudget.isEmpty) return;
+class PlannerChart extends StatelessWidget {
+  final Map<DateTime, List<ChartPoint>> points;
+  final DateTime minDate;
+  final DateTime maxDate;
+  final List<DateIndicator>? dateIndicators;
 
-    final allDates = {...widget.totalBudget.keys}.toList()..sort((a, b) => a.compareTo(b));
-    final List<DateTime> allDoneDates = [];
-    final List<DateTime> remainingDates = [];
-    bool foundFirstFalse = false;
-
-    for (var date in allDates) {
-      final budgetData = widget.totalBudget[date];
-      if (!foundFirstFalse && (budgetData?.allCompleted ?? false)) {
-        allDoneDates.add(date);
-      } else {
-        foundFirstFalse = true;
-        remainingDates.add(date);
-      }
-    }
-
-    // Создаем точки для линии выполненных дат
-    allDoneDatesSpots =
-        allDoneDates
-            .map((date) {
-              final budgetData = widget.totalBudget[date];
-              final yValue = (budgetData?.totalBudget ?? 0).toDouble();
-              return yValue.isFinite
-                  ? FlSpot(date.dayBound.millisecondsSinceEpoch.toDouble(), yValue)
-                  : null;
-            })
-            .whereType<FlSpot>()
-            .toList();
-
-    // Создаем точки для линии оставшихся дат
-    remainingDatesSpots =
-        remainingDates
-            .map((date) {
-              final budgetData = widget.totalBudget[date];
-              final yValue = (budgetData?.totalBudget ?? 0).toDouble();
-              return yValue.isFinite
-                  ? FlSpot(date.dayBound.millisecondsSinceEpoch.toDouble(), yValue)
-                  : null;
-            })
-            .whereType<FlSpot>()
-            .toList();
-
-    maxY =
-        widget.totalBudget.values
-            .reduce((max, value) => value.totalBudget > max.totalBudget ? value : max)
-            .totalBudget
-            .toDouble();
-    minY =
-        widget.totalBudget.values
-            .reduce((min, value) => value.totalBudget < min.totalBudget ? value : min)
-            .totalBudget
-            .toDouble();
-  }
+  const PlannerChart({
+    Key? key,
+    required this.points,
+    required this.minDate,
+    required this.maxDate,
+    this.dateIndicators,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (widget.totalBudget.isEmpty) {
-      return const Center(child: Text('Нет данных для отображения графика'));
+    final now = DateTime.now();
+
+    final positiveColor = context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green;
+    final negativeColor = context.ext<MoniplanExtraColors>()?.moneyNegative ?? Colors.red;
+
+    final allPoints =
+        points.entries
+            .expand(
+              (entry) =>
+                  entry.value.map((e) => FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), e.y)),
+            )
+            .toList();
+
+    final spotsByDate = <DateTime, List<FlSpot>>{};
+    for (final entry in points.entries) {
+      spotsByDate[entry.key] =
+          entry.value.map((e) => FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), e.y)).toList();
     }
 
-    final doneColor = Colors.green;
-    final remainingColor = Colors.yellow;
-    final deficitColor = Colors.red;
+    final todaySpot =
+        spotsByDate.entries
+            .where(
+              (e) => e.key.year == now.year && e.key.month == now.month && e.key.day == now.day,
+            )
+            .map((e) => e.value)
+            .firstOrNull;
 
-    final moneySideTitles = SideTitles(
-      showTitles: true,
-      reservedSize: 50,
-      minIncluded: false,
-      maxIncluded: true,
-      getTitlesWidget: (value, meta) {
-        if (!value.isFinite) return const SizedBox.shrink();
-        final amount = value.toInt();
-        // Отображаем сумму с шагом 50К, 100К, 200К, 500К и максимум
-        if ((amount >= 50000 && amount < 100000) ||
-            (amount >= 100000 && amount < 200000) ||
-            (amount >= 200000 && amount < 500000) ||
-            (amount >= 500000 && amount < maxY.toInt()) ||
-            amount == maxY.toInt()) {
-          return Text(
-            '${amount ~/ 1000}K',
-            style: TextStyle(color: context.color.onSurface),
-            textAlign: TextAlign.center,
-          );
-        }
-        return const SizedBox.shrink(); // Не отображаем метку, если она не соответствует шагу
-      },
-    );
+    final budgetLineSpots =
+        spotsByDate.entries
+            .where((entry) => entry.value.length > 1)
+            .map((entry) => entry.value.last)
+            .toList();
 
-    var lineChart = LineChart(
-      transformationConfig: FlTransformationConfig(trackpadScrollCausesScale: true),
-      LineChartData(
-        lineBarsData: [
-          // Линия общего бюджета
-          LineChartBarData(
-            isStepLineChart: true,
-            spots: allDoneDatesSpots,
-            isCurved: false,
-            color: doneColor,
-            barWidth: 1,
-            isStrokeCapRound: true,
-            dotData: FlDotData(show: true),
-            aboveBarData: BarAreaData(
-              show: true,
-              applyCutOffY: true,
-              color: deficitColor.withAlpha(50),
-            ),
-            belowBarData: BarAreaData(
-              show: true,
-              applyCutOffY: true,
-              color: doneColor.withAlpha(50),
-            ),
-          ),
-          LineChartBarData(
-            isStepLineChart: true,
-            spots: remainingDatesSpots,
-            isCurved: false,
-            color: remainingColor,
-            barWidth: 1,
-            isStrokeCapRound: true,
-            dotData: FlDotData(show: true),
-            aboveBarData: BarAreaData(
-              show: true,
-              applyCutOffY: true,
-              color: deficitColor.withAlpha(50),
-            ),
-            belowBarData: BarAreaData(
-              show: true,
-              applyCutOffY: true,
-              color: remainingColor.withAlpha(50),
-            ),
-          ),
-        ],
-        lineTouchData: LineTouchData(
-          enabled: true,
-          touchTooltipData: LineTouchTooltipData(
-            maxContentWidth: 200,
-            fitInsideVertically: true,
-            showOnTopOfTheChartBoxArea: true,
-            tooltipMargin: -50,
-            tooltipPadding: EdgeInsets.all(4),
-            getTooltipColor: (spot) {
-              return context.color.secondaryContainer;
-            },
-            getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-              return touchedBarSpots.map((spot) {
-                final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
-                final value = spot.y;
-                final moneyText = (value > 0 ? '+ ' : '-') + value.currency(CurrencyDataCommon.rub);
-                return LineTooltipItem(
-                  '',
-                  context.text.bodyMedium!.copyWith(color: context.color.onSecondaryContainer),
-                  textAlign: TextAlign.center,
-                  children: [
-                    TextSpan(text: '${date.day}.${date.month}.${date.year}\n'),
-                    TextSpan(text: moneyText),
-                  ],
-                );
-              }).toList();
-            },
-          ),
-        ),
-        titlesData: FlTitlesData(
-          topTitles: AxisTitles(),
-          bottomTitles: AxisTitles(),
-          leftTitles: AxisTitles(sideTitles: moneySideTitles),
-          rightTitles: AxisTitles(sideTitles: moneySideTitles),
-        ),
-        gridData: FlGridData(show: true, drawVerticalLine: false, verticalInterval: 86400000),
-        borderData: FlBorderData(show: false),
-        minY: minY,
-        maxY: maxY + maxY * 0.1,
-      ),
-    );
+    final incomeLineSpots =
+        spotsByDate.entries
+            .where((entry) => entry.value.length > 1)
+            .map((entry) => entry.value.first)
+            .toList();
 
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    final lineColors = [positiveColor, negativeColor, Colors.blueGrey[900] ?? Colors.blueGrey];
+
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Card(
+        margin: const EdgeInsets.all(8.0),
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 16, 16, 12),
+          child: Column(
             children: [
-              _LegendItem(color: doneColor, label: 'Выполненные'),
-              const SizedBox(width: 16),
-              _LegendItem(color: remainingColor, label: 'Запланированные'),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Динамика бюджета',
+                            style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${DateFormat('d MMMM', 'ru').format(minDate)} - ${DateFormat('d MMMM', 'ru').format(maxDate)}',
+                            style: context.text.bodySmall?.copyWith(
+                              color: context.text.bodySmall?.color?.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildLegend(
+                      context,
+                      positiveColor: positiveColor,
+                      negativeColor: negativeColor,
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: LineChart(
+                  LineChartData(
+                    lineTouchData: LineTouchData(
+                      enabled: true,
+                      touchTooltipData: LineTouchTooltipData(
+                        getTooltipColor:
+                            (touchedSpot) =>
+                                Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.8),
+                        tooltipRoundedRadius: 8,
+                        tooltipPadding: const EdgeInsets.all(8),
+                        tooltipMargin: 8,
+                        getTooltipItems: (spots) {
+                          return spots.map((spot) {
+                            final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+
+                            String title = '';
+                            Color? color;
+
+                            if (spot == spots.last) {
+                              title = 'Баланс';
+                              color = Colors.blueGrey[800];
+                            } else if (spot == spots.first) {
+                              title = 'Доход';
+                              color = positiveColor;
+                            } else {
+                              title = 'Расход';
+                              color = negativeColor;
+                            }
+
+                            return LineTooltipItem(
+                              '${DateFormat('d MMM', 'ru').format(date)}\n$title: ${spot.y.round()} ₽',
+                              TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ),
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: false,
+                      horizontalInterval: 1000,
+                      getDrawingHorizontalLine: (value) {
+                        return FlLine(
+                          color: Theme.of(context).dividerColor.withOpacity(0.3),
+                          strokeWidth: 0.5,
+                          dashArray: [5, 5],
+                        );
+                      },
+                    ),
+                    titlesData: FlTitlesData(
+                      show: true,
+                      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 30,
+                          interval: 86400000 * 5, // примерно 5 дней
+                          getTitlesWidget: (value, meta) {
+                            final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+
+                            // Показываем только первый день месяца и сегодняшний день
+                            if (date.day == 1 || date.isAtSameDay(now)) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  date.day == 1 ? DateFormat('MMM', 'ru').format(date) : 'Сегодня',
+                                  style: context.text.bodySmall?.copyWith(
+                                    fontSize: 10,
+                                    color:
+                                        date.isAtSameDay(now)
+                                            ? Theme.of(context).colorScheme.primary
+                                            : null,
+                                  ),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: 5000,
+                          reservedSize: 45,
+                          getTitlesWidget: (value, meta) {
+                            return Text(
+                              '${value.toInt() / 1000}K',
+                              style: context.text.bodySmall?.copyWith(fontSize: 10),
+                              textAlign: TextAlign.left,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    borderData: FlBorderData(show: false),
+                    minX: minDate.millisecondsSinceEpoch.toDouble(),
+                    maxX: maxDate.millisecondsSinceEpoch.toDouble(),
+                    minY: 0,
+                    maxY:
+                        allPoints.isEmpty
+                            ? 10000
+                            : allPoints.map((e) => e.y).reduce((a, b) => a > b ? a : b) * 1.1,
+                    lineBarsData: [
+                      // Линия дохода
+                      LineChartBarData(
+                        spots: incomeLineSpots,
+                        isCurved: true,
+                        gradient: LinearGradient(colors: [lineColors[0], lineColors[0]]),
+                        barWidth: 3,
+                        isStrokeCapRound: true,
+                        dotData: FlDotData(show: false),
+                        belowBarData: BarAreaData(
+                          show: true,
+                          gradient: LinearGradient(
+                            colors: [
+                              lineColors[0].withOpacity(0.2),
+                              lineColors[0].withOpacity(0.0),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                      ),
+                      // Линия расхода
+                      LineChartBarData(
+                        spots: budgetLineSpots,
+                        isCurved: true,
+                        gradient: LinearGradient(colors: [lineColors[2], lineColors[2]]),
+                        barWidth: 3,
+                        isStrokeCapRound: true,
+                        dotData: FlDotData(show: false),
+                        belowBarData: BarAreaData(
+                          show: true,
+                          gradient: LinearGradient(
+                            colors: [
+                              lineColors[2].withOpacity(0.2),
+                              lineColors[2].withOpacity(0.0),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                      ),
+                    ],
+                    extraLinesData: ExtraLinesData(
+                      verticalLines: [
+                        // Вертикальная линия для текущего дня
+                        VerticalLine(
+                          x: now.millisecondsSinceEpoch.toDouble(),
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                          strokeWidth: 1,
+                          dashArray: [4, 4],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 24),
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(width: MediaQuery.sizeOf(context).width * 3, child: lineChart),
-            ),
-          ),
-        ],
+        ),
       ),
     );
+  }
+
+  Widget _buildLegend(
+    BuildContext context, {
+    required Color positiveColor,
+    required Color negativeColor,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _LegendItem(color: positiveColor, label: 'Доход'),
+        const SizedBox(width: 12),
+        _LegendItem(color: Colors.blueGrey[900] ?? Colors.blueGrey, label: 'Баланс'),
+        const SizedBox(width: 12),
+        _LegendItem(color: Theme.of(context).colorScheme.primary, label: 'Сегодня', isDashed: true),
+      ],
+    );
+  }
+}
+
+extension DateTimeExtension on DateTime {
+  bool isAtSameDay(DateTime other) {
+    return year == other.year && month == other.month && day == other.day;
   }
 }
 
 class _LegendItem extends StatelessWidget {
   final Color color;
   final String label;
+  final bool isDashed;
 
-  const _LegendItem({required this.color, required this.label});
+  const _LegendItem({required this.color, required this.label, this.isDashed = false});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
+        if (isDashed)
+          Container(
+            width: 12,
+            height: 2,
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: color, width: 2, style: BorderStyle.solid)),
+            ),
+          )
+        else
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
         const SizedBox(width: 4),
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
+        Text(label, style: context.text.bodySmall?.copyWith(fontWeight: FontWeight.w500)),
       ],
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color? color;
+
+  const _InfoChip({required this.label, required this.value, required this.icon, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 14, color: color ?? Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 4),
+                Text(
+                  label,
+                  style: context.text.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: color),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

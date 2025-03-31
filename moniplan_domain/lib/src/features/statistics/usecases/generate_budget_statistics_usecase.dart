@@ -69,6 +69,7 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
     final BudgetStatisticsTotal totalBudget = {};
     final Map<DateTime, num> incomes = {};
     final Map<DateTime, num> expenses = {};
+    final Map<DateTime, num> corrections = {};
 
     num runningTotal = planner.initialBudget;
 
@@ -80,6 +81,7 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
 
       double dailyIncome = 0;
       double dailyExpense = 0;
+      double dailyCorrection = 0;
       bool allCompleted = true;
 
       for (final payment in dayPayments) {
@@ -89,6 +91,8 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
             dailyIncome += normalizedMoney;
           } else if (payment.type == PaymentType.expense) {
             dailyExpense += normalizedMoney.abs();
+          } else if (payment.type == PaymentType.correction) {
+            dailyCorrection += payment.details.money.toDouble();
           }
         }
         if (payment.isEnabled && !payment.isDone) {
@@ -97,7 +101,7 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
       }
 
       final dailyTotal = dailyIncome - dailyExpense;
-      if (dailyTotal == 0 && dailyIncome == 0 && dailyExpense == 0) {
+      if (dailyTotal == 0 && dailyIncome == 0 && dailyExpense == 0 && dailyCorrection == 0) {
         continue;
       }
 
@@ -109,6 +113,7 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
 
       if (lastCorrection != null) {
         runningTotal = lastCorrection.details.money.toDouble();
+        corrections[dayDate] = lastCorrection.details.money.toDouble();
       }
 
       totalBudget[dayDate] = (totalBudget: runningTotal, allCompleted: allCompleted);
@@ -120,6 +125,11 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
       }
     }
 
-    return BudgetStatistics(totalBudget: totalBudget, incomes: incomes, expenses: expenses);
+    return BudgetStatistics(
+      totalBudget: totalBudget,
+      incomes: incomes,
+      expenses: expenses,
+      corrections: corrections,
+    );
   }
 }

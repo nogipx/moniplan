@@ -65,10 +65,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Управление данными', style: context.text.displaySmall),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: Text('Monisync', style: context.text.displaySmall), centerTitle: true),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
