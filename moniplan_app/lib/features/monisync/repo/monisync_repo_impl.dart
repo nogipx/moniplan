@@ -14,6 +14,9 @@ import 'package:moniplan_app/features/payment/repo/payment_planner_repo_drift.da
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
 
+// Формат даты для файла бэкапа
+const String backupDateFormat = 'yyyyMMdd_HHmmss';
+
 class MonisyncRepoImpl implements IMonisyncRepo {
   final IAppEncrypter encrypter;
   final AppDb appDb;

@@ -9,9 +9,7 @@ abstract class ReceiveImportEvent {}
 class ReceiveImportStartReceiveEvent implements ReceiveImportEvent {
   final bool shouldRestart;
 
-  ReceiveImportStartReceiveEvent({
-    this.shouldRestart = false,
-  });
+  ReceiveImportStartReceiveEvent({this.shouldRestart = false});
 }
 
 class ReceiveImportStopReceiveEvent implements ReceiveImportEvent {}
@@ -27,11 +25,9 @@ class ReceiveImportOnDataEvent implements ReceiveImportEvent {
 class ReceiveImportOnDecisionEvent implements ReceiveImportEvent {
   final BackupInfo? acceptedBackup;
   final bool shouldImport;
+  final String? password;
 
   /// TODO(nogipx): do think about partial import instead of fully replace database.
 
-  ReceiveImportOnDecisionEvent({
-    required this.shouldImport,
-    this.acceptedBackup,
-  });
+  ReceiveImportOnDecisionEvent({required this.shouldImport, this.acceptedBackup, this.password});
 }

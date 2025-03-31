@@ -30,11 +30,11 @@ class GetItAppDI implements AppDi {
     final dbImpl = AppDbImpl(getDatabaseFile, log: AppLog('AppDbImpl'));
     _getIt.registerSingleton<AppDbImpl>(dbImpl, dispose: (impl) => impl.close());
 
-    AppDb.factory = () => dbImpl;
+    AppDb.factory = () => GetIt.instance.get<AppDbImpl>();
     final db = AppDb();
     await db.open();
-
     _getIt.registerSingleton<AppDb>(db);
+
     _getIt.registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform);
     _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: dbImpl));
 

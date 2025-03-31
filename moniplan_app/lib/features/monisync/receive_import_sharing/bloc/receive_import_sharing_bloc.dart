@@ -110,7 +110,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     }
 
     try {
-      await _monisyncRepo?.importDataFromFile(filePath: filePath);
+      await _monisyncRepo?.importDataFromFile(filePath: filePath, password: event.password);
       _log.business('Succesfull import db');
       emit(ReceiveImportResultState(result: ReceiveImportResult.imported));
     } on Object catch (error, trace) {
