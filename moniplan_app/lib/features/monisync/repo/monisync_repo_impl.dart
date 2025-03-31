@@ -231,7 +231,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   @override
-  Future<void> importDataFromFile({required String filePath, String? password = '041020'}) async {
+  Future<void> importDataFromFile({required String filePath, String? password}) async {
     final file = File(filePath);
     if (!await file.exists()) {
       throw Exception('Файл не найден');
@@ -250,10 +250,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   @override
-  Future<BackupInfo?> readBackupInfo({
-    required String filePath,
-    String? password = '041020',
-  }) async {
+  Future<BackupInfo?> readBackupInfo({required String filePath, String? password}) async {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
@@ -330,7 +327,11 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       try {
         final encrypter = keyToEncrypter[key]!(key);
         final decryptedBytes = encrypter.decryptBytes(bytes);
-        return decryptedBytes;
+
+        if (isSQLiteBytes(decryptedBytes)) {
+          return decryptedBytes;
+        }
+        continue;
       } catch (_) {
         continue;
       }
@@ -347,4 +348,40 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   @override
   String getBackupFileName(DateTime date) =>
       'db_${DateFormat(backupDateFormat).format(date)}.moniplan';
+
+  /// Проверяет, соответствуют ли байты сигнатуре SQLite базы данных
+  /// SQLite файлы начинаются с сигнатуры "SQLite format 3\0"
+  bool isSQLiteBytes(Uint8List bytes) {
+    if (bytes.length < 16) {
+      return false;
+    }
+
+    // Сигнатура SQLite: "SQLite format 3\0"
+    final signature = [
+      0x53,
+      0x51,
+      0x4C,
+      0x69,
+      0x74,
+      0x65,
+      0x20,
+      0x66,
+      0x6F,
+      0x72,
+      0x6D,
+      0x61,
+      0x74,
+      0x20,
+      0x33,
+      0x00,
+    ];
+
+    for (int i = 0; i < signature.length; i++) {
+      if (bytes[i] != signature[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

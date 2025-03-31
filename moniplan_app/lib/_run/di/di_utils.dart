@@ -9,6 +9,21 @@ Future<IAppEncrypter> encrypterFactory(AppEncrypterFactoryArgs? args, dynamic _)
   final preferNewEncryption = args?.preferNewEncryption ?? true;
   final forceUseSavedPassword = args?.forceUseSavedPassword ?? false;
   final forceUseLegacyEncryption = args?.forceUseLegacyEncryption ?? false;
+  final packageInfo = await PackageInfo.fromPlatform();
+  final buildNumber = int.tryParse(packageInfo.buildNumber);
+
+  /// Если пользователь запросил использование старого алгоритма шифрования,
+  /// используем его
+  if (forceUseLegacyEncryption) {
+    return AesMonisyncEncrypter(OldMockedEncryptionKey(), enableMetadata: enableMetadata);
+  }
+
+  /// Если версия приложения меньше или равна 32,
+  /// и пользователь не запросил использование нового алгоритма шифрования,
+  /// используем старый алгоритм
+  if (buildNumber != null && buildNumber <= 32 && !preferNewEncryption) {
+    return AesMonisyncEncrypter(OldEnviedEncryptionKey(), enableMetadata: enableMetadata);
+  }
 
   /// Если пользователь передал пароль, используем его
   if (args?.password != null && args!.password.isNotEmpty) {
@@ -29,29 +44,13 @@ Future<IAppEncrypter> encrypterFactory(AppEncrypterFactoryArgs? args, dynamic _)
     );
   }
 
-  /// Если пользователь запросил использование старого алгоритма шифрования,
-  /// используем его
-  if (forceUseLegacyEncryption) {
-    return AesMonisyncEncrypter(OldMockedEncryptionKey(), enableMetadata: enableMetadata);
+  if (passwordHash != null) {
+    return Salsa20MonisyncEncrypter(
+      PasswordEncryptionKey.fromHash(passwordHash),
+      enableMetadata: enableMetadata,
+    );
   }
 
-  final packageInfo = await PackageInfo.fromPlatform();
-  if (passwordHash == null) {
-    final buildNumber = int.tryParse(packageInfo.buildNumber);
-
-    /// Если версия приложения меньше или равна 32,
-    /// и пользователь не запросил использование нового алгоритма шифрования,
-    /// используем старый алгоритм
-    if (buildNumber != null && buildNumber <= 32 && !preferNewEncryption) {
-      return AesMonisyncEncrypter(OldEnviedEncryptionKey(), enableMetadata: enableMetadata);
-    }
-
-    /// Иначе используем новый алгоритм
-    return Salsa20MonisyncEncrypter(MonisyncEncryptionKeyV2(), enableMetadata: enableMetadata);
-  }
-
-  return Salsa20MonisyncEncrypter(
-    PasswordEncryptionKey.fromHash(passwordHash),
-    enableMetadata: enableMetadata,
-  );
+  /// Иначе используем новый алгоритм
+  return Salsa20MonisyncEncrypter(MonisyncEncryptionKeyV2(), enableMetadata: enableMetadata);
 }
