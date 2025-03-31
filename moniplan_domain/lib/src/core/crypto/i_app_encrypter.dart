@@ -3,10 +3,15 @@ import 'dart:typed_data';
 import '_index.dart';
 
 class AppEncrypterFactoryArgs {
-  final bool forceOldEncryption;
+  final bool forceUseSavedPassword;
+  final bool forceUseLegacyEncryption;
   final String password;
 
-  const AppEncrypterFactoryArgs({this.forceOldEncryption = false, this.password = ''});
+  const AppEncrypterFactoryArgs({
+    this.forceUseSavedPassword = false,
+    this.forceUseLegacyEncryption = false,
+    this.password = '',
+  });
 }
 
 /// Интерфейс для шифровальщиков приложения

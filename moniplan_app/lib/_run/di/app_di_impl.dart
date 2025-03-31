@@ -40,7 +40,7 @@ class GetItAppDI implements AppDi {
     );
 
     _getIt.registerFactoryAsync<IMonisyncRepo>(() async {
-      final encrypter = await AppDi.instance.getEncrypter(AppEncrypterFactoryArgs());
+      final encrypter = await AppDi.instance.getEncrypter();
       return MonisyncRepoImpl(appDb: db, encrypter: encrypter);
     });
     _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
@@ -123,7 +123,7 @@ class GetItAppDI implements AppDi {
   T get<T extends Object>() => _getIt.get<T>();
 
   @override
-  Future<IAppEncrypter> getEncrypter(AppEncrypterFactoryArgs args) async {
-    return _getIt.getAsync<IAppEncrypter>(param1: args);
+  Future<IAppEncrypter> getEncrypter([AppEncrypterFactoryArgs? args]) async {
+    return _getIt.getAsync<IAppEncrypter>(param1: args ?? AppEncrypterFactoryArgs());
   }
 }

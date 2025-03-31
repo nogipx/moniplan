@@ -3,3 +3,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 export 'app_log_impl.dart';
+export 'console_log.dart';

@@ -13,7 +13,7 @@ abstract interface class IAppDi {
 
   Future<IMonisyncRepo> getMonisyncRepo();
 
-  Future<IAppEncrypter> getEncrypter(AppEncrypterFactoryArgs args);
+  Future<IAppEncrypter> getEncrypter([AppEncrypterFactoryArgs? args]);
 
   IStatisticsRepo getStatisticsRepo();
 

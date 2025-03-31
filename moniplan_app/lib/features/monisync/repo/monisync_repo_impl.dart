@@ -8,13 +8,14 @@ import 'dart:typed_data';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/payment/_index.dart';
+import 'package:moniplan_app/features/monisync/keys.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MonisyncRepoImpl implements IMonisyncRepo {
   final IAppEncrypter encrypter;
   final AppDb appDb;
+  final _log = AppLog('MonisyncRepoImpl');
 
   MonisyncRepoImpl({required this.encrypter, required this.appDb});
 
@@ -47,11 +48,19 @@ class MonisyncRepoImpl implements IMonisyncRepo {
           AppEncrypterFactoryArgs(password: password),
         );
 
-        // Шифруем данные
-        bytesToWrite = passwordEncrypter.encryptBytes(originalBytes);
+        // Шифруем данные с автоматическим добавлением метаданных
+        bytesToWrite = passwordEncrypter.encryptBytes(
+          originalBytes,
+          options: {'addMetadata': true},
+        );
       } else {
-        // Используем стандартный энкриптер, переданный в конструктор
-        bytesToWrite = encrypter.encryptBytes(originalBytes);
+        // Используем стандартный энкриптер, переданный в конструктор,
+        // и добавляем метаданные о том, что файл не зашифрован паролем
+        bytesToWrite = BackupMetadata.addMetadataToBytes(
+          originalBytes,
+          isEncrypted: false,
+          hasPassword: false,
+        );
       }
 
       if (!exportFile.existsSync()) {
@@ -90,21 +99,21 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     ICategoryPredictor? predictor;
     if (usePredictedCategories) {
       try {
-        print('Получаем предиктор категорий из DI');
+        _log.debug('Получаем предиктор категорий из DI');
         // Получаем предиктор из DI вместо создания нового экземпляра
         predictor = AppDi.instance.getPaymentCategorizer();
 
-        print('Предиктор получен, статус инициализации: ${predictor.isInitialized}');
+        _log.debug('Предиктор получен, статус инициализации: ${predictor.isInitialized}');
 
         // Убеждаемся, что предиктор инициализирован
         if (!predictor.isInitialized) {
-          print('Инициализируем предиктор категорий');
+          _log.debug('Инициализируем предиктор категорий');
           await predictor.initialize();
-          print('Предиктор категорий инициализирован');
+          _log.debug('Предиктор категорий инициализирован');
         }
       } catch (e) {
-        print('Ошибка при получении или инициализации предиктора: $e');
-        print('Стек ошибки: ${StackTrace.current}');
+        _log.error('Ошибка при получении или инициализации предиктора: $e');
+        _log.error('Стек ошибки: ${StackTrace.current}');
       }
     }
 
@@ -149,22 +158,22 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       // Если нужно использовать предсказанные категории и у платежа нет категорий
       if (usePredictedCategories && payment.details.tags.isEmpty && predictor != null) {
         try {
-          print('Предсказание категорий для платежа: ${payment.details.name}');
+          _log.debug('Предсказание категорий для платежа: ${payment.details.name}');
           final predictions = await predictor.predictCategory(payment);
-          print('Получены предсказания: ${predictions.length}');
+          _log.debug('Получены предсказания: ${predictions.length}');
 
           if (predictions.isNotEmpty) {
             predictedCategories = _escapeCSV(predictions.map((p) => p.category).join(', '));
             probability = predictions.map((p) => p.probability.toStringAsFixed(2)).join(', ');
-            print('Предсказанные категории: $predictedCategories');
-            print('Вероятности: $probability');
+            _log.debug('Предсказанные категории: $predictedCategories');
+            _log.debug('Вероятности: $probability');
           } else {
-            print('Нет предсказаний для платежа: ${payment.details.name}');
+            _log.debug('Нет предсказаний для платежа: ${payment.details.name}');
           }
         } catch (e) {
           // Игнорируем ошибки предсказания
-          print('Ошибка предсказания категории для платежа $id: $e');
-          print('Стек ошибки: ${StackTrace.current}');
+          _log.error('Ошибка предсказания категории для платежа $id: $e');
+          _log.error('Стек ошибки: ${StackTrace.current}');
         }
       }
 
@@ -234,43 +243,153 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   @override
   Future<void> importDataFromFile({required String filePath, String? password}) async {
     final file = File(filePath);
+    if (!await file.exists()) {
+      throw Exception('Файл не найден');
+    }
 
-    if (await file.exists()) {
-      final bytes = await file.readAsBytes();
-      bool isEncrypted = await isFilePasswordProtected(filePath);
+    final bytes = await file.readAsBytes();
+    final (_, originalBytes) = BackupMetadata.extractMetadataFromBytes(bytes);
 
-      if (isEncrypted) {
-        final encrypter = await AppDi.instance.getEncrypter(
-          AppEncrypterFactoryArgs(password: password ?? ''),
-        );
-
-        try {
-          // Расшифровываем данные
-          final decryptedBytes = encrypter.decryptBytes(bytes);
-
-          // Создаем временный файл
-          final tempDir = await getTemporaryDirectory();
-          final tempFile = File(
-            '${tempDir.path}/temp_db_${DateTime.now().millisecondsSinceEpoch}.db',
-          );
-          await tempFile.writeAsBytes(decryptedBytes);
-
-          // Импортируем из временного файла
-          await appDb.overrideDefaultFromFile(newDbFile: tempFile);
-
-          // Удаляем временный файл
-          if (await tempFile.exists()) {
-            await tempFile.delete();
-          }
-        } catch (e) {
-          throw Exception('Не удалось расшифровать файл. Возможно, пароль неверный: $e');
-        }
-      } else if (isEncrypted && (password == null || password.isEmpty)) {
-        throw Exception('Для импорта зашифрованного файла требуется пароль');
-      } else {
-        // Файл не зашифрован, просто импортируем
-        await appDb.overrideDefaultFromFile(newDbFile: file);
+    Uint8List decryptedBytes = originalBytes;
+    for (final key in [
+      OldMockedEncryptionKey(),
+      OldEnviedEncryptionKey(),
+      MonisyncEncryptionKeyV2(),
+    ]) {
+      try {
+        final encrypter =
+            key is MonisyncEncryptionKeyV2
+                ? Salsa20MonisyncEncrypter(key, enableMetadata: true)
+                : AesMonisyncEncrypter(key, enableMetadata: true);
+        decryptedBytes = encrypter.decryptBytes(bytes);
+        break;
+      } catch (_) {
+        continue;
       }
+    }
+
+    // Создаем временный файл без метаданных
+    final tempDir = await getTemporaryDirectory();
+    final tempFile = File('${tempDir.path}/temp_db_${DateTime.now().millisecondsSinceEpoch}.db');
+    await tempFile.writeAsBytes(decryptedBytes);
+
+    // Импортируем из временного файла
+    await appDb.overrideDefaultFromFile(newDbFile: tempFile);
+
+    // Удаляем временный файл
+    if (await tempFile.exists()) {
+      await tempFile.delete();
+    }
+  }
+
+  @override
+  Future<BackupInfo?> readBackupInfo(String filePath, IAppEncrypter encrypter) async {
+    final cleanedPath = filePath.replaceAll('file://', '');
+    final file = File(cleanedPath);
+
+    if (!await file.exists()) {
+      return null;
+    }
+
+    final bytes = await file.readAsBytes();
+    final (_, originalBytes) = BackupMetadata.extractMetadataFromBytes(bytes);
+
+    Uint8List decryptedBytes = originalBytes;
+    for (final key in [
+      OldMockedEncryptionKey(),
+      OldEnviedEncryptionKey(),
+      MonisyncEncryptionKeyV2(),
+    ]) {
+      try {
+        final encrypter =
+            key is MonisyncEncryptionKeyV2
+                ? Salsa20MonisyncEncrypter(key, enableMetadata: true)
+                : AesMonisyncEncrypter(key, enableMetadata: true);
+        decryptedBytes = encrypter.decryptBytes(bytes);
+        break;
+      } catch (_) {
+        continue;
+      }
+    }
+
+    // Проверяем, есть ли у файла метаданные
+    if (IAppEncrypter.hasMetadata(bytes)) {
+      final metadata = IAppEncrypter.extractMetadata(bytes);
+      if (metadata?.isEncrypted == true) {
+        // Если файл зашифрован, возвращаем информацию только о файле без содержимого
+        return BackupInfo(
+          file: File(filePath),
+          creationDate: null,
+          plannersCount: 0,
+          backupMetadata: metadata,
+          isLegacyBackup: false,
+          additionalInfo: {
+            'key_type': metadata?.hasPassword == true ? 'password' : 'app_key',
+            'format': 'metadata',
+          },
+        );
+      }
+    }
+
+    // Для незашифрованных файлов - стандартная логика
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final dbFile = File('${tempDir.path}/temp_db_${DateTime.now().millisecondsSinceEpoch}.db');
+
+      Uint8List? decryptedBytes;
+      AppEncryptionKey? encryptionKey;
+      BackupMetadata? backupMetadata;
+      for (final key in [OldMockedEncryptionKey(), OldEnviedEncryptionKey()]) {
+        try {
+          final encrypter = AesMonisyncEncrypter(key, enableMetadata: true);
+          decryptedBytes = encrypter.decryptBytes(bytes);
+          backupMetadata = BackupMetadata.fromBytes(bytes);
+
+          encryptionKey = key;
+          break;
+        } catch (_) {
+          continue;
+        }
+      }
+
+      if (decryptedBytes == null) {
+        throw Exception('Не удалось расшифровать файл');
+      }
+      await dbFile.writeAsBytes(decryptedBytes);
+      await appDb.openTemporaryFromFile(dbFile: dbFile);
+
+      final planners = await AppDi.instance.getPlannerRepo().getPlanners();
+      final lastUpdate =
+          await appDb.db.managers.globalLastUpdate
+              .filter((f) => f.lastUpdateId.equals('1'))
+              .getSingleOrNull();
+
+      await appDb.openDefault();
+
+      return BackupInfo(
+        file: File(filePath),
+        creationDate: lastUpdate?.updatedAt,
+        plannersCount: planners.length,
+        isLegacyBackup: false,
+        backupMetadata: backupMetadata,
+        encryptionKey: encryptionKey,
+      );
+    } catch (e) {
+      _log.error('Ошибка при чтении информации о бекапе: $e');
+
+      try {
+        await appDb.openDefault();
+      } catch (_) {}
+
+      // Если не удалось открыть файл, возвращаем базовую информацию
+      return BackupInfo(
+        file: File(filePath),
+        creationDate: null,
+        plannersCount: 0,
+        isLegacyBackup: false,
+        backupMetadata: BackupMetadata(isEncrypted: false, hasPassword: false),
+        additionalInfo: {'error': e.toString()},
+      );
     }
   }
 
@@ -282,50 +401,4 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   @override
   String getBackupFileName(DateTime date) =>
       'db_${DateFormat(backupDateFormat).format(date)}.moniplan';
-
-  @override
-  Future<BackupInfo?> readBackupInfo(String filePath) async {
-    final cleanedPath = filePath.replaceAll('file://', '');
-    final file = File(cleanedPath);
-
-    if (!await file.exists()) {
-      return null;
-    }
-
-    final bytes = await file.readAsBytes();
-
-    // Проверяем, есть ли у файла метаданные
-    if (IAppEncrypter.hasMetadata(bytes)) {
-      final metadata = IAppEncrypter.extractMetadata(bytes);
-      if (metadata?.isEncrypted == true) {
-        // Если файл зашифрован, возвращаем информацию только о файле без содержимого
-        return BackupInfo(
-          file: File(filePath),
-          creationDate: null,
-          plannersCount: 0,
-          isEncrypted: true,
-          hasPassword: metadata?.hasPassword ?? false,
-        );
-      }
-    }
-
-    // Для незашифрованных файлов - стандартная логика
-    await appDb.openTemporaryFromFile(dbFile: file);
-
-    final planners = await AppDi.instance.getPlannerRepo().getPlanners();
-    final lastUpdate =
-        await appDb.db.managers.globalLastUpdate
-            .filter((f) => f.lastUpdateId.equals(GlobalLastUpdate.entityId))
-            .getSingleOrNull();
-
-    await appDb.openDefault();
-
-    return BackupInfo(
-      file: File(filePath),
-      creationDate: lastUpdate?.updatedAt,
-      plannersCount: planners.length,
-      isEncrypted: false,
-      hasPassword: false,
-    );
-  }
 }

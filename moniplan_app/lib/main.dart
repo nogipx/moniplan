@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:logging/logging.dart';
 import 'package:moniplan_app/_run/_index.dart';
-import 'package:moniplan_app/_run/log/app_log_impl.dart';
+import 'package:moniplan_app/_run/log/console_log.dart';
 import 'package:moniplan_app/i18n/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
@@ -17,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 Future<void> main() async {
-  AppLog.factory = (name) => MoniplanLog(logger: Logger(name));
+  AppLog.factory = (name) => ConsoleAppLog(name);
   AppDi.instance = GetItAppDI();
 
   final zoneLog = AppLog('ZoneGuarded');

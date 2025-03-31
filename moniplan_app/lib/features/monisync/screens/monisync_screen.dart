@@ -106,27 +106,6 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     );
   }
 
-  // Future<void> _exportShareFile() async {
-  //   final now = DateTime.now();
-  //   final exportResult = await _monisyncRepo.exportDataToFile(now: now);
-  //
-  //   if (exportResult != null) {
-  //     try {
-  //       final bytes = await exportResult.file.readAsBytes();
-  //       final xfile = XFile.fromData(bytes);
-  //
-  //       final result = Share.shareXFiles(
-  //         [xfile],
-  //         subject: 'Share Moniplan data',
-  //       );
-  //       print(result);
-  //     } on Object catch (error, trace) {
-  //       _log.error('Failed to export', error: error, trace: trace);
-  //       rethrow;
-  //     }
-  //   }
-  // }
-
   // Улучшенный UI для ввода пароля с дополнительными функциями
   Future<String?> _showPasswordDialog(BuildContext context, {bool isExport = true}) {
     final controller = TextEditingController();
@@ -459,48 +438,341 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     }
   }
 
+  // Отображение информации о файле бекапа с запросом подтверждения в BottomSheet
+  Future<bool> _showBackupInfoAndConfirmDialog(BackupInfo info) async {
+    return await showModalBottomSheet<bool>(
+          context: context,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          isScrollControlled: true,
+          builder: (context) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.8,
+              minChildSize: 0.6,
+              maxChildSize: 0.95,
+              expand: false,
+              builder: (context, scrollController) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Column(
+                    children: [
+                      // Полоска для перетаскивания
+                      Container(
+                        height: 4,
+                        width: 40,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Информация о файле',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 16),
+                              // Информация о старом бекапе
+                              if (info.isLegacyBackup)
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  margin: const EdgeInsets.only(bottom: 16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.shade50,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.amber),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(Icons.history, color: Colors.amber.shade800),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Бекап старого формата',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.amber.shade900,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Обнаружен бекап в устаревшем формате. Он будет преобразован автоматически при импорте.',
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              // Карточка с основными данными о бекапе
+                              Card(
+                                elevation: 2,
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ListTile(
+                                        leading: Icon(
+                                          info.backupMetadata?.isEncrypted == true
+                                              ? Icons.lock
+                                              : Icons.lock_open,
+                                          color:
+                                              info.backupMetadata?.isEncrypted == true
+                                                  ? Colors.amber
+                                                  : Colors.green,
+                                          size: 28,
+                                        ),
+                                        title: const Text('Шифрование'),
+                                        subtitle: Text(
+                                          info.backupMetadata?.isEncrypted == true
+                                              ? (info.isLegacyBackup
+                                                  ? 'Зашифрован старым ключом'
+                                                  : ((info.additionalInfo != null &&
+                                                          info.additionalInfo!['key_type'] ==
+                                                              'app_key')
+                                                      ? 'Зашифрован ключом приложения'
+                                                      : 'Зашифрован пользовательским паролем'))
+                                              : 'Не зашифрован',
+                                        ),
+                                      ),
+                                      const Divider(),
+                                      ListTile(
+                                        leading: Icon(
+                                          info.backupMetadata?.hasPassword == true
+                                              ? Icons.password
+                                              : Icons.no_encryption,
+                                          color:
+                                              info.backupMetadata?.hasPassword == true
+                                                  ? Colors.red
+                                                  : Colors.green,
+                                          size: 28,
+                                        ),
+                                        title: const Text('Защита паролем'),
+                                        subtitle: Text(
+                                          info.backupMetadata?.hasPassword == true
+                                              ? 'Требуется пароль'
+                                              : info.isLegacyBackup
+                                              ? 'Используется старый ключ'
+                                              : 'Пароль не требуется',
+                                        ),
+                                      ),
+                                      if (info.backupMetadata?.isEncrypted == false &&
+                                          info.creationDate != null) ...[
+                                        const Divider(),
+                                        ListTile(
+                                          leading: const Icon(
+                                            Icons.date_range,
+                                            color: Colors.blue,
+                                            size: 28,
+                                          ),
+                                          title: const Text('Дата создания'),
+                                          subtitle: Text(
+                                            DateFormat(
+                                              'dd.MM.yyyy HH:mm',
+                                            ).format(info.creationDate!),
+                                          ),
+                                        ),
+                                      ],
+                                      if (info.backupMetadata?.isEncrypted == false &&
+                                          info.plannersCount > 0) ...[
+                                        const Divider(),
+                                        ListTile(
+                                          leading: const Icon(
+                                            Icons.list,
+                                            color: Colors.blue,
+                                            size: 28,
+                                          ),
+                                          title: const Text('Планеров'),
+                                          subtitle: Text('${info.plannersCount}'),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              // Блок с дополнительной информацией (если есть)
+                              if (info.additionalInfo != null && info.additionalInfo!.isNotEmpty)
+                                Card(
+                                  elevation: 2,
+                                  margin: const EdgeInsets.symmetric(vertical: 8),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Дополнительная информация',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        ...info.additionalInfo!.entries.map((entry) {
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Text(
+                                                    '${entry.key}:',
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Expanded(flex: 3, child: Text('${entry.value}')),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                              const SizedBox(height: 16),
+
+                              // Предупреждение о перезаписи данных
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.red.shade200),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.warning_amber, color: Colors.red),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Внимание!',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.red.shade900,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Импорт бекапа перезапишет все данные в приложении. Текущие данные будут потеряны.',
+                                      style: TextStyle(fontSize: 13, color: Colors.red.shade900),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Кнопки действий
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  OutlinedButton(
+                                    onPressed: () => Navigator.of(context).pop(false),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                    child: const Text('Отмена'),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  ElevatedButton(
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                    child: const Text('Импортировать'),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ) ??
+        false;
+  }
+
   Future<void> _importFilePicker() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result != null) {
       final filePath = result.files.single.path!;
+      final (metadata, bytes) = BackupMetadata.extractMetadataFromBytes(
+        File(filePath).readAsBytesSync(),
+      );
+      final appEncrypter = await AppDi.instance.getEncrypter(
+        AppEncrypterFactoryArgs(forceUseSavedPassword: metadata.hasPassword),
+      );
 
-      // Автоматически определяем, защищен ли файл паролем
-      final isPasswordProtected = await _monisyncRepo?.isFilePasswordProtected(filePath);
+      // Получаем информацию о файле бэкапа
+      final backupInfo = await _monisyncRepo?.readBackupInfo(filePath, appEncrypter);
+
+      if (backupInfo == null) {
+        showToast('Не удалось прочитать информацию о файле');
+        return;
+      }
+
+      // Показываем информацию о файле и запрашиваем подтверждение
+      final shouldImport = await _showBackupInfoAndConfirmDialog(backupInfo);
+
+      if (!shouldImport) {
+        // Пользователь отменил импорт
+        return;
+      }
 
       String? password;
 
-      if (isPasswordProtected ?? false) {
-        // Показываем информационный диалог
-        await showDialog(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text('Файл защищен паролем'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.lock, size: 48, color: Colors.amber),
-                    SizedBox(height: 16),
-                    Text('Выбранный файл защищен паролем. Введите пароль для расшифровки.'),
-                  ],
-                ),
-                actions: [
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text('Понятно'),
-                  ),
-                ],
-              ),
-        );
-
+      // Запрашиваем пароль только если это не старый бекап и он защищен паролем
+      if (backupInfo.backupMetadata?.hasPassword == true && !backupInfo.isLegacyBackup) {
         final pass = await _showPasswordDialog(context, isExport: false);
         if (pass == null) {
           // Пользователь отменил ввод пароля
           return;
         }
 
-        // Конвертируем пароль в ключ через SHA-256
         password = pass;
       }
 
@@ -509,19 +781,50 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
           _isLoading = true;
         });
 
-        // customKey = _passwordToKey('041020');
-
         await _monisyncRepo?.importDataFromFile(filePath: filePath, password: password);
 
-        showToast('Данные успешно импортированы');
-        await _loadPlanners(); // Перезагружаем планеры после импорта
+        // Показываем специальное сообщение для старых бекапов
+        if (backupInfo.isLegacyBackup) {
+          await showDialog(
+            context: context,
+            builder:
+                (context) => AlertDialog(
+                  title: Text('Импорт успешно завершен'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.check_circle, size: 48, color: Colors.green),
+                      SizedBox(height: 16),
+                      Text('Бекап старого формата успешно импортирован.'),
+                      SizedBox(height: 8),
+                      Text(
+                        'Рекомендуем создать новый бекап в современном формате для лучшей совместимости.',
+                        style: TextStyle(fontSize: 13, color: Colors.grey.shade800),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: Text('ОК')),
+                  ],
+                ),
+          );
+        } else {
+          showToast('Данные успешно импортированы');
+        }
       } catch (e) {
         _log.error('Ошибка импорта', error: e);
-        showToast(
-          isPasswordProtected ?? false
-              ? 'Ошибка импорта: неверный пароль'
-              : 'Ошибка при импорте данных',
-        );
+
+        // Разные сообщения об ошибках для разных типов бекапов
+        String errorMessage;
+        if (backupInfo.isLegacyBackup) {
+          errorMessage = 'Ошибка импорта старого бекапа';
+        } else if (backupInfo.backupMetadata?.hasPassword == true) {
+          errorMessage = 'Ошибка импорта: неверный пароль';
+        } else {
+          errorMessage = 'Ошибка при импорте данных';
+        }
+
+        showToast(errorMessage);
 
         // Показываем подробное сообщение об ошибке
         await showDialog(
@@ -535,7 +838,9 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
                     Icon(Icons.error_outline, size: 48, color: Colors.red),
                     SizedBox(height: 16),
                     Text(
-                      isPasswordProtected ?? false
+                      backupInfo.isLegacyBackup
+                          ? 'Не удалось импортировать бекап старого формата. Файл может быть поврежден.'
+                          : backupInfo.backupMetadata?.hasPassword == true
                           ? 'Не удалось расшифровать файл. Проверьте правильность введенного пароля.'
                           : 'Не удалось импортировать данные. Возможно, файл поврежден.',
                     ),

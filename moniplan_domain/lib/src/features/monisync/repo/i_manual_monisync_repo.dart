@@ -4,6 +4,8 @@
 
 import 'dart:io';
 
+import 'package:moniplan_domain/src/core/crypto/_index.dart';
+
 class ExportResult {
   final File file;
 
@@ -14,15 +16,21 @@ class BackupInfo {
   final File file;
   final DateTime? creationDate;
   final int plannersCount;
-  final bool isEncrypted;
-  final bool hasPassword;
+  final bool isLegacyBackup;
+  final BackupMetadata? backupMetadata;
+  final AppEncryptionKey? encryptionKey;
+
+  /// Дополнительная информация о бекапе, которая может отличаться в зависимости от типа
+  final Map<String, dynamic>? additionalInfo;
 
   BackupInfo({
     required this.file,
     required this.creationDate,
     required this.plannersCount,
-    this.isEncrypted = false,
-    this.hasPassword = false,
+    this.isLegacyBackup = false,
+    this.additionalInfo,
+    this.backupMetadata,
+    this.encryptionKey,
   });
 }
 
@@ -55,5 +63,5 @@ abstract interface class IMonisyncRepo {
 
   Future<bool> checkNeedSync();
 
-  Future<BackupInfo?> readBackupInfo(String filePath);
+  Future<BackupInfo?> readBackupInfo(String filePath, IAppEncrypter encrypter);
 }
