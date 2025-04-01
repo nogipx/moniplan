@@ -1,19 +1,42 @@
 import 'package:moniplan_domain/moniplan_domain.dart';
 
-final moniplanLicenseSchema = LicenseSchema(
-  featureSchema: {
-    'feature_statistics': SchemaField(type: FieldType.boolean, required: true),
-    'feature_insights': SchemaField(type: FieldType.boolean, required: true),
-    'feature_monisync': SchemaField(type: FieldType.boolean, required: true),
-    'feature_ai': SchemaField(type: FieldType.boolean, required: true),
-    'limit_repeated_payments': SchemaField(type: FieldType.boolean),
-    'limit_max_planners': SchemaField(
-      type: FieldType.number,
-      validators: [NumberValidator(minimum: 1, maximum: 10)],
-    ),
-  },
-  metadataSchema: {
-    'user_info_hash': SchemaField(type: FieldType.string, required: true),
-    'device_hash': SchemaField(type: FieldType.string, required: true),
-  },
-);
+final moniplanLicenseSchema = _getLicenseSchema();
+
+abstract interface class MoniplanLicenseKeys {
+  static const featureMonisyncBackupPassword = 'monisyncBackupPassword';
+  static const featureMonisyncExportData = 'monisyncExportData';
+  static const featureAnalyticsInsights = 'analyticsInsights';
+  static const featurePlannerAllowMany = 'plannerAllowMany';
+  static const metadataDeviceHash = 'deviceHash';
+  static const metadataUserHash = 'userHash';
+}
+
+/// Определение схемы лицензии для проверки
+LicenseSchema _getLicenseSchema() {
+  return LicenseSchema(
+    featureSchema: {
+      MoniplanLicenseKeys.featureMonisyncBackupPassword: SchemaField(
+        type: FieldType.boolean,
+        required: false,
+      ),
+      MoniplanLicenseKeys.featureMonisyncExportData: SchemaField(
+        type: FieldType.boolean,
+        required: false,
+      ),
+      MoniplanLicenseKeys.featureAnalyticsInsights: SchemaField(
+        type: FieldType.boolean,
+        required: false,
+      ),
+      MoniplanLicenseKeys.featurePlannerAllowMany: SchemaField(
+        type: FieldType.boolean,
+        required: false,
+      ),
+    },
+    metadataSchema: {
+      MoniplanLicenseKeys.metadataDeviceHash: SchemaField(type: FieldType.string, required: true),
+      MoniplanLicenseKeys.metadataUserHash: SchemaField(type: FieldType.string, required: true),
+    },
+    allowUnknownFeatures: true,
+    allowUnknownMetadata: true,
+  );
+}

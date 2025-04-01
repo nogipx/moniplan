@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:moniplan_app/features/license/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 
 class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
@@ -21,27 +21,27 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
   }
 
   @override
-  Future<LicenseStatus> getLicenseStatus({License? license}) async {
+  Future<LicenseStatusResult> getLicenseStatus({License? license}) async {
     final effectiveLicense = license ?? await getCurrentLicense();
     if (effectiveLicense == null) {
-      return NoLicenseStatus();
+      return (status: NoLicenseStatus(), license: effectiveLicense);
     }
 
     if (!_licenseValidator.validateSignature(effectiveLicense).isValid) {
-      return InvalidLicenseSignatureStatus();
+      return (status: InvalidLicenseSignatureStatus(), license: effectiveLicense);
     }
 
     if (!_licenseValidator.validateExpiration(effectiveLicense).isValid) {
-      return ExpiredLicenseStatus(effectiveLicense);
+      return (status: ExpiredLicenseStatus(effectiveLicense), license: effectiveLicense);
     }
 
-    final schema = _getLicenseSchema();
+    final schema = getLicenseSchema();
     final schemaResult = _licenseValidator.validateSchema(effectiveLicense, schema);
     if (!schemaResult.isValid) {
-      return InvalidLicenseSchemaStatus(schemaResult);
+      return (status: InvalidLicenseSchemaStatus(schemaResult), license: effectiveLicense);
     }
 
-    return ActiveLicenseStatus(effectiveLicense);
+    return (status: ActiveLicenseStatus(effectiveLicense), license: effectiveLicense);
   }
 
   @override
@@ -62,21 +62,4 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
     final license = LicenseEncoder.decodeFromBytes(licenseBytes);
     return license;
   }
-}
-
-/// Определение схемы лицензии для проверки
-LicenseSchema _getLicenseSchema() {
-  return LicenseSchema(
-    featureSchema: {
-      'monisync': SchemaField(type: FieldType.boolean, required: true),
-      'analytics': SchemaField(type: FieldType.boolean, required: true),
-    },
-    metadataSchema: {
-      'user_hash': SchemaField(type: FieldType.string, required: true),
-      'issuer_id': SchemaField(type: FieldType.string, required: true),
-      'device_hash': SchemaField(type: FieldType.string, required: true),
-    },
-    allowUnknownFeatures: true,
-    allowUnknownMetadata: true,
-  );
 }
