@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:licensify/licensify.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 class LicenseCard extends StatelessWidget {
   final License license;

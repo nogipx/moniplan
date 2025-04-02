@@ -12,4 +12,4 @@ export 'package:uuid/uuid.dart';
 export 'package:equatable/equatable.dart';
 export 'package:data_manage/data_manage.dart';
 
-export 'package:licensify/licensify.dart' hide DateTimeExtensions;
+export 'package:licensify/licensify.dart';

@@ -678,12 +678,11 @@ packages:
     source: hosted
     version: "3.0.1"
   licensify:
-    dependency: "direct main"
+    dependency: transitive
     description:
-      name: licensify
-      sha256: "89b244cfb60ad04daf0e9196245c3e4fda2a6d5f00bfb7df5e41110b4fb45134"
-      url: "https://pub.dev"
-    source: hosted
+      path: "/Users/nogipx/nogipx_vault/Projects/nogipx/public_nogipx_projects/licensify"
+      relative: false
+    source: path
     version: "1.7.1"
   lints:
     dependency: transitive

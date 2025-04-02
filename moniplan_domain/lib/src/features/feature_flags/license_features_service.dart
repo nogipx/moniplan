@@ -23,8 +23,9 @@ class LicenseFeaturesService {
 
   /// Обновляет кэшированную лицензию
   Future<void> _refreshLicense() async {
-    final license = await _licenseRepo.getCurrentLicense();
-    final status = await _licenseRepo.getLicenseStatus(license: license);
+    final result = await _licenseRepo.getLicenseStatus();
+    final license = result.license;
+    final status = result.status;
 
     // Сбрасываем состояния
     _isLicenseValid = false;

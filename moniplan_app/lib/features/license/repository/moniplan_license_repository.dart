@@ -35,7 +35,7 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
       return (status: ExpiredLicenseStatus(effectiveLicense), license: effectiveLicense);
     }
 
-    final schema = getLicenseSchema();
+    final schema = moniplanLicenseSchema;
     final schemaResult = _licenseValidator.validateSchema(effectiveLicense, schema);
     if (!schemaResult.isValid) {
       return (status: InvalidLicenseSchemaStatus(schemaResult), license: effectiveLicense);
@@ -59,7 +59,7 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
     if (licenseBytes == null) {
       return null;
     }
-    final license = LicenseEncoder.decodeFromBytes(licenseBytes);
+    final license = LicenseEncoder.decode(licenseBytes);
     return license;
   }
 }

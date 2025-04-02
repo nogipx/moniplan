@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:equatable/equatable.dart';
-import 'package:licensify/licensify.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 abstract class LicenseState extends Equatable {
   const LicenseState();
