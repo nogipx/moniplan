@@ -19,6 +19,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
   final _log = AppLog('ReceiveImportSharingBloc');
   final IAppDi appDi;
   IMonisyncRepo? _monisyncRepo;
+  IMoniplanLicenseRepo? _licenseRepo;
 
   ReceiveImportSharingBloc({required this.appDi, AppLog? log})
     : super(ReceiveImportInitialState()) {
@@ -26,6 +27,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     on<ReceiveImportStopReceiveEvent>(_onStopReceive);
     on<ReceiveImportOnDataEvent>(_onData);
     on<ReceiveImportOnDecisionEvent>(_onDecision);
+    on<ReceiveImportOnLicenseDataEvent>(_onLicenseData);
     on<ReceiveImportCheckIsActiveEvent>(_onCheckIsActive);
   }
 
@@ -36,6 +38,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     Emitter<ReceiveImportState> emit,
   ) async {
     _monisyncRepo = await appDi.getMonisyncRepo();
+    _licenseRepo = appDi.getLicenseRepo();
 
     if (event.shouldRestart) {
       _intentStream?.cancel();
@@ -61,6 +64,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     _intentStream?.cancel();
     _intentStream = null;
     _monisyncRepo = null;
+    _licenseRepo = null;
 
     emit(ReceiveImportActiveState(isActive: false));
   }
@@ -75,22 +79,45 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     await Permission.manageExternalStorage.request();
 
     final backupInfos = <BackupInfo>[];
+    final licenseFiles = <SharedMediaFile>[];
+
     for (final file in event.receivedValues) {
       try {
-        if (!file.path.endsWith('.moniplan')) {
-          continue;
-        }
-
-        final backupInfo = await _monisyncRepo?.readBackupInfo(filePath: file.path);
-        if (backupInfo != null) {
-          backupInfos.add(backupInfo);
+        if (file.path.endsWith('.moniplan')) {
+          final backupInfo = await _monisyncRepo?.readBackupInfo(filePath: file.path);
+          if (backupInfo != null) {
+            backupInfos.add(backupInfo);
+          }
+        } else if (file.path.endsWith('.licensify') || file.path.endsWith('.mlr')) {
+          licenseFiles.add(file);
         }
       } on Object catch (error, trace) {
-        _log.error('Failed to load backup info', error: error, trace: trace);
+        _log.error('Failed to process file', error: error, trace: trace);
       }
     }
 
-    emit(ReceiveImportDecisionState(toImportBackups: backupInfos));
+    if (backupInfos.isNotEmpty) {
+      emit(ReceiveImportDecisionState(toImportBackups: backupInfos));
+    } else if (licenseFiles.isNotEmpty) {
+      add(ReceiveImportOnLicenseDataEvent(licenseFiles: licenseFiles));
+    }
+  }
+
+  Future<void> _onLicenseData(
+    ReceiveImportOnLicenseDataEvent event,
+    Emitter<ReceiveImportState> emit,
+  ) async {
+    if (event.licenseFiles.isEmpty || _licenseRepo == null) {
+      return;
+    }
+
+    try {
+      final licenseFile = event.licenseFiles.first;
+      emit(ReceiveImportLicenseState(licenseFile: licenseFile));
+    } catch (e, trace) {
+      _log.error('Failed to process license file', error: e, trace: trace);
+      emit(ReceiveImportResultState(result: ReceiveImportResult.error));
+    }
   }
 
   FutureOr<void> _onDecision(

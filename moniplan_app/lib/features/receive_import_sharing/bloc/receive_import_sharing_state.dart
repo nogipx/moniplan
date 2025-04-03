@@ -4,12 +4,7 @@
 
 part of 'receive_import_sharing_bloc.dart';
 
-enum ReceiveImportResult {
-  imported,
-  fileNotFound,
-  cancelled,
-  error,
-}
+enum ReceiveImportResult { imported, fileNotFound, cancelled, error }
 
 abstract class ReceiveImportState {}
 
@@ -19,6 +14,12 @@ class ReceiveImportDecisionState implements ReceiveImportState {
   final List<BackupInfo> toImportBackups;
 
   ReceiveImportDecisionState({this.toImportBackups = const []});
+}
+
+class ReceiveImportLicenseState implements ReceiveImportState {
+  final SharedMediaFile licenseFile;
+
+  ReceiveImportLicenseState({required this.licenseFile});
 }
 
 class ReceiveImportResultState implements ReceiveImportState {

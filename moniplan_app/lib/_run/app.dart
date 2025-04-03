@@ -148,7 +148,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
                     dark: dark,
                     light: light,
                   ),
-              ReceiveImportWrapper(child: PlannersListScreen()),
+              ReceiveLicenseWrapper(child: ReceiveImportWrapper(child: PlannersListScreen())),
             );
           },
         );

@@ -22,6 +22,12 @@ class ReceiveImportOnDataEvent implements ReceiveImportEvent {
   ReceiveImportOnDataEvent({this.receivedValues = const []});
 }
 
+class ReceiveImportOnLicenseDataEvent implements ReceiveImportEvent {
+  final List<SharedMediaFile> licenseFiles;
+
+  ReceiveImportOnLicenseDataEvent({required this.licenseFiles});
+}
+
 class ReceiveImportOnDecisionEvent implements ReceiveImportEvent {
   final BackupInfo? acceptedBackup;
   final bool shouldImport;

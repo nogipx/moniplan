@@ -248,19 +248,16 @@ class _LicenseView extends StatelessWidget {
 Future<void> _uploadLicense(BuildContext context, {bool isUpdate = false}) async {
   try {
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['licensify', 'mlr'],
+      type: FileType.any,
       dialogTitle: 'Выберите файл лицензии',
     );
 
     if (result != null && result.files.single.path != null) {
       final path = result.files.single.path;
-      if (path == null || (!path.endsWith('.licensify') && !path.endsWith('.mlr'))) {
+      if (path == null || !path.endsWith('.licensify')) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-              'Выбран некорректный файл. Файл должен иметь расширение .licensify или .mlr',
-            ),
+            content: Text('Выбран некорректный файл. Файл должен иметь расширение .licensify'),
             backgroundColor: Colors.red,
           ),
         );
