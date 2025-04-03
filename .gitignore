@@ -13,6 +13,11 @@ assets/testicon/*
 *.keys.dart
 devtools_options.yaml
 .cxx
+*.pem
+*.pyc
+*.bin
+*.licensify
+*.mlr
 
 # IntelliJ related
 *.iml

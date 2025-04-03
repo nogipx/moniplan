@@ -1,0 +1,11 @@
+*.pem
+*.pub
+*.crt
+*.key
+*.csr
+*.csr.pem
+*.csr.pem.crt
+*.env
+.dart_tool
+*.json
+*.sqlite
