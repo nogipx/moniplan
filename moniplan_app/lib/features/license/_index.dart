@@ -1,3 +1,5 @@
 export 'bloc/_index.dart';
-export 'domain/_index.dart';
-export 'ui/license_page.dart';
+export 'repository/secure_license_storage.dart';
+export 'repository/moniplan_license_repository.dart';
+export 'services/device_info_provider.dart';
+export 'ui/_index.dart';

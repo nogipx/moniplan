@@ -11,7 +11,6 @@ import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_app/features/license/bloc/_index.dart';
 import 'package:moniplan_app/features/license/ui/components/_index.dart';
-import 'package:moniplan_app/features/license/ui/feature_display_page.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,24 +21,7 @@ class LicensePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Управление лицензией', style: context.text.displaySmall),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return const FeatureDisplayPage();
-                  },
-                ),
-              );
-            },
-            icon: const Icon(Icons.toggle_on_outlined),
-            tooltip: 'Функции лицензии',
-          ),
-        ],
-      ),
+      appBar: AppBar(title: Text('Управление лицензией', style: context.text.displaySmall)),
       body: BlocConsumer<LicenseBloc, LicenseState>(
         listener: (context, state) {
           if (state is LicenseErrorState) {
