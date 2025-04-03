@@ -10,6 +10,7 @@ class LicenseCard extends StatelessWidget {
   final License license;
   final bool isValid;
   final bool isExpired;
+  final bool isWrongDevice;
   final String? errorMessage;
 
   const LicenseCard({
@@ -17,6 +18,7 @@ class LicenseCard extends StatelessWidget {
     required this.license,
     required this.isValid,
     required this.isExpired,
+    this.isWrongDevice = false,
     this.errorMessage,
   });
 
@@ -35,6 +37,12 @@ class LicenseCard extends StatelessWidget {
       statusText = 'Срок действия истек';
       statusIcon = Icons.warning_amber;
       statusDescription = 'Лицензия просрочена. Доступны только базовые функции.';
+    } else if (isWrongDevice) {
+      statusColor = Colors.red;
+      statusText = 'Неверное устройство';
+      statusIcon = Icons.phone_android;
+      statusDescription =
+          'Лицензия привязана к другому устройству. Доступны только базовые функции.';
     } else if (!isValid) {
       statusColor = Colors.red;
       statusText = 'Недействительна';

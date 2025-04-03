@@ -74,6 +74,9 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
         case LicenseStatusType.expired:
           emit(LicenseExpiredState(license: license));
           break;
+        case LicenseStatusType.wrongDevice:
+          emit(LicenseWrongDeviceState(license: license));
+          break;
         case LicenseStatusType.invalid:
           emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
           break;
@@ -105,6 +108,9 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
             break;
           case LicenseStatusType.expired:
             emit(LicenseExpiredState(license: license));
+            break;
+          case LicenseStatusType.wrongDevice:
+            emit(LicenseWrongDeviceState(license: license));
             break;
           case LicenseStatusType.invalid:
             emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
@@ -152,6 +158,9 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
           break;
         case LicenseStatusType.expired:
           emit(LicenseExpiredState(license: license));
+          break;
+        case LicenseStatusType.wrongDevice:
+          emit(LicenseWrongDeviceState(license: license));
           break;
         case LicenseStatusType.invalid:
           emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
@@ -202,6 +211,9 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
             break;
           case LicenseStatusType.expired:
             emit(LicenseExpiredState(license: license));
+            break;
+          case LicenseStatusType.wrongDevice:
+            emit(LicenseWrongDeviceState(license: license));
             break;
           case LicenseStatusType.invalid:
             emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));

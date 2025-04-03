@@ -12,6 +12,7 @@ class LicenseFeaturesService {
   License? _cachedLicense;
   bool _isLicenseValid = false;
   bool _isLicenseExpired = false;
+  bool _isLicenseWrongDevice = false;
 
   /// Конструктор
   LicenseFeaturesService(this._licenseRepo);
@@ -26,10 +27,10 @@ class LicenseFeaturesService {
     final result = await _licenseRepo.getLicenseStatus();
     final license = result.license;
     final status = result.status;
-
     // Сбрасываем состояния
     _isLicenseValid = false;
     _isLicenseExpired = false;
+    _isLicenseWrongDevice = false;
 
     if (license != null) {
       _cachedLicense = license;
@@ -39,6 +40,8 @@ class LicenseFeaturesService {
         _isLicenseValid = true;
       } else if (license.isExpired) {
         _isLicenseExpired = true;
+      } else if (status.isInvalidDeviceHash) {
+        _isLicenseWrongDevice = true;
       }
     } else {
       _cachedLicense = null;
@@ -261,6 +264,10 @@ class LicenseFeaturesService {
       return LicenseStatusType.expired;
     }
 
+    if (_isLicenseWrongDevice) {
+      return LicenseStatusType.wrongDevice;
+    }
+
     return LicenseStatusType.invalid;
   }
 }
@@ -275,6 +282,9 @@ enum LicenseStatusType {
 
   /// Лицензия просрочена
   expired,
+
+  /// Лицензия недействительна из-за несоответствия устройству
+  wrongDevice,
 
   /// Лицензия недействительна (например, неверная подпись)
   invalid,

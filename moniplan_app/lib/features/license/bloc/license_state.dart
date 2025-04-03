@@ -69,3 +69,12 @@ class LicenseExpiredState extends LicenseState {
   @override
   List<Object?> get props => [license];
 }
+
+class LicenseWrongDeviceState extends LicenseState {
+  final License license;
+
+  const LicenseWrongDeviceState({required this.license});
+
+  @override
+  List<Object?> get props => [license];
+}

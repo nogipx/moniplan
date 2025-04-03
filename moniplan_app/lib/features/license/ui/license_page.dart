@@ -40,7 +40,12 @@ class LicensePage extends StatelessWidget {
           }
 
           if (state is LicenseValidState) {
-            return _LicenseView(license: state.license, isValid: true, isExpired: false);
+            return _LicenseView(
+              license: state.license,
+              isValid: true,
+              isExpired: false,
+              isWrongDevice: false,
+            );
           }
 
           if (state is LicenseExpiredState) {
@@ -48,7 +53,18 @@ class LicensePage extends StatelessWidget {
               license: state.license,
               isValid: false,
               isExpired: true,
+              isWrongDevice: false,
               errorMessage: 'Необходимо продлить лицензию',
+            );
+          }
+
+          if (state is LicenseWrongDeviceState) {
+            return _LicenseView(
+              license: state.license,
+              isValid: false,
+              isExpired: false,
+              isWrongDevice: true,
+              errorMessage: 'Лицензия привязана к другому устройству',
             );
           }
 
@@ -57,6 +73,7 @@ class LicensePage extends StatelessWidget {
               license: state.license!,
               isValid: false,
               isExpired: false,
+              isWrongDevice: false,
               errorMessage: state.message,
             );
           }
@@ -161,12 +178,14 @@ class _LicenseView extends StatelessWidget {
   final License license;
   final bool isValid;
   final bool isExpired;
+  final bool isWrongDevice;
   final String? errorMessage;
 
   const _LicenseView({
     required this.license,
     required this.isValid,
     required this.isExpired,
+    this.isWrongDevice = false,
     this.errorMessage,
   });
 
@@ -182,6 +201,7 @@ class _LicenseView extends StatelessWidget {
             license: license,
             isValid: isValid,
             isExpired: isExpired,
+            isWrongDevice: isWrongDevice,
             errorMessage: errorMessage,
           ),
 
