@@ -11,6 +11,7 @@ import 'package:moniplan_app/_run/di/di_utils.dart';
 import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
 import 'package:moniplan_app/features/license/repository/moniplan_license_repository.dart';
 import 'package:moniplan_app/features/license/repository/secure_license_storage.dart';
+import 'package:moniplan_app/features/license/services/device_info_provider.dart';
 import 'package:moniplan_app/features/monisync/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
@@ -27,6 +28,10 @@ class GetItAppDI implements AppDi {
 
   @override
   Future<void> setup() async {
+    final publicKey = LicensifyKeyImporter.importPublicKeyFromString(
+      utf8.decode(base64.decode(SecureEnv.publicKey)),
+    );
+
     final dbImpl = AppDbImpl(getDatabaseFile, log: AppLog('AppDbImpl'));
     _getIt.registerSingleton<AppDbImpl>(dbImpl, dispose: (impl) => impl.close());
 
@@ -61,16 +66,16 @@ class GetItAppDI implements AppDi {
       InsightGeneratorImpl(categoryPredictor: _getIt.get<ICategoryPredictor>()),
     );
 
-    final publicKey = LicensifyKeyImporter.importPublicKeyFromString(
-      utf8.decode(base64.decode(SecureEnv.publicKey)),
-    );
     // Регистрируем репозиторий лицензий
     final licenseRepo = MoniplanLicenseRepository(
       licenseStorage: SecureLicenseStorage(FlutterSecureStorage()),
       licenseValidator: publicKey.licenseValidator,
+      licenseRequestGenerator: publicKey.licenseRequestGenerator(),
+      deviceHashGenerator: DeviceHashGenerator(
+        deviceInfoProvider: DeviceInfoProvider().getDeviceInfo,
+      ),
     );
     _getIt.registerSingleton<IMoniplanLicenseRepo>(licenseRepo);
-    _getIt.registerSingleton<LicensifyPublicKey>(publicKey);
 
     // Регистрируем сервис лицензионных функций
     final licenseFeaturesService = LicenseFeaturesService(licenseRepo);

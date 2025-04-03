@@ -1,17 +1,23 @@
 import 'dart:typed_data';
 
-import 'package:moniplan_app/features/license/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
   final ILicenseRepository _licenseRepository;
   final ILicenseValidator _licenseValidator;
+  final ILicenseRequestGenerator _licenseRequestGenerator;
+  final IDeviceHashGenerator _deviceHashGenerator;
 
   MoniplanLicenseRepository({
     required ILicenseStorage licenseStorage,
     required ILicenseValidator licenseValidator,
+    required ILicenseRequestGenerator licenseRequestGenerator,
+    required IDeviceHashGenerator deviceHashGenerator,
   }) : _licenseRepository = LicenseRepository(storage: licenseStorage),
-       _licenseValidator = licenseValidator;
+       _licenseValidator = licenseValidator,
+       _licenseRequestGenerator = licenseRequestGenerator,
+       _deviceHashGenerator = deviceHashGenerator;
 
   @override
   Future<License?> getCurrentLicense() async {
@@ -61,5 +67,23 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
     }
     final license = LicenseEncoder.decode(licenseBytes);
     return license;
+  }
+
+  @override
+  Future<Uint8List> generateLicenseRequest({int expirationHours = 48}) async {
+    final deviceHash = await _deviceHashGenerator.generateDeviceHash();
+
+    // Получение идентификатора приложения
+    final packageInfo = await PackageInfo.fromPlatform();
+    final appId = packageInfo.packageName;
+
+    // Генерация запроса лицензии
+    final requestData = _licenseRequestGenerator(
+      deviceHash: deviceHash,
+      appId: appId,
+      expirationHours: expirationHours,
+    );
+
+    return requestData;
   }
 }

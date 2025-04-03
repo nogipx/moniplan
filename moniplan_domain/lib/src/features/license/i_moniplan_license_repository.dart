@@ -14,4 +14,6 @@ abstract class IMoniplanLicenseRepo {
   Future<LicenseStatusResult> getLicenseStatus({License? license});
 
   Future<License?> decodeLicense({Uint8List? licenseBytes});
+
+  Future<Uint8List> generateLicenseRequest();
 }

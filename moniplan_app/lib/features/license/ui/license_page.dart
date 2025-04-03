@@ -7,11 +7,14 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_app/features/license/bloc/_index.dart';
 import 'package:moniplan_app/features/license/ui/components/_index.dart';
 import 'package:moniplan_app/features/license/ui/feature_display_page.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 class LicensePage extends StatelessWidget {
   const LicensePage({super.key});
@@ -105,14 +108,14 @@ class _LicenseNotFoundView extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: ListView(
           children: [
-            const Icon(Icons.vpn_key_off_outlined, size: 120, color: Colors.grey),
+            const Icon(Icons.vpn_key_off_outlined, size: 80, color: Colors.grey),
             const SizedBox(height: 16),
             const Text(
               'Лицензия не найдена',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             const Text(
@@ -120,14 +123,50 @@ class _LicenseNotFoundView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () => _uploadLicense(context),
-              icon: const Icon(Icons.add),
-              label: const Text('Загрузить лицензию'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            const SizedBox(height: 16),
+            const Card(
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Как получить лицензию:',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    SizedBox(height: 8),
+                    Text('1. Нажмите "Запросить лицензию"'),
+                    Text('2. Поделитесь файлом запроса (.mlr)'),
+                    Text('3. Дождитесь получения файла лицензии (.licensify)'),
+                    Text('4. Загрузите полученную лицензию в приложение'),
+                  ],
+                ),
               ),
+            ),
+            const SizedBox(height: 24),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => _uploadLicense(context),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Загрузить лицензию'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => _requestLicense(context),
+                  icon: const Icon(Icons.request_page),
+                  label: const Text('Запросить лицензию'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -164,15 +203,51 @@ class _LicenseView extends StatelessWidget {
             errorMessage: errorMessage,
           ),
 
+          // Сообщение об истечении лицензии
+          if (isExpired) ...[
+            const SizedBox(height: 24),
+            const Card(
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              color: Color(0xFFFFF3E0), // light orange background
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Срок действия лицензии истек',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.deepOrange,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text('Для продолжения работы с полным функционалом:'),
+                    Text('1. Запросите новую лицензию'),
+                    Text('2. Загрузите полученную лицензию'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+
           // Кнопки действий
           const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 16,
+            runSpacing: 16,
             children: [
               OutlinedButton.icon(
                 onPressed: () => _uploadLicense(context, isUpdate: true),
                 icon: const Icon(Icons.update),
                 label: const Text('Обновить'),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => _requestLicense(context),
+                icon: const Icon(Icons.request_page),
+                label: const Text('Запросить новую'),
               ),
               OutlinedButton.icon(
                 onPressed: () => _confirmDeleteLicense(context),
@@ -190,11 +265,23 @@ class _LicenseView extends StatelessWidget {
 
 Future<void> _uploadLicense(BuildContext context, {bool isUpdate = false}) async {
   try {
-    final result = await FilePicker.platform.pickFiles(type: FileType.any);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['licensify', 'mlr'],
+      dialogTitle: 'Выберите файл лицензии',
+    );
 
     if (result != null && result.files.single.path != null) {
       final path = result.files.single.path;
-      if (path == null || !path.endsWith('.licensify')) {
+      if (path == null || (!path.endsWith('.licensify') && !path.endsWith('.mlr'))) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Выбран некорректный файл. Файл должен иметь расширение .licensify или .mlr',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
         return;
       }
 
@@ -209,7 +296,10 @@ Future<void> _uploadLicense(BuildContext context, {bool isUpdate = false}) async
     }
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Не удалось загрузить файл'), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text('Не удалось загрузить файл: ${e.toString()}'),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 }
@@ -241,6 +331,72 @@ Future<void> _confirmDeleteLicense(BuildContext context) async {
   if (confirmed == true) {
     if (context.mounted) {
       context.read<LicenseBloc>().add(const LicenseDeletedEvent());
+    }
+  }
+}
+
+Future<void> _requestLicense(BuildContext context) async {
+  try {
+    // Показываем диалог с индикатором загрузки
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => const AlertDialog(
+            title: Text('Подготовка запроса'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Пожалуйста, подождите...'),
+              ],
+            ),
+          ),
+    );
+
+    // Получаем репозиторий для работы с лицензиями
+    final licenseRepo = AppDi.instance.get<IMoniplanLicenseRepo>();
+
+    // Генерируем запрос лицензии
+    final requestBytes = await licenseRepo.generateLicenseRequest();
+
+    // Создаем временный файл для запроса
+    final tempDir = await getTemporaryDirectory();
+    final dateString = DateTime.now().toIso8601String().replaceAll(RegExp(r'[:.]'), '-');
+    final fileName = 'moniplan_license_request_$dateString.mlr';
+    final file = File('${tempDir.path}/$fileName');
+    await file.writeAsBytes(requestBytes);
+
+    // Закрываем диалог с индикатором загрузки
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
+
+    // Показываем запрос на экспорт файла
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      subject: 'Запрос лицензии MoniPlan',
+      text: 'Отправьте этот файл для получения лицензии приложения MoniPlan',
+    );
+  } catch (e, trace) {
+    AppLog(
+      'LicensePage',
+    ).error('Ошибка при создании запроса лицензии: ${e.toString()}', error: e, trace: trace);
+
+    // Закрываем диалог с индикатором загрузки, если он еще открыт
+    if (context.mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+
+    // Показываем сообщение об ошибке
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка при создании запроса лицензии: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }

@@ -16,9 +16,7 @@ dependencies:
   intl: ^0.19.0
   collection: ^1.18.0
   crypto: ^3.0.6
-  # licensify: ^1.7.1
-  licensify: 
-    path: /Users/nogipx/nogipx_vault/Projects/nogipx/public_nogipx_projects/licensify
+  licensify: ^2.0.0
 
 dev_dependencies:
   lints: ^5.1.1
