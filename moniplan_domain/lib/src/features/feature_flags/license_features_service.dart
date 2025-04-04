@@ -40,7 +40,7 @@ class LicenseFeaturesService {
         _isLicenseValid = true;
       } else if (license.isExpired) {
         _isLicenseExpired = true;
-      } else if (status.isInvalidDeviceHash) {
+      } else if (status is ErrorLicenseStatus && status.message.contains('deviceHash')) {
         _isLicenseWrongDevice = true;
       }
     } else {

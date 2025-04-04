@@ -43,7 +43,10 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
 
     final deviceHash = await _deviceHashGenerator.generateDeviceHash();
     if (effectiveLicense.metadata?['deviceHash'] != deviceHash) {
-      return (status: InvalidLicenseDeviceHashStatus(), license: effectiveLicense);
+      return (
+        status: ErrorLicenseStatus(message: 'Invalid device hash'),
+        license: effectiveLicense,
+      );
     }
 
     final schema = moniplanLicenseSchema;
