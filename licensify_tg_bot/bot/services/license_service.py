@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import hashlib
 import os
 import json
 import uuid
@@ -13,6 +13,7 @@ from utils.config import settings
 from utils.license_store import LicenseStore
 from licensify_cli.licensify_cli import LicensifyCLI
 from utils.models import License, LicenseRequest, LicenseMetadata, LicenseFeatures
+from utils.license_config import license_config
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +114,7 @@ class LicenseService:
 
     def create_license(self, license_request: LicenseRequest, license_type: str,
                        duration_days: Optional[int] = None, telegram_user_id: Optional[int] = None,
-                       telegram_username: Optional[str] = None) -> Tuple[bool, Optional[License], str]:
+                       telegram_username: Optional[str] = None, license_features: Optional[Dict[str, bool]] = None) -> Tuple[bool, Optional[License], str]:
         """
         Создает новую лицензию на основе запроса
 
@@ -123,6 +124,7 @@ class LicenseService:
             duration_days: Срок действия лицензии в днях (None для бессрочной)
             telegram_user_id: ID пользователя Telegram
             telegram_username: Имя пользователя Telegram
+            license_features: Словарь с фичами лицензии из конфигурации
 
         Returns:
             Tuple[bool, Optional[License], str]:
@@ -131,19 +133,64 @@ class LicenseService:
                 - сообщение об ошибке (если есть)
         """
         try:
+            # Проверяем входные данные
+            if not license_request:
+                return False, None, "Не предоставлен запрос лицензии"
+
+            if not license_request.app_id:
+                return False, None, "В запросе не указан идентификатор приложения"
+
+            if not license_request.device_id:
+                return False, None, "В запросе не указан идентификатор устройства"
+
+            # Проверяем, что тип лицензии присутствует в конфигурации
+            if license_type not in license_config.license_types:
+                return False, None, f"Неверный тип лицензии: {license_type}"
+
+            if duration_days is not None and duration_days <= 0:
+                return False, None, "Срок действия лицензии должен быть положительным числом"
+
             # Определяем параметры лицензии на основе типа
             features = LicenseFeatures()
 
-            # Устанавливаем особенности в зависимости от типа лицензии
-            if license_type == "standard":
-                features.premium_features = False
-                features.business_features = False
-            elif license_type == "premium":
-                features.premium_features = True
-                features.business_features = False
-            elif license_type == "business":
-                features.premium_features = True
-                features.business_features = True
+            # Если переданы фичи из конфигурации, устанавливаем их
+            if license_features:
+                # Обрабатываем стандартные фичи
+                if "premium_features" in license_features:
+                    features.premium_features = license_features["premium_features"]
+                if "business_features" in license_features:
+                    features.business_features = license_features["business_features"]
+
+                # Обрабатываем все остальные фичи как кастомные
+                for feature_name, feature_value in license_features.items():
+                    if feature_name not in ["premium_features", "business_features"]:
+                        features.custom_features[feature_name] = feature_value
+            else:
+                # Фоллбек для обратной совместимости, если фичи не переданы
+                license_type_config = license_config.get_license_type(
+                    license_type)
+                if license_type_config:
+                    # Используем конфигурацию из файла
+                    for feature_name, feature_value in license_type_config.features.items():
+                        if feature_name == "premium_features":
+                            features.premium_features = feature_value
+                        elif feature_name == "business_features":
+                            features.business_features = feature_value
+                        else:
+                            features.custom_features[feature_name] = feature_value
+                else:
+                    # Запасная логика, если тип не найден в конфигурации
+                    logger.warning(
+                        f"Тип лицензии {license_type} не найден в конфигурации")
+                    if license_type == "standard":
+                        features.premium_features = False
+                        features.business_features = False
+                    elif license_type == "premium":
+                        features.premium_features = True
+                        features.business_features = False
+                    elif license_type == "business":
+                        features.premium_features = True
+                        features.business_features = True
 
             # Определяем срок действия (с UTC часовым поясом)
             issue_date = datetime.now(timezone.utc)
@@ -152,10 +199,8 @@ class LicenseService:
 
             # Создаем метаданные
             metadata = LicenseMetadata(
-                issuer="Telegram Bot",
-                issuer_id=str(
-                    telegram_user_id) if telegram_user_id else "unknown",
-                issue_date=issue_date,
+                device_hash=license_request.device_id,
+                issue_hash=f"{settings.bot_token.split(':')[0]}_{telegram_user_id}" if telegram_user_id else "unknown",
                 telegram_username=telegram_username
             )
 
@@ -198,6 +243,23 @@ class LicenseService:
                 - имя файла лицензии (если успешно)
         """
         try:
+            # Проверяем входные данные
+            if not license_obj:
+                logger.error("Не предоставлен объект лицензии для подписи")
+                return False, None, "", ""
+
+            if not license_obj.app_id:
+                logger.error("В лицензии не указан app_id")
+                return False, None, "", ""
+
+            if not license_obj.device_id:
+                logger.error("В лицензии не указан device_id")
+                return False, None, "", ""
+
+            if not license_obj.type:
+                logger.error("В лицензии не указан тип")
+                return False, None, "", ""
+
             # Подготавливаем данные для создания лицензии
             # Если дата не указана, используем максимальную дату (бессрочная лицензия)
             expiration_date = license_obj.expiration_date
@@ -213,24 +275,24 @@ class LicenseService:
             # Подготавливаем features
             features = {}
             if license_obj.features:
-                if license_obj.features.premium_features:
-                    features["premiumFeatures"] = "true"
-                if license_obj.features.business_features:
-                    features["businessFeatures"] = "true"
+                # Добавляем кастомные фичи
+                for feature_name, feature_value in license_obj.features.custom_features.items():
+                    # Преобразуем имя из snake_case в camelCase для JSON
+                    camel_case_name = ''.join(word.capitalize() if i > 0 else word
+                                              for i, word in enumerate(feature_name.split('_')))
+                    features[camel_case_name] = "true" if feature_value else "false"
 
             # Подготавливаем metadata
             metadata = {}
             if license_obj.metadata:
-                metadata["issuer"] = license_obj.metadata.issuer
-                metadata["issuerId"] = license_obj.metadata.issuer_id
                 if license_obj.metadata.telegram_username:
                     metadata["telegramUsername"] = license_obj.metadata.telegram_username
-
-                # Гарантируем, что дата выпуска имеет часовой пояс
-                issue_date = license_obj.metadata.issue_date
-                if issue_date.tzinfo is None:
-                    issue_date = issue_date.replace(tzinfo=timezone.utc)
-                metadata["issueDate"] = issue_date.isoformat()
+                if license_obj.metadata.device_hash:
+                    metadata["deviceHash"] = license_obj.metadata.device_hash
+                if license_obj.metadata.issue_hash:
+                    h = hashlib.sha512()
+                    h.update(license_obj.metadata.issue_hash.encode())
+                    metadata["issueHash"] = h
 
             # Подписываем лицензию с использованием licensify CLI
             if request_file_path and os.path.exists(request_file_path):
@@ -245,18 +307,7 @@ class LicenseService:
                     metadata=metadata
                 )
             else:
-                license_data, temp_file_path = self.licensify_cli.generate_license(
-                    app_id=license_obj.app_id,
-                    expiration_date=expiration_date,
-                    license_type=license_obj.type,
-                    features=features,
-                    metadata={
-                        "deviceId": license_obj.device_id,
-                        "userId": license_obj.user_id,
-                        "deviceName": license_obj.device_name,
-                        **metadata
-                    }
-                )
+                raise FileNotFoundError()
 
             # Создаем имя файла лицензии
             file_name = f"{settings.license_file_prefix}_{license_obj.app_id}_{license_obj.device_id[:8]}.licensify"
@@ -265,6 +316,14 @@ class LicenseService:
 
         except Exception as e:
             logger.error(f"Error signing license: {e}")
+            # Удаляем созданную лицензию из хранилища, так как её не удалось подписать
+            if license_obj and license_obj.id:
+                try:
+                    self.license_store.delete_license(license_obj.id)
+                    logger.info(
+                        f"Deleted invalid license {license_obj.id} due to signing error")
+                except Exception as del_e:
+                    logger.error(f"Failed to delete invalid license: {del_e}")
             return False, None, "", ""
 
     def get_expiration_text(self, license_obj: License) -> str:

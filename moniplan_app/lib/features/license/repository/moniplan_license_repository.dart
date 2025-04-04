@@ -47,9 +47,11 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
     }
 
     final schema = moniplanLicenseSchema;
-    final schemaResult = _licenseValidator.validateSchema(effectiveLicense, schema);
-    if (!schemaResult.isValid) {
-      return (status: InvalidLicenseSchemaStatus(schemaResult), license: effectiveLicense);
+    if (schema != null) {
+      final schemaResult = _licenseValidator.validateSchema(effectiveLicense, schema);
+      if (!schemaResult.isValid) {
+        return (status: InvalidLicenseSchemaStatus(schemaResult), license: effectiveLicense);
+      }
     }
 
     return (status: ActiveLicenseStatus(effectiveLicense), license: effectiveLicense);

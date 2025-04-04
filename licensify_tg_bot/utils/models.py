@@ -15,6 +15,40 @@ class LicenseFeatures:
     """
     premium_features: bool = False
     business_features: bool = False
+    custom_features: Dict[str, bool] = field(default_factory=dict)
+
+    def __getattr__(self, name: str) -> Any:
+        """
+        Позволяет получать значения динамических фич через точечную нотацию
+        Например: features.some_custom_feature
+
+        Args:
+            name: Имя атрибута
+
+        Returns:
+            Any: Значение атрибута или False, если атрибут не найден
+        """
+        if name in self.custom_features:
+            return self.custom_features[name]
+        return False
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """
+        Позволяет устанавливать значения динамических фич через точечную нотацию
+        Например: features.some_custom_feature = True
+
+        Args:
+            name: Имя атрибута
+            value: Значение атрибута
+        """
+        # Если это стандартное поле класса, обрабатываем обычным способом
+        if name in ['premium_features', 'business_features', 'custom_features']:
+            super().__setattr__(name, value)
+        else:
+            # Иначе добавляем в custom_features
+            if not hasattr(self, 'custom_features'):
+                self.custom_features = {}
+            self.custom_features[name] = value
 
 
 @dataclass
@@ -22,9 +56,8 @@ class LicenseMetadata:
     """
     Метаданные лицензии
     """
-    issuer: str = ""
-    issuer_id: str = ""
-    issue_date: Optional[datetime] = None
+    device_hash: str = ""
+    issue_hash: str = ""
     telegram_username: Optional[str] = None
 
 
@@ -136,13 +169,6 @@ class License:
                 exp_date = exp_date.replace(tzinfo=timezone.utc)
             result['expiration_date'] = exp_date.isoformat()
 
-        if self.metadata and self.metadata.issue_date:
-            # Гарантируем наличие timezone
-            issue_date = self.metadata.issue_date
-            if issue_date.tzinfo is None:
-                issue_date = issue_date.replace(tzinfo=timezone.utc)
-            result['metadata']['issue_date'] = issue_date.isoformat()
-
         return result
 
     @classmethod
@@ -174,12 +200,6 @@ class License:
 
         if 'metadata' in data_copy:
             metadata_data = data_copy.pop('metadata')
-            if 'issue_date' in metadata_data and metadata_data['issue_date']:
-                dt = datetime.fromisoformat(metadata_data['issue_date'])
-                # Если в строке не было информации о timezone, добавляем UTC
-                if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=timezone.utc)
-                metadata_data['issue_date'] = dt
             data_copy['metadata'] = LicenseMetadata(**metadata_data)
 
         return cls(**data_copy)

@@ -6,6 +6,7 @@ from pathlib import Path
 import logging
 
 from .models import License, LicenseFeatures, LicenseMetadata
+from .license_config import license_config
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +54,26 @@ class LicenseStore:
                             **license_data["features"])
 
                     if "metadata" in license_data:
+                        metadata_data = license_data["metadata"]
+
+                        # Обеспечиваем наличие нужных полей
+                        if "device_hash" not in metadata_data:
+                            metadata_data["device_hash"] = ""
+                        if "issue_hash" not in metadata_data:
+                            metadata_data["issue_hash"] = ""
+                        if "telegram_username" not in metadata_data:
+                            metadata_data["telegram_username"] = None
+
+                        # Удаляем ненужные поля, если они есть
+                        if "issuer" in metadata_data:
+                            del metadata_data["issuer"]
+                        if "issuer_id" in metadata_data:
+                            del metadata_data["issuer_id"]
+                        if "issue_date" in metadata_data:
+                            del metadata_data["issue_date"]
+
                         license_data["metadata"] = LicenseMetadata(
-                            **license_data["metadata"])
+                            **metadata_data)
 
                     self.licenses[license_id] = License(**license_data)
             except json.JSONDecodeError:
@@ -171,7 +190,7 @@ class LicenseStore:
         app_id: str,
         device_hash: str,
         user_hash: Optional[str] = None,
-        license_type: str = "standard",
+        license_type: Optional[str] = None,
         features: Optional[LicenseFeatures] = None,
         expiration_days: Optional[int] = None
     ) -> License:
@@ -182,16 +201,39 @@ class LicenseStore:
             app_id: Идентификатор приложения
             device_hash: Хеш устройства
             user_hash: Хеш пользователя (опционально)
-            license_type: Тип лицензии
+            license_type: Тип лицензии (если None, будет использован первый из конфигурации)
             features: Функции, доступные по лицензии
             expiration_days: Срок действия лицензии в днях
 
         Returns:
             License: Созданный объект лицензии
+
+        Raises:
+            ValueError: Если переданы некорректные данные
         """
+        # Если тип лицензии не указан, используем первый из конфигурации
+        if license_type is None:
+            license_types = license_config.get_sorted_license_types()
+            if license_types:
+                license_type = license_types[0].id
+            else:
+                # Запасной вариант, если конфигурация пуста
+                license_type = "standard"
+
+        # Проверяем обязательные поля
+        if not app_id:
+            raise ValueError("Идентификатор приложения не может быть пустым")
+        if not device_hash:
+            raise ValueError("Хеш устройства не может быть пустым")
+        if license_type not in license_config.license_types:
+            raise ValueError(f"Неверный тип лицензии: {license_type}")
+
         # Устанавливаем дату истечения, если указан срок действия
         expiration_date = None
-        if expiration_days:
+        if expiration_days is not None:
+            if expiration_days <= 0:
+                raise ValueError(
+                    "Срок действия лицензии должен быть положительным числом")
             # Используем UTC для установки времени истечения
             expiration_date = datetime.now(
                 timezone.utc) + timedelta(days=expiration_days)
@@ -200,11 +242,10 @@ class LicenseStore:
         if not features:
             features = LicenseFeatures()
 
-        # Создаем метаданные лицензии с текущей датой UTC
+        # Создаем метаданные лицензии
         metadata = LicenseMetadata(
-            device_id=device_hash,
-            user_email=user_hash,
-            issue_date=datetime.now(timezone.utc)
+            device_hash=device_hash,
+            issue_hash=user_hash if user_hash else ""
         )
 
         # Создаем объект лицензии

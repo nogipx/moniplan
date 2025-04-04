@@ -8,11 +8,13 @@ abstract interface class MoniplanLicenseKeys {
   static const featureAnalyticsInsights = 'analyticsInsights';
   static const featurePlannerAllowMany = 'plannerAllowMany';
   static const metadataDeviceHash = 'deviceHash';
-  static const metadataUserHash = 'userHash';
+  static const metadataIssueHash = 'issueHash';
+  static const metadataTelegramUsername = 'telegramUsername';
 }
 
 /// Определение схемы лицензии для проверки
-LicenseSchema _getLicenseSchema() {
+LicenseSchema? _getLicenseSchema() {
+  return null;
   return LicenseSchema(
     featureSchema: {
       MoniplanLicenseKeys.featureMonisyncBackupPassword: SchemaField(
@@ -34,7 +36,8 @@ LicenseSchema _getLicenseSchema() {
     },
     metadataSchema: {
       MoniplanLicenseKeys.metadataDeviceHash: SchemaField(type: FieldType.string, required: true),
-      MoniplanLicenseKeys.metadataUserHash: SchemaField(type: FieldType.string, required: true),
+      MoniplanLicenseKeys.metadataIssueHash: SchemaField(type: FieldType.string, required: true),
+      MoniplanLicenseKeys.metadataTelegramUsername: SchemaField(type: FieldType.string),
     },
     allowUnknownFeatures: true,
     allowUnknownMetadata: true,

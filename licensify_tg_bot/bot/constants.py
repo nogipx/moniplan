@@ -28,12 +28,6 @@ EXPORT_CSV = "export_csv"
 EXPORT_JSON = "export_json"
 CLEANUP_EXPIRED = "cleanup_expired"
 
-# Типы лицензий
-LICENSE_TYPE_STANDARD = "standard"
-LICENSE_TYPE_PREMIUM = "premium"
-LICENSE_TYPE_BUSINESS = "business"
-
-# Сроки действия лицензий (в днях)
-LICENSE_DURATION_30 = 30
-LICENSE_DURATION_180 = 180
-LICENSE_DURATION_365 = 365
+# Префиксы для обработчиков callback
+TYPE_PREFIX = "type_"
+DURATION_PREFIX = "duration_"

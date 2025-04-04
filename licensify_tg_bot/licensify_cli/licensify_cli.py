@@ -332,20 +332,23 @@ class LicensifyCLI:
 
         return request_data
 
-    def generate_license(self, app_id: str,
-                         expiration_date: Union[str, datetime],
-                         license_type: str = "standard",
-                         features: Optional[Dict[str, str]] = None,
-                         metadata: Optional[Dict[str, str]] = None,
-                         private_key: Optional[str] = None,
-                         output_path: Optional[str] = None) -> Tuple[Dict, str]:
+    def generate_license(
+        self,
+        app_id: str,
+        license_type: str,
+        expiration_date: Optional[Union[datetime, str]] = None,
+        features: Optional[Dict[str, str]] = None,
+        metadata: Optional[Dict[str, str]] = None,
+        output_path: Optional[str] = None,
+        private_key: Optional[str] = None
+    ) -> Tuple[Dict, str]:
         """
         Создает новую лицензию напрямую (без запроса)
 
         Args:
             app_id: Идентификатор приложения
-            expiration_date: Дата истечения лицензии (YYYY-MM-DD или объект datetime)
             license_type: Тип лицензии (trial, standard, pro)
+            expiration_date: Дата истечения лицензии (YYYY-MM-DD или объект datetime)
             features: Словарь функций лицензии (ключ=значение)
             metadata: Словарь метаданных лицензии (ключ=значение)
             private_key: Путь к приватному ключу (по умолчанию из self.private_key_path)
@@ -403,20 +406,23 @@ class LicensifyCLI:
             logger.error(f"Ошибка при создании лицензии: {e}")
             raise
 
-    def respond_to_request(self, request_data: Union[bytes, str],
-                           expiration_date: Union[str, datetime],
-                           license_type: str = "standard",
-                           features: Optional[Dict[str, str]] = None,
-                           metadata: Optional[Dict[str, str]] = None,
-                           private_key: Optional[str] = None,
-                           output_path: Optional[str] = None) -> Tuple[Dict, str]:
+    def respond_to_request(
+        self,
+        request_data: Union[bytes, str],
+        license_type: str,
+        expiration_date: Optional[Union[datetime, str]] = None,
+        features: Optional[Dict[str, str]] = None,
+        metadata: Optional[Dict[str, str]] = None,
+        output_path: Optional[str] = None,
+        private_key: Optional[str] = None
+    ) -> Tuple[Dict, str]:
         """
         Создает лицензию на основе запроса
 
         Args:
             request_data: Бинарные данные запроса или путь к файлу
-            expiration_date: Дата истечения лицензии (YYYY-MM-DD или объект datetime)
             license_type: Тип лицензии (trial, standard, pro)
+            expiration_date: Дата истечения лицензии (YYYY-MM-DD или объект datetime)
             features: Словарь функций лицензии (ключ=значение)
             metadata: Словарь метаданных лицензии (ключ=значение)
             private_key: Путь к приватному ключу (по умолчанию из self.private_key_path)
