@@ -135,68 +135,8 @@ class LicenseFeaturesService {
         return licenseType == LicenseType.pro;
       case FeatureKeys.enableAutoCategories:
         return licenseType == LicenseType.pro;
-      case FeatureKeys.maxCategories:
-        return _getCategoriesLimit(licenseType);
-      case FeatureKeys.maxPayments:
-        return _getPaymentsLimit(licenseType);
-      case FeatureKeys.maxAccounts:
-        return _getAccountsLimit(licenseType);
-      case FeatureKeys.maxPaymentTemplates:
-        return _getPaymentTemplatesLimit(licenseType);
       default:
         return null;
-    }
-  }
-
-  int _getCategoriesLimit(LicenseType licenseType) {
-    switch (licenseType) {
-      case LicenseType.trial:
-        return 5;
-      case LicenseType.standard:
-        return 10;
-      case LicenseType.pro:
-        return -1; // Неограниченно
-      default:
-        return 5;
-    }
-  }
-
-  int _getPaymentsLimit(LicenseType licenseType) {
-    switch (licenseType) {
-      case LicenseType.trial:
-        return 50;
-      case LicenseType.standard:
-        return 100;
-      case LicenseType.pro:
-        return -1; // Неограниченно
-      default:
-        return 50;
-    }
-  }
-
-  int _getAccountsLimit(LicenseType licenseType) {
-    switch (licenseType) {
-      case LicenseType.trial:
-        return 2;
-      case LicenseType.standard:
-        return 3;
-      case LicenseType.pro:
-        return -1; // Неограниченно
-      default:
-        return 2;
-    }
-  }
-
-  int _getPaymentTemplatesLimit(LicenseType licenseType) {
-    switch (licenseType) {
-      case LicenseType.trial:
-        return 3;
-      case LicenseType.standard:
-        return 5;
-      case LicenseType.pro:
-        return -1; // Неограниченно
-      default:
-        return 3;
     }
   }
 

@@ -53,23 +53,3 @@ final class EnableAutoCategories extends MoniplanFeature<bool> {
   EnableAutoCategories(bool value)
     : super(featureKey: FeatureKeys.enableAutoCategories, value: value);
 }
-
-/// Фича для максимального количества категорий
-final class MaxCategories extends MoniplanFeature<int> {
-  MaxCategories(int value) : super(featureKey: FeatureKeys.maxCategories, value: value);
-}
-
-/// Фича для максимального количества платежей
-final class MaxPayments extends MoniplanFeature<int> {
-  MaxPayments(int value) : super(featureKey: FeatureKeys.maxPayments, value: value);
-}
-
-/// Фича для максимального количества счетов
-final class MaxAccounts extends MoniplanFeature<int> {
-  MaxAccounts(int value) : super(featureKey: FeatureKeys.maxAccounts, value: value);
-}
-
-/// Фича для максимального количества шаблонов платежей
-final class MaxPaymentTemplates extends MoniplanFeature<int> {
-  MaxPaymentTemplates(int value) : super(featureKey: FeatureKeys.maxPaymentTemplates, value: value);
-}

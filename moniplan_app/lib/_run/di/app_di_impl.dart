@@ -87,8 +87,8 @@ class GetItAppDI implements AppDi {
     });
 
     // Инициализируем менеджер фичей
-    _getIt.registerSingleton<MoniplanFeaturesManager>(
-      MoniplanFeaturesManager(licenseFeaturesService: licenseFeaturesService)
+    _getIt.registerSingleton<FeaturesManager>(
+      FeaturesManager(providers: [LicenseFeaturesProvider(licenseFeaturesService)])
         ..forceReloadFeatures(),
     );
 
@@ -125,7 +125,7 @@ class GetItAppDI implements AppDi {
   LicenseFeaturesService getLicenseFeaturesService() => _getIt.get();
 
   @override
-  MoniplanFeaturesManager getFeaturesManager() => _getIt.get();
+  IFeaturesManager getFeaturesManager() => _getIt.get();
 
   @override
   T get<T extends Object>() => _getIt.get<T>();

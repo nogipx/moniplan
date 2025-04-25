@@ -27,14 +27,6 @@ final class LicenseFeaturesProvider extends FeaturesProvider {
       EnableAutoCategories(
         await _licenseFeaturesService.hasFeature(FeatureKeys.enableAutoCategories),
       ),
-
-      // Integer features
-      MaxCategories(await _licenseFeaturesService.getFeatureValue<int>(FeatureKeys.maxCategories)),
-      MaxPayments(await _licenseFeaturesService.getFeatureValue<int>(FeatureKeys.maxPayments)),
-      MaxAccounts(await _licenseFeaturesService.getFeatureValue<int>(FeatureKeys.maxAccounts)),
-      MaxPaymentTemplates(
-        await _licenseFeaturesService.getFeatureValue<int>(FeatureKeys.maxPaymentTemplates),
-      ),
     ];
 
     return features;

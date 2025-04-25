@@ -12,11 +12,11 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
   final IMoniplanLicenseRepo _repository;
   final LicenseFeaturesService _licenseFeaturesService;
-  final MoniplanFeaturesManager _featuresManager;
+  final IFeaturesManager _featuresManager;
   LicenseBloc({
     required IMoniplanLicenseRepo repository,
     required LicenseFeaturesService licenseFeaturesService,
-    required MoniplanFeaturesManager featuresManager,
+    required IFeaturesManager featuresManager,
   }) : _repository = repository,
        _licenseFeaturesService = licenseFeaturesService,
        _featuresManager = featuresManager,
