@@ -27,37 +27,14 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
   }
 
   @override
-  Future<LicenseStatusResult> getLicenseStatus({License? license}) async {
+  Future<LicenseStatus> getLicenseStatus({License? license}) async {
     final effectiveLicense = license ?? await getCurrentLicense();
-    if (effectiveLicense == null) {
-      return (status: NoLicenseStatus(), license: effectiveLicense);
-    }
+    final getLicenseStatusUseCase = GetLicenseStatusUseCase(
+      licenseValidator: _licenseValidator,
+      deviceHashGenerator: _deviceHashGenerator,
+    );
 
-    if (!_licenseValidator.validateSignature(effectiveLicense).isValid) {
-      return (status: InvalidLicenseSignatureStatus(), license: effectiveLicense);
-    }
-
-    if (!_licenseValidator.validateExpiration(effectiveLicense).isValid) {
-      return (status: ExpiredLicenseStatus(effectiveLicense), license: effectiveLicense);
-    }
-
-    final deviceHash = await _deviceHashGenerator.generateDeviceHash();
-    if (effectiveLicense.metadata?['deviceHash'] != deviceHash) {
-      return (
-        status: ErrorLicenseStatus(message: 'Invalid device hash'),
-        license: effectiveLicense,
-      );
-    }
-
-    final schema = moniplanLicenseSchema;
-    if (schema != null) {
-      final schemaResult = _licenseValidator.validateSchema(effectiveLicense, schema);
-      if (!schemaResult.isValid) {
-        return (status: InvalidLicenseSchemaStatus(schemaResult), license: effectiveLicense);
-      }
-    }
-
-    return (status: ActiveLicenseStatus(effectiveLicense), license: effectiveLicense);
+    return getLicenseStatusUseCase.call(effectiveLicense);
   }
 
   @override
@@ -81,7 +58,7 @@ class MoniplanLicenseRepository implements IMoniplanLicenseRepo {
 
   @override
   Future<Uint8List> generateLicenseRequest({int expirationHours = 48}) async {
-    final deviceHash = await _deviceHashGenerator.generateDeviceHash();
+    final deviceHash = await _deviceHashGenerator();
 
     // Получение идентификатора приложения
     final packageInfo = await PackageInfo.fromPlatform();

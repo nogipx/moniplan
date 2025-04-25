@@ -2,8 +2,6 @@ import 'dart:typed_data';
 
 import 'package:licensify/licensify.dart';
 
-typedef LicenseStatusResult = ({License? license, LicenseStatus status});
-
 abstract class IMoniplanLicenseRepo {
   Future<License?> getCurrentLicense();
 
@@ -11,7 +9,7 @@ abstract class IMoniplanLicenseRepo {
 
   Future<void> removeLicense();
 
-  Future<LicenseStatusResult> getLicenseStatus({License? license});
+  Future<LicenseStatus> getLicenseStatus({License? license});
 
   Future<License?> decodeLicense({Uint8List? licenseBytes});
 

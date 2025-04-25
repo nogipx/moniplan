@@ -20,9 +20,6 @@ import 'package:moniplan_app/features/statistic/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-const mockEncryptionKey = 'J33L06KoJbO1okTNJ1sHNV1DS5UiVtLPLmWn0RZbxGk=';
-const mockPublicKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiAKBgHCO7QY5Z+Q+';
-
 class GetItAppDI implements AppDi {
   final _getIt = GetIt.instance;
 
@@ -71,25 +68,14 @@ class GetItAppDI implements AppDi {
       licenseStorage: SecureLicenseStorage(FlutterSecureStorage()),
       licenseValidator: publicKey.licenseValidator,
       licenseRequestGenerator: publicKey.licenseRequestGenerator(),
-      deviceHashGenerator: DeviceHashGenerator(
-        deviceInfoProvider: DeviceInfoProvider().getDeviceInfo,
-      ),
+      deviceHashGenerator: getDeviceHashGenerator(await DeviceInfoProvider().getDeviceInfo()),
     );
+
     _getIt.registerSingleton<IMoniplanLicenseRepo>(licenseRepo);
 
-    // Регистрируем сервис лицензионных функций
-    final licenseFeaturesService = LicenseFeaturesService(licenseRepo);
-    _getIt.registerSingleton<LicenseFeaturesService>(licenseFeaturesService);
-
-    // Инициализируем сервис лицензионных функций
-    licenseFeaturesService.initialize().catchError((e) {
-      print('Ошибка инициализации LicenseFeaturesService: $e');
-    });
-
     // Инициализируем менеджер фичей
-    _getIt.registerSingleton<FeaturesManager>(
-      FeaturesManager(providers: [LicenseFeaturesProvider(licenseFeaturesService)])
-        ..forceReloadFeatures(),
+    _getIt.registerSingleton<IFeaturesManager>(
+      FeaturesManager(providers: [LicenseFeaturesProvider(licenseRepo)])..forceReloadFeatures(),
     );
 
     // Инициализируем сервис категоризации платежей
@@ -120,9 +106,6 @@ class GetItAppDI implements AppDi {
 
   @override
   IMoniplanLicenseRepo getLicenseRepo() => _getIt.get();
-
-  @override
-  LicenseFeaturesService getLicenseFeaturesService() => _getIt.get();
 
   @override
   IFeaturesManager getFeaturesManager() => _getIt.get();

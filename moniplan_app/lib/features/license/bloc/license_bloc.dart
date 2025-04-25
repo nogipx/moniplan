@@ -11,16 +11,12 @@ import 'package:moniplan_domain/moniplan_domain.dart';
 
 class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
   final IMoniplanLicenseRepo _repository;
-  final LicenseFeaturesService _licenseFeaturesService;
   final IFeaturesManager _featuresManager;
-  LicenseBloc({
-    required IMoniplanLicenseRepo repository,
-    required LicenseFeaturesService licenseFeaturesService,
-    required IFeaturesManager featuresManager,
-  }) : _repository = repository,
-       _licenseFeaturesService = licenseFeaturesService,
-       _featuresManager = featuresManager,
-       super(const LicenseInitialState()) {
+
+  LicenseBloc({required IMoniplanLicenseRepo repository, required IFeaturesManager featuresManager})
+    : _repository = repository,
+      _featuresManager = featuresManager,
+      super(const LicenseInitialState()) {
     on<LicenseAddedEvent>(_onLicenseAdded);
     on<LicenseLoadedEvent>(_onLicenseLoaded);
     on<LicenseUpdatedEvent>(_onLicenseUpdated);
@@ -31,18 +27,14 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
   /// Обновляет сервис лицензионных возможностей
   Future<void> _refreshLicenseFeatures() async {
     try {
-      // Обновляем лицензию в сервисе функций
-      await _licenseFeaturesService.refreshLicense();
-
-      // Если AppFeaturesManager инициализирован, обновляем фичефлаги
-      try {
-        _featuresManager.forceReloadFeatures();
-      } catch (e) {
-        // AppFeaturesManager может быть не инициализирован
-      }
+      _featuresManager.forceReloadFeatures();
     } catch (e) {
       // Игнорируем ошибки
     }
+  }
+
+  Future<LicenseStatus?> _getLicenseStatus() async {
+    return _featuresManager.getFeature(Feature.licenseStatus.name)?.value as LicenseStatus?;
   }
 
   Future<void> _onLicenseAdded(LicenseAddedEvent event, Emitter<LicenseState> emit) async {
@@ -65,19 +57,19 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
       await _refreshLicenseFeatures();
 
       // Получаем статус через сервис лицензионных функций
-      final licenseStatusType = await _licenseFeaturesService.getLicenseStatusType();
+      final licenseStatusType = await _getLicenseStatus();
 
       switch (licenseStatusType) {
-        case LicenseStatusType.valid:
+        case ActiveLicenseStatus():
           emit(LicenseValidState(license: license));
           break;
-        case LicenseStatusType.expired:
+        case ExpiredLicenseStatus():
           emit(LicenseExpiredState(license: license));
           break;
-        case LicenseStatusType.wrongDevice:
+        case ErrorLicenseStatus():
           emit(LicenseWrongDeviceState(license: license));
           break;
-        case LicenseStatusType.invalid:
+        case InvalidLicenseSignatureStatus():
           emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
           break;
         default:
@@ -100,19 +92,19 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
         await _refreshLicenseFeatures();
 
         // Получаем статус через сервис лицензионных функций
-        final licenseStatusType = await _licenseFeaturesService.getLicenseStatusType();
+        final licenseStatusType = await _getLicenseStatus();
 
         switch (licenseStatusType) {
-          case LicenseStatusType.valid:
+          case ActiveLicenseStatus():
             emit(LicenseValidState(license: license));
             break;
-          case LicenseStatusType.expired:
+          case ExpiredLicenseStatus():
             emit(LicenseExpiredState(license: license));
             break;
-          case LicenseStatusType.wrongDevice:
+          case ErrorLicenseStatus():
             emit(LicenseWrongDeviceState(license: license));
             break;
-          case LicenseStatusType.invalid:
+          case InvalidLicenseSignatureStatus():
             emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
             break;
           default:
@@ -150,19 +142,19 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
       await _refreshLicenseFeatures();
 
       // Получаем статус через сервис лицензионных функций
-      final licenseStatusType = await _licenseFeaturesService.getLicenseStatusType();
+      final licenseStatusType = await _getLicenseStatus();
 
       switch (licenseStatusType) {
-        case LicenseStatusType.valid:
+        case ActiveLicenseStatus():
           emit(LicenseValidState(license: license));
           break;
-        case LicenseStatusType.expired:
+        case ExpiredLicenseStatus():
           emit(LicenseExpiredState(license: license));
           break;
-        case LicenseStatusType.wrongDevice:
+        case ErrorLicenseStatus():
           emit(LicenseWrongDeviceState(license: license));
           break;
-        case LicenseStatusType.invalid:
+        case InvalidLicenseSignatureStatus():
           emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
           break;
         default:
@@ -203,19 +195,19 @@ class LicenseBloc extends Bloc<LicenseEvent, LicenseState> {
         await _refreshLicenseFeatures();
 
         // Получаем статус через сервис лицензионных функций
-        final licenseStatusType = await _licenseFeaturesService.getLicenseStatusType();
+        final licenseStatusType = await _getLicenseStatus();
 
         switch (licenseStatusType) {
-          case LicenseStatusType.valid:
+          case ActiveLicenseStatus():
             emit(LicenseValidState(license: license));
             break;
-          case LicenseStatusType.expired:
+          case ExpiredLicenseStatus():
             emit(LicenseExpiredState(license: license));
             break;
-          case LicenseStatusType.wrongDevice:
+          case ErrorLicenseStatus():
             emit(LicenseWrongDeviceState(license: license));
             break;
-          case LicenseStatusType.invalid:
+          case InvalidLicenseSignatureStatus():
             emit(LicenseInvalidState(message: 'Недействительная лицензия', license: license));
             break;
           default:

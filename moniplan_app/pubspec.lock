@@ -665,10 +665,17 @@ packages:
     dependency: transitive
     description:
       name: licensify
-      sha256: "124e713655804e39619eff51f73e80f79ca0459f49d45bb3f99e78018cd9503f"
+      sha256: "331c2f9dfe34fc8053a5cd62cdb118cad6b744524b847c0d81ad6b1b888c4ebb"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.2"
+    version: "2.3.1"
+  licensify_issuer_client:
+    dependency: "direct main"
+    description:
+      path: "/Users/nogipx/nogipx_vault/projects/ecosystem/licensing/licensify_bot/licensify_issuer_client"
+      relative: false
+    source: path
+    version: "0.0.0"
   lints:
     dependency: transitive
     description:
@@ -1012,6 +1019,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.28.0"
+  serverpod_client:
+    dependency: transitive
+    description:
+      name: serverpod_client
+      sha256: "23c7a08b91b18ca7ecc73580ba5fc2c3b399925d6d9dd96fc8847f3d61552efd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.6.0"
+  serverpod_serialization:
+    dependency: transitive
+    description:
+      name: serverpod_serialization
+      sha256: "721e7a708df865767be014d26b4f4dd639f448307471218d401995fdb5720be7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.6.0"
   share_plus:
     dependency: "direct main"
     description:

@@ -18,6 +18,9 @@ dependencies:
   moniplan_uikit:
     path: ../moniplan_uikit
 
+  licensify_issuer_client:
+    path: /Users/nogipx/nogipx_vault/projects/ecosystem/licensing/licensify_bot/licensify_issuer_client
+
   # Features
   feature_flutter: ^2.0.0
 

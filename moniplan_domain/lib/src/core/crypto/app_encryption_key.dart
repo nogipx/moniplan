@@ -43,7 +43,7 @@ base class PasswordEncryptionKey extends AppEncryptionKey {
     return PasswordEncryptionKey._(digest);
   }
 
-  factory PasswordEncryptionKey.fromHash(String hash) {
+  factory PasswordEncryptionKey.fromBase64(String hash) {
     return PasswordEncryptionKey._(base64.decode(hash));
   }
 

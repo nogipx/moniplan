@@ -23,7 +23,5 @@ abstract interface class IAppDi {
 
   IMoniplanLicenseRepo getLicenseRepo();
 
-  LicenseFeaturesService getLicenseFeaturesService();
-
   IFeaturesManager getFeaturesManager();
 }

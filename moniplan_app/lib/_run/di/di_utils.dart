@@ -39,14 +39,14 @@ Future<IAppEncrypter> encrypterFactory(AppEncrypterFactoryArgs? args, dynamic _)
   /// и он существует, используем его
   if (forceUseSavedPassword && passwordHash != null) {
     return Salsa20MonisyncEncrypter(
-      PasswordEncryptionKey.fromHash(passwordHash),
+      PasswordEncryptionKey.fromBase64(passwordHash),
       enableMetadata: enableMetadata,
     );
   }
 
   if (passwordHash != null) {
     return Salsa20MonisyncEncrypter(
-      PasswordEncryptionKey.fromHash(passwordHash),
+      PasswordEncryptionKey.fromBase64(passwordHash),
       enableMetadata: enableMetadata,
     );
   }

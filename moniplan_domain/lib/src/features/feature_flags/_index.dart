@@ -2,7 +2,5 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-export 'features.dart';
 export 'license_features_provider.dart';
-export 'license_features_service.dart';
-export 'moniplan_features.dart';
+export 'features.dart';

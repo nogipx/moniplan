@@ -4,52 +4,29 @@
 
 // ignore_for_file: missing_override_of_must_be_overridden
 
-import 'package:feature_core/feature_core.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 /// Ключи для всех фичей приложения
-enum FeatureKeys {
-  /// Включение продвинутой аналитики
-  enableAdvancedAnalytics,
-
-  /// Включение AI-предсказаний
-  enableAiPredictions,
-
-  /// Автоматическое определение категорий
-  enableAutoCategories,
-
-  /// Максимальное количество категорий
-  maxCategories,
-
-  /// Максимальное количество платежей
-  maxPayments,
-
-  /// Максимальное количество счетов
-  maxAccounts,
-
-  /// Максимальное количество шаблонов платежей
-  maxPaymentTemplates,
-}
+enum Feature { isTrialLicense, isProLicense, licenseStatus }
 
 /// Базовый класс для фичи Moniplan
 sealed class MoniplanFeature<T> extends FeatureGeneric<T> {
-  MoniplanFeature({required FeatureKeys featureKey, required super.value})
+  MoniplanFeature({required Feature featureKey, required super.value})
     : super(key: featureKey.name);
 }
 
-/// Фича для включения продвинутой аналитики
-final class EnableAdvancedAnalytics extends MoniplanFeature<bool> {
-  EnableAdvancedAnalytics(bool value)
-    : super(featureKey: FeatureKeys.enableAdvancedAnalytics, value: value);
-}
-
 /// Фича для включения AI-предсказаний
-final class EnableAiPredictions extends MoniplanFeature<bool> {
-  EnableAiPredictions(bool value)
-    : super(featureKey: FeatureKeys.enableAiPredictions, value: value);
+final class LicenseStatusFeature extends MoniplanFeature<LicenseStatus?> {
+  LicenseStatusFeature(LicenseStatus? value)
+    : super(featureKey: Feature.licenseStatus, value: value ?? NoLicenseStatus());
 }
 
-/// Фича для включения автоматического определения категорий
-final class EnableAutoCategories extends MoniplanFeature<bool> {
-  EnableAutoCategories(bool value)
-    : super(featureKey: FeatureKeys.enableAutoCategories, value: value);
+/// Фича для включения продвинутой аналитики
+final class IsTrialLicense extends MoniplanFeature<bool> {
+  IsTrialLicense(bool value) : super(featureKey: Feature.isTrialLicense, value: value);
+}
+
+/// Фича для включения продвинутой аналитики
+final class IsProLicense extends MoniplanFeature<bool> {
+  IsProLicense(bool value) : super(featureKey: Feature.isProLicense, value: value);
 }

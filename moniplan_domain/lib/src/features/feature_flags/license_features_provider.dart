@@ -2,39 +2,30 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:feature_core/feature_core.dart';
-import 'package:moniplan_domain/src/features/feature_flags/features.dart';
-import 'package:moniplan_domain/src/features/feature_flags/license_features_service.dart';
+import 'package:moniplan_domain/moniplan_domain.dart';
 
 /// Провайдер фичей на основе лицензии
 final class LicenseFeaturesProvider extends FeaturesProvider {
-  final LicenseFeaturesService _licenseFeaturesService;
+  final IMoniplanLicenseRepo _licenseRepo;
 
-  LicenseFeaturesProvider(this._licenseFeaturesService)
+  LicenseFeaturesProvider(this._licenseRepo)
     : super(key: 'license_features_provider', name: 'License Features Provider');
 
   @override
   Future<List<FeatureAbstract>> pullFeatures() async {
+    final license = await _licenseRepo.getCurrentLicense();
+    final licenseStatus = await _licenseRepo.getLicenseStatus(license: license);
+
+    final isTrialLicense = license?.isTrial ?? false;
+    final isProLicense = license?.type == LicenseType.pro;
+
     // Получаем все значения для фичей
     final features = <FeatureAbstract>[
-      // Boolean features
-      EnableAdvancedAnalytics(
-        await _licenseFeaturesService.hasFeature(FeatureKeys.enableAdvancedAnalytics),
-      ),
-      EnableAiPredictions(
-        await _licenseFeaturesService.hasFeature(FeatureKeys.enableAiPredictions),
-      ),
-      EnableAutoCategories(
-        await _licenseFeaturesService.hasFeature(FeatureKeys.enableAutoCategories),
-      ),
+      IsTrialLicense(isTrialLicense),
+      IsProLicense(isProLicense),
+      LicenseStatusFeature(licenseStatus),
     ];
 
     return features;
-  }
-
-  /// Обновляет фичи после изменения лицензии
-  Future<void> refreshFeatures() async {
-    await _licenseFeaturesService.refreshLicense();
-    requestPullFeatures();
   }
 }
