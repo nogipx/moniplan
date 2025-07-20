@@ -17,10 +17,6 @@ abstract interface class IAppDi {
 
   IStatisticsRepo getStatisticsRepo();
 
-  IInsightGenerator getInsightGenerator();
-
-  ICategoryPredictor getPaymentCategorizer();
-
   IMoniplanLicenseRepo getLicenseRepo();
 
   IFeaturesManager getFeaturesManager();

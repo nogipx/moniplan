@@ -90,36 +90,19 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     // Сортируем платежи по дате (от новых к старым)
     payments.sort((a, b) => b.date.compareTo(a.date));
 
-    // Если нужно использовать предсказанные категории, получаем предиктор из DI
-    ICategoryPredictor? predictor;
-    if (usePredictedCategories) {
-      try {
-        _log.debug('Получаем предиктор категорий из DI');
-        // Получаем предиктор из DI вместо создания нового экземпляра
-        predictor = AppDi.instance.getPaymentCategorizer();
-
-        _log.debug('Предиктор получен, статус инициализации: ${predictor.isInitialized}');
-
-        // Убеждаемся, что предиктор инициализирован
-        if (!predictor.isInitialized) {
-          _log.debug('Инициализируем предиктор категорий');
-          await predictor.initialize();
-          _log.debug('Предиктор категорий инициализирован');
-        }
-      } catch (e, trace) {
-        _log.error('Ошибка при получении или инициализации предиктора: $e', trace: trace);
-      }
-    }
-
     // Создаем CSV строки
     final csvRows = <String>[];
 
     // Добавляем комментарий о формате даты
     csvRows.add('# Экспорт платежей из Moniplan');
-    csvRows.add('# Дата экспорта: ${DateFormat('yyyy-MM-dd').format(DateTime.now())}');
+    csvRows.add(
+      '# Дата экспорта: ${DateFormat('yyyy-MM-dd').format(DateTime.now())}',
+    );
     csvRows.add('# Планер: ${planner.name}');
     csvRows.add('# Количество платежей: ${payments.length}');
-    csvRows.add('# Примечание: все даты указаны в формате YYYY-MM-DD без учета времени');
+    csvRows.add(
+      '# Примечание: все даты указаны в формате YYYY-MM-DD без учета времени',
+    );
     csvRows.add(
       '# Внимание: при создании и редактировании платежей время автоматически отбрасывается',
     );
@@ -142,33 +125,14 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       final currency = payment.details.currency.isoCode;
       final type = payment.type.toString().split('.').last;
       final categories =
-          payment.details.tags.isEmpty ? '' : _escapeCSV(payment.details.tags.join(', '));
+          payment.details.tags.isEmpty
+              ? ''
+              : _escapeCSV(payment.details.tags.join(', '));
       final note = _escapeCSV(payment.details.note);
 
       // Предсказанные категории
       String predictedCategories = '';
       String probability = '';
-
-      // Если нужно использовать предсказанные категории и у платежа нет категорий
-      if (usePredictedCategories && payment.details.tags.isEmpty && predictor != null) {
-        try {
-          _log.debug('Предсказание категорий для платежа: ${payment.details.name}');
-          final predictions = await predictor.predictCategory(payment);
-          _log.debug('Получены предсказания: ${predictions.length}');
-
-          if (predictions.isNotEmpty) {
-            predictedCategories = _escapeCSV(predictions.map((p) => p.category).join(', '));
-            probability = predictions.map((p) => p.probability.toStringAsFixed(2)).join(', ');
-            _log.debug('Предсказанные категории: $predictedCategories');
-            _log.debug('Вероятности: $probability');
-          } else {
-            _log.debug('Нет предсказаний для платежа: ${payment.details.name}');
-          }
-        } catch (e, trace) {
-          // Игнорируем ошибки предсказания
-          _log.error('Ошибка предсказания категории для платежа $id: $e', trace: trace);
-        }
-      }
 
       // Формируем строку CSV
       final csvRow =
@@ -234,7 +198,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   @override
-  Future<void> importDataFromFile({required String filePath, String? password}) async {
+  Future<void> importDataFromFile({
+    required String filePath,
+    String? password,
+  }) async {
     final file = File(filePath);
     if (!await file.exists()) {
       throw Exception('Файл не найден');
@@ -253,7 +220,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   @override
-  Future<BackupInfo?> readBackupInfo({required String filePath, String? password}) async {
+  Future<BackupInfo?> readBackupInfo({
+    required String filePath,
+    String? password,
+  }) async {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
@@ -262,7 +232,9 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     }
 
     final bytes = await file.readAsBytes();
-    final (metadata, originalBytes) = BackupMetadata.extractMetadataFromBytes(bytes);
+    final (metadata, originalBytes) = BackupMetadata.extractMetadataFromBytes(
+      bytes,
+    );
     Uint8List? effectiveBytes = originalBytes;
 
     // Пытаемся расшифровать файл
@@ -278,7 +250,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         isLegacyBackup: false,
         additionalInfo:
             metadata.isEncrypted == true
-                ? {'key_type': metadata.hasPassword ? 'password' : 'app_key', 'format': 'metadata'}
+                ? {
+                  'key_type': metadata.hasPassword ? 'password' : 'app_key',
+                  'format': 'metadata',
+                }
                 : {'error': 'Не удалось расшифровать файл'},
       );
     }
@@ -312,9 +287,12 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     return _tryDecryptWithKeys(
       bytes,
       LinkedHashMap.from({
-        OldMockedEncryptionKey(): (key) => AesMonisyncEncrypter(key, enableMetadata: true),
-        OldEnviedEncryptionKey(): (key) => AesMonisyncEncrypter(key, enableMetadata: true),
-        MonisyncEncryptionKeyV2(): (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
+        OldMockedEncryptionKey():
+            (key) => AesMonisyncEncrypter(key, enableMetadata: true),
+        OldEnviedEncryptionKey():
+            (key) => AesMonisyncEncrypter(key, enableMetadata: true),
+        MonisyncEncryptionKeyV2():
+            (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
         if (password != null)
           PasswordEncryptionKey.fromPassword(password):
               (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
@@ -324,7 +302,8 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
   Future<Uint8List?> _tryDecryptWithKeys(
     Uint8List bytes,
-    Map<AppEncryptionKey, IAppEncrypter Function(AppEncryptionKey)> keyToEncrypter,
+    Map<AppEncryptionKey, IAppEncrypter Function(AppEncryptionKey)>
+    keyToEncrypter,
   ) async {
     for (final key in keyToEncrypter.keys) {
       try {

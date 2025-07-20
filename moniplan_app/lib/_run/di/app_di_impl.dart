@@ -4,18 +4,12 @@
 
 import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
 import 'package:moniplan_app/_run/di/di_utils.dart';
-import 'package:moniplan_app/core/services/tflite_category_predictor.dart';
-import 'package:moniplan_app/features/license/repository/moniplan_license_repository.dart';
-import 'package:moniplan_app/features/license/repository/secure_license_storage.dart';
-import 'package:moniplan_app/features/license/services/device_info_provider.dart';
 import 'package:moniplan_app/features/monisync/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
-import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/statistic/_index.dart';
 import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -25,12 +19,15 @@ class GetItAppDI implements AppDi {
 
   @override
   Future<void> setup() async {
-    final publicKey = LicensifyKeyImporter.importPublicKeyFromString(
-      utf8.decode(base64.decode(SecureEnv.publicKey)),
+    final publicKey = LicensifyPublicKey.ed25519(
+      base64.decode(SecureEnv.publicKey),
     );
 
     final dbImpl = AppDbImpl(getDatabaseFile, log: AppLog('AppDbImpl'));
-    _getIt.registerSingleton<AppDbImpl>(dbImpl, dispose: (impl) => impl.close());
+    _getIt.registerSingleton<AppDbImpl>(
+      dbImpl,
+      dispose: (impl) => impl.close(),
+    );
 
     AppDb.factory = () => GetIt.instance.get<AppDbImpl>();
     final db = AppDb();
@@ -40,48 +37,19 @@ class GetItAppDI implements AppDi {
     _getIt.registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform);
     _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: dbImpl));
 
-    _getIt.registerFactoryParamAsync<IAppEncrypter, AppEncrypterFactoryArgs, dynamic>(
-      encrypterFactory,
-    );
+    _getIt.registerFactoryParamAsync<
+      IAppEncrypter,
+      AppEncrypterFactoryArgs,
+      dynamic
+    >(encrypterFactory);
 
     _getIt.registerFactoryAsync<IMonisyncRepo>(() async {
       final encrypter = await AppDi.instance.getEncrypter();
       return MonisyncRepoImpl(appDb: db, encrypter: encrypter);
     });
-    _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
-
-    // Регистрируем сервис категоризации платежей
-    final paymentCategorizerService = PaymentCategorizerService();
-
-    // Регистрируем предиктор категорий
-    _getIt.registerSingleton<ICategoryPredictor>(
-      TFLiteCategoryPredictor(paymentCategorizerService),
+    _getIt.registerSingleton<IStatisticsRepo>(
+      StatisticsRepoImpl(plannerRepo: getPlannerRepo()),
     );
-
-    // Регистрируем генератор инсайтов
-    _getIt.registerSingleton<IInsightGenerator>(
-      InsightGeneratorImpl(categoryPredictor: _getIt.get<ICategoryPredictor>()),
-    );
-
-    // Регистрируем репозиторий лицензий
-    final licenseRepo = MoniplanLicenseRepository(
-      licenseStorage: SecureLicenseStorage(FlutterSecureStorage()),
-      licenseValidator: publicKey.licenseValidator,
-      licenseRequestGenerator: publicKey.licenseRequestGenerator(),
-      deviceHashGenerator: getDeviceHashGenerator(await DeviceInfoProvider().getDeviceInfo()),
-    );
-
-    _getIt.registerSingleton<IMoniplanLicenseRepo>(licenseRepo);
-
-    // Инициализируем менеджер фичей
-    _getIt.registerSingleton<IFeaturesManager>(
-      FeaturesManager(providers: [LicenseFeaturesProvider(licenseRepo)])..forceReloadFeatures(),
-    );
-
-    // Инициализируем сервис категоризации платежей
-    paymentCategorizerService.initialize().catchError((e) {
-      print('Ошибка инициализации PaymentCategorizerService: $e');
-    });
   }
 
   @override
@@ -99,12 +67,6 @@ class GetItAppDI implements AppDi {
   IStatisticsRepo getStatisticsRepo() => _getIt.get();
 
   @override
-  IInsightGenerator getInsightGenerator() => _getIt.get();
-
-  @override
-  ICategoryPredictor getPaymentCategorizer() => _getIt.get();
-
-  @override
   IMoniplanLicenseRepo getLicenseRepo() => _getIt.get();
 
   @override
@@ -115,6 +77,8 @@ class GetItAppDI implements AppDi {
 
   @override
   Future<IAppEncrypter> getEncrypter([AppEncrypterFactoryArgs? args]) async {
-    return _getIt.getAsync<IAppEncrypter>(param1: args ?? AppEncrypterFactoryArgs());
+    return _getIt.getAsync<IAppEncrypter>(
+      param1: args ?? AppEncrypterFactoryArgs(),
+    );
   }
 }

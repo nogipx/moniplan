@@ -21,7 +21,12 @@ class DeviceInfo {
   final String? macAddress;
 
   /// Создает экземпляр информации об устройстве
-  DeviceInfo({required this.deviceId, required this.model, required this.name, this.macAddress});
+  DeviceInfo({
+    required this.deviceId,
+    required this.model,
+    required this.name,
+    this.macAddress,
+  });
 
   /// Преобразует данные устройства в строку для хеширования
   String toHashString() {
@@ -29,13 +34,3 @@ class DeviceInfo {
     return macAddress != null ? '${baseString}_$macAddress' : baseString;
   }
 }
-
-IDeviceHashGenerator getDeviceHashGenerator(DeviceInfo deviceInfo) => () async {
-  final dataToHash = deviceInfo.toHashString();
-
-  // Используем SHA-512 для хеширования данных устройства
-  final bytes = utf8.encode(dataToHash);
-  final digest = sha512.convert(bytes);
-
-  return digest.toString();
-};

@@ -16,7 +16,7 @@ dependencies:
   intl: ^0.19.0
   collection: ^1.18.0
   crypto: ^3.0.6
-  licensify: ^2.3.1
+  licensify: ^3.1.0
 
 dev_dependencies:
   lints: ^5.1.1
