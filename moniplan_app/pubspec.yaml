@@ -12,14 +12,16 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  licensify: ^3.1.0
+  paseto_dart: ^1.0.1
+  data_manage: ^3.0.2
+  rpc_dart: ^2.2.1
+
   # Modules
   moniplan_domain:
     path: ../moniplan_domain
   moniplan_uikit:
     path: ../moniplan_uikit
-
-  licensify_issuer_client:
-    path: /Users/nogipx/nogipx_vault/projects/ecosystem/licensing/licensify_bot/licensify_issuer_client
 
   # Features
   feature_flutter: ^2.0.0
