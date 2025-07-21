@@ -8,3 +8,4 @@ export 'payment/_index.dart';
 export 'statistics/_index.dart';
 export 'licensify/_index.dart';
 export 'feature_flags/_index.dart';
+export 'financial_flow/financial_flow.dart';
