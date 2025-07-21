@@ -24,7 +24,7 @@ class PaymentToFinancialInstrumentAdapter {
       description: payment.details.note,
       type: _mapPaymentTypeToInstrumentType(payment.details.type),
       currency: payment.details.currency,
-      amount: payment.details.money.abs(),
+      amount: payment.details.money.abs(), // Используем изначальную положительную сумму
       tags: payment.details.tags,
       isActive: payment.isEnabled,
       repeat: payment.repeat,

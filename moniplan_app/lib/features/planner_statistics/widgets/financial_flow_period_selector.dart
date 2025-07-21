@@ -26,6 +26,7 @@ class _FinancialFlowPeriodSelectorState
   late DateTime _startDate;
   late DateTime _endDate;
   late CalculationStep _calculationStep;
+  bool _isCustomPeriod = false;
   late CurrencyData _defaultCurrency;
 
   @override
@@ -50,67 +51,37 @@ class _FinancialFlowPeriodSelectorState
   }
 
   void _emitChanges() {
-    final newSettings = widget.settings.copyWith(
+    final settings = FinancialFlowAnalysisSettings(
       startDate: _startDate,
       endDate: _endDate,
       calculationStep: _calculationStep,
       defaultCurrency: _defaultCurrency,
+      isCustomPeriod: _isCustomPeriod,
     );
-
-    widget.onSettingsChanged(newSettings);
+    widget.onSettingsChanged(settings);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      color: Theme.of(context).colorScheme.surface,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 0.5),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Настройки анализа',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          const SizedBox(height: 16),
-          
-          // Выбор периода
-          _buildPeriodSelector(),
+          // Быстрые пресеты
+          _buildQuickPresets(),
+          const SizedBox(height: 12),
+
+          // Детализация
+          _buildCalculationStepSelector(),
         ],
       ),
-    );
-  }
-
-  Widget _buildPeriodSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Период анализа',
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
-        const SizedBox(height: 8),
-        
-        Row(
-          children: [
-            // Быстрые пресеты
-            _buildQuickPresets(),
-            const SizedBox(width: 16),
-            
-            // Кастомный выбор дат
-            Expanded(
-              child: _buildCustomDateRange(),
-            ),
-          ],
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // Шаг расчета
-        _buildCalculationStepSelector(),
-      ],
     );
   }
 
@@ -119,114 +90,58 @@ class _FinancialFlowPeriodSelectorState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Быстрый выбор',
-          style: Theme.of(context).textTheme.labelMedium,
+          'Период',
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 4),
-        
-        Wrap(
-          spacing: 8,
-          children: [
-            _buildPresetChip('Неделя', _getWeekPeriod),
-            _buildPresetChip('Месяц', _getMonthPeriod),
-            _buildPresetChip('Квартал', _getQuarterPeriod),
-            _buildPresetChip('Год', _getYearPeriod),
-          ],
+        const SizedBox(height: 8),
+
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _buildPresetChip('Неделя', _getWeekPeriod),
+              const SizedBox(width: 8),
+              _buildPresetChip('Месяц', _getMonthPeriod),
+              const SizedBox(width: 8),
+              _buildPresetChip('Квартал', _getQuarterPeriod),
+              const SizedBox(width: 8),
+              _buildPresetChip('Год', _getYearPeriod),
+              const SizedBox(width: 8),
+              _buildCustomButton(),
+            ],
+          ),
         ),
       ],
     );
   }
 
   Widget _buildPresetChip(String label, VoidCallback onTap) {
-    return ActionChip(
+    final isSelected = _isPresetSelected(label);
+
+    return FilterChip(
       label: Text(label),
-      onPressed: widget.isLoading ? null : onTap,
+      selected: isSelected,
+      onSelected: widget.isLoading ? null : (_) => onTap(),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 
-  Widget _buildCustomDateRange() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Кастомный период',
-          style: Theme.of(context).textTheme.labelMedium,
-        ),
-        const SizedBox(height: 4),
-        
-        Row(
-          children: [
-            Expanded(
-              child: _buildDateField(
-                'От',
-                _startDate,
-                (date) {
-                  setState(() {
-                    _startDate = date;
-                  });
-                  _emitChanges();
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildDateField(
-                'До',
-                _endDate,
-                (date) {
-                  setState(() {
-                    _endDate = date;
-                  });
-                  _emitChanges();
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateField(
-    String label,
-    DateTime date,
-    ValueChanged<DateTime> onChanged,
-  ) {
-    return InkWell(
-      onTap: widget.isLoading
-          ? null
-          : () async {
-              final pickedDate = await showDatePicker(
-                context: context,
-                initialDate: date,
-                firstDate: DateTime(2020),
-                lastDate: DateTime(2030),
-              );
-              if (pickedDate != null) {
-                onChanged(pickedDate);
-              }
-            },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).dividerColor),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-            Text(
-              '${date.day}.${date.month}.${date.year}',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
-        ),
+  Widget _buildCustomButton() {
+    return ActionChip(
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.calendar_today, size: 16),
+          const SizedBox(width: 4),
+          Text(_getDateRangeText()),
+        ],
       ),
+      onPressed: widget.isLoading ? null : _showDatePicker,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 
@@ -235,35 +150,33 @@ class _FinancialFlowPeriodSelectorState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Детализация',
-          style: Theme.of(context).textTheme.labelLarge,
+          'Детализация расчета',
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
-        
+
         SegmentedButton<CalculationStep>(
           segments: const [
-            ButtonSegment(
-              value: CalculationStep.daily,
-              label: Text('День'),
-            ),
-            ButtonSegment(
-              value: CalculationStep.weekly,
-              label: Text('Неделя'),
-            ),
-            ButtonSegment(
-              value: CalculationStep.monthly,
-              label: Text('Месяц'),
-            ),
+            ButtonSegment(value: CalculationStep.daily, label: Text('День')),
+            ButtonSegment(value: CalculationStep.weekly, label: Text('Неделя')),
+            ButtonSegment(value: CalculationStep.monthly, label: Text('Месяц')),
           ],
           selected: {_calculationStep},
-          onSelectionChanged: widget.isLoading
-              ? null
-              : (selection) {
-                  setState(() {
-                    _calculationStep = selection.first;
-                  });
-                  _emitChanges();
-                },
+          onSelectionChanged:
+              widget.isLoading
+                  ? null
+                  : (selection) {
+                    setState(() {
+                      _calculationStep = selection.first;
+                    });
+                    _emitChanges();
+                  },
+          style: SegmentedButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+          ),
         ),
       ],
     );
@@ -279,12 +192,73 @@ class _FinancialFlowPeriodSelectorState
     _emitChanges();
   }
 
+  bool _isPresetSelected(String preset) {
+    final now = DateTime.now();
+
+    switch (preset) {
+      case 'Неделя':
+        final weekStart = now.subtract(const Duration(days: 7));
+        // Точное сравнение дат (с точностью до дня)
+        return _isSameDay(_startDate, weekStart) && _isSameDay(_endDate, now);
+
+      case 'Месяц':
+        final monthStart = DateTime(now.year, now.month, 1);
+        return _isSameDay(_startDate, monthStart) && _isSameDay(_endDate, now);
+
+      case 'Квартал':
+        final quarterStart = DateTime(
+          now.year,
+          ((now.month - 1) ~/ 3) * 3 + 1,
+          1,
+        );
+        return _isSameDay(_startDate, quarterStart) &&
+            _isSameDay(_endDate, now);
+
+      case 'Год':
+        final yearStart = DateTime(now.year, 1, 1);
+        return _isSameDay(_startDate, yearStart) && _isSameDay(_endDate, now);
+
+      default:
+        return false;
+    }
+  }
+
+  /// Проверяет, что две даты одинаковые (игнорируя время)
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
+  }
+
+  String _getDateRangeText() {
+    return '${_startDate.day}.${_startDate.month} - ${_endDate.day}.${_endDate.month}';
+  }
+
+  Future<void> _showDatePicker() async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      initialDateRange: DateTimeRange(start: _startDate, end: _endDate),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _startDate = picked.start;
+        _endDate = picked.end;
+        _isCustomPeriod = true;
+      });
+      _emitChanges();
+    }
+  }
+
   void _getWeekPeriod() {
     final now = DateTime.now();
     setState(() {
       _startDate = now.subtract(const Duration(days: 7));
       _endDate = now;
       _calculationStep = CalculationStep.daily;
+      _isCustomPeriod = false;
     });
     _emitChanges();
   }
@@ -295,6 +269,7 @@ class _FinancialFlowPeriodSelectorState
       _startDate = DateTime(now.year, now.month, 1);
       _endDate = now;
       _calculationStep = CalculationStep.weekly;
+      _isCustomPeriod = false;
     });
     _emitChanges();
   }
@@ -306,6 +281,7 @@ class _FinancialFlowPeriodSelectorState
       _startDate = quarterStart;
       _endDate = now;
       _calculationStep = CalculationStep.monthly;
+      _isCustomPeriod = false;
     });
     _emitChanges();
   }

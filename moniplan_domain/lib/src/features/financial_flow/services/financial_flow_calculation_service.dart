@@ -219,46 +219,63 @@ class FinancialFlowCalculationServiceImpl
     num totalCalculatedAmount = 0;
     int applicationsCount = 0;
 
-    // Определяем даты для расчета в зависимости от шага
-    final calculationDates = _getCalculationDates(period);
+    // Упрощенная логика расчета
+    if (!instrument.isActiveAtDate(period.startDate) &&
+        !instrument.isActiveAtDate(period.endDate)) {
+      // Инструмент неактивен в течение всего периода
+      return InstrumentCalculationResult(
+        instrumentId: instrument.id,
+        instrumentName: instrument.name,
+        instrumentType: instrument.type,
+        calculatedAmount: 0,
+        originalAmount: instrument.amount,
+        applicationsCount: 0,
+        creditBalance: null,
+        subPeriodResults: [],
+      );
+    }
 
-    for (final date in calculationDates) {
-      if (instrument.isActiveAtDate(date)) {
-        num periodAmount = 0;
+    // Рассчитываем количество применений в зависимости от типа повтора
+    if (instrument.repeat.type == DateTimeRepeatType.none) {
+      // Разовый платеж - применяется только один раз
+      if (instrument.startDate != null) {
+        final paymentDate = instrument.startDate!;
+        if (paymentDate.isAfter(
+              period.startDate.subtract(const Duration(days: 1)),
+            ) &&
+            paymentDate.isBefore(period.endDate.add(const Duration(days: 1)))) {
+          totalCalculatedAmount = instrument.normalizedAmount;
+          applicationsCount = 1;
 
-        // Рассчитываем сумму в зависимости от типа инструмента
-        if (instrument.repeat.type == DateTimeRepeatType.none) {
-          // Разовый платеж - применяется только один раз
-          if (applicationsCount == 0 &&
-              (instrument.startDate == null ||
-                  date.isAfter(
-                    instrument.startDate!.subtract(const Duration(days: 1)),
-                  ))) {
-            periodAmount = instrument.normalizedAmount;
-            applicationsCount = 1;
-          }
-        } else {
-          // Регулярный платеж - проверяем соответствие повторению
-          if (_shouldApplyOnDate(instrument, date)) {
-            periodAmount = instrument.monthlyAmount;
-            applicationsCount++;
-          }
+          subPeriodResults.add(
+            SubPeriodResult(
+              date: paymentDate,
+              amount: totalCalculatedAmount,
+              wasActive: true,
+              creditBalance: null,
+            ),
+          );
         }
+      }
+    } else {
+      // Регулярный платеж - применяется один раз за каждый период
+      // Проверяем, активен ли инструмент в этом периоде
+      if (instrument.isActiveAtDate(period.startDate) ||
+          instrument.isActiveAtDate(period.endDate) ||
+          (instrument.startDate != null &&
+              instrument.startDate!.isBefore(period.endDate) &&
+              (instrument.endDate == null ||
+                  instrument.endDate!.isAfter(period.startDate)))) {
+        totalCalculatedAmount = instrument.normalizedAmount;
+        applicationsCount = 1;
 
-        totalCalculatedAmount += periodAmount;
-
-        // Рассчитываем остаток по кредиту, если применимо
-        num? creditBalance;
-        if (instrument.type.isCredit) {
-          creditBalance = calculateCreditBalance(instrument, date);
-        }
-
+        // Добавляем запись для этого периода
         subPeriodResults.add(
           SubPeriodResult(
-            date: date,
-            amount: periodAmount,
+            date: period.startDate,
+            amount: totalCalculatedAmount,
             wasActive: true,
-            creditBalance: creditBalance,
+            creditBalance: null,
           ),
         );
       }
@@ -280,40 +297,6 @@ class FinancialFlowCalculationServiceImpl
       creditBalance: finalCreditBalance,
       subPeriodResults: subPeriodResults,
     );
-  }
-
-  /// Генерирует даты для расчета в зависимости от шага
-  List<DateTime> _getCalculationDates(CalculationPeriod period) {
-    final dates = <DateTime>[];
-    var currentDate = period.startDate;
-
-    while (currentDate.isBefore(period.endDate.add(const Duration(days: 1)))) {
-      dates.add(currentDate);
-
-      switch (period.calculationStep) {
-        case CalculationStep.daily:
-          currentDate = currentDate.add(const Duration(days: 1));
-          break;
-        case CalculationStep.weekly:
-          currentDate = currentDate.add(const Duration(days: 7));
-          break;
-        case CalculationStep.monthly:
-          currentDate = DateTime(
-            currentDate.year,
-            currentDate.month + 1,
-            currentDate.day,
-          );
-          break;
-      }
-    }
-
-    return dates;
-  }
-
-  /// Проверяет, должен ли инструмент применяться в указанную дату
-  bool _shouldApplyOnDate(FinancialInstrument instrument, DateTime date) {
-    // Упрощенная логика - для полной реализации нужно учитывать repeat
-    return true; // Пока применяем на каждую дату расчета
   }
 
   /// Генерирует периоды для расчета

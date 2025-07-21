@@ -14,34 +14,37 @@ class FinancialFlowAnalysisSettings with _$FinancialFlowAnalysisSettings {
   const factory FinancialFlowAnalysisSettings({
     /// Начальная дата анализа
     required DateTime startDate,
-    
+
     /// Конечная дата анализа
     required DateTime endDate,
-    
+
     /// Шаг расчета (месячный, квартальный и т.д.)
     @Default(CalculationStep.monthly) CalculationStep calculationStep,
-    
+
     /// Валюта по умолчанию для анализа
     required CurrencyData defaultCurrency,
-    
+
+    /// Кастомный ли период (не пресет)
+    @Default(false) bool isCustomPeriod,
+
     /// Показывать ли только активные инструменты
     @Default(true) bool showActiveOnly,
-    
+
     /// Группировать ли инструменты по тегам
     @Default(false) bool groupByTags,
-    
+
     /// Включить ли прогнозирование
     @Default(false) bool enableForecasting,
-    
+
     /// Количество периодов для прогноза
     @Default(3) int forecastPeriods,
-    
+
     /// Настройки расчета
     @Default(CalculationSettings()) CalculationSettings calculationSettings,
-    
+
     /// Фильтры по тегам
     @Default({}) Set<String> tagFilters,
-    
+
     /// Тип анализируемых инструментов
     @Default({}) Set<FinancialInstrumentType> instrumentTypeFilters,
   }) = _FinancialFlowAnalysisSettings;
@@ -56,17 +59,21 @@ class FinancialFlowAnalysisSettings with _$FinancialFlowAnalysisSettings {
     return FinancialFlowAnalysisSettings(
       startDate: planner.dateStart,
       endDate: planner.dateEnd,
-      defaultCurrency: planner.payments.isNotEmpty
-          ? planner.payments.first.details.currency
-          : CurrencyDataCommon.rub,
-      calculationStep: _determineOptimalStep(planner.dateStart, planner.dateEnd),
+      defaultCurrency: CurrencyDataCommon.rub, // Всегда используем рубли
+      calculationStep: _determineOptimalStep(
+        planner.dateStart,
+        planner.dateEnd,
+      ),
     );
   }
 
   /// Определяет оптимальный шаг расчета на основе периода
-  static CalculationStep _determineOptimalStep(DateTime startDate, DateTime endDate) {
+  static CalculationStep _determineOptimalStep(
+    DateTime startDate,
+    DateTime endDate,
+  ) {
     final duration = endDate.difference(startDate).inDays;
-    
+
     if (duration <= 31) {
       return CalculationStep.daily;
     } else if (duration <= 93) {
@@ -81,7 +88,7 @@ class FinancialFlowAnalysisSettings with _$FinancialFlowAnalysisSettings {
   /// Получает тип периода на основе настроек
   PeriodType get periodType {
     final duration = endDate.difference(startDate).inDays;
-    
+
     if (duration <= 31) {
       return PeriodType.month;
     } else if (duration <= 93) {
@@ -107,14 +114,14 @@ class FinancialFlowAnalysisSettings with _$FinancialFlowAnalysisSettings {
 
   /// Проверяет, валидны ли настройки
   bool get isValid {
-    return startDate.isBefore(endDate) && 
-           endDate.difference(startDate).inDays >= 1;
+    return startDate.isBefore(endDate) &&
+        endDate.difference(startDate).inDays >= 1;
   }
 
   /// Получает количество периодов в анализе
   int get periodsCount {
     final duration = endDate.difference(startDate).inDays;
-    
+
     switch (calculationStep) {
       case CalculationStep.daily:
         return duration;

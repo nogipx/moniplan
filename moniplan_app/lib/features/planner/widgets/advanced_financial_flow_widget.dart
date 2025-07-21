@@ -527,9 +527,9 @@ class AdvancedFinancialFlowWidget extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => FinancialFlowAnalysisScreen(
-                plannerId: planner.id,
-              ),
+              builder:
+                  (context) =>
+                      FinancialFlowAnalysisScreen(plannerId: planner.id),
             ),
           );
         },

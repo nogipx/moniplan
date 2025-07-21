@@ -83,32 +83,41 @@ class _FinancialFlowAnalysisScreenState
     });
 
     try {
-      // Создаем демо-расчет для тестирования UI
-      final demoCalculation = FinancialFlowCalculation(
-        id: 'demo',
-        profile: FinancialFlowProfile(
-          id: 'demo_profile',
-          name: 'Демо профиль',
-          instruments: [],
-          createdAt: DateTime.now(),
-          calculationPeriod: _settings.toCalculationPeriod(),
-          defaultCurrency: _settings.defaultCurrency,
+      // Загружаем планировщик
+      final planner = await _loadPlanner();
+
+      // Создаем адаптер для интеграции с планировщиком
+      final adapter = PaymentToFinancialInstrumentAdapter();
+
+      // Создаем профиль финансового потока из планировщика
+      final profile = adapter.createProfileFromPlanner(
+        planner,
+        calculationSettings: const CalculationSettings(
+          includeOneTimeItems: true,
+          includeCreditBalances: true,
+          groupByCategories: true,
+          roundAmounts: true,
+          decimalPlaces: 0, // Для рублей без копеек
         ),
-        calculatedAt: DateTime.now(),
-        summary: CalculationSummary(
-          totalIncome: 50000,
-          totalExpenses: 30000,
-          totalNetFlow: 20000,
-          averageMonthlyIncome: 4167,
-          averageMonthlyExpenses: 2500,
-          averageMonthlyNetFlow: 1667,
-          currency: _settings.defaultCurrency,
-        ),
-        periodResults: [],
+      );
+
+      // Обновляем профиль с настройками пользователя
+      final updatedProfile = profile.copyWith(
+        calculationPeriod: _settings.toCalculationPeriod(),
+        defaultCurrency:
+            CurrencyDataCommon.rub, // Принудительно устанавливаем рубли
+      );
+
+      // Создаем сервис расчетов
+      final calculationService = FinancialFlowCalculationServiceImpl();
+
+      // Выполняем расчет
+      final calculation = await calculationService.calculateFinancialFlow(
+        updatedProfile,
       );
 
       setState(() {
-        _calculation = demoCalculation;
+        _calculation = calculation;
         _isLoading = false;
       });
     } catch (e) {
@@ -152,13 +161,11 @@ class _FinancialFlowAnalysisScreenState
           onSettingsChanged: _onSettingsChanged,
           isLoading: _isLoading,
         ),
-        
+
         const Divider(height: 1),
 
         // Основной контент
-        Expanded(
-          child: _buildContent(),
-        ),
+        Expanded(child: _buildContent()),
       ],
     );
   }
@@ -178,9 +185,7 @@ class _FinancialFlowAnalysisScreenState
     }
 
     if (_calculation == null) {
-      return const Center(
-        child: Text('Нет данных для анализа'),
-      );
+      return const Center(child: Text('Нет данных для анализа'));
     }
 
     return FinancialFlowDetailedAnalysis(
