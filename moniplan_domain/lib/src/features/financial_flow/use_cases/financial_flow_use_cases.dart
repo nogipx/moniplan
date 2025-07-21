@@ -39,7 +39,9 @@ class ManageFinancialFlowProfilesUseCase {
   }
 
   /// Обновляет существующий профиль
-  Future<FinancialFlowProfile> updateProfile(FinancialFlowProfile profile) async {
+  Future<FinancialFlowProfile> updateProfile(
+    FinancialFlowProfile profile,
+  ) async {
     return await _repository.updateProfile(profile);
   }
 
@@ -84,7 +86,10 @@ class ManageFinancialFlowProfilesUseCase {
     String profileId,
     String instrumentId,
   ) async {
-    return await _repository.removeInstrumentFromProfile(profileId, instrumentId);
+    return await _repository.removeInstrumentFromProfile(
+      profileId,
+      instrumentId,
+    );
   }
 
   String _generateId() {
@@ -107,11 +112,13 @@ class CalculateFinancialFlowUseCase {
     }
 
     // Выполняем расчет
-    final calculation = await _calculationService.calculateFinancialFlow(profile);
-    
+    final calculation = await _calculationService.calculateFinancialFlow(
+      profile,
+    );
+
     // Сохраняем результат
     await _repository.saveCalculation(calculation);
-    
+
     return calculation;
   }
 
@@ -129,12 +136,16 @@ class CalculateFinancialFlowUseCase {
   }
 
   /// Получает последний расчет для профиля
-  Future<FinancialFlowCalculation?> getLatestCalculation(String profileId) async {
+  Future<FinancialFlowCalculation?> getLatestCalculation(
+    String profileId,
+  ) async {
     return await _repository.getLatestCalculationForProfile(profileId);
   }
 
   /// Получает все расчеты для профиля
-  Future<List<FinancialFlowCalculation>> getCalculationsHistory(String profileId) async {
+  Future<List<FinancialFlowCalculation>> getCalculationsHistory(
+    String profileId,
+  ) async {
     return await _repository.getCalculationsForProfile(profileId);
   }
 
@@ -156,31 +167,32 @@ class AnalyzeFinancialFlowUseCase {
   AnalyzeFinancialFlowUseCase(this._repository);
 
   /// Анализирует тренды доходов и расходов
-  Future<FlowTrendsAnalysis> analyzeTrends(String profileId, int monthsBack) async {
+  Future<FlowTrendsAnalysis> analyzeTrends(
+    String profileId,
+    int monthsBack,
+  ) async {
     final calculations = await _repository.getCalculationsForProfile(profileId);
-    
+
     // Фильтруем расчеты за последние monthsBack месяцев
     final cutoffDate = DateTime.now().subtract(Duration(days: monthsBack * 30));
-    final recentCalculations = calculations
-        .where((calc) => calc.calculatedAt.isAfter(cutoffDate))
-        .toList();
+    final recentCalculations =
+        calculations
+            .where((calc) => calc.calculatedAt.isAfter(cutoffDate))
+            .toList();
 
     if (recentCalculations.isEmpty) {
       return FlowTrendsAnalysis.empty();
     }
 
     // Анализируем тренды
-    final incomes = recentCalculations
-        .map((calc) => calc.summary.totalIncome)
-        .toList();
-    
-    final expenses = recentCalculations
-        .map((calc) => calc.summary.totalExpenses)
-        .toList();
+    final incomes =
+        recentCalculations.map((calc) => calc.summary.totalIncome).toList();
 
-    final netFlows = recentCalculations
-        .map((calc) => calc.summary.totalNetFlow)
-        .toList();
+    final expenses =
+        recentCalculations.map((calc) => calc.summary.totalExpenses).toList();
+
+    final netFlows =
+        recentCalculations.map((calc) => calc.summary.totalNetFlow).toList();
 
     return FlowTrendsAnalysis(
       incomeTrend: _calculateTrend(incomes),
@@ -198,7 +210,9 @@ class AnalyzeFinancialFlowUseCase {
     String profileId,
     int topCount,
   ) async {
-    final latestCalculation = await _repository.getLatestCalculationForProfile(profileId);
+    final latestCalculation = await _repository.getLatestCalculationForProfile(
+      profileId,
+    );
     if (latestCalculation == null) {
       return [];
     }
@@ -208,33 +222,42 @@ class AnalyzeFinancialFlowUseCase {
     // Собираем данные по категориям из всех периодов
     for (final periodResult in latestCalculation.periodResults) {
       for (final entry in periodResult.categoryResults.entries) {
-        categoryTotals[entry.key] = (categoryTotals[entry.key] ?? 0) + entry.value.abs();
+        categoryTotals[entry.key] =
+            (categoryTotals[entry.key] ?? 0) + entry.value.abs();
       }
     }
 
     // Сортируем и берем топ
-    final sortedCategories = categoryTotals.entries
-        .map((entry) => CategoryAnalysis(
-              category: entry.key,
-              totalAmount: entry.value,
-              percentage: entry.value / categoryTotals.values.reduce((a, b) => a + b) * 100,
-            ))
-        .toList()
-      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+    final sortedCategories =
+        categoryTotals.entries
+            .map(
+              (entry) => CategoryAnalysis(
+                category: entry.key,
+                totalAmount: entry.value,
+                percentage:
+                    entry.value /
+                    categoryTotals.values.reduce((a, b) => a + b) *
+                    100,
+              ),
+            )
+            .toList()
+          ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
 
     return sortedCategories.take(topCount).toList();
   }
 
   /// Получает прогноз на следующий период
   Future<FlowForecast> getForecast(String profileId, int monthsAhead) async {
-    final latestCalculation = await _repository.getLatestCalculationForProfile(profileId);
+    final latestCalculation = await _repository.getLatestCalculationForProfile(
+      profileId,
+    );
     if (latestCalculation == null) {
       throw Exception('No calculations found for profile');
     }
 
     // Простой прогноз на основе последнего расчета
     final summary = latestCalculation.summary;
-    
+
     return FlowForecast(
       forecastPeriodMonths: monthsAhead,
       projectedIncome: summary.averageMonthlyIncome * monthsAhead,
@@ -254,7 +277,8 @@ class AnalyzeFinancialFlowUseCase {
 
     final first = values.first;
     final last = values.last;
-    final middle = values.length > 2 ? values[values.length ~/ 2] : (first + last) / 2;
+    final middle =
+        values.length > 2 ? values[values.length ~/ 2] : (first + last) / 2;
 
     if (last > first && last > middle) return TrendDirection.growing;
     if (last < first && last < middle) return TrendDirection.declining;
@@ -320,11 +344,7 @@ class FlowTrendsAnalysis {
 }
 
 /// Направление тренда
-enum TrendDirection {
-  growing,
-  declining,
-  stable,
-}
+enum TrendDirection { growing, declining, stable }
 
 /// Анализ категории расходов
 class CategoryAnalysis {

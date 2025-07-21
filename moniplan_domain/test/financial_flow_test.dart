@@ -16,7 +16,10 @@ void main() {
       repository = InMemoryFinancialFlowRepository();
       calculationService = FinancialFlowCalculationServiceImpl();
       manageProfilesUseCase = ManageFinancialFlowProfilesUseCase(repository);
-      calculateFlowUseCase = CalculateFinancialFlowUseCase(repository, calculationService);
+      calculateFlowUseCase = CalculateFinancialFlowUseCase(
+        repository,
+        calculationService,
+      );
     });
 
     test('создание профиля финансового потока', () async {
@@ -104,7 +107,10 @@ void main() {
       expect(creditInstrument.creditData, isNotNull);
       expect(creditInstrument.creditData!.totalAmount, equals(3000000));
       expect(creditInstrument.creditData!.monthlyPayment, equals(35000));
-      expect(creditInstrument.monthlyAmount, equals(-35000)); // Отрицательное значение для расходов
+      expect(
+        creditInstrument.monthlyAmount,
+        equals(-35000),
+      ); // Отрицательное значение для расходов
     });
 
     test('расчет простого финансового потока', () async {
@@ -151,7 +157,10 @@ void main() {
       expect(calculation.periodResults.isNotEmpty, isTrue);
       expect(calculation.summary.totalIncome, greaterThan(0));
       expect(calculation.summary.totalExpenses, greaterThan(0));
-      expect(calculation.summary.totalNetFlow, greaterThan(0)); // Доходы больше расходов
+      expect(
+        calculation.summary.totalNetFlow,
+        greaterThan(0),
+      ); // Доходы больше расходов
     });
 
     test('валидация профиля с ошибками', () async {
@@ -161,7 +170,11 @@ void main() {
         name: 'Пустой профиль', // Даем имя профилю
         calculationPeriod: CalculationPeriod(
           startDate: DateTime(2025, 2, 1),
-          endDate: DateTime(2025, 1, 1), // Неправильные даты - конец раньше начала
+          endDate: DateTime(
+            2025,
+            1,
+            1,
+          ), // Неправильные даты - конец раньше начала
         ),
         defaultCurrency: _createTestCurrency(),
         instruments: [], // Пустой список инструментов
@@ -174,7 +187,10 @@ void main() {
       expect(errors.isNotEmpty, isTrue);
       expect(errors.length, equals(2)); // Должно быть 2 ошибки
       expect(errors.any((error) => error.contains('инструмент')), isTrue);
-      expect(errors.any((error) => error.contains('дата') || error.contains('Дата')), isTrue);
+      expect(
+        errors.any((error) => error.contains('дата') || error.contains('Дата')),
+        isTrue,
+      );
     });
 
     test('расчет периода с инактивными инструментами', () async {
@@ -215,12 +231,24 @@ void main() {
 
       // Act
       final period = CalculationPeriod.currentMonth();
-      final result = await calculateFlowUseCase.calculatePeriod(profile.id, period);
+      final result = await calculateFlowUseCase.calculatePeriod(
+        profile.id,
+        period,
+      );
 
       // Assert
-      expect(result.instrumentResults.length, equals(1)); // Только активный инструмент
-      expect(result.instrumentResults.first.instrumentName, equals('Активный доход'));
-      expect(result.totalIncome, equals(100000)); // Только от активного инструмента
+      expect(
+        result.instrumentResults.length,
+        equals(1),
+      ); // Только активный инструмент
+      expect(
+        result.instrumentResults.first.instrumentName,
+        equals('Активный доход'),
+      );
+      expect(
+        result.totalIncome,
+        equals(100000),
+      ); // Только от активного инструмента
     });
   });
 }

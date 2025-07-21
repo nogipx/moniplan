@@ -10,62 +10,70 @@ import '../models/financial_instrument.dart';
 abstract class FinancialFlowRepository {
   /// Получает все профили пользователя
   Future<List<FinancialFlowProfile>> getAllProfiles();
-  
+
   /// Получает профиль по идентификатору
   Future<FinancialFlowProfile?> getProfileById(String id);
-  
+
   /// Создает новый профиль
   Future<FinancialFlowProfile> createProfile(FinancialFlowProfile profile);
-  
+
   /// Обновляет существующий профиль
   Future<FinancialFlowProfile> updateProfile(FinancialFlowProfile profile);
-  
+
   /// Удаляет профиль
   Future<void> deleteProfile(String id);
-  
+
   /// Получает профили по тегам
   Future<List<FinancialFlowProfile>> getProfilesByTags(Set<String> tags);
-  
+
   /// Получает активные профили
   Future<List<FinancialFlowProfile>> getActiveProfiles();
-  
+
   // Работа с инструментами
-  
+
   /// Добавляет инструмент в профиль
   Future<FinancialFlowProfile> addInstrumentToProfile(
-    String profileId, 
+    String profileId,
     FinancialInstrument instrument,
   );
-  
+
   /// Обновляет инструмент в профиле
   Future<FinancialFlowProfile> updateInstrumentInProfile(
-    String profileId, 
+    String profileId,
     FinancialInstrument instrument,
   );
-  
+
   /// Удаляет инструмент из профиля
   Future<FinancialFlowProfile> removeInstrumentFromProfile(
-    String profileId, 
+    String profileId,
     String instrumentId,
   );
-  
+
   /// Получает все инструменты пользователя (из всех профилей)
   Future<List<FinancialInstrument>> getAllInstruments();
-  
+
   /// Получает инструменты по типу
-  Future<List<FinancialInstrument>> getInstrumentsByType(FinancialInstrumentType type);
-  
+  Future<List<FinancialInstrument>> getInstrumentsByType(
+    FinancialInstrumentType type,
+  );
+
   // Работа с расчетами
-  
+
   /// Сохраняет результат расчета
-  Future<FinancialFlowCalculation> saveCalculation(FinancialFlowCalculation calculation);
-  
+  Future<FinancialFlowCalculation> saveCalculation(
+    FinancialFlowCalculation calculation,
+  );
+
   /// Получает расчеты для профиля
-  Future<List<FinancialFlowCalculation>> getCalculationsForProfile(String profileId);
-  
+  Future<List<FinancialFlowCalculation>> getCalculationsForProfile(
+    String profileId,
+  );
+
   /// Получает последний расчет для профиля
-  Future<FinancialFlowCalculation?> getLatestCalculationForProfile(String profileId);
-  
+  Future<FinancialFlowCalculation?> getLatestCalculationForProfile(
+    String profileId,
+  );
+
   /// Удаляет старые расчеты (старше указанного количества дней)
   Future<void> cleanupOldCalculations(int olderThanDays);
 }
@@ -86,7 +94,9 @@ class InMemoryFinancialFlowRepository implements FinancialFlowRepository {
   }
 
   @override
-  Future<FinancialFlowProfile> createProfile(FinancialFlowProfile profile) async {
+  Future<FinancialFlowProfile> createProfile(
+    FinancialFlowProfile profile,
+  ) async {
     final updatedProfile = profile.copyWith(
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
@@ -96,10 +106,10 @@ class InMemoryFinancialFlowRepository implements FinancialFlowRepository {
   }
 
   @override
-  Future<FinancialFlowProfile> updateProfile(FinancialFlowProfile profile) async {
-    final updatedProfile = profile.copyWith(
-      updatedAt: DateTime.now(),
-    );
+  Future<FinancialFlowProfile> updateProfile(
+    FinancialFlowProfile profile,
+  ) async {
+    final updatedProfile = profile.copyWith(updatedAt: DateTime.now());
     _profiles[profile.id] = updatedProfile;
     return updatedProfile;
   }
@@ -107,13 +117,14 @@ class InMemoryFinancialFlowRepository implements FinancialFlowRepository {
   @override
   Future<void> deleteProfile(String id) async {
     _profiles.remove(id);
-    
+
     // Удаляем связанные расчеты
-    final calculationsToRemove = _calculations.entries
-        .where((entry) => entry.value.profile.id == id)
-        .map((entry) => entry.key)
-        .toList();
-    
+    final calculationsToRemove =
+        _calculations.entries
+            .where((entry) => entry.value.profile.id == id)
+            .map((entry) => entry.key)
+            .toList();
+
     for (final calcId in calculationsToRemove) {
       _calculations.remove(calcId);
     }
@@ -128,14 +139,12 @@ class InMemoryFinancialFlowRepository implements FinancialFlowRepository {
 
   @override
   Future<List<FinancialFlowProfile>> getActiveProfiles() async {
-    return _profiles.values
-        .where((profile) => profile.isActive)
-        .toList();
+    return _profiles.values.where((profile) => profile.isActive).toList();
   }
 
   @override
   Future<FinancialFlowProfile> addInstrumentToProfile(
-    String profileId, 
+    String profileId,
     FinancialInstrument instrument,
   ) async {
     final profile = _profiles[profileId];
@@ -148,14 +157,14 @@ class InMemoryFinancialFlowRepository implements FinancialFlowRepository {
       instruments: updatedInstruments,
       updatedAt: DateTime.now(),
     );
-    
+
     _profiles[profileId] = updatedProfile;
     return updatedProfile;
   }
 
   @override
   Future<FinancialFlowProfile> updateInstrumentInProfile(
-    String profileId, 
+    String profileId,
     FinancialInstrument instrument,
   ) async {
     final profile = _profiles[profileId];
@@ -163,22 +172,26 @@ class InMemoryFinancialFlowRepository implements FinancialFlowRepository {
       throw Exception('Profile not found: $profileId');
     }
 
-    final updatedInstruments = profile.instruments
-        .map((existing) => existing.id == instrument.id ? instrument : existing)
-        .toList();
-    
+    final updatedInstruments =
+        profile.instruments
+            .map(
+              (existing) =>
+                  existing.id == instrument.id ? instrument : existing,
+            )
+            .toList();
+
     final updatedProfile = profile.copyWith(
       instruments: updatedInstruments,
       updatedAt: DateTime.now(),
     );
-    
+
     _profiles[profileId] = updatedProfile;
     return updatedProfile;
   }
 
   @override
   Future<FinancialFlowProfile> removeInstrumentFromProfile(
-    String profileId, 
+    String profileId,
     String instrumentId,
   ) async {
     final profile = _profiles[profileId];
@@ -186,28 +199,29 @@ class InMemoryFinancialFlowRepository implements FinancialFlowRepository {
       throw Exception('Profile not found: $profileId');
     }
 
-    final updatedInstruments = profile.instruments
-        .where((instrument) => instrument.id != instrumentId)
-        .toList();
-    
+    final updatedInstruments =
+        profile.instruments
+            .where((instrument) => instrument.id != instrumentId)
+            .toList();
+
     final updatedProfile = profile.copyWith(
       instruments: updatedInstruments,
       updatedAt: DateTime.now(),
     );
-    
+
     _profiles[profileId] = updatedProfile;
     return updatedProfile;
   }
 
   @override
   Future<List<FinancialInstrument>> getAllInstruments() async {
-    return _profiles.values
-        .expand((profile) => profile.instruments)
-        .toList();
+    return _profiles.values.expand((profile) => profile.instruments).toList();
   }
 
   @override
-  Future<List<FinancialInstrument>> getInstrumentsByType(FinancialInstrumentType type) async {
+  Future<List<FinancialInstrument>> getInstrumentsByType(
+    FinancialInstrumentType type,
+  ) async {
     return _profiles.values
         .expand((profile) => profile.instruments)
         .where((instrument) => instrument.type == type)
@@ -215,13 +229,17 @@ class InMemoryFinancialFlowRepository implements FinancialFlowRepository {
   }
 
   @override
-  Future<FinancialFlowCalculation> saveCalculation(FinancialFlowCalculation calculation) async {
+  Future<FinancialFlowCalculation> saveCalculation(
+    FinancialFlowCalculation calculation,
+  ) async {
     _calculations[calculation.id] = calculation;
     return calculation;
   }
 
   @override
-  Future<List<FinancialFlowCalculation>> getCalculationsForProfile(String profileId) async {
+  Future<List<FinancialFlowCalculation>> getCalculationsForProfile(
+    String profileId,
+  ) async {
     return _calculations.values
         .where((calculation) => calculation.profile.id == profileId)
         .toList()
@@ -229,7 +247,9 @@ class InMemoryFinancialFlowRepository implements FinancialFlowRepository {
   }
 
   @override
-  Future<FinancialFlowCalculation?> getLatestCalculationForProfile(String profileId) async {
+  Future<FinancialFlowCalculation?> getLatestCalculationForProfile(
+    String profileId,
+  ) async {
     final calculations = await getCalculationsForProfile(profileId);
     return calculations.isNotEmpty ? calculations.first : null;
   }
@@ -237,12 +257,13 @@ class InMemoryFinancialFlowRepository implements FinancialFlowRepository {
   @override
   Future<void> cleanupOldCalculations(int olderThanDays) async {
     final cutoffDate = DateTime.now().subtract(Duration(days: olderThanDays));
-    
-    final calculationsToRemove = _calculations.entries
-        .where((entry) => entry.value.calculatedAt.isBefore(cutoffDate))
-        .map((entry) => entry.key)
-        .toList();
-    
+
+    final calculationsToRemove =
+        _calculations.entries
+            .where((entry) => entry.value.calculatedAt.isBefore(cutoffDate))
+            .map((entry) => entry.key)
+            .toList();
+
     for (final calcId in calculationsToRemove) {
       _calculations.remove(calcId);
     }

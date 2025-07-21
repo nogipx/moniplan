@@ -5,7 +5,6 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
 import 'package:moniplan_app/features/_common/periodic_theme_changer/_index.dart';
@@ -83,14 +82,9 @@ class _MoniplanAppState extends State<MoniplanApp> {
             child: MaterialApp(
               debugShowCheckedModeBanner: false,
               theme: theme.themeData,
-              localizationsDelegates: [
-                S.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: S.delegate.supportedLocales,
-              locale: const Locale('ru'), // Укажите текущую локаль
+              // localizationsDelegates: [S.delegate],
+              // supportedLocales: S.delegate.supportedLocales,
+              // locale: const Locale('ru'), // Укажите текущую локаль
               builder:
                   (context, child) => ResponsiveBreakpoints.builder(
                     child: child!,

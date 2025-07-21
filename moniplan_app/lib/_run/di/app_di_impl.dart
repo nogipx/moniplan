@@ -19,10 +19,6 @@ class GetItAppDI implements AppDi {
 
   @override
   Future<void> setup() async {
-    final publicKey = LicensifyPublicKey.ed25519(
-      base64.decode(SecureEnv.publicKey),
-    );
-
     final dbImpl = AppDbImpl(getDatabaseFile, log: AppLog('AppDbImpl'));
     _getIt.registerSingleton<AppDbImpl>(
       dbImpl,

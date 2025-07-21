@@ -50,7 +50,8 @@ class PlannerStatisticsView extends StatelessWidget {
                     (previousLoaded) => current.maybeMap(
                       loaded:
                           (currentLoaded) =>
-                              previousLoaded.showCompletedOnly != currentLoaded.showCompletedOnly,
+                              previousLoaded.showCompletedOnly !=
+                              currentLoaded.showCompletedOnly,
                       orElse: () => false,
                     ),
                 orElse: () => false,
@@ -64,7 +65,9 @@ class PlannerStatisticsView extends StatelessWidget {
 
               return IconButton(
                 icon: Icon(
-                  showCompletedOnly ? Icons.check_circle : Icons.calendar_today_outlined,
+                  showCompletedOnly
+                      ? Icons.check_circle
+                      : Icons.calendar_today_outlined,
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 tooltip:
@@ -73,7 +76,9 @@ class PlannerStatisticsView extends StatelessWidget {
                         : 'Отображаются все платежи',
                 onPressed: () {
                   context.read<StatisticsBloc>().add(
-                    StatisticsEvent.viewModeChanged(showCompletedOnly: !showCompletedOnly),
+                    StatisticsEvent.viewModeChanged(
+                      showCompletedOnly: !showCompletedOnly,
+                    ),
                   );
                 },
               );
@@ -85,7 +90,9 @@ class PlannerStatisticsView extends StatelessWidget {
         builder: (context, state) {
           return state.map(
             initial: (_) => const SizedBox(),
-            loading: (_) => const Center(child: CircularProgressIndicator.adaptive()),
+            loading:
+                (_) =>
+                    const Center(child: CircularProgressIndicator.adaptive()),
             loaded: (loaded) {
               return _StatisticsContent(
                 statistics: loaded.statistics,
@@ -97,9 +104,16 @@ class PlannerStatisticsView extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.error_outline_rounded, size: 48, color: context.color.error),
+                      Icon(
+                        Icons.error_outline_rounded,
+                        size: 48,
+                        color: context.color.error,
+                      ),
                       const SizedBox(height: 16),
-                      Text('Ошибка загрузки данных', style: context.text.titleMedium),
+                      Text(
+                        'Ошибка загрузки данных',
+                        style: context.text.titleMedium,
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         error.message,
@@ -130,7 +144,10 @@ class _StatisticsContent extends StatelessWidget {
   final BudgetStatistics statistics;
   final bool showCompletedOnly;
 
-  const _StatisticsContent({required this.statistics, required this.showCompletedOnly});
+  const _StatisticsContent({
+    required this.statistics,
+    required this.showCompletedOnly,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +168,11 @@ class _StatisticsContent extends StatelessWidget {
     final dates = statistics.totalBudget.keys.toList()..sort();
     final filteredDates =
         showCompletedOnly
-            ? dates.where((date) => statistics.totalBudget[date]?.allCompleted == true).toList()
+            ? dates
+                .where(
+                  (date) => statistics.totalBudget[date]?.allCompleted == true,
+                )
+                .toList()
             : dates;
 
     // Если после фильтрации нет данных, показываем сообщение
@@ -162,7 +183,9 @@ class _StatisticsContent extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              showCompletedOnly ? Icons.check_circle_outline : Icons.calendar_today_outlined,
+              showCompletedOnly
+                  ? Icons.check_circle_outline
+                  : Icons.calendar_today_outlined,
               size: 48,
               color: Colors.grey,
             ),
@@ -176,11 +199,15 @@ class _StatisticsContent extends StatelessWidget {
             FilledButton.icon(
               onPressed: () {
                 context.read<StatisticsBloc>().add(
-                  StatisticsEvent.viewModeChanged(showCompletedOnly: !showCompletedOnly),
+                  StatisticsEvent.viewModeChanged(
+                    showCompletedOnly: !showCompletedOnly,
+                  ),
                 );
               },
               icon: Icon(
-                showCompletedOnly ? Icons.calendar_today_outlined : Icons.check_circle_outline,
+                showCompletedOnly
+                    ? Icons.calendar_today_outlined
+                    : Icons.check_circle_outline,
               ),
               label: Text(
                 'Показать ${showCompletedOnly ? "все" : "только выполненные"} транзакции',
@@ -192,7 +219,8 @@ class _StatisticsContent extends StatelessWidget {
     }
 
     // Создаем вспомогательные наборы данных только для отфильтрованных дат
-    final filteredTotalBudget = <DateTime, ({num totalBudget, bool allCompleted})>{};
+    final filteredTotalBudget =
+        <DateTime, ({num totalBudget, bool allCompleted})>{};
     final filteredIncomes = <DateTime, num>{};
     final filteredExpenses = <DateTime, num>{};
     final filteredCorrections = <DateTime, num>{};
@@ -224,7 +252,9 @@ class _StatisticsContent extends StatelessWidget {
     );
 
     // Получаем сводную информацию на основе отфильтрованных данных
-    final flowResult = StatisticsMoneyFlowAdapter.fromStatistics(filteredStatistics);
+    final flowResult = StatisticsMoneyFlowAdapter.fromStatistics(
+      filteredStatistics,
+    );
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -248,6 +278,14 @@ class _StatisticsContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: MoneyFlowWidget(state: flowResult),
             ),
+
+            // Расширенный анализ финансового потока
+            const SizedBox(height: 16),
+            StatisticsFinancialFlowWidget(
+              plannerId: (context.read<StatisticsBloc>()).plannerId,
+            ),
+
+            const SizedBox(height: 24), // Отступ в конце
           ],
         ),
       ),
@@ -259,8 +297,10 @@ class _StatisticsContent extends StatelessWidget {
     MoneyFlowUseCaseResult flowResult,
     bool showCompletedOnly,
   ) {
-    final positiveColor = context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green;
-    final negativeColor = context.ext<MoniplanExtraColors>()?.moneyNegative ?? Colors.red;
+    final positiveColor =
+        context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green;
+    final negativeColor =
+        context.ext<MoniplanExtraColors>()?.moneyNegative ?? Colors.red;
 
     // Рассчитаем основные статистические параметры
     final totalDays = filteredStatistics.totalBudget.length;
@@ -281,14 +321,18 @@ class _StatisticsContent extends StatelessWidget {
           children: [
             Text(
               'Статистика',
-              style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: context.text.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
             // Метка режима просмотра
             Row(
               children: [
                 Icon(
-                  showCompletedOnly ? Icons.check_circle_outline : Icons.calendar_today_outlined,
+                  showCompletedOnly
+                      ? Icons.check_circle_outline
+                      : Icons.calendar_today_outlined,
                   size: 14,
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -331,7 +375,8 @@ class _StatisticsContent extends StatelessWidget {
                     label: 'Баланс',
                     value: flowResult.balance,
                     icon: Icons.account_balance_wallet_rounded,
-                    color: flowResult.balance >= 0 ? positiveColor : negativeColor,
+                    color:
+                        flowResult.balance >= 0 ? positiveColor : negativeColor,
                   ),
                 ),
               ],
@@ -356,7 +401,9 @@ class _StatisticsContent extends StatelessWidget {
                   child: _StatItem(
                     label: 'Медиана',
                     value: _calculateMedian(
-                      filteredStatistics.totalBudget.values.map((e) => e.totalBudget).toList(),
+                      filteredStatistics.totalBudget.values
+                          .map((e) => e.totalBudget)
+                          .toList(),
                     ),
                     icon: Icons.linear_scale,
                     color: Colors.purple[700] ?? Colors.purple,
@@ -366,7 +413,10 @@ class _StatisticsContent extends StatelessWidget {
                   child: _StatItem(
                     label: 'Темп роста',
                     value: growthRate,
-                    icon: growthRate >= 0 ? Icons.trending_up : Icons.trending_down,
+                    icon:
+                        growthRate >= 0
+                            ? Icons.trending_up
+                            : Icons.trending_down,
                     color: growthRate >= 0 ? positiveColor : negativeColor,
                   ),
                 ),
@@ -420,10 +470,13 @@ class _StatisticsContent extends StatelessWidget {
 
     final dates = statistics.totalBudget.keys.toList()..sort();
     final filteredDates =
-        dates.where((date) => statistics.totalBudget[date]?.allCompleted == true).toList();
+        dates
+            .where((date) => statistics.totalBudget[date]?.allCompleted == true)
+            .toList();
 
     // Создаем вспомогательные наборы данных только для отфильтрованных дат
-    final filteredTotalBudget = <DateTime, ({num totalBudget, bool allCompleted})>{};
+    final filteredTotalBudget =
+        <DateTime, ({num totalBudget, bool allCompleted})>{};
     final filteredIncomes = <DateTime, num>{};
     final filteredExpenses = <DateTime, num>{};
     final filteredCorrections = <DateTime, num>{};
@@ -458,7 +511,10 @@ class _StatisticsContent extends StatelessWidget {
   double _calculateVariance(List<num> values) {
     if (values.isEmpty) return 0;
     final mean = values.reduce((a, b) => a + b) / values.length;
-    final sumSquaredDiff = values.fold<double>(0, (sum, val) => sum + pow(val - mean, 2));
+    final sumSquaredDiff = values.fold<double>(
+      0,
+      (sum, val) => sum + pow(val - mean, 2),
+    );
     return sumSquaredDiff / values.length;
   }
 
@@ -475,7 +531,9 @@ class _StatisticsContent extends StatelessWidget {
     }
   }
 
-  double _calculateGrowthRate(Map<DateTime, ({num totalBudget, bool allCompleted})> budgetData) {
+  double _calculateGrowthRate(
+    Map<DateTime, ({num totalBudget, bool allCompleted})> budgetData,
+  ) {
     if (budgetData.isEmpty || budgetData.length < 2) return 0;
 
     final dates = budgetData.keys.toList()..sort();
@@ -519,7 +577,10 @@ class _StatItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           text,
-          style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: color),
+          style: context.text.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
           overflow: TextOverflow.ellipsis,
         ),
       ],
@@ -531,7 +592,10 @@ class _BudgetTrendsSection extends StatelessWidget {
   final BudgetStatistics statistics;
   final bool showCompletedOnly;
 
-  const _BudgetTrendsSection({required this.statistics, required this.showCompletedOnly});
+  const _BudgetTrendsSection({
+    required this.statistics,
+    required this.showCompletedOnly,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -553,7 +617,9 @@ class _BudgetTrendsSection extends StatelessWidget {
           children: [
             Text(
               'График данных',
-              style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: context.text.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
             const SizedBox(height: 8),
@@ -568,7 +634,10 @@ class _BudgetTrendsSection extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Упрощенный график
-            SizedBox(height: 180, child: _SimpleChartView(statistics: statistics)),
+            SizedBox(
+              height: 180,
+              child: _SimpleChartView(statistics: statistics),
+            ),
 
             const SizedBox(height: 16),
             _buildKeyMetrics(context),
@@ -580,16 +649,24 @@ class _BudgetTrendsSection extends StatelessWidget {
 
   Widget _buildKeyMetrics(BuildContext context) {
     // Суммируем доходы и расходы
-    final totalIncome = statistics.incomes.values.fold<num>(0, (sum, value) => sum + value);
+    final totalIncome = statistics.incomes.values.fold<num>(
+      0,
+      (sum, value) => sum + value,
+    );
 
-    final totalExpense = statistics.expenses.values.fold<num>(0, (sum, value) => sum + value);
+    final totalExpense = statistics.expenses.values.fold<num>(
+      0,
+      (sum, value) => sum + value,
+    );
 
     final daysCount = statistics.totalBudget.length;
     final averageIncomePerDay = daysCount > 0 ? totalIncome / daysCount : 0;
     final averageExpensePerDay = daysCount > 0 ? totalExpense / daysCount : 0;
 
-    final positiveColor = context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green;
-    final negativeColor = context.ext<MoniplanExtraColors>()?.moneyNegative ?? Colors.red;
+    final positiveColor =
+        context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green;
+    final negativeColor =
+        context.ext<MoniplanExtraColors>()?.moneyNegative ?? Colors.red;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -632,10 +709,18 @@ class _SimpleChartView extends StatelessWidget {
 
     // Получаем все значения бюджета для всех дат
     final budgetValues =
-        allDates.map((date) => statistics.totalBudget[date]!.totalBudget.toDouble()).toList();
+        allDates
+            .map((date) => statistics.totalBudget[date]!.totalBudget.toDouble())
+            .toList();
 
-    final maxY = budgetValues.isEmpty ? 1000.0 : budgetValues.reduce((a, b) => a > b ? a : b) * 1.1;
-    final minY = budgetValues.isEmpty ? 0.0 : budgetValues.reduce((a, b) => a < b ? a : b) * 0.9;
+    final maxY =
+        budgetValues.isEmpty
+            ? 1000.0
+            : budgetValues.reduce((a, b) => a > b ? a : b) * 1.1;
+    final minY =
+        budgetValues.isEmpty
+            ? 0.0
+            : budgetValues.reduce((a, b) => a < b ? a : b) * 0.9;
 
     // Создаем точки графика баланса для всех дат
     final balanceSpots = <FlSpot>[];
@@ -664,7 +749,8 @@ class _SimpleChartView extends StatelessWidget {
     }
 
     final nearestDateMs = nearestDate.millisecondsSinceEpoch.toDouble();
-    final positiveColor = context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green;
+    final positiveColor =
+        context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green;
     final lineColor = Colors.blueGrey[800] ?? Colors.blueGrey;
 
     return LineChart(
@@ -676,7 +762,8 @@ class _SimpleChartView extends StatelessWidget {
           verticalInterval: 86400000 * 30, // примерно 1 месяц
           getDrawingVerticalLine: (value) {
             // Выделяем текущий день (или ближайший)
-            final isNearestDay = (value - nearestDateMs).abs() < 43200000; // 12 часов
+            final isNearestDay =
+                (value - nearestDateMs).abs() < 43200000; // 12 часов
 
             return FlLine(
               color:
@@ -696,7 +783,10 @@ class _SimpleChartView extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 22,
-              interval: (maxDate.millisecondsSinceEpoch - minDate.millisecondsSinceEpoch) / 3,
+              interval:
+                  (maxDate.millisecondsSinceEpoch -
+                      minDate.millisecondsSinceEpoch) /
+                  3,
               getTitlesWidget: (value, meta) {
                 final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
                 final isNearestDay = (value - nearestDateMs).abs() < 43200000;
@@ -707,7 +797,10 @@ class _SimpleChartView extends StatelessWidget {
                     DateFormat('MMM', 'ru').format(date),
                     style: context.text.bodySmall?.copyWith(
                       fontSize: 9,
-                      color: isNearestDay ? Theme.of(context).colorScheme.primary : null,
+                      color:
+                          isNearestDay
+                              ? Theme.of(context).colorScheme.primary
+                              : null,
                       fontWeight: isNearestDay ? FontWeight.bold : null,
                     ),
                   ),
@@ -725,7 +818,10 @@ class _SimpleChartView extends StatelessWidget {
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (_) => Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.7),
+            getTooltipColor:
+                (_) => Theme.of(
+                  context,
+                ).colorScheme.surfaceVariant.withOpacity(0.7),
             tooltipRoundedRadius: 8,
             tooltipPadding: const EdgeInsets.all(12),
             tooltipMargin: 8,
@@ -733,21 +829,27 @@ class _SimpleChartView extends StatelessWidget {
             fitInsideHorizontally: true,
             getTooltipItems: (spots) {
               return spots.map((spot) {
-                final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                final date = DateTime.fromMillisecondsSinceEpoch(
+                  spot.x.toInt(),
+                );
 
                 // Находим соответствующие данные для этой даты
                 final income = statistics.incomes[date]?.toDouble() ?? 0.0;
                 final expense = statistics.expenses[date]?.toDouble() ?? 0.0;
                 final balance = spot.y;
                 final isNearestDay = (spot.x - nearestDateMs).abs() < 43200000;
-                final isCompleted = statistics.totalBudget[date]?.allCompleted == true;
+                final isCompleted =
+                    statistics.totalBudget[date]?.allCompleted == true;
 
                 // Более информативный тултип
                 return LineTooltipItem(
                   DateFormat('d MMMM yyyy', 'ru').format(date),
                   context.text.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: isNearestDay ? Theme.of(context).colorScheme.primary : null,
+                        color:
+                            isNearestDay
+                                ? Theme.of(context).colorScheme.primary
+                                : null,
                       ) ??
                       const TextStyle(fontWeight: FontWeight.bold),
                   children: [
@@ -772,7 +874,10 @@ class _SimpleChartView extends StatelessWidget {
                     const TextSpan(text: '\n'),
                     TextSpan(
                       text: 'Доход: ',
-                      style: TextStyle(color: positiveColor, fontWeight: FontWeight.normal),
+                      style: TextStyle(
+                        color: positiveColor,
+                        fontWeight: FontWeight.normal,
+                      ),
                     ),
                     TextSpan(text: '$income ₽\n'),
                     TextSpan(
@@ -785,9 +890,15 @@ class _SimpleChartView extends StatelessWidget {
                     TextSpan(text: '$expense ₽\n'),
                     TextSpan(
                       text: 'Баланс: ',
-                      style: TextStyle(color: lineColor, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: lineColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    TextSpan(text: '$balance ₽', style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                      text: '$balance ₽',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ],
                 );
               }).toList();
@@ -816,7 +927,10 @@ class _SimpleChartView extends StatelessWidget {
                 );
               },
             ),
-            belowBarData: BarAreaData(show: true, color: lineColor.withOpacity(0.2)),
+            belowBarData: BarAreaData(
+              show: true,
+              color: lineColor.withOpacity(0.2),
+            ),
           ),
         ],
       ),
@@ -857,12 +971,17 @@ class _MetricChip extends StatelessWidget {
               Text(
                 label,
                 style: context.text.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.8),
                 ),
               ),
               Text(
                 value,
-                style: context.text.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: color),
+                style: context.text.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
             ],
           ),

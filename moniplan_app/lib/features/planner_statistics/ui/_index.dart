@@ -5,3 +5,8 @@
 export 'planner_chart.dart';
 export 'planner_statistics_screen.dart';
 export 'statistics_money_flow_adapter.dart';
+export 'statistics_financial_flow_widget.dart';
+export '../screens/financial_flow_analysis_screen.dart';
+export '../widgets/financial_flow_period_selector.dart';
+export '../widgets/financial_flow_detailed_analysis.dart';
+export '../models/financial_flow_analysis_settings.dart';
