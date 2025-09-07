@@ -1,6 +1,7 @@
 // filepath: lib/_run/db/universal_database_opener_unsupported.dart
 // Fallback stub when neither native nor web implementations are available.
 
+import 'package:cross_file/cross_file.dart';
 import 'package:drift/drift.dart';
 
 enum DatabaseType { persistent, temporary }
@@ -30,10 +31,10 @@ class UniversalDatabaseOpener {
   }
 }
 
-Future<dynamic> getDatabaseFile() async {
+Future<XFile> getDatabaseFile() async {
   throw UnsupportedError('getDatabaseFile is not supported on this platform');
 }
 
-Future<dynamic> getTemporaryDatabaseFile() async {
+Future<XFile> getTemporaryDatabaseFile() async {
   throw UnsupportedError('getTemporaryDatabaseFile is not supported on this platform');
 }

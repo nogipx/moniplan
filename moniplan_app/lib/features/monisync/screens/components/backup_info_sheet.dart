@@ -53,18 +53,19 @@ class BackupInfoSheet {
                             _buildInfoItem(
                               context,
                               title:
-                                  info.backupMetadata?.hasPassword == true
+                                  info.metadata?.protectionType == BackupProtectionType.password
                                       ? 'Защищено паролем'
                                       : 'Стандартное шифрование',
                               subtitle:
-                                  info.backupMetadata?.hasPassword == true
+                                  info.metadata?.protectionType == BackupProtectionType.password
                                       ? 'Для импорта потребуется ввести пароль'
                                       : 'Файл защищен встроенным ключом приложения',
                               icon:
-                                  info.backupMetadata?.hasPassword == true
+                                  info.metadata?.protectionType == BackupProtectionType.password
                                       ? Icons.password
                                       : Icons.shield,
-                              isPrimary: info.backupMetadata?.hasPassword == true,
+                              isPrimary:
+                                  info.metadata?.protectionType == BackupProtectionType.password,
                             ),
                             const SizedBox(height: 24),
 

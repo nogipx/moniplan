@@ -7,14 +7,6 @@ pubget:
 runner:
     cd moniplan_app && fvm dart run build_runner build --delete-conflicting-outputs
 
-    cd moniplan_app && fvm dart run keys_generator:to_arb \
-      -f lib/keys/moniplan.keys.yml \
-      -o lib/i18n/arb/intl_ru.arb
-
-    cd moniplan_app && fvm dart run keys_generator:to_arb \
-      -f lib/keys/moniplan.keys.yml \
-      -o lib/i18n/arb/intl_en.arb
-
 clean:
     cd moniplan_app && fvm dart run build_runner clean
 

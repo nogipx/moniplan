@@ -1,6 +1,7 @@
 // filepath: lib/database/opener/universal_database_opener_web.dart
 // Web implementation (no dart:io import)
 
+import 'package:cross_file/cross_file.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/wasm.dart';
 
@@ -118,10 +119,10 @@ class UniversalDatabaseOpener {
   }
 }
 
-Future<void> getDatabaseFile() async {
+Future<XFile> getDatabaseFile() async {
   throw UnsupportedError('getDatabaseFile is not supported on web');
 }
 
-Future<void> getTemporaryDatabaseFile() async {
+Future<XFile> getTemporaryDatabaseFile() async {
   throw UnsupportedError('getTemporaryDatabaseFile is not supported on web');
 }

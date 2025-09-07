@@ -74,13 +74,13 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   @override
   Future<void> overwriteWithBytes({required Uint8List bytes}) async {
     try {
-      if (_inMemory) {
-        await _db?.close();
-        if (_connection != null) {
-          await _connection?.close();
-          _connection = null;
-        }
+      await _db?.close();
+      if (_connection != null) {
+        await _connection?.close();
+        _connection = null;
+      }
 
+      if (_inMemory) {
         final connection = opener.UniversalDatabaseOpener.open(
           platform: _platform,
           type: opener.DatabaseType.temporary,
@@ -101,12 +101,6 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
         databasePath: name,
         newBytes: bytes,
       );
-
-      await _db?.close();
-      if (_connection != null) {
-        await _connection?.close();
-        _connection = null;
-      }
 
       final newConnection = opener.UniversalDatabaseOpener.open(
         platform: _platform,

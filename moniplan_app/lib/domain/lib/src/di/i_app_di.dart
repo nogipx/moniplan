@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
+import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 
 abstract interface class IAppDi {
   Future<void> setup();
@@ -12,8 +13,6 @@ abstract interface class IAppDi {
   IPlannerRepo getPlannerRepo();
 
   Future<IMonisyncRepo> getMonisyncRepo();
-
-  Future<IAppEncrypter> getEncrypter([AppEncrypterFactoryArgs? args]);
 
   IStatisticsRepo getStatisticsRepo();
 

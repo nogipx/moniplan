@@ -3,10 +3,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
+import 'package:moniplan_app/features/monisync/models/backup_info.dart';
+import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
@@ -84,7 +86,8 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     for (final file in event.receivedValues) {
       try {
         if (file.path.endsWith('.moniplan')) {
-          final backupInfo = await _monisyncRepo?.readBackupInfo(filePath: file.path);
+          final token = File(file.path).readAsStringSync();
+          final backupInfo = await _monisyncRepo?.readBackupInfo(token: token);
           if (backupInfo != null) {
             backupInfos.add(backupInfo);
           }
@@ -130,14 +133,14 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
       return;
     }
 
-    final filePath = event.acceptedBackup?.file.path;
-    if (filePath == null || filePath.isEmpty) {
+    final token = event.acceptedBackup?.token;
+    if (token == null || token.isEmpty) {
       emit(ReceiveImportResultState(result: ReceiveImportResult.fileNotFound));
       return;
     }
 
     try {
-      await _monisyncRepo?.importDataFromFile(filePath: filePath, password: event.password);
+      await _monisyncRepo?.importData(token: token, password: event.password);
       _log.business('Succesfull import db');
       emit(ReceiveImportResultState(result: ReceiveImportResult.imported));
     } on Object catch (error, trace) {

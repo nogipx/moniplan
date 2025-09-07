@@ -2,353 +2,149 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/database/opener/universal_database_opener.dart';
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
-import 'package:moniplan_app/features/monisync/keys.dart';
+import 'package:moniplan_app/features/monisync/models/backup_footer_metadata.dart';
 import 'package:moniplan_app/features/payment/repo/payment_planner_repo_drift.dart';
-import 'package:path_provider/path_provider.dart';
+
+import '../models/backup_info.dart';
+import 'i_manual_monisync_repo.dart';
 
 // Формат даты для файла бэкапа
 const String backupDateFormat = 'yyyyMMdd_HHmmss';
 
 class MonisyncRepoImpl implements IMonisyncRepo {
-  final IAppEncrypter encrypter;
   final AppDb appDb;
   final _log = AppLog('MonisyncRepoImpl');
 
-  MonisyncRepoImpl({required this.encrypter, required this.appDb});
+  MonisyncRepoImpl({required this.appDb});
 
   @override
-  Future<ExportResult?> exportDataToFile({
-    required DateTime now,
-    String targetFilePath = '',
-    String? password,
-  }) async {
-    final dbObj = await getDatabaseFile();
-    late final File file;
-    if (dbObj is File) {
-      file = dbObj;
-    } else if (dbObj is String) {
-      file = File(dbObj);
-    } else {
-      throw Exception('Unsupported database file object from opener');
-    }
+  Future<String> exportData({required DateTime now, String? password}) async {
+    final dbBytes = await getDatabaseBytes();
 
-    if (await file.exists()) {
-      File exportFile;
-
-      if (targetFilePath.isNotEmpty) {
-        exportFile = File(targetFilePath);
-      } else {
-        final directory = await getApplicationDocumentsDirectory();
-        exportFile = File('${directory.path}/${getBackupFileName(now)}');
-      }
-
-      final originalBytes = await file.readAsBytes();
-      Uint8List bytesToWrite = originalBytes;
-
-      // Используем PasswordMonisyncEncrypter для шифрования с паролем
-      final encrypter = await AppDi.instance.getEncrypter(
-        AppEncrypterFactoryArgs(
-          password: password ?? '',
-          preferNewEncryption: true,
-          enableMetadata: true,
-        ),
-      );
-
-      // Шифруем данные с автоматическим добавлением метаданных
-      bytesToWrite = encrypter.encryptBytes(originalBytes);
-
-      if (!exportFile.existsSync()) {
-        await exportFile.create();
-      }
-
-      await exportFile.writeAsBytes(bytesToWrite);
-
-      return ExportResult(file: exportFile);
-    }
-
-    return null;
-  }
-
-  @override
-  Future<ExportResult?> exportPaymentsToCSV({
-    required String plannerId,
-    bool usePredictedCategories = true,
-    String targetFilePath = '',
-  }) async {
-    // Получаем планер по ID
-    final plannerRepo = AppDi.instance.getPlannerRepo();
-    final planner = await plannerRepo.getPlannerById(plannerId);
-
-    if (planner == null) {
-      return null;
-    }
-
-    // Получаем все платежи планера и создаем копию списка, чтобы его можно было сортировать
-    final payments = List<Payment>.from(planner.payments);
-
-    // Сортируем платежи по ��ате (от новых к старым)
-    payments.sort((a, b) => b.date.compareTo(a.date));
-
-    // Создаем CSV строки
-    final csvRows = <String>[];
-
-    // Добавляем комментарий о формате даты
-    csvRows.add('# Экспорт платежей из Moniplan');
-    csvRows.add('# Дата экспорта: ${DateFormat('yyyy-MM-dd').format(DateTime.now())}');
-    csvRows.add('# Планер: ${planner.name}');
-    csvRows.add('# Количество платежей: ${payments.length}');
-    csvRows.add('# Примечание: все даты указаны в формате YYYY-MM-DD без учета времени');
-    csvRows.add(
-      '# Внимание: при создании и редактировании платежей время автоматически отбрасывается',
-    );
-    csvRows.add('');
-
-    // Добавляем заголовок
-    csvRows.add(
-      'ID,Дата,Название,Сумма,Валюта,Тип,Категории,Предсказанные категории,Вероятность,Заметка',
+    // Создаем метаданные для footer
+    final metadata = BackupFooterMetadata(
+      timestamp: now,
+      protectionType:
+          password != null ? BackupProtectionType.password : BackupProtectionType.defaultKey,
     );
 
-    // Форматтер для дат - используем только дату без времени
-    final dateFormat = DateFormat('yyyy-MM-dd');
-
-    // Добавляем данные платежей
-    for (final payment in payments) {
-      final id = payment.paymentId;
-      final date = dateFormat.format(payment.date);
-      final name = _escapeCSV(payment.details.name);
-      final amount = payment.details.money.toString();
-      final currency = payment.details.currency.isoCode;
-      final type = payment.type.toString().split('.').last;
-      final categories =
-          payment.details.tags.isEmpty ? '' : _escapeCSV(payment.details.tags.join(', '));
-      final note = _escapeCSV(payment.details.note);
-
-      // Предсказанные категории
-      String predictedCategories = '';
-      String probability = '';
-
-      // Формируем строку CSV
-      final csvRow =
-          '$id,$date,$name,$amount,$currency,$type,$categories,$predictedCategories,$probability,$note';
-      csvRows.add(csvRow);
-    }
-
-    // Создаем CSV контент
-    final csvContent = csvRows.join('\n');
-
-    // Создаем файл
-    File exportFile;
-    if (targetFilePath.isNotEmpty) {
-      exportFile = File(targetFilePath);
-    } else {
-      final directory = await getApplicationDocumentsDirectory();
-      final now = DateTime.now();
-      final fileName = 'payments_${DateFormat('yyyyMMdd').format(now)}.csv';
-      exportFile = File('${directory.path}/$fileName');
-    }
-
-    // Записываем данные в файл
-    if (!exportFile.existsSync()) {
-      await exportFile.create();
-    }
-    await exportFile.writeAsString(csvContent);
-
-    return ExportResult(file: exportFile);
-  }
-
-  /// Экранирует специальные символы в CSV
-  String _escapeCSV(String value) {
-    if (value.contains(',') || value.contains('"') || value.contains('\n')) {
-      // Заменяем двойные кавычки на две двойные кавычки
-      value = value.replaceAll('"', '""');
-      // Оборачиваем в кавычки
-      return '"$value"';
-    }
-    return value;
-  }
-
-  @override
-  Future<bool> isFilePasswordProtected(String filePath) async {
+    // Создаем ключ шифрования
+    final encryptionKey = Licensify.generateEncryptionKey();
     try {
-      final file = File(filePath);
-      if (!await file.exists()) {
-        return false;
-      }
-
-      final bytes = await file.readAsBytes();
-
-      // Проверяем наличие метаданных
-      if (IAppEncrypter.hasMetadata(bytes)) {
-        // Извлекаем метаданные и проверяем, защищен ли файл паролем
-        final metadata = IAppEncrypter.extractMetadata(bytes);
-        return metadata?.hasPassword ?? false;
-      }
-
-      return false;
-    } catch (e) {
-      return false;
+      // Шифруем содержимое базы данных с метаданными в footer
+      return await Licensify.encryptData(
+        data: {'content': base64Encode(dbBytes)},
+        encryptionKey: encryptionKey,
+        footer: metadata.toFooter(),
+      );
+    } finally {
+      encryptionKey.dispose();
     }
   }
 
   @override
-  Future<void> importDataFromFile({required String filePath, String? password}) async {
-    final file = File(filePath);
-    if (!await file.exists()) {
-      throw Exception('Файл не найден');
+  Future<void> importData({required String token, String? password}) async {
+    if (!token.startsWith('v4.local.')) {
+      throw Exception('Неверный формат данных');
     }
 
-    final bytes = await file.readAsBytes();
-    final (_, originalBytes) = BackupMetadata.extractMetadataFromBytes(bytes);
+    final metadata = BackupFooterMetadata.fromFooter(_extractFooter(token));
 
-    final decryptedBytes = await _tryDecrypt(originalBytes, password: password);
-    if (decryptedBytes == null) {
-      throw Exception('Не удалось расшифровать файл');
+    if (metadata?.protectionType == BackupProtectionType.password && password == null) {
+      throw Exception('Данные защищены паролем');
     }
 
-    // Импортируем из временного файла
-    await appDb.overwriteWithBytes(bytes: decryptedBytes);
+    final encryptionKey = Licensify.generateEncryptionKey();
+    try {
+      final decryptedData = await Licensify.decryptData(
+        encryptedToken: token,
+        encryptionKey: encryptionKey,
+      );
+
+      final content = decryptedData['content'] as String;
+      await appDb.overwriteWithBytes(bytes: base64Decode(content));
+    } finally {
+      encryptionKey.dispose();
+    }
   }
 
   @override
-  Future<BackupInfo?> readBackupInfo({required String filePath, String? password}) async {
-    final cleanedPath = filePath.replaceAll('file://', '');
-    final file = File(cleanedPath);
-
-    if (!await file.exists()) {
+  Future<BackupInfo?> readBackupInfo({required String token, String? password}) async {
+    if (!token.startsWith('v4.local.')) {
       return null;
     }
 
-    final bytes = await file.readAsBytes();
-    final (metadata, originalBytes) = BackupMetadata.extractMetadataFromBytes(bytes);
-    Uint8List? effectiveBytes = originalBytes;
+    final metadata = BackupFooterMetadata.fromFooter(_extractFooter(token));
 
-    // Пытаемся расшифровать файл
-    effectiveBytes = await _tryDecrypt(originalBytes, password: password);
-
-    // Если расшифровать не удалось, но есть метаданные - возвращаем базовую информацию
-    if (effectiveBytes == null) {
+    if (metadata?.protectionType == BackupProtectionType.password && password == null) {
       return BackupInfo(
-        file: File(filePath),
-        creationDate: null,
+        token: token,
+        creationDate: metadata?.timestamp,
         plannersCount: 0,
-        backupMetadata: metadata,
-        isLegacyBackup: false,
-        additionalInfo:
-            metadata.isEncrypted == true
-                ? {'key_type': metadata.hasPassword ? 'password' : 'app_key', 'format': 'metadata'}
-                : {'error': 'Не удалось расшифровать файл'},
+        metadata: metadata,
       );
     }
 
-    await AppDb.instance.close();
+    final encryptionKey = Licensify.generateEncryptionKey();
+    try {
+      final decryptedData = await Licensify.decryptData(
+        encryptedToken: token,
+        encryptionKey: encryptionKey,
+      );
 
-    final tempDb = AppDb.detachedInMemory();
-    await tempDb.open();
-    final plannerRepo = PlannerRepoDrift(appDb: tempDb);
+      final content = decryptedData['content'] as String;
+      final bytes = base64Decode(content);
 
-    final planners = await plannerRepo.getPlanners();
-    final lastUpdate =
-        await tempDb.db.managers.globalLastUpdate
-            .filter((f) => f.lastUpdateId.equals('1'))
-            .getSingleOrNull();
-    await tempDb.close();
+      await AppDb.instance.close();
+      final tempDb = AppDb.detachedInMemory();
+      await tempDb.open();
+      await tempDb.overwriteWithBytes(bytes: bytes);
 
-    await AppDb.instance.open();
+      final plannerRepo = PlannerRepoDrift(appDb: tempDb);
+      final planners = await plannerRepo.getPlanners();
 
-    return BackupInfo(
-      file: File(filePath),
-      creationDate: lastUpdate?.updatedAt,
-      plannersCount: planners.length,
-      isLegacyBackup: false,
-      backupMetadata: metadata,
-    );
-  }
+      await tempDb.close();
+      await AppDb.instance.open();
 
-  Future<Uint8List?> _tryDecrypt(Uint8List bytes, {String? password}) async {
-    return _tryDecryptWithKeys(
-      bytes,
-      LinkedHashMap.from({
-        OldMockedEncryptionKey(): (key) => AesMonisyncEncrypter(key, enableMetadata: true),
-        OldEnviedEncryptionKey(): (key) => AesMonisyncEncrypter(key, enableMetadata: true),
-        MonisyncEncryptionKeyV2(): (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
-        if (password != null)
-          PasswordEncryptionKey.fromPassword(password):
-              (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
-      }),
-    );
-  }
-
-  Future<Uint8List?> _tryDecryptWithKeys(
-    Uint8List bytes,
-    Map<AppEncryptionKey, IAppEncrypter Function(AppEncryptionKey)> keyToEncrypter,
-  ) async {
-    for (final key in keyToEncrypter.keys) {
-      try {
-        final encrypter = keyToEncrypter[key]!(key);
-        final decryptedBytes = encrypter.decryptBytes(bytes);
-
-        if (isSQLiteBytes(decryptedBytes)) {
-          return decryptedBytes;
-        }
-        continue;
-      } catch (_) {
-        continue;
-      }
+      return BackupInfo(
+        token: token,
+        creationDate: metadata?.timestamp,
+        plannersCount: planners.length,
+        metadata: metadata,
+      );
+    } finally {
+      encryptionKey.dispose();
     }
+  }
 
-    return null;
+  /// Извлекает footer из PASETO токена
+  String? _extractFooter(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length >= 4) {
+        return utf8.decode(base64Url.decode(parts.last));
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Получает байты базы данных
+  Future<Uint8List> getDatabaseBytes() async {
+    final path = await appDb.getPath();
+    final bytes = await File(path).readAsBytes();
+    return bytes;
   }
 
   @override
-  Future<bool> checkNeedSync() {
-    throw UnimplementedError();
-  }
-
-  @override
-  String getBackupFileName(DateTime date) =>
+  String createBackupFileName(DateTime date) =>
       'db_${DateFormat(backupDateFormat).format(date)}.moniplan';
-
-  /// Проверяет, соответствуют ли байты сигнатуре SQLite базы данных
-  /// SQLite файлы начинаются с сигнатуры "SQLite format 3\0"
-  bool isSQLiteBytes(Uint8List bytes) {
-    if (bytes.length < 16) {
-      return false;
-    }
-
-    // Сигнатура SQLite: "SQLite format 3\0"
-    final signature = [
-      0x53,
-      0x51,
-      0x4C,
-      0x69,
-      0x74,
-      0x65,
-      0x20,
-      0x66,
-      0x6F,
-      0x72,
-      0x6D,
-      0x61,
-      0x74,
-      0x20,
-      0x33,
-      0x00,
-    ];
-
-    for (int i = 0; i < signature.length; i++) {
-      if (bytes[i] != signature[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
 }

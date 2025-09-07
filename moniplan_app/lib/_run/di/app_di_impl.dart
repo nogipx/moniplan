@@ -4,10 +4,10 @@
 
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
-import 'package:moniplan_app/_run/di/di_utils.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_app/features/monisync/_index.dart';
+import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/statistic/_index.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -24,17 +24,13 @@ class GetItAppDI implements AppDi {
     final db = AppDb();
     await db.open();
     _getIt.registerSingleton<AppDb>(db);
+    _getIt.registerSingleton<IMoniplanLicenseRepo>(MockLicenseRepository());
 
     _getIt.registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform);
     _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: dbImpl));
 
-    _getIt.registerFactoryParamAsync<IAppEncrypter, AppEncrypterFactoryArgs, dynamic>(
-      encrypterFactory,
-    );
-
     _getIt.registerFactoryAsync<IMonisyncRepo>(() async {
-      final encrypter = await AppDi.instance.getEncrypter();
-      return MonisyncRepoImpl(appDb: db, encrypter: encrypter);
+      return MonisyncRepoImpl(appDb: db);
     });
     _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
   }
@@ -61,9 +57,4 @@ class GetItAppDI implements AppDi {
 
   @override
   T get<T extends Object>() => _getIt.get<T>();
-
-  @override
-  Future<IAppEncrypter> getEncrypter([AppEncrypterFactoryArgs? args]) async {
-    return _getIt.getAsync<IAppEncrypter>(param1: args ?? AppEncrypterFactoryArgs());
-  }
 }

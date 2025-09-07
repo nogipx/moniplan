@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
@@ -67,7 +68,7 @@ class UniversalDatabaseOpener {
   }
 
   static Future<void> _restoreFromBytes(Database database, Uint8List bytes) async {
-    final tempFile = await getTemporaryDatabaseFile();
+    final tempFile = File((await getTemporaryDatabaseFile()).path);
 
     try {
       await tempFile.writeAsBytes(bytes);
@@ -98,20 +99,22 @@ class UniversalDatabaseOpener {
   }
 }
 
-Future<File> getDatabaseFile() async {
+Future<XFile> getDatabaseFile() async {
   final dbFolder = await getApplicationDocumentsDirectory();
   final file = File(p.join(dbFolder.path, 'db.sqlite'));
   if (!file.existsSync()) {
     await file.create(recursive: true);
   }
-  return file;
+  final xfile = XFile.fromData(file.readAsBytesSync(), path: file.path);
+  return xfile;
 }
 
-Future<File> getTemporaryDatabaseFile() async {
+Future<XFile> getTemporaryDatabaseFile() async {
   final dbFolder = await getTemporaryDirectory();
   final file = File(p.join(dbFolder.path, 'db_temporary.sqlite'));
   if (!file.existsSync()) {
     await file.create(recursive: true);
   }
-  return file;
+  final xfile = XFile.fromData(file.readAsBytesSync(), path: file.path);
+  return xfile;
 }

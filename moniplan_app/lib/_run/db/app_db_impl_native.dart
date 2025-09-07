@@ -21,7 +21,6 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   MoniplanDriftDb? _db;
   DatabaseConnection? _connection;
   String? _instancePath;
-  bool _isInstanceFile = false;
 
   final bool _inMemory;
   final opener.Platform _platform = opener.Platform.native;
@@ -43,22 +42,12 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       _stopWatchChanges();
 
       try {
-        if (_isInstanceFile && _instancePath != null) {
-          final file = File(_instancePath!);
-          if (await file.exists()) {
-            await file.delete();
-          }
-        }
-
         final tempObj = await opener.getTemporaryDatabaseFile();
-        if (tempObj is File) {
-          if (await tempObj.exists()) await tempObj.delete();
-        }
+        File(tempObj.path).deleteSync();
       } catch (_) {}
 
       _db = null;
       _instancePath = null;
-      _isInstanceFile = false;
 
       notifyListeners();
     } on Object catch (error, trace) {
@@ -82,11 +71,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
         }
       } else {
         final dbObj = await opener.getDatabaseFile();
-        if (dbObj is File) {
-          customPath = dbObj.path;
-        } else if (dbObj is String) {
-          customPath = dbObj;
-        }
+        customPath = dbObj.path;
       }
 
       final connection = opener.UniversalDatabaseOpener.open(
@@ -101,10 +86,8 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
       if (!_inMemory) {
         _instancePath = (await opener.getDatabaseFile()).path;
-        _isInstanceFile = false;
       } else {
         _instancePath = null;
-        _isInstanceFile = false;
       }
 
       _startWatchChanges();
@@ -118,13 +101,13 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   @override
   Future<void> overwriteWithBytes({required Uint8List bytes}) async {
     try {
-      if (_inMemory) {
-        await _db?.close();
-        if (_connection != null) {
-          await _connection?.close();
-          _connection = null;
-        }
+      await _db?.close();
+      if (_connection != null) {
+        await _connection?.close();
+        _connection = null;
+      }
 
+      if (_inMemory) {
         final connection = opener.UniversalDatabaseOpener.open(
           platform: _platform,
           type: opener.DatabaseType.temporary,
@@ -139,26 +122,13 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       }
 
       final dbObj = await opener.getDatabaseFile();
-      String dbPath;
-      if (dbObj is File) {
-        dbPath = dbObj.path;
-      } else if (dbObj is String) {
-        dbPath = dbObj;
-      } else {
-        throw Exception('Unsupported database file object from opener');
-      }
+      final dbPath = dbObj.path;
 
       await opener.UniversalDatabaseOpener.overridePersistentDatabase(
         platform: _platform,
         databasePath: dbPath,
         newBytes: bytes,
       );
-
-      await _db?.close();
-      if (_connection != null) {
-        await _connection?.close();
-        _connection = null;
-      }
 
       final newConnection = opener.UniversalDatabaseOpener.open(
         platform: _platform,
@@ -169,7 +139,6 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       _connection = newConnection;
       _db = MoniplanDriftDb(dbExecutor: _connection as QueryExecutor);
       _instancePath = dbPath;
-      _isInstanceFile = false;
       _startWatchChanges();
       notifyListeners();
     } on Object catch (error, trace) {
@@ -211,8 +180,6 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     if (_instancePath != null) return _instancePath!;
     if (_inMemory) return 'in-memory';
     final dbObj = await opener.getDatabaseFile();
-    if (dbObj is File) return dbObj.path;
-    if (dbObj is String) return dbObj;
-    throw Exception('Unsupported database file object');
+    return dbObj.path;
   }
 }
