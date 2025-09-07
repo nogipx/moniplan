@@ -12,7 +12,8 @@ extension StringExt on String {
 
 /// FNV-1a 64bit hash algorithm optimized for Dart Strings
 int stringFastHash(String input) {
-  var hash = 0xcbf29ce484222325;
+  // Use JS-representable literal to avoid precision issues when compiling to JS.
+  var hash = 0xcbf29ce484222000;
 
   var i = 0;
   while (i < input.length) {

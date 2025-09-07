@@ -11,7 +11,6 @@ import 'package:logging/logging.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/log/console_log.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/i18n/_index.dart';
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stack_trace/stack_trace.dart';
@@ -43,7 +42,6 @@ Future<void> main() async {
         });
         await AppDi.instance.setup();
 
-        initializeMessages('ru');
         initializeDateFormatting('ru');
         await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
         final prefs = await SharedPreferences.getInstance();

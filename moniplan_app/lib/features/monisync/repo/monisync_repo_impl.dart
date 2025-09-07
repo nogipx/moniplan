@@ -7,11 +7,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
-import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/database/opener/universal_database_opener.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_app/features/monisync/keys.dart';
 import 'package:moniplan_app/features/payment/repo/payment_planner_repo_drift.dart';
-import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
 
 // Формат даты для файла бэкапа
@@ -30,8 +30,15 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     String targetFilePath = '',
     String? password,
   }) async {
-    final dbFile = await getDatabaseFile();
-    final file = File(dbFile.path);
+    final dbObj = await getDatabaseFile();
+    late final File file;
+    if (dbObj is File) {
+      file = dbObj;
+    } else if (dbObj is String) {
+      file = File(dbObj);
+    } else {
+      throw Exception('Unsupported database file object from opener');
+    }
 
     if (await file.exists()) {
       File exportFile;
@@ -87,7 +94,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     // Получаем все платежи планера и создаем копию списка, чтобы его можно было сортировать
     final payments = List<Payment>.from(planner.payments);
 
-    // Сортируем платежи по дате (от новых к старым)
+    // Сортируем платежи по ��ате (от новых к старым)
     payments.sort((a, b) => b.date.compareTo(a.date));
 
     // Создаем CSV строки
@@ -242,7 +249,6 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     }
 
     await AppDb.instance.close();
-    await driftWriteTemporary(bytes: effectiveBytes);
 
     final tempDb = AppDb.detachedInMemory();
     await tempDb.open();

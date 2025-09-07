@@ -7,8 +7,6 @@ import 'package:moniplan_app/features/payment/_index.dart';
 
 part 'drift_database.g.dart';
 
-typedef DriftDbConnector = LazyDatabase Function();
-
 @DriftDatabase(
   tables: [
     GlobalLastUpdate,

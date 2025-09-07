@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:moniplan_app/_run/db/app_db_impl.dart';
-import 'package:moniplan_app/_run/db/drift_open_connection.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
@@ -21,7 +20,7 @@ abstract class AppDb extends IAppDb {
   }
 
   static AppDbImpl detachedInMemory() {
-    final db = AppDbImpl(getTemporaryDatabaseFile, inMemory: true, log: AppLog('TempAppDb'));
+    final db = AppDbImpl(inMemory: true, log: AppLog('TempAppDb'));
     return db;
   }
 

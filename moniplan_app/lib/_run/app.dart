@@ -39,14 +39,6 @@ class _MoniplanAppState extends State<MoniplanApp> {
 
     _brightness = _platformBrigtness;
 
-    // register(
-    //   Service(
-    //     name: 'Moniplan',
-    //     type: '_moniplan._tcp',
-    //     port: 12344,
-    //   ),
-    // );
-
     WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged = _onBrightnessChanged;
   }
 

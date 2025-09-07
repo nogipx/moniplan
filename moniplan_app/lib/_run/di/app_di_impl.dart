@@ -2,17 +2,14 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'dart:convert';
-
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
 import 'package:moniplan_app/_run/di/di_utils.dart';
 import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_app/features/monisync/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/statistic/_index.dart';
-import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
-import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class GetItAppDI implements AppDi {
@@ -20,7 +17,7 @@ class GetItAppDI implements AppDi {
 
   @override
   Future<void> setup() async {
-    final dbImpl = AppDbImpl(getDatabaseFile, log: AppLog('AppDbImpl'));
+    final dbImpl = AppDbImpl(log: AppLog('AppDbImpl'));
     _getIt.registerSingleton<AppDbImpl>(dbImpl, dispose: (impl) => impl.close());
 
     AppDb.factory = () => GetIt.instance.get<AppDbImpl>();
