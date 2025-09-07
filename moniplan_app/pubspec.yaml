@@ -110,7 +110,6 @@ flutter:
         - asset: fonts/TT-Neoris-Variable.ttf
   assets:
     - 'assets/'
-    - 'assets/tflite/'
 
 flutter_intl:
   enabled: true
