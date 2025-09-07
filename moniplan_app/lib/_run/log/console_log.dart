@@ -1,6 +1,6 @@
 import 'dart:developer' as dev;
 
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 /// A console-based implementation of the AppLog interface that provides structured logging
 /// with support for different log levels, network operations, and stack trace formatting.

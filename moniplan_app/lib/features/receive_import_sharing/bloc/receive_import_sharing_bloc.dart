@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 

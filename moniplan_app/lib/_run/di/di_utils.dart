@@ -1,7 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/monisync/_index.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 Future<IAppEncrypter> encrypterFactory(AppEncrypterFactoryArgs? args, dynamic _) async {

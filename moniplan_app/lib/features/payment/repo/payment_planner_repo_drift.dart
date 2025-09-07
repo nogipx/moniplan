@@ -5,7 +5,7 @@
 import 'package:drift/drift.dart';
 import 'package:moniplan_app/_run/db/app_db_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 import '../_index.dart';
 
@@ -238,6 +238,63 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
         // Удаляем информацию о планировщике
         await _deleteInfoForPlanner(plannerId: plannerId);
+      });
+    });
+  }
+
+  @override
+  Future<Planner?> duplicatePlanner({
+    required String originalPlannerId,
+    required DateTime newStartDate,
+    required DateTime newEndDate,
+    String? newName,
+  }) {
+    return _guard(name: 'duplicatePlanner', () async {
+      // Получаем оригинальный планнер со всеми платежами
+      final originalPlanner = await getPlannerById(originalPlannerId, withActualInfo: false);
+      if (originalPlanner == null) {
+        throw Exception('Original planner with id "$originalPlannerId" not found');
+      }
+
+      // Получаем все платежи оригинального планнера
+      final originalPayments = await getPaymentsByPlannerId(plannerId: originalPlannerId);
+
+      // Создаем новый ID для дублированного планнера
+      final newPlannerId = const Uuid().v4();
+      final plannerName = newName ?? '${originalPlanner.name} (копия)';
+
+      // Создаем копию планнера с новыми параметрами
+      final duplicatedPlanner = originalPlanner.copyWith(
+        id: newPlannerId,
+        name: plannerName,
+        dateStart: newStartDate,
+        dateEnd: newEndDate,
+        payments: [], // Очищаем платежи, будем добавлять отдельно
+        actualInfo: null, // Сбрасываем актуальную информацию
+        isGenerationAllowed: true, // Разрешаем генерацию для нового планнера
+      );
+
+      return appDb.db.transaction(() async {
+        // Сохраняем дублированный планнер
+        await appDb.db.managers.paymentPlannersDriftTable.create(
+          (o) => _plannerMapper.toDto(duplicatedPlanner),
+          mode: InsertMode.insertOrReplace,
+        );
+
+        // Дублируем все платежи с новыми ID и привязкой к новому планнеру
+        for (final originalPayment in originalPayments) {
+          final duplicatedPayment = originalPayment.copyWith(
+            paymentId: const Uuid().v4(),
+            plannerId: newPlannerId,
+            // Сохраняем все остальные параметры платежа как есть
+          );
+
+          final paymentDao = _paymentMapper.toDto(duplicatedPayment);
+          await appDb.db.paymentDao.savePayment(paymentDao);
+        }
+
+        // Возвращаем созданный планнер
+        return duplicatedPlanner;
       });
     });
   }

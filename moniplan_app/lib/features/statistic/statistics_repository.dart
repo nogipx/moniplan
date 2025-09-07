@@ -1,4 +1,4 @@
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 class StatisticsRepoImpl implements IStatisticsRepo {
   final IPlannerRepo plannerRepo;
@@ -7,10 +7,7 @@ class StatisticsRepoImpl implements IStatisticsRepo {
 
   @override
   Future<BudgetStatistics> getStatistics({required String plannerId}) async {
-    final useCase = GenerateBudgetStatisticsUseCase(
-      plannerRepo: plannerRepo,
-      plannerId: plannerId,
-    );
+    final useCase = GenerateBudgetStatisticsUseCase(plannerRepo: plannerRepo, plannerId: plannerId);
 
     return await useCase.run();
   }

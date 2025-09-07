@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/di_get_it/app_di.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/payment_edit/screens/payment_edit_screen.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PaymentActionsBottomSheet extends StatefulWidget {
@@ -69,8 +69,7 @@ class PaymentActionsBottomSheet extends StatefulWidget {
   }
 
   @override
-  State<PaymentActionsBottomSheet> createState() =>
-      _PaymentActionsBottomSheetState();
+  State<PaymentActionsBottomSheet> createState() => _PaymentActionsBottomSheetState();
 }
 
 class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
@@ -86,11 +85,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final moneyFormat = NumberFormat.currency(
-      locale: 'ru_RU',
-      symbol: '₽',
-      decimalDigits: 0,
-    );
+    final moneyFormat = NumberFormat.currency(locale: 'ru_RU', symbol: '₽', decimalDigits: 0);
 
     final isIncome = widget.payment.type == PaymentType.income;
     final moneyColor = isIncome ? context.color.primary : context.color.error;
@@ -139,9 +134,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                   // Название платежа
                   Text(
                     widget.payment.details.name,
-                    style: context.text.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: context.text.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                     overflow: TextOverflow.visible,
                   ),
 
@@ -150,11 +143,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(
-                          Icons.auto_awesome,
-                          size: 16,
-                          color: context.color.tertiary,
-                        ),
+                        Icon(Icons.auto_awesome, size: 16, color: context.color.tertiary),
                         const SizedBox(width: 8),
                         Text(
                           'Виртуальный платеж из повторяющейся серии',
@@ -169,11 +158,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(
-                          Icons.info_outline,
-                          size: 16,
-                          color: context.color.tertiary,
-                        ),
+                        Icon(Icons.info_outline, size: 16, color: context.color.tertiary),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -195,11 +180,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                   // Дата платежа (обычный текст без возможности тапа)
                   Row(
                     children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 16,
-                        color: context.color.onSurfaceVariant,
-                      ),
+                      Icon(Icons.calendar_today, size: 16, color: context.color.onSurfaceVariant),
                       const SizedBox(width: 8),
                       Text(
                         DateFormat('d MMMM y').format(widget.payment.date),
@@ -226,11 +207,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(
-                          Icons.percent,
-                          size: 16,
-                          color: context.color.onSurfaceVariant,
-                        ),
+                        Icon(Icons.percent, size: 16, color: context.color.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
                           'Налог: ${(widget.payment.details.tax * 100).toInt()}%',
@@ -250,11 +227,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(
-                          Icons.repeat,
-                          size: 16,
-                          color: context.color.onSurfaceVariant,
-                        ),
+                        Icon(Icons.repeat, size: 16, color: context.color.onSurfaceVariant),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -268,16 +241,11 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                     ),
 
                     // Период повторения
-                    if (widget.payment.dateStart != null ||
-                        widget.payment.dateEnd != null) ...[
+                    if (widget.payment.dateStart != null || widget.payment.dateEnd != null) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(
-                            Icons.date_range,
-                            size: 16,
-                            color: context.color.onSurfaceVariant,
-                          ),
+                          Icon(Icons.date_range, size: 16, color: context.color.onSurfaceVariant),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -320,9 +288,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                         const SizedBox(width: 16),
                         if (!widget.payment.isRepeat) ...[
                           Icon(
-                            widget.payment.isDone
-                                ? Icons.task_alt
-                                : Icons.pending_outlined,
+                            widget.payment.isDone ? Icons.task_alt : Icons.pending_outlined,
                             size: 16,
                             color:
                                 widget.payment.isDone
@@ -350,11 +316,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.note,
-                          size: 16,
-                          color: context.color.onSurfaceVariant,
-                        ),
+                        Icon(Icons.note, size: 16, color: context.color.onSurfaceVariant),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -400,17 +362,14 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                           !widget.payment.isEnabled
                               ? Icons.power_settings_new_rounded
                               : Icons.power_settings_new_outlined,
-                      label:
-                          !widget.payment.isEnabled ? 'Выключено' : 'Включено',
+                      label: !widget.payment.isEnabled ? 'Выключено' : 'Включено',
                       color:
                           !widget.payment.isEnabled
                               ? context.color.tertiary
                               : context.color.primary,
                       onTap: () {
                         widget.onToggleEnabled?.call(
-                          widget.payment.copyWith(
-                            isEnabled: !widget.payment.isEnabled,
-                          ),
+                          widget.payment.copyWith(isEnabled: !widget.payment.isEnabled),
                         );
                         Navigator.pop(context);
                       },
@@ -419,16 +378,10 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                   if (widget.onToggleDone != null)
                     _buildCircleButton(
                       context,
-                      icon:
-                          !widget.payment.isDone
-                              ? Icons.remove_done
-                              : Icons.done,
-                      label:
-                          !widget.payment.isDone ? 'Не выполнено' : 'Выполнено',
+                      icon: !widget.payment.isDone ? Icons.remove_done : Icons.done,
+                      label: !widget.payment.isDone ? 'Не выполнено' : 'Выполнено',
                       color:
-                          !widget.payment.isDone
-                              ? context.color.tertiary
-                              : context.color.primary,
+                          !widget.payment.isDone ? context.color.tertiary : context.color.primary,
                       onTap: () {
                         // Показываем диалог о необходимости фиксации перед выполнением платежа
                         // в двух случаях:
@@ -436,14 +389,11 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                         // 2. Если платеж реальный и является родителем повторяющихся платежей
                         if (!widget.payment.isDone &&
                             widget.payment.isRepeat &&
-                            (widget.isVirtualPaymentSelected ||
-                                widget.payment.isRepeatParent)) {
+                            (widget.isVirtualPaymentSelected || widget.payment.isRepeatParent)) {
                           _showFixationBeforeCompletionDialog(context);
                         } else {
                           widget.onToggleDone?.call(
-                            widget.payment.copyWith(
-                              isDone: !widget.payment.isDone,
-                            ),
+                            widget.payment.copyWith(isDone: !widget.payment.isDone),
                           );
                           Navigator.pop(context);
                         }
@@ -481,9 +431,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                         backgroundColor: context.color.surfaceContainerLow,
                         foregroundColor: context.color.onSurface,
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
@@ -512,9 +460,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                         backgroundColor: context.color.primaryContainer,
                         foregroundColor: context.color.onPrimaryContainer,
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
@@ -542,9 +488,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                         backgroundColor: context.color.surfaceContainerLow,
                         foregroundColor: context.color.onSurface,
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
@@ -579,9 +523,9 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
       // Проверяем доступность PlannerBloc
       final bloc = widget.plannerBloc;
       if (bloc == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка: PlannerBloc недоступен')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Ошибка: PlannerBloc недоступен')));
         return;
       }
 
@@ -600,9 +544,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
 
         // Проверяем, содержит ли состояние наш платеж
         if (state is PlannerBudgetComputedState) {
-          final paymentExists = state.payments.any(
-            (p) => p.paymentId == updatedPayment.paymentId,
-          );
+          final paymentExists = state.payments.any((p) => p.paymentId == updatedPayment.paymentId);
           if (paymentExists) {
             subscription.cancel();
             completer.complete(true);
@@ -632,16 +574,16 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
 
       // Показываем сообщение об ошибке, если операция не удалась
       if (!success && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось сохранить платеж')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Не удалось сохранить платеж')));
       }
     } catch (e) {
       print('Ошибка при сохранении платежа: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка при сохранении платежа: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Ошибка при сохранении платежа: $e')));
       }
     }
   }
@@ -677,8 +619,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
               _buildFixationInfoItem(
                 context,
                 icon: Icons.edit_calendar,
-                text:
-                    'Вы сможете редактировать этот платеж отдельно от других повторений',
+                text: 'Вы сможете редактировать этот платеж отдельно от других повторений',
               ),
             ],
           ),
@@ -792,14 +733,8 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
   // Возвращает текстовое описание периода повторения платежа
   String _getRepeatPeriodText(Payment payment) {
     final dateFormat = DateFormat('d MMM y');
-    final startText =
-        payment.dateStart != null
-            ? 'с ${dateFormat.format(payment.dateStart!)}'
-            : '';
-    final endText =
-        payment.dateEnd != null
-            ? 'по ${dateFormat.format(payment.dateEnd!)}'
-            : '';
+    final startText = payment.dateStart != null ? 'с ${dateFormat.format(payment.dateStart!)}' : '';
+    final endText = payment.dateEnd != null ? 'по ${dateFormat.format(payment.dateEnd!)}' : '';
 
     if (startText.isNotEmpty && endText.isNotEmpty) {
       return '$startText $endText';
@@ -828,19 +763,14 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
           child: Container(
             width: 60,
             height: 60,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
             child: Center(child: Icon(icon, color: color, size: 28)),
           ),
         ),
         const SizedBox(height: 8),
         Text(
           label,
-          style: context.text.labelSmall?.copyWith(
-            color: context.color.onSurfaceVariant,
-          ),
+          style: context.text.labelSmall?.copyWith(color: context.color.onSurfaceVariant),
         ),
       ],
     );

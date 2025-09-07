@@ -5,9 +5,10 @@
 // ignore_for_file: prefer_collection_literals
 
 import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 import 'planner_event.dart';
 import 'planner_state.dart';

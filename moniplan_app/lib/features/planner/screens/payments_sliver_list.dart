@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter/material.dart';
+import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/payment_edit/_index.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
-import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';

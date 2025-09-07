@@ -5,12 +5,12 @@
 import 'dart:async';
 
 import 'package:drift_db_viewer/drift_db_viewer.dart';
-import 'package:flutter/material.dart' hide LicensePage;
+import 'package:flutter/material.dart';
 import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_app/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/planners_list/_index.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -80,18 +80,13 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
             floatingActionButton: GestureDetector(
               onLongPress: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder:
-                        (context) => DriftDbViewer(AppDi.instance.getDb().db),
-                  ),
+                  MaterialPageRoute(builder: (context) => DriftDbViewer(AppDi.instance.getDb().db)),
                 );
               },
               onDoubleTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => AppColorsDisplayScreen(),
-                  ),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
               },
               child: FloatingActionButton(
                 child: const Icon(Icons.add),
@@ -107,9 +102,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                         initialBudget: num.tryParse(money) ?? 0,
                         isGenerationAllowed: true,
                       );
-                      await _plannerRepo.savePlanner(newPlanner).then((
-                        planner,
-                      ) async {
+                      await _plannerRepo.savePlanner(newPlanner).then((planner) async {
                         await _updatePlannersList();
                         if (planner != null) {
                           _openPlanner(context, planner.id);
@@ -159,9 +152,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                                 name: name,
                                 initialBudget: num.tryParse(money) ?? 0,
                               );
-                              await _plannerRepo.savePlanner(newPlanner).then((
-                                planner,
-                              ) async {
+                              await _plannerRepo.savePlanner(newPlanner).then((planner) async {
                                 await _updatePlannersList();
                               });
                             },
@@ -170,6 +161,51 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                                 await _plannerRepo.deletePlanner(planner.id);
                                 _updatePlannersList();
                               });
+                            },
+                            onDuplicate: () {
+                              showDialogDuplicatePlanner(
+                                context,
+                                originalPlanner: planner,
+                                onDuplicate: (DateTime startDate, DateTime endDate, String name) {},
+                                // onDuplicate: (startDate, endDate, name) async {
+                                //   try {
+                                //     final duplicatedPlanner = await _plannerRepo.duplicatePlanner(
+                                //       originalPlannerId: planner.id,
+                                //       newStartDate: startDate,
+                                //       newEndDate: endDate,
+                                //       newName: name,
+                                //     );
+                                //
+                                //     if (duplicatedPlanner != null) {
+                                //       await _updatePlannersList();
+                                //       // Показываем сообщение об успехе
+                                //       if (context.mounted) {
+                                //         ScaffoldMessenger.of(context).showSnackBar(
+                                //           SnackBar(
+                                //             content: Text('Планнер "$name" успешно создан'),
+                                //             action: SnackBarAction(
+                                //               label: 'Открыть',
+                                //               onPressed: () {
+                                //                 _openPlanner(context, duplicatedPlanner.id);
+                                //               },
+                                //             ),
+                                //           ),
+                                //         );
+                                //       }
+                                //     }
+                                //   } catch (e) {
+                                //     // Показываем ошибку
+                                //     if (context.mounted) {
+                                //       ScaffoldMessenger.of(context).showSnackBar(
+                                //         SnackBar(
+                                //           content: Text('Ошибка при дублировании: $e'),
+                                //           backgroundColor: Theme.of(context).colorScheme.error,
+                                //         ),
+                                //       );
+                                //     }
+                                //   }
+                                // },
+                              );
                             },
                           );
                         },
@@ -193,9 +229,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
     );
   }
 
-  Future<void> _updatePlannersList({
-    List<PaymentPlannersDriftTableData>? newPlanners,
-  }) async {
+  Future<void> _updatePlannersList({List<PaymentPlannersDriftTableData>? newPlanners}) async {
     await Future.delayed(const Duration(milliseconds: 100));
     final planners = await _plannerRepo.getPlanners();
     _actualPlanners.value = planners;

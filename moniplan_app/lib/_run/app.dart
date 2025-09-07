@@ -7,13 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/_run/db/_index.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_app/features/_common/periodic_theme_changer/_index.dart';
 import 'package:moniplan_app/features/planners_list/_index.dart';
 import 'package:moniplan_app/features/receive_import_sharing/bloc/_index.dart';
 import 'package:moniplan_app/features/receive_import_sharing/receive_import_wrapper.dart';
-import 'package:moniplan_app/i18n/_index.dart';
-import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -48,8 +47,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
     //   ),
     // );
 
-    WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged =
-        _onBrightnessChanged;
+    WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged = _onBrightnessChanged;
   }
 
   void _onBrightnessChanged() {
@@ -63,17 +61,14 @@ class _MoniplanAppState extends State<MoniplanApp> {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged =
-        null;
+    WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged = null;
     super.dispose();
   }
 
   Widget app(AppTheme theme, Widget home) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => ReceiveImportSharingBloc(appDi: AppDi.instance),
-        ),
+        BlocProvider(create: (context) => ReceiveImportSharingBloc(appDi: AppDi.instance)),
       ],
       child: AnimatedBuilder(
         animation: AppDi.instance.get<AppDbImpl>(),
@@ -92,22 +87,16 @@ class _MoniplanAppState extends State<MoniplanApp> {
                       const Breakpoint(start: 0, end: 450, name: MOBILE),
                       const Breakpoint(start: 451, end: 800, name: TABLET),
                       const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                      const Breakpoint(
-                        start: 1921,
-                        end: double.infinity,
-                        name: '4K',
-                      ),
+                      const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
                     ],
                   ),
               home: Builder(
                 builder: (context) {
                   return GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => AppColorsDisplayScreen(),
-                        ),
-                      );
+                      Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
                     },
                     child: home,
                   );
@@ -134,8 +123,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
             dark: dark,
             light: light,
           ),
-          rainbowSeedGenerator:
-              () => DateTime.now().minuteBound.millisecondsSinceEpoch,
+          rainbowSeedGenerator: () => DateTime.now().minuteBound.millisecondsSinceEpoch,
           builder: (context, theme) {
             return app(
               theme ??

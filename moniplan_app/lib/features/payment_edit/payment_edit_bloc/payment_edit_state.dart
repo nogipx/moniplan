@@ -1,4 +1,4 @@
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 /// Состояние для блока редактирования платежа
 class PaymentEditState extends Equatable {
@@ -156,7 +156,7 @@ class PaymentEditState extends Equatable {
     // Преобразуем налог из десятичной дроби в проценты
     String taxPercent = '';
     taxPercent = (payment.details.tax * 100).toInt().toString();
-  
+
     return PaymentEditState(
       payment: payment,
       title: payment.details.name,

@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/locale.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 extension CurrencyDouble on num {
   bool get isWhole => this % 1 == 0;

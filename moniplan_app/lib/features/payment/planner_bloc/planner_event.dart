@@ -4,7 +4,7 @@
 
 // ignore_for_file: invalid_annotation_target
 
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 part 'planner_event.freezed.dart';
 
@@ -19,11 +19,9 @@ class PlannerEvent with _$PlannerEvent {
     @Default(false) bool create,
   }) = PlannerUpdatePaymentEvent;
 
-  const factory PlannerEvent.deletePayment({
-    required final String paymentId,
-  }) = PlannerDeletePaymentEvent;
+  const factory PlannerEvent.deletePayment({required final String paymentId}) =
+      PlannerDeletePaymentEvent;
 
-  const factory PlannerEvent.fixateRepeatedPayment({
-    required final String paymentId,
-  }) = PlannerFixateRepeatedPaymentEvent;
+  const factory PlannerEvent.fixateRepeatedPayment({required final String paymentId}) =
+      PlannerFixateRepeatedPaymentEvent;
 }

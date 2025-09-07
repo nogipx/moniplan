@@ -2,11 +2,12 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
-import 'dart:math' as math;
 
 class DaySummaryDialog extends StatefulWidget {
   final DateTime date;

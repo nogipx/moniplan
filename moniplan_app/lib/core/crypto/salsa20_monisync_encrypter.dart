@@ -5,7 +5,7 @@
 import 'dart:typed_data';
 
 import 'package:encrypt/encrypt.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 final class Salsa20MonisyncEncrypter extends AppEncrypter {
   final Encrypter _encrypter;

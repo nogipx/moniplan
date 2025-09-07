@@ -1,7 +1,0 @@
-name: moniplan
-publish_to: none
-environment:
-  sdk: ^3.7.0
-
-dev_dependencies:
-  packo: any

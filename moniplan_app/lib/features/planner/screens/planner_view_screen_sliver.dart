@@ -5,13 +5,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
-import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
-import 'package:moniplan_app/features/planner_statistics/ui/planner_statistics_screen.dart';
-import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
 
@@ -38,8 +37,7 @@ class _PlannerViewScreenSliver extends StatefulWidget {
   const _PlannerViewScreenSliver();
 
   @override
-  State<_PlannerViewScreenSliver> createState() =>
-      _PlannerViewScreenSliverState();
+  State<_PlannerViewScreenSliver> createState() => _PlannerViewScreenSliverState();
 }
 
 class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
@@ -55,9 +53,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
     // Получаем блок и вызываем метод обновления actualInfo
     try {
       final plannerBloc = context.read<PlannerBloc>();
-      print(
-        'PlannerViewScreen: Вызов saveActualInfo для планера ${plannerBloc.plannerId}',
-      );
+      print('PlannerViewScreen: Вызов saveActualInfo для планера ${plannerBloc.plannerId}');
       plannerBloc.saveActualInfo();
     } catch (e) {
       print('PlannerViewScreen: Ошибка при сохранении actualInfo: $e');
@@ -85,19 +81,13 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
         }
       },
       builder: (context, state) {
-        final dateStartRaw = state.mapOrNull(
-          budgetComputed: (s) => s.dateStart,
-        );
+        final dateStartRaw = state.mapOrNull(budgetComputed: (s) => s.dateStart);
         final dateStartString =
-            dateStartRaw != null
-                ? DateFormat(plannerBoundDateFormat).format(dateStartRaw)
-                : '';
+            dateStartRaw != null ? DateFormat(plannerBoundDateFormat).format(dateStartRaw) : '';
 
         final dateEndRaw = state.mapOrNull(budgetComputed: (s) => s.dateEnd);
         final dateEndString =
-            dateEndRaw != null
-                ? DateFormat(plannerBoundDateFormat).format(dateEndRaw)
-                : '';
+            dateEndRaw != null ? DateFormat(plannerBoundDateFormat).format(dateEndRaw) : '';
 
         final titleWidget = Text(
           '$dateStartString - $dateEndString',
@@ -107,24 +97,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
         final today = DateTime.now().dayBound;
         final paymentsByDate = state.getPaymentsByDate;
 
-        final appBar = AppBar(
-          title: titleWidget,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.ssid_chart),
-              tooltip: 'Статистика',
-              onPressed: () {
-                Navigator.of(context).push<void>(
-                  MaterialPageRoute(
-                    builder:
-                        (context) =>
-                            PlannerStatisticsScreen(plannerId: state.plannerId),
-                  ),
-                );
-              },
-            ),
-          ],
-        );
+        final appBar = AppBar(title: titleWidget, actions: []);
 
         final fab = Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,10 +116,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                 _showCorrectionDialog(context);
               },
               onPressed: () {
-                updateDialog(
-                  context: context,
-                  plannerRepo: AppDi.instance.getPlannerRepo(),
-                );
+                updateDialog(context: context, plannerRepo: AppDi.instance.getPlannerRepo());
               },
             ),
           ],
@@ -166,9 +136,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                         controller: _scrollController,
                         slivers: [
                           SliverPadding(
-                            padding: const EdgeInsets.only(
-                              bottom: AppSpace.s100,
-                            ),
+                            padding: const EdgeInsets.only(bottom: AppSpace.s100),
                             sliver: PaymentsSliverList(
                               listController: _listController,
                               today: today,
@@ -198,10 +166,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                         end: Alignment.topCenter,
                       ),
                     ),
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 100,
-                    ),
+                    child: SizedBox(width: MediaQuery.of(context).size.width, height: 100),
                   ),
                 ),
               ),
@@ -214,11 +179,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
 
   Future<void> _moveToDate(DateTime date, {bool jump = false}) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    final state = context
-        .read<PlannerBloc>()
-        .state
-        .getPaymentsByDate
-        .getIndexOfDate(date);
+    final state = context.read<PlannerBloc>().state.getPaymentsByDate.getIndexOfDate(date);
     if (state == null || !_listController.isAttached) {
       return;
     }
@@ -260,10 +221,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
               ],
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Отмена'),
-              ),
+              TextButton(onPressed: () => Navigator.pop(context), child: Text('Отмена')),
               TextButton(
                 onPressed: () {
                   if (controller.text.isNotEmpty) {
@@ -303,9 +261,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
     );
 
     // Сохраняем платеж и обновляем бюджет
-    plannerBloc.add(
-      PlannerEvent.updatePayment(newPayment: payment, create: true),
-    );
+    plannerBloc.add(PlannerEvent.updatePayment(newPayment: payment, create: true));
     plannerBloc.add(const PlannerEvent.computeBudget());
   }
 }

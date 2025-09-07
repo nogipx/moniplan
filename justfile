@@ -1,33 +1,22 @@
 #!/usr/bin/env just --justfile
 
-pubget_all:
-    fvm dart run packo pubget -g moniplan
+pubget:
+    cd moniplan_app && fvm dart pub get
+    cd moniplan_uikit && fvm dart pub get
 
-runner_all:
-    fvm dart run packo runner -r
+runner:
+    cd moniplan_app && fvm dart run build_runner build --delete-conflicting-outputs
 
-runner_app:
-    fvm dart run packo runner -b moniplan_app
+    cd moniplan_app && fvm dart run keys_generator:to_arb \
+      -f lib/keys/moniplan.keys.yml \
+      -o lib/i18n/arb/intl_ru.arb
 
-runner_core:
-    fvm dart run packo runner -b moniplan_core
+    cd moniplan_app && fvm dart run keys_generator:to_arb \
+      -f lib/keys/moniplan.keys.yml \
+      -o lib/i18n/arb/intl_en.arb
 
-runner_domain:
-    fvm dart run packo runner -b moniplan_domain
-
-runner_clean:
+clean:
     cd moniplan_app && fvm dart run build_runner clean
-
-generate_arb:
-    fvm dart run packo runner -b moniplan_domain
-
-    cd moniplan_domain && fvm dart run keys_generator:to_arb \
-      -f lib/keys/moniplan.keys.yml \
-      -o ../moniplan_app/lib/i18n/arb/intl_ru.arb
-
-    cd moniplan_domain && fvm dart run keys_generator:to_arb \
-      -f lib/keys/moniplan.keys.yml \
-      -o ../moniplan_app/lib/i18n/arb/intl_en.arb
 
 license:
     reuse annotate -c "Karim \"nogipx\" Mamatkazin <nogipx@gmail.com>" -l "GPL-3.0-or-later" --skip-unrecognised -r moniplan_app/lib

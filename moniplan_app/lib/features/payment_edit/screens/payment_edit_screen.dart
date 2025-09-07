@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_bloc.dart';
 import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_event.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
-import 'package:moniplan_uikit/moniplan_uikit.dart';
-import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/_index.dart' as edit;
 import 'package:moniplan_app/features/calculator/widgets/payment_keyboard.dart' as keyboard;
+import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/_index.dart' as edit;
+import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PaymentEditScreen extends StatefulWidget {
   final Payment? payment;

@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 class AppDbImpl extends ChangeNotifier implements AppDb {
   static const _reopenWaitDuration = Duration(milliseconds: 500);

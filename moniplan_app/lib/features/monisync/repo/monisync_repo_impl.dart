@@ -11,7 +11,7 @@ import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/monisync/keys.dart';
 import 'package:moniplan_app/features/payment/repo/payment_planner_repo_drift.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:path_provider/path_provider.dart';
 
 // Формат даты для файла бэкапа
@@ -95,14 +95,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
     // Добавляем комментарий о формате даты
     csvRows.add('# Экспорт платежей из Moniplan');
-    csvRows.add(
-      '# Дата экспорта: ${DateFormat('yyyy-MM-dd').format(DateTime.now())}',
-    );
+    csvRows.add('# Дата экспорта: ${DateFormat('yyyy-MM-dd').format(DateTime.now())}');
     csvRows.add('# Планер: ${planner.name}');
     csvRows.add('# Количество платежей: ${payments.length}');
-    csvRows.add(
-      '# Примечание: все даты указаны в формате YYYY-MM-DD без учета времени',
-    );
+    csvRows.add('# Примечание: все даты указаны в формате YYYY-MM-DD без учета времени');
     csvRows.add(
       '# Внимание: при создании и редактировании платежей время автоматически отбрасывается',
     );
@@ -125,9 +121,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       final currency = payment.details.currency.isoCode;
       final type = payment.type.toString().split('.').last;
       final categories =
-          payment.details.tags.isEmpty
-              ? ''
-              : _escapeCSV(payment.details.tags.join(', '));
+          payment.details.tags.isEmpty ? '' : _escapeCSV(payment.details.tags.join(', '));
       final note = _escapeCSV(payment.details.note);
 
       // Предсказанные категории
@@ -198,10 +192,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   @override
-  Future<void> importDataFromFile({
-    required String filePath,
-    String? password,
-  }) async {
+  Future<void> importDataFromFile({required String filePath, String? password}) async {
     final file = File(filePath);
     if (!await file.exists()) {
       throw Exception('Файл не найден');
@@ -220,10 +211,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   @override
-  Future<BackupInfo?> readBackupInfo({
-    required String filePath,
-    String? password,
-  }) async {
+  Future<BackupInfo?> readBackupInfo({required String filePath, String? password}) async {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
@@ -232,9 +220,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     }
 
     final bytes = await file.readAsBytes();
-    final (metadata, originalBytes) = BackupMetadata.extractMetadataFromBytes(
-      bytes,
-    );
+    final (metadata, originalBytes) = BackupMetadata.extractMetadataFromBytes(bytes);
     Uint8List? effectiveBytes = originalBytes;
 
     // Пытаемся расшифровать файл
@@ -250,10 +236,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         isLegacyBackup: false,
         additionalInfo:
             metadata.isEncrypted == true
-                ? {
-                  'key_type': metadata.hasPassword ? 'password' : 'app_key',
-                  'format': 'metadata',
-                }
+                ? {'key_type': metadata.hasPassword ? 'password' : 'app_key', 'format': 'metadata'}
                 : {'error': 'Не удалось расшифровать файл'},
       );
     }
@@ -287,12 +270,9 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     return _tryDecryptWithKeys(
       bytes,
       LinkedHashMap.from({
-        OldMockedEncryptionKey():
-            (key) => AesMonisyncEncrypter(key, enableMetadata: true),
-        OldEnviedEncryptionKey():
-            (key) => AesMonisyncEncrypter(key, enableMetadata: true),
-        MonisyncEncryptionKeyV2():
-            (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
+        OldMockedEncryptionKey(): (key) => AesMonisyncEncrypter(key, enableMetadata: true),
+        OldEnviedEncryptionKey(): (key) => AesMonisyncEncrypter(key, enableMetadata: true),
+        MonisyncEncryptionKeyV2(): (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
         if (password != null)
           PasswordEncryptionKey.fromPassword(password):
               (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
@@ -302,8 +282,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
   Future<Uint8List?> _tryDecryptWithKeys(
     Uint8List bytes,
-    Map<AppEncryptionKey, IAppEncrypter Function(AppEncryptionKey)>
-    keyToEncrypter,
+    Map<AppEncryptionKey, IAppEncrypter Function(AppEncryptionKey)> keyToEncrypter,
   ) async {
     for (final key in keyToEncrypter.keys) {
       try {

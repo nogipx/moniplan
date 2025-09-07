@@ -5,13 +5,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 void showDialogUpdatePlanner(
   BuildContext context, {
   Planner? planner,
   required Function(DateTime, DateTime, String, String) onSave,
   Function()? onDelete,
+  Function()? onDuplicate,
 }) {
   final TextEditingController numberController =
       TextEditingController()..text = planner?.initialBudget.toString() ?? '';
@@ -58,13 +59,23 @@ void showDialogUpdatePlanner(
             title: Row(
               children: [
                 Text(planner != null ? 'Edit Planner' : 'Create Planner'),
+                const Spacer(),
+                if (planner != null && onDuplicate != null)
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      onDuplicate();
+                    },
+                    icon: const Icon(Icons.copy, size: 16),
+                    label: const Text('Дублировать'),
+                  ),
                 if (onDelete != null)
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                       onDelete();
                     },
-                    child: Text('Delete'),
+                    child: const Text('Delete'),
                   ),
               ],
             ),

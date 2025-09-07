@@ -1,5 +1,5 @@
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 
 @Deprecated('For backward compatibility with AES encryption. Not used anymore.')
 final class OldMockedEncryptionKey extends AppEncryptionKey {

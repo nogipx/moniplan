@@ -1,8 +1,9 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
 import 'dart:async';
 
-import 'payment_edit_event.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
+import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/payment_edit_event.dart';
+
 import 'payment_edit_state.dart';
 
 /// Блок для управления редактированием платежа

@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
-import 'package:moniplan_domain/moniplan_domain.dart';
+import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class MoneyFlowWidget extends StatelessWidget {
