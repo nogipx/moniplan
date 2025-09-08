@@ -41,5 +41,3 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     throw UnimplementedError();
   }
 }
-
-Future<void> getPath() async => throw UnsupportedError('AppDbImpl is unsupported on this platform');

@@ -2,8 +2,4 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-export 'core/_index.dart';
-export 'db/_index.dart';
-export 'di/_index.dart';
-export 'extensions/_index.dart';
 export 'features/_index.dart';
