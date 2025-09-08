@@ -1,14 +1,16 @@
 // filepath: lib/_run/db/app_db_impl_native.dart
-// Native implementation of AppDbImpl
+// Native implementation of AppDbImpl — refactored to use connection_native helpers.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/database/opener/universal_database_opener.dart' as opener;
+import 'package:moniplan_app/database/connection/connection_native.dart' as dbconn;
 import 'package:moniplan_app/features/payment/_index.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:rpc_dart/logger.dart';
 
 class AppDbImpl extends ChangeNotifier implements AppDb {
@@ -19,11 +21,10 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   MoniplanDriftDb get db => _db!;
 
   MoniplanDriftDb? _db;
-  DatabaseConnection? _connection;
+  DatabaseConnection? _connection; // держим connection, из него берём executor
   String? _instancePath;
 
   final bool _inMemory;
-  final opener.Platform _platform = opener.Platform.native;
 
   AppDbImpl._(this._log, this._inMemory);
 
@@ -32,63 +33,30 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   @override
-  Future<void> close() async {
-    try {
-      await _db?.close();
-      if (_connection != null) {
-        await _connection?.close();
-        _connection = null;
-      }
-      _stopWatchChanges();
-
-      try {
-        final tempObj = await opener.getTemporaryDatabaseFile();
-        File(tempObj.path).deleteSync();
-      } catch (_) {}
-
-      _db = null;
-      _instancePath = null;
-
-      notifyListeners();
-    } on Object catch (error, trace) {
-      _log?.critical('close', error: error, stackTrace: trace);
-      rethrow;
-    }
-  }
-
-  @override
   Future<void> open() async {
     try {
       if (_connection != null) return;
 
-      // Resolve file/path from opener in a robust way
-      String? customPath;
-      Uint8List? initialBytes;
       if (_inMemory) {
-        final dbObj = await opener.getDatabaseFile();
-        if (dbObj is File) {
-          initialBytes = await dbObj.readAsBytes();
-        }
+        // пустая временная БД в памяти
+        final executor = NativeDatabase.memory();
+        _connection = DatabaseConnection(executor);
       } else {
-        final dbObj = await opener.getDatabaseFile();
-        customPath = dbObj.path;
+        // персистентная основная БД
+        final conn = await dbconn.openMainDb();
+        _connection = conn;
+
+        // сохраним путь к файлу (должен совпадать с logic в connection_native)
+        _instancePath = await _resolvePersistentDbPath();
       }
 
-      final connection = opener.UniversalDatabaseOpener.open(
-        platform: _platform,
-        type: _inMemory ? opener.DatabaseType.temporary : opener.DatabaseType.persistent,
-        customPath: customPath,
-        initialBytes: initialBytes,
-      );
+      // Создаём Drift-DB. Предпочтительно — через .connect(...)
+      // Если у твоего класса нет конструктора .connect, используй executor:
+      //   _db = MoniplanDriftDb(dbExecutor: _connection!.executor);
+      _db = _tryConnectDb(_connection!);
 
-      _connection = connection;
-      _db = MoniplanDriftDb(dbExecutor: _connection as QueryExecutor);
-
-      if (!_inMemory) {
-        _instancePath = (await opener.getDatabaseFile()).path;
-      } else {
-        _instancePath = null;
-      }
+      // Опционально «прогреем» БД (откроет и прогонит миграции)
+      await _connection!.executor.ensureOpen(_db!);
 
       _startWatchChanges();
       notifyListeners();
@@ -101,50 +69,79 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   @override
   Future<void> overwriteWithBytes({required Uint8List bytes}) async {
     try {
-      await _db?.close();
-      if (_connection != null) {
-        await _connection?.close();
-        _connection = null;
-      }
+      // Закрываем текущую
+      await _close();
 
       if (_inMemory) {
-        final connection = opener.UniversalDatabaseOpener.open(
-          platform: _platform,
-          type: opener.DatabaseType.temporary,
-          initialBytes: bytes,
-        );
-
-        _connection = connection;
-        _db = MoniplanDriftDb(dbExecutor: _connection as QueryExecutor);
-        _startWatchChanges();
-        notifyListeners();
-        return;
+        // Временная БД из байт (полностью в памяти)
+        final conn = await dbconn.openInMemoryDbFromBytes(bytes);
+        _connection = conn;
+        _db = _tryConnectDb(conn);
+        await _connection!.executor.ensureOpen(_db!);
+        _instancePath = null; // in-memory
+      } else {
+        // Заменяем основную БД атомарно
+        await dbconn.replaceMainDbFromBytes(bytes);
+        // И открываем заново основную
+        final conn = await dbconn.openMainDb();
+        _connection = conn;
+        _db = _tryConnectDb(conn);
+        await _connection!.executor.ensureOpen(_db!);
+        _instancePath = await _resolvePersistentDbPath();
       }
 
-      final dbObj = await opener.getDatabaseFile();
-      final dbPath = dbObj.path;
-
-      await opener.UniversalDatabaseOpener.overridePersistentDatabase(
-        platform: _platform,
-        databasePath: dbPath,
-        newBytes: bytes,
-      );
-
-      final newConnection = opener.UniversalDatabaseOpener.open(
-        platform: _platform,
-        type: opener.DatabaseType.persistent,
-        customPath: dbPath,
-      );
-
-      _connection = newConnection;
-      _db = MoniplanDriftDb(dbExecutor: _connection as QueryExecutor);
-      _instancePath = dbPath;
       _startWatchChanges();
       notifyListeners();
     } on Object catch (error, trace) {
       _log?.critical('overwriteWithBytes', error: error, stackTrace: trace);
       rethrow;
     }
+  }
+
+  @override
+  Future<void> close() async {
+    try {
+      _stopWatchChanges();
+      await _close();
+
+      _db = null;
+      _connection = null;
+      _instancePath = null;
+
+      notifyListeners();
+    } on Object catch (error, trace) {
+      _log?.critical('close', error: error, stackTrace: trace);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String> getPath() async {
+    if (_inMemory) return 'in-memory';
+    if (_instancePath != null) return _instancePath!;
+    return _resolvePersistentDbPath();
+  }
+
+  // --- internals -------------------------------------------------------------
+
+  MoniplanDriftDb _tryConnectDb(DatabaseConnection conn) {
+    // fallback: используем executor-подпись
+    return MoniplanDriftDb(dbExecutor: conn.executor);
+  }
+
+  Future<void> _close() async {
+    try {
+      await _db?.close();
+    } finally {
+      // Закрываем нижележащий executor (файл/память)
+      await _connection?.executor.close();
+    }
+  }
+
+  Future<String> _resolvePersistentDbPath() async {
+    final dir = await getApplicationDocumentsDirectory();
+    // имя должно совпадать с connection_native.dart
+    return p.join(dir.path, 'app.db');
   }
 
   Future<void> _updateLastActionDate() async {
@@ -166,20 +163,13 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       _db!.paymentsComposedDriftTable,
     ]);
 
-    _listenChanges = _db!.tableUpdates(query).listen((updates) {
+    _listenChanges = _db!.tableUpdates(query).listen((_) {
       _updateLastActionDate();
     });
   }
 
   void _stopWatchChanges() {
     _listenChanges?.cancel();
-  }
-
-  @override
-  Future<String> getPath() async {
-    if (_instancePath != null) return _instancePath!;
-    if (_inMemory) return 'in-memory';
-    final dbObj = await opener.getDatabaseFile();
-    return dbObj.path;
+    _listenChanges = null;
   }
 }
