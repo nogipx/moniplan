@@ -15,6 +15,7 @@ import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart'
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:rpc_dart/logger.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/backup_info.dart';
@@ -35,7 +36,7 @@ class MonisyncScreen extends StatefulWidget {
 class _MonisyncScreenState extends State<MonisyncScreen> {
   IMonisyncRepo? _monisyncRepo;
   final IPlannerRepo _plannerRepo = AppDi.instance.getPlannerRepo();
-  final _log = AppLog('MoniSync');
+  final _log = RpcLogger('MoniSync');
 
   List<Planner> _planners = [];
   bool _isLoading = false;

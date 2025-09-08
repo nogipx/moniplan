@@ -5,6 +5,7 @@
 import 'package:moniplan_app/_run/db/app_db_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
+import 'package:rpc_dart/logger.dart';
 
 abstract class AppDb extends IAppDb {
   static late IAppDbFactory _factory;
@@ -20,7 +21,7 @@ abstract class AppDb extends IAppDb {
   }
 
   static AppDbImpl detachedInMemory() {
-    final db = AppDbImpl(inMemory: true, log: AppLog('TempAppDb'));
+    final db = AppDbImpl(inMemory: true, log: RpcLogger('TempAppDb'));
     return db;
   }
 

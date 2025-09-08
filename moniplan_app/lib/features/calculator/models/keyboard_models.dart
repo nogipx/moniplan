@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../_index.dart';
+import '../bloc/calculator_state.dart';
 
 /// Константы для клавиатуры
 class KeyboardConstants {
@@ -17,9 +17,6 @@ class KeyboardConstants {
   static const double defaultPadding = 16.0;
   static const double smallPadding = 8.0;
   static const double tinyPadding = 4.0;
-
-  /// Предустановленные суммы для быстрого ввода
-  static const List<int> quickAmounts = [100, 500, 1000, 5000];
 }
 
 /// Тип клавиатуры для ввода

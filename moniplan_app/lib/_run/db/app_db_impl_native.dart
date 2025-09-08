@@ -8,12 +8,12 @@ import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/database/opener/universal_database_opener.dart' as opener;
-import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
+import 'package:rpc_dart/logger.dart';
 
 class AppDbImpl extends ChangeNotifier implements AppDb {
   StreamSubscription? _listenChanges;
-  AppLog? _log;
+  RpcLogger? _log;
 
   @override
   MoniplanDriftDb get db => _db!;
@@ -27,8 +27,8 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
   AppDbImpl._(this._log, this._inMemory);
 
-  factory AppDbImpl({AppLog? log, bool inMemory = false}) {
-    return AppDbImpl._(log ?? AppLog('AppDbImpl'), inMemory);
+  factory AppDbImpl({RpcLogger? log, bool inMemory = false}) {
+    return AppDbImpl._(log ?? RpcLogger('AppDbImpl'), inMemory);
   }
 
   @override
@@ -51,7 +51,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
       notifyListeners();
     } on Object catch (error, trace) {
-      _log?.critical('close', error: error, trace: trace);
+      _log?.critical('close', error: error, stackTrace: trace);
       rethrow;
     }
   }
@@ -93,7 +93,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       _startWatchChanges();
       notifyListeners();
     } on Object catch (error, trace) {
-      _log?.critical('open', error: error, trace: trace);
+      _log?.critical('open', error: error, stackTrace: trace);
       rethrow;
     }
   }
@@ -142,7 +142,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       _startWatchChanges();
       notifyListeners();
     } on Object catch (error, trace) {
-      _log?.critical('overwriteWithBytes', error: error, trace: trace);
+      _log?.critical('overwriteWithBytes', error: error, stackTrace: trace);
       rethrow;
     }
   }

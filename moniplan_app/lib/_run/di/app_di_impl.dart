@@ -11,13 +11,14 @@ import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart'
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/statistic/_index.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:rpc_dart/logger.dart';
 
 class GetItAppDI implements AppDi {
   final _getIt = GetIt.instance;
 
   @override
   Future<void> setup() async {
-    final dbImpl = AppDbImpl(log: AppLog('AppDbImpl'));
+    final dbImpl = AppDbImpl(log: RpcLogger('AppDbImpl'));
     _getIt.registerSingleton<AppDbImpl>(dbImpl, dispose: (impl) => impl.close());
 
     AppDb.factory = () => GetIt.instance.get<AppDbImpl>();

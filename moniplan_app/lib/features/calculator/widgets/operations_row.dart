@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_bloc.dart';
-import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_event.dart';
-import 'package:moniplan_app/features/calculator/calculator_bloc/calculator_operator.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+
+import '../bloc/_index.dart';
 
 /// Ряд с операциями калькулятора
 class OperationsRow extends StatelessWidget {
@@ -25,15 +24,17 @@ class OperationsRow extends StatelessWidget {
       height: 56,
       child: Row(
         children: [
-          _buildOperationButton(
-            CalculatorOperator.reset.symbol,
+          _OperationButton(
+            operator: CalculatorOperator.reset,
+            currentOperator: currentOperator,
             onPressed: () {
               context.read<CalculatorBloc>().add(ResetPressed());
               HapticFeedback.mediumImpact();
             },
           ),
-          _buildOperationButton(
-            CalculatorOperator.divide.symbol,
+          _OperationButton(
+            operator: CalculatorOperator.divide,
+            currentOperator: currentOperator,
             onPressed: () {
               context.read<CalculatorBloc>().add(
                 OperationPressed(CalculatorOperator.divide.symbol),
@@ -41,8 +42,9 @@ class OperationsRow extends StatelessWidget {
               HapticFeedback.lightImpact();
             },
           ),
-          _buildOperationButton(
-            CalculatorOperator.multiply.symbol,
+          _OperationButton(
+            operator: CalculatorOperator.multiply,
+            currentOperator: currentOperator,
             onPressed: () {
               context.read<CalculatorBloc>().add(
                 OperationPressed(CalculatorOperator.multiply.symbol),
@@ -50,15 +52,17 @@ class OperationsRow extends StatelessWidget {
               HapticFeedback.lightImpact();
             },
           ),
-          _buildOperationButton(
-            CalculatorOperator.add.symbol,
+          _OperationButton(
+            operator: CalculatorOperator.add,
+            currentOperator: currentOperator,
             onPressed: () {
               context.read<CalculatorBloc>().add(OperationPressed(CalculatorOperator.add.symbol));
               HapticFeedback.lightImpact();
             },
           ),
-          _buildOperationButton(
-            CalculatorOperator.subtract.symbol,
+          _OperationButton(
+            operator: CalculatorOperator.subtract,
+            currentOperator: currentOperator,
             onPressed: () {
               context.read<CalculatorBloc>().add(
                 OperationPressed(CalculatorOperator.subtract.symbol),
@@ -66,8 +70,9 @@ class OperationsRow extends StatelessWidget {
               HapticFeedback.lightImpact();
             },
           ),
-          _buildOperationButton(
-            CalculatorOperator.equals.symbol,
+          _OperationButton(
+            operator: CalculatorOperator.equals,
+            currentOperator: currentOperator,
             onPressed: () {
               context.read<CalculatorBloc>().add(EqualsPressed());
               HapticFeedback.lightImpact();
@@ -77,12 +82,21 @@ class OperationsRow extends StatelessWidget {
       ),
     );
   }
+}
 
-  /// Кнопка операции
-  Widget _buildOperationButton(String operation, {VoidCallback? onPressed}) {
-    final isEquals = operation == CalculatorOperator.equals.symbol;
-    final isActive = isEquals || operation == currentOperator.symbol;
-    final isReset = operation == CalculatorOperator.reset.symbol;
+class _OperationButton extends StatelessWidget {
+  final CalculatorOperator operator;
+  final CalculatorOperator currentOperator;
+  final VoidCallback? onPressed;
+
+  const _OperationButton({required this.operator, this.onPressed, required this.currentOperator});
+
+  @override
+  Widget build(BuildContext context) {
+    final operatorSymbol = operator.symbol;
+    final isEquals = operatorSymbol == CalculatorOperator.equals.symbol;
+    final isActive = isEquals || operatorSymbol == currentOperator.symbol;
+    final isReset = operatorSymbol == CalculatorOperator.reset.symbol;
 
     return Expanded(
       child: Builder(
@@ -117,7 +131,7 @@ class OperationsRow extends StatelessWidget {
                 highlightColor: backgroundColor.withValues(alpha: 0.1),
                 child: Center(
                   child: Text(
-                    operation,
+                    operatorSymbol,
                     style: context.text.headlineSmall?.copyWith(
                       fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
                       color: textColor,

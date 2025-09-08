@@ -3,18 +3,29 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:rpc_dart/logger.dart';
+
 import '_index.dart';
 
 /// Блок для управления калькулятором
 class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
+  final _log = RpcLogger('CalculatorBloc');
+
   CalculatorBloc() : super(const CalculatorState()) {
-    on<DigitPressed>(_onDigitPressed);
-    on<BackspacePressed>(_onBackspacePressed);
-    on<ClearPressed>(_onClearPressed);
-    on<OperationPressed>(_onOperationPressed);
-    on<EqualsPressed>(_onEqualsPressed);
-    on<SetInitialValue>(_onSetInitialValue);
-    on<ResetPressed>(_onResetPressed);
+    on<CalculatorEvent>(
+      (event, emit) => switch (event) {
+        DigitPressed() => _onDigitPressed(event, emit),
+        BackspacePressed() => _onBackspacePressed(event, emit),
+        ClearPressed() => _onClearPressed(event, emit),
+        OperationPressed() => _onOperationPressed(event, emit),
+        EqualsPressed() => _onEqualsPressed(event, emit),
+        SetInitialValue() => _onSetInitialValue(event, emit),
+        ResetPressed() => _onResetPressed(event, emit),
+        _ => null,
+      },
+      transformer: sequential(),
+    );
   }
 
   /// Обработка нажатия на цифру
@@ -230,7 +241,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       );
       emit(newState);
     } catch (e) {
-      print('Ошибка при вычислении: $e');
+      _log.error('Ошибка при вычислении: $e');
       // В случае ошибки просто заменяем оператор
       final newResult = '$leftPart ${operation.symbol} ';
       final newState = state.copyWith(
@@ -289,7 +300,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       );
       emit(newState);
     } catch (e) {
-      print('Ошибка при вычислении: $e');
+      _log.error('Ошибка при вычислении: $e');
       // В случае ошибки просто возвращаем левую часть
       final newState = state.copyWith(
         result: leftPart,

@@ -1,17 +1,15 @@
 // filepath: lib/_run/db/app_db_impl_unsupported.dart
 // Fallback stub for AppDbImpl when neither native nor web implementation is available.
 
-import 'dart:typed_data';
-
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:moniplan_app/core/drift/app_db.dart';
 import 'package:moniplan_app/core/drift/drift_database.dart';
-import 'package:moniplan_app/domain/lib/log.dart';
+import 'package:rpc_dart/rpc_dart.dart';
 
 class AppDbImpl extends ChangeNotifier implements AppDb {
   AppDbImpl._();
 
-  factory AppDbImpl({AppLog? log, bool inMemory = false}) {
+  factory AppDbImpl({RpcLogger? log, bool inMemory = false}) {
     return AppDbImpl._();
   }
 

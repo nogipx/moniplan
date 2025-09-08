@@ -9,18 +9,15 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:logging/logging.dart';
 import 'package:moniplan_app/_run/_index.dart';
-import 'package:moniplan_app/_run/log/console_log.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
+import 'package:rpc_dart/rpc_dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 Future<void> main() async {
-  AppLog.factory =
-      (name) => ConsoleAppLog(name, skipPathContainsPaths: {'console_log'}, skipFrames: 2);
   AppDi.instance = GetItAppDI();
 
-  final zoneLog = AppLog('ZoneGuarded');
+  final zoneLog = RpcLogger('ZoneGuarded');
 
   unawaited(
     runZonedGuarded(
@@ -49,7 +46,7 @@ Future<void> main() async {
         runApp(MoniplanApp(sharedPreferences: prefs));
       },
       (exception, stackTrace) {
-        zoneLog.critical("Global error", error: exception, trace: stackTrace);
+        zoneLog.critical("Global error", error: exception, stackTrace: stackTrace);
       },
     ),
   );

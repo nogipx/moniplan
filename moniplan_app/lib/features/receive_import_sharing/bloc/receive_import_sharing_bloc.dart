@@ -11,6 +11,7 @@ import 'package:moniplan_app/features/monisync/models/backup_info.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:rpc_dart/logger.dart';
 
 part 'receive_import_sharing_event.dart';
 part 'receive_import_sharing_state.dart';
@@ -18,12 +19,12 @@ part 'receive_import_sharing_state.dart';
 /// Handles receiving opening backup files. Passes files to business logic.
 /// Because it depends on platform it could depend on library.
 class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportState> {
-  final _log = AppLog('ReceiveImportSharingBloc');
+  final _log = RpcLogger('ReceiveImportSharingBloc');
   final IAppDi appDi;
   IMonisyncRepo? _monisyncRepo;
   IMoniplanLicenseRepo? _licenseRepo;
 
-  ReceiveImportSharingBloc({required this.appDi, AppLog? log})
+  ReceiveImportSharingBloc({required this.appDi, RpcLogger? log})
     : super(ReceiveImportInitialState()) {
     on<ReceiveImportStartReceiveEvent>(_onStartReceive);
     on<ReceiveImportStopReceiveEvent>(_onStopReceive);
@@ -95,7 +96,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
           licenseFiles.add(file);
         }
       } on Object catch (error, trace) {
-        _log.error('Failed to process file', error: error, trace: trace);
+        _log.error('Failed to process file', error: error, stackTrace: trace);
       }
     }
 
@@ -118,7 +119,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
       final licenseFile = event.licenseFiles.first;
       emit(ReceiveImportLicenseState(licenseFile: licenseFile));
     } catch (e, trace) {
-      _log.error('Failed to process license file', error: e, trace: trace);
+      _log.error('Failed to process license file', error: e, stackTrace: trace);
       emit(ReceiveImportResultState(result: ReceiveImportResult.error));
     }
   }
@@ -141,11 +142,11 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
 
     try {
       await _monisyncRepo?.importData(token: token, password: event.password);
-      _log.business('Succesfull import db');
+      _log.info('Succesfull import db');
       emit(ReceiveImportResultState(result: ReceiveImportResult.imported));
     } on Object catch (error, trace) {
       emit(ReceiveImportResultState(result: ReceiveImportResult.error));
-      _log.error('Failed to import db', error: error, trace: trace);
+      _log.error('Failed to import db', error: error, stackTrace: trace);
     }
   }
 

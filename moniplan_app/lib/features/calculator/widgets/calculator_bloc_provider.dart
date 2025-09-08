@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_app/features/calculator/_index.dart';
+
+import '../bloc/_index.dart';
 
 /// Провайдер для CalculatorBloc, который проверяет наличие блока в контексте
 /// и при необходимости создает новый

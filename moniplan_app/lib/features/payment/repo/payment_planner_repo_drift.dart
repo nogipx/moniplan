@@ -6,14 +6,15 @@ import 'package:drift/drift.dart';
 import 'package:moniplan_app/_run/db/app_db_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
+import 'package:rpc_dart/logger.dart';
 
 import '../_index.dart';
 
 final class PlannerRepoDrift implements IPlannerRepo {
   final AppDbImpl appDb;
-  final AppLog _log;
+  final RpcLogger _log;
 
-  PlannerRepoDrift({required this.appDb}) : _log = AppLog('PlannerRepoDrift');
+  PlannerRepoDrift({required this.appDb}) : _log = RpcLogger('PlannerRepoDrift');
 
   static const _plannerMapper = PlannerMapperDrift();
   static const _paymentMapper = PaymentMapperDrift();
@@ -29,7 +30,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
       while (true) {
         try {
           final result = await action();
-          _log.business('Success: $name()');
+          _log.info('Success: $name()');
           return result;
         } on Object catch (e) {
           // Проверяем любые ошибки, связанные с блокировкой базы данных
@@ -53,7 +54,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
         }
       }
     } on Object catch (error, trace) {
-      _log.error('Failed operation: $name()', error: error, trace: trace);
+      _log.error('Failed operation: $name()', error: error, stackTrace: trace);
       rethrow;
     }
   }

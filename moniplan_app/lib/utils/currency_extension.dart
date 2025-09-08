@@ -7,6 +7,7 @@ import 'package:intl/locale.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
+import 'package:rpc_dart/logger.dart';
 
 extension CurrencyDouble on num {
   bool get isWhole => this % 1 == 0;
@@ -41,7 +42,7 @@ extension CurrencyExt on CurrencyData {
   Locale? getLocale() {
     final locale = Locale.tryParse(numberSymbols?.NAME ?? '');
     if (locale == null) {
-      AppLog('getLocale()').warning('No found locale for Currency($isoCode, $symbol)');
+      RpcLogger('getLocale()').warning('No found locale for Currency($isoCode, $symbol)');
     }
     return locale;
   }

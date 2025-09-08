@@ -8,6 +8,4 @@ export 'package:feature_core/feature_core.dart';
 export 'package:freezed_annotation/freezed_annotation.dart';
 export 'package:licensify/licensify.dart';
 export 'package:uuid/uuid.dart';
-
-export 'log.dart';
 export 'src/_index.dart';

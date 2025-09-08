@@ -11,6 +11,7 @@ import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
 import 'package:moniplan_app/features/monisync/models/backup_footer_metadata.dart';
 import 'package:moniplan_app/features/payment/repo/payment_planner_repo_drift.dart';
+import 'package:rpc_dart/logger.dart';
 
 import '../models/backup_info.dart';
 import 'i_manual_monisync_repo.dart';
@@ -20,7 +21,7 @@ const String backupDateFormat = 'yyyyMMdd_HHmmss';
 
 class MonisyncRepoImpl implements IMonisyncRepo {
   final AppDb appDb;
-  final _log = AppLog('MonisyncRepoImpl');
+  final _log = RpcLogger('MonisyncRepoImpl');
 
   MonisyncRepoImpl({required this.appDb});
 

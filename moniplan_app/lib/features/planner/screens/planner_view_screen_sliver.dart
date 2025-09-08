@@ -12,6 +12,7 @@ import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:rpc_dart/logger.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
 
 class PlannerScreen extends StatelessWidget {
@@ -43,27 +44,28 @@ class _PlannerViewScreenSliver extends StatefulWidget {
 class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
   final _listController = ListController();
   final _scrollController = ScrollController();
+  final _log = RpcLogger('PlannerViewScreen');
 
   bool _isFirstScrolled = false;
 
   @override
   void dispose() {
-    print('PlannerViewScreen: Освобождение ресурсов');
+    _log.debug('PlannerViewScreen: Освобождение ресурсов');
 
     // Получаем блок и вызываем метод обновления actualInfo
     try {
       final plannerBloc = context.read<PlannerBloc>();
-      print('PlannerViewScreen: Вызов saveActualInfo для планера ${plannerBloc.plannerId}');
+      _log.debug('PlannerViewScreen: Вызов saveActualInfo для планера ${plannerBloc.plannerId}');
       plannerBloc.saveActualInfo();
     } catch (e) {
-      print('PlannerViewScreen: Ошибка при сохранении actualInfo: $e');
+      _log.debug('PlannerViewScreen: Ошибка при сохранении actualInfo: $e');
     }
 
     // Освобождаем ресурсы контроллеров
     _listController.dispose();
     _scrollController.dispose();
 
-    print('PlannerViewScreen: Ресурсы освобождены');
+    _log.debug('PlannerViewScreen: Ресурсы освобождены');
     super.dispose();
   }
 
