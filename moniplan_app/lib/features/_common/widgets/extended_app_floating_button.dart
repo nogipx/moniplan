@@ -4,7 +4,7 @@
 
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
-import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class ExtendedAppFloatingButton extends StatelessWidget {

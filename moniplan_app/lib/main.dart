@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:logging/logging.dart';
 import 'package:moniplan_app/_run/_index.dart';
-import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/utils/_index.dart';
 import 'package:rpc_dart/rpc_dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stack_trace/stack_trace.dart';

@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
+import 'package:moniplan_app/database/_index.dart';
+import 'package:moniplan_app/domain/moniplan_domain.dart';
 
 class PaymentMapperDrift implements IMapper<Payment, PaymentsComposedDriftTableData> {
   const PaymentMapperDrift();

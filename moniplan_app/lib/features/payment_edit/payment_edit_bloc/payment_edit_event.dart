@@ -1,4 +1,4 @@
-import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
+import 'package:moniplan_app/domain/moniplan_domain.dart';
 
 /// События для блока редактирования платежа
 abstract class PaymentEditEvent extends Equatable {
