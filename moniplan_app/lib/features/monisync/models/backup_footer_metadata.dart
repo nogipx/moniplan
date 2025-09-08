@@ -16,9 +16,6 @@ class BackupFooterMetadata with _$BackupFooterMetadata {
     /// Временная метка создания бэкапа
     required DateTime timestamp,
 
-    /// Тип защиты данных
-    @Default(BackupProtectionType.defaultKey) BackupProtectionType protectionType,
-
     /// Тип бэкапа
     @Default('monisync_backup') String type,
 
@@ -44,15 +41,4 @@ class BackupFooterMetadata with _$BackupFooterMetadata {
       return null;
     }
   }
-}
-
-/// Тип защиты бэкапа
-enum BackupProtectionType {
-  /// Защищен паролем
-  @JsonValue('password')
-  password,
-
-  /// Защищен стандартным ключом приложения
-  @JsonValue('default_key')
-  defaultKey,
 }

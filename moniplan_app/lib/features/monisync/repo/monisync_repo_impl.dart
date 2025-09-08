@@ -26,18 +26,14 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   MonisyncRepoImpl({required this.appDb});
 
   @override
-  Future<String> exportData({required DateTime now, String? password}) async {
+  Future<String> exportData({required DateTime now, required String password}) async {
     final dbBytes = await getDatabaseBytes();
 
     // Создаем метаданные для footer
-    final metadata = BackupFooterMetadata(
-      timestamp: now,
-      protectionType:
-          password != null ? BackupProtectionType.password : BackupProtectionType.defaultKey,
-    );
+    final metadata = BackupFooterMetadata(timestamp: now);
 
     // Создаем ключ шифрования
-    final encryptionKey = Licensify.generateEncryptionKey();
+    final encryptionKey = getLicensifyPasswordKey(password);
     try {
       // Шифруем содержимое базы данных с метаданными в footer
       return await Licensify.encryptData(
@@ -45,24 +41,21 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         encryptionKey: encryptionKey,
         footer: metadata.toFooter(),
       );
+    } on Object catch (e, s) {
+      _log.error('Ошибка при чтении информации о бэкапе', error: e, stackTrace: s);
+      rethrow;
     } finally {
       encryptionKey.dispose();
     }
   }
 
   @override
-  Future<void> importData({required String token, String? password}) async {
+  Future<void> importData({required String token, required String password}) async {
     if (!token.startsWith('v4.local.')) {
       throw Exception('Неверный формат данных');
     }
 
-    final metadata = BackupFooterMetadata.fromFooter(_extractFooter(token));
-
-    if (metadata?.protectionType == BackupProtectionType.password && password == null) {
-      throw Exception('Данные защищены паролем');
-    }
-
-    final encryptionKey = Licensify.generateEncryptionKey();
+    final encryptionKey = getLicensifyPasswordKey(password);
     try {
       final decryptedData = await Licensify.decryptData(
         encryptedToken: token,
@@ -70,7 +63,11 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       );
 
       final content = decryptedData['content'] as String;
+      await appDb.open();
       await appDb.overwriteWithBytes(bytes: base64Decode(content));
+    } on Object catch (e, s) {
+      _log.error('Ошибка при чтении информации о бэкапе', error: e, stackTrace: s);
+      rethrow;
     } finally {
       encryptionKey.dispose();
     }
@@ -83,17 +80,16 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     }
 
     final metadata = BackupFooterMetadata.fromFooter(_extractFooter(token));
-
-    if (metadata?.protectionType == BackupProtectionType.password && password == null) {
+    if (password == null) {
       return BackupInfo(
         token: token,
         creationDate: metadata?.timestamp,
-        plannersCount: 0,
         metadata: metadata,
+        plannersCount: 0,
       );
     }
 
-    final encryptionKey = Licensify.generateEncryptionKey();
+    final encryptionKey = getLicensifyPasswordKey(password);
     try {
       final decryptedData = await Licensify.decryptData(
         encryptedToken: token,
@@ -112,7 +108,6 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       final planners = await plannerRepo.getPlanners();
 
       await tempDb.close();
-      await AppDb.instance.open();
 
       return BackupInfo(
         token: token,
@@ -120,6 +115,9 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         plannersCount: planners.length,
         metadata: metadata,
       );
+    } on Object catch (e, s) {
+      _log.error('Ошибка при чтении информации о бэкапе', error: e, stackTrace: s);
+      rethrow;
     } finally {
       encryptionKey.dispose();
     }

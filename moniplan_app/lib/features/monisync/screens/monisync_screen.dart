@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/domain/lib/moniplan_domain.dart';
-import 'package:moniplan_app/features/monisync/models/backup_footer_metadata.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
@@ -144,19 +143,10 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
   }
 
   Future<void> _exportFilePicker() async {
-    // Показываем модальное окно с выбором защиты
-    final protectionChoice = await ProtectionSelector.show(context);
+    final usePassword = true;
 
-    // Если пользователь закрыл шторку (результат null), прерываем процесс экспорта
-    if (protectionChoice == null) return;
-
-    final usePassword = protectionChoice;
-
-    String? password;
-    if (usePassword) {
-      password = await PasswordDialog.show(context, isExport: true);
-      if (password == null) return;
-    }
+    final password = await PasswordDialog.show(context, isExport: true);
+    if (password == null) return;
 
     setState(() => _isLoading = true);
 
@@ -393,9 +383,11 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     final result = await FilePicker.platform.pickFiles();
     if (result == null) return;
 
-    final filePath = result.files.single.path!;
-    final token = await File(filePath).readAsString();
-    final backupInfo = await _monisyncRepo?.readBackupInfo(token: token);
+    final filePath = result.files.single.bytes;
+    final token = utf8.decode(filePath!.toList());
+    final password = await PasswordDialog.show(context, isExport: true);
+    if (password == null) return;
+    final backupInfo = await _monisyncRepo?.readBackupInfo(token: token, password: password);
 
     if (backupInfo == null) {
       showToast('Не удалось прочитать информацию о файле');
@@ -406,16 +398,9 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     final shouldImport = await BackupInfoSheet.show(context, backupInfo);
     if (!shouldImport) return;
 
-    String? password;
-    if (backupInfo.metadata?.protectionType == BackupProtectionType.password) {
-      password = await PasswordDialog.show(context, isExport: false);
-      if (password == null) return;
-    }
-
     setState(() => _isLoading = true);
 
     try {
-      final token = await File(filePath).readAsString();
       await _monisyncRepo?.importData(token: token, password: password);
       showToast('Данные успешно импортированы');
     } catch (e) {
@@ -427,13 +412,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
   }
 
   Future<void> _showImportError(BackupInfo backupInfo) {
-    String errorMessage;
-
-    if (backupInfo.metadata?.protectionType == BackupProtectionType.password) {
-      errorMessage = 'Не удалось расшифровать файл. Проверьте правильность введенного пароля.';
-    } else {
-      errorMessage = 'Не удалось импортировать данные. Возможно, файл поврежден.';
-    }
+    String errorMessage = 'Не удалось расшифровать файл. Проверьте правильность введенного пароля.';
 
     return showDialog(
       context: context,

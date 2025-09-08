@@ -141,8 +141,13 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
       return;
     }
 
+    if ((event.password ?? '').isEmpty) {
+      emit(ReceiveImportResultState(result: ReceiveImportResult.cancelled));
+      return;
+    }
+
     try {
-      await _monisyncRepo?.importData(token: token, password: event.password);
+      await _monisyncRepo?.importData(token: token, password: event.password!);
       _log.info('Succesfull import db');
       emit(ReceiveImportResultState(result: ReceiveImportResult.imported));
     } on Object catch (error, trace) {

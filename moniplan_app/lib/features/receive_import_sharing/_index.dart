@@ -3,4 +3,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 export 'bloc/_index.dart';
-export 'receive_import_wrapper.dart';
+export 'widgets/receive_import_wrapper.dart';

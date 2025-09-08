@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_app/features/monisync/models/backup_footer_metadata.dart';
 import 'package:moniplan_app/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan_app/features/receive_import_sharing/bloc/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -66,10 +65,9 @@ class _ReceiveImportWrapperState extends State<ReceiveImportWrapper> {
 
     // Если пользователь согласился на импорт и бэкап защищен паролем, запрашиваем пароль
     String? password;
-    if (shouldImport && backup.metadata?.protectionType == BackupProtectionType.password) {
+    if (shouldImport) {
       password = await PasswordDialog.show(context, isExport: false);
       if (password == null) {
-        // Пользователь отменил ввод пароля
         return ReceiveImportOnDecisionEvent(shouldImport: false, acceptedBackup: backup);
       }
     }
