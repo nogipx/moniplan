@@ -13,5 +13,5 @@ abstract class IAppDb {
 
   Future<void> overwriteWithBytes({required Uint8List bytes});
 
-  Future<String> getPath();
+  Future<Uint8List> exportBytes();
 }

@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
@@ -138,8 +137,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
   /// Получает байты базы данных
   Future<Uint8List> getDatabaseBytes() async {
-    final path = await appDb.getPath();
-    final bytes = await File(path).readAsBytes();
+    final bytes = await appDb.exportBytes();
     return bytes;
   }
 

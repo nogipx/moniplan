@@ -7,7 +7,6 @@ import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
-import 'package:moniplan_app/domain/moniplan_domain.dart';
 import 'package:moniplan_app/features/monisync/models/backup_info.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -23,7 +22,6 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
   final _log = RpcLogger('ReceiveImportSharingBloc');
   final IAppDi appDi;
   IMonisyncRepo? _monisyncRepo;
-  IMoniplanLicenseRepo? _licenseRepo;
 
   ReceiveImportSharingBloc({required this.appDi, RpcLogger? log})
     : super(ReceiveImportInitialState()) {
@@ -42,7 +40,6 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     Emitter<ReceiveImportState> emit,
   ) async {
     _monisyncRepo = await appDi.getMonisyncRepo();
-    _licenseRepo = appDi.getLicenseRepo();
 
     if (event.shouldRestart) {
       _intentStream?.cancel();
@@ -68,7 +65,6 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     _intentStream?.cancel();
     _intentStream = null;
     _monisyncRepo = null;
-    _licenseRepo = null;
 
     emit(ReceiveImportActiveState(isActive: false));
   }
@@ -112,7 +108,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     ReceiveImportOnLicenseDataEvent event,
     Emitter<ReceiveImportState> emit,
   ) async {
-    if (event.licenseFiles.isEmpty || _licenseRepo == null) {
+    if (event.licenseFiles.isEmpty) {
       return;
     }
 

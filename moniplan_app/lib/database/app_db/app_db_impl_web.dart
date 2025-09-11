@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart';
+import 'package:drift/wasm.dart';
 import 'package:flutter/foundation.dart';
 import 'package:moniplan_app/database/connection/connection_web.dart' as dbconn;
 import 'package:moniplan_app/features/payment/_index.dart';
@@ -97,11 +98,35 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     }
   }
 
-  @override
-  Future<String> getPath() async {
-    // На web возвращаем «имя» (оно у нас информативное — фактическое хранение управляет Drift)
-    if (_inMemory) return 'in-memory';
-    return _databaseName ?? 'app_db';
+  /// Экспорт текущей персистентной базы как Uint8List.
+  /// Требует чтобы `sqlite3.wasm` и `drift_worker.dart.js` лежали в /web и чтобы
+  /// имя БД совпадало с тем, что ты используешь при open().
+  Future<Uint8List> exportBytes() async {
+    if (_inMemory) {
+      throw UnsupportedError('Экспорт из временной (in-memory) БД в браузере не поддержан.');
+    }
+
+    final name = _databaseName ?? 'app_db';
+
+    // Пробуем окружение и перечисляем существующие базы.
+    // Важно: передаём databaseName, иначе IndexedDB-базы могут не определиться.
+    final probe = await WasmDatabase.probe(
+      sqlite3Uri: Uri.parse('sqlite3.wasm'),
+      driftWorkerUri: Uri.parse('drift_worker.dart.js'),
+      databaseName: name,
+    );
+
+    // existingDatabases: список (WebStorageApi, String). Ищем нашу по имени.
+    final existing = probe.existingDatabases.firstWhere(
+      (db) => db.$2 == name,
+      orElse: () => throw StateError('База "$name" не найдена в хранилище браузера.'),
+    );
+
+    final bytes = await probe.exportDatabase(existing);
+    if (bytes == null) {
+      throw UnsupportedError('Текущая реализация хранилища не поддерживает экспорт.');
+    }
+    return bytes;
   }
 
   // --- internals -------------------------------------------------------------

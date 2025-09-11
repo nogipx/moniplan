@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -113,11 +114,38 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     }
   }
 
-  @override
-  Future<String> getPath() async {
-    if (_inMemory) return 'in-memory';
-    if (_instancePath != null) return _instancePath!;
-    return _resolvePersistentDbPath();
+  /// Экспорт текущей базы данных в байты.
+  /// Не запускать внутри транзакции.
+  Future<Uint8List> exportBytes() async {
+    final dbInstance = _db;
+    if (dbInstance == null) {
+      throw StateError('Database not opened');
+    }
+
+    // Временный файл для «чистой» копии
+    final tmpDir = await getTemporaryDirectory();
+    final tmpPath = p.join(
+      tmpDir.path,
+      'db_export_${DateTime.now().microsecondsSinceEpoch}.sqlite',
+    );
+    final tmpFile = File(tmpPath);
+    if (await tmpFile.exists()) {
+      await tmpFile.delete();
+    }
+
+    // VACUUM INTO создаёт полноценный sqlite-файл без WAL/SHM
+    // Важно: не оборачивать в транзакцию.
+    await dbInstance.customStatement('VACUUM INTO ?', [tmpPath]);
+
+    try {
+      final bytes = await tmpFile.readAsBytes();
+      return bytes;
+    } finally {
+      // Чистим за собой
+      try {
+        await tmpFile.delete();
+      } catch (_) {}
+    }
   }
 
   // --- internals -------------------------------------------------------------

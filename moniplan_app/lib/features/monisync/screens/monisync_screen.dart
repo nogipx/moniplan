@@ -6,9 +6,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
+import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/domain/moniplan_domain.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -100,6 +102,24 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
                         iconColor: Colors.orange,
                         onTap: _importFilePicker,
                       ),
+                      if (kDebugMode) ...[
+                        const SizedBox(height: 12),
+                        BackupActionCard(
+                          title: 'Скачать базу',
+                          subtitle: '',
+                          icon: Icons.raw_on,
+                          iconColor: Colors.red,
+                          onTap: _downloadDb,
+                        ),
+                        const SizedBox(height: 12),
+                        BackupActionCard(
+                          title: 'Вставить базу',
+                          subtitle: '',
+                          icon: Icons.add_to_home_screen,
+                          iconColor: Colors.red,
+                          onTap: _importDb,
+                        ),
+                      ],
                       const SizedBox(height: 36),
                       Text(
                         'Экспорт данных',
@@ -143,8 +163,6 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
   }
 
   Future<void> _exportFilePicker() async {
-    final usePassword = true;
-
     final password = await PasswordDialog.show(context, isExport: true);
     if (password == null) return;
 
@@ -194,11 +212,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
             text: 'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(now)}',
           );
 
-          showToast(
-            usePassword
-                ? 'Резервная копия с паролем отправлена'
-                : 'Резервная копия со стандартным шифрованием отправлена',
-          );
+          showToast('Резервная копия с паролем отправлена');
         } else {
           // Сохранить на устройстве
           final result = await FilePicker.platform.saveFile(
@@ -210,16 +224,75 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
           if (result != null) {
             await File(result).writeAsBytes(bytes);
 
-            showToast(
-              usePassword
-                  ? 'Резервная копия с паролем сохранена'
-                  : 'Резервная копия со стандартным шифрованием сохранена',
-            );
+            showToast('Резервная копия с паролем сохранена');
           }
         }
+      }
+    } catch (error) {
+      _log.error('Ошибка экспорта', error: error);
+      showToast('Ошибка при экспорте данных');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
-        if (usePassword) {
-          _showSuccessPasswordBackupDialog();
+  Future<void> _downloadDb() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final now = DateTime.now();
+      final bytes = await AppDb.instance.exportBytes();
+      final fileName = "${_monisyncRepo?.createBackupFileName(now)}.db";
+
+      setState(() => _isLoading = false);
+
+      // Показываем диалог выбора действия
+      final shareOption = await showModalBottomSheet<bool>(
+        context: context,
+        backgroundColor: context.theme.colorScheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder:
+            (context) => _buildExportOptionsSheet(
+              context,
+              title: 'Резервная копия',
+              saveText: 'Файл будет сохранен в выбранном месте',
+              shareText: 'Отправить через мессенджер или почту',
+            ),
+      );
+
+      if (shareOption == null) return; // Пользователь закрыл диалог
+
+      setState(() => _isLoading = true);
+
+      if (shareOption) {
+        // Поделиться файлом
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File('${tempDir.path}/$fileName');
+        await tempFile.writeAsBytes(bytes);
+
+        // Импортируем Share из пакета share_plus
+        final xFile = XFile(tempFile.path, mimeType: 'application/octet-stream');
+        await Share.shareXFiles(
+          [xFile],
+          subject: 'Резервная копия Moniplan',
+          text: 'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(now)}',
+        );
+
+        showToast('Резервная копия с паролем отправлена');
+      } else {
+        // Сохранить на устройстве
+        final result = await FilePicker.platform.saveFile(
+          dialogTitle: 'Сохранение резервной копии',
+          fileName: fileName,
+          bytes: bytes,
+        );
+
+        if (result != null) {
+          await File(result).writeAsBytes(bytes);
+
+          showToast('Резервная копия с паролем сохранена');
         }
       }
     } catch (error) {
@@ -383,8 +456,8 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     final result = await FilePicker.platform.pickFiles();
     if (result == null) return;
 
-    final filePath = result.files.single.bytes;
-    final token = utf8.decode(filePath!.toList());
+    final bytes = result.files.single.bytes;
+    final token = utf8.decode(bytes!.toList());
     final password = await PasswordDialog.show(context, isExport: true);
     if (password == null) return;
     final backupInfo = await _monisyncRepo?.readBackupInfo(token: token, password: password);
@@ -405,13 +478,31 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
       showToast('Данные успешно импортированы');
     } catch (e) {
       _log.error('Ошибка импорта', error: e);
-      await _showImportError(backupInfo);
+      await _showImportError();
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
-  Future<void> _showImportError(BackupInfo backupInfo) {
+  Future<void> _importDb() async {
+    final result = await FilePicker.platform.pickFiles();
+    final bytes = result?.files.single.bytes;
+    if (bytes == null) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      await AppDb.instance.overwriteWithBytes(bytes: bytes);
+      showToast('Данные успешно импортированы');
+    } catch (e) {
+      _log.error('Ошибка импорта', error: e);
+      await _showImportError();
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _showImportError() {
     String errorMessage = 'Не удалось расшифровать файл. Проверьте правильность введенного пароля.';
 
     return showDialog(

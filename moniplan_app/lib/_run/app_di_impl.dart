@@ -24,8 +24,6 @@ abstract interface class IAppDi {
 
   IStatisticsRepo getStatisticsRepo();
 
-  IMoniplanLicenseRepo getLicenseRepo();
-
   IFeaturesManager getFeaturesManager();
 }
 
@@ -50,7 +48,6 @@ class GetItAppDI implements AppDi {
     final db = AppDb();
     await db.open();
     _getIt.registerSingleton<AppDb>(db);
-    _getIt.registerSingleton<IMoniplanLicenseRepo>(MockLicenseRepository());
 
     _getIt.registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform);
     _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: dbImpl));
@@ -74,9 +71,6 @@ class GetItAppDI implements AppDi {
 
   @override
   IStatisticsRepo getStatisticsRepo() => _getIt.get();
-
-  @override
-  IMoniplanLicenseRepo getLicenseRepo() => _getIt.get();
 
   @override
   IFeaturesManager getFeaturesManager() => _getIt.get();

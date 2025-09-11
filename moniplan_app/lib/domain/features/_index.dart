@@ -3,6 +3,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 export '_common/_index.dart';
-export 'feature_flags/_index.dart';
-export 'licensify/_index.dart';
 export 'payment/_index.dart';

@@ -57,6 +57,15 @@ class BackupInfoSheet {
                               icon: Icons.password,
                               isPrimary: true,
                             ),
+                            // Основная информация
+                            _buildInfoItem(
+                              context,
+                              title: 'Метаданные',
+                              subtitle:
+                                  'Создано ${info.metadata?.timestamp}\nКоличество планнеров: ${info.plannersCount}',
+                              icon: Icons.info_outline,
+                              isPrimary: false,
+                            ),
                             const SizedBox(height: 24),
 
                             // Предупреждение
