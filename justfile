@@ -1,14 +1,26 @@
 #!/usr/bin/env just --justfile
+call_recipe := just_executable() + " --justfile=" + justfile()
+pg dir: # Pubget
+    cd {{dir}} && fvm dart pub get
+rn dir: # Build runner
+    cd {{dir}} && fvm dart pub get
+    cd {{dir}} && fvm dart run build_runner build --delete-conflicting-outputs
+cl_rn dir: # Clean build runner
+    cd {{dir}} && fvm dart run build_runner clean
+cl dir: # Flutter clean
+    cd {{dir}} && fvm flutter clean
 
 pubget:
-    cd moniplan_app && fvm dart pub get
-    cd moniplan_uikit && fvm dart pub get
+    {{call_recipe}} pg moniplan_app
+    {{call_recipe}} pg moniplan_uikit
 
 runner:
-    cd moniplan_app && fvm dart run build_runner build --delete-conflicting-outputs
+    {{call_recipe}} rn moniplan_app
 
 clean:
-    cd moniplan_app && fvm dart run build_runner clean
+    {{call_recipe}} cl moniplan_app
+    {{call_recipe}} cl_rn moniplan_app
+    {{call_recipe}} cl moniplan_uikit
 
 license:
     reuse annotate -c "Karim \"nogipx\" Mamatkazin <nogipx@gmail.com>" -l "GPL-3.0-or-later" --skip-unrecognised -r moniplan_app/lib
