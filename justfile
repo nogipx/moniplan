@@ -2,24 +2,25 @@
 call_recipe := just_executable() + " --justfile=" + justfile()
 pg dir: # Pubget
     cd {{dir}} && fvm dart pub get
-rn dir: # Build runner
+br dir: # Build runner
     cd {{dir}} && fvm dart pub get
     cd {{dir}} && fvm dart run build_runner build --delete-conflicting-outputs
-cl_rn dir: # Clean build runner
+cl_br dir: # Clean build runner
     cd {{dir}} && fvm dart run build_runner clean
 cl dir: # Flutter clean
     cd {{dir}} && fvm flutter clean
 
 pubget:
-    {{call_recipe}} pg moniplan_app
     {{call_recipe}} pg moniplan_uikit
+    {{call_recipe}} pg moniplan_app
 
 runner:
-    {{call_recipe}} rn moniplan_app
+    {{call_recipe}} pg moniplan_uikit
+    {{call_recipe}} br moniplan_app
 
 clean:
     {{call_recipe}} cl moniplan_app
-    {{call_recipe}} cl_rn moniplan_app
+    {{call_recipe}} cl_br moniplan_app
     {{call_recipe}} cl moniplan_uikit
 
 license:
