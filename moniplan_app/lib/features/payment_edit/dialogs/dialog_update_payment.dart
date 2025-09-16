@@ -9,6 +9,9 @@ import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
 import 'package:moniplan_app/features/payment_edit/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:rpc_dart/logger.dart';
+
+final _log = RpcLogger('dialog_update_payment');
 
 Future<void> updateDialog({
   required BuildContext context,
@@ -80,7 +83,7 @@ Future<void> updateDialog({
       // Ждем результат операции
       return await completer.future;
     } on Object catch (e) {
-      print('Ошибка при сохранении платежа: $e');
+      _log.error('Ошибка при сохранении платежа: $e');
       showToast('Ошибка при сохранении платежа');
       return false;
     }

@@ -155,10 +155,7 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
                   decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                 ),
                 title: Text(colorName, style: style),
-                subtitle: Text(
-                  '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}',
-                  style: style,
-                ),
+                subtitle: Text(color.hex, style: style),
               );
             },
           ),

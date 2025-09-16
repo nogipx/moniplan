@@ -4,11 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/payment_edit_event.dart';
 import 'package:moniplan_app/utils/_index.dart';
+import 'package:rpc_dart/logger.dart';
 
 import 'payment_edit_state.dart';
 
 /// Блок для управления редактированием платежа
 class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
+  final _log = RpcLogger('PaymentEditBloc');
+
   /// Функция для сохранения платежа
 
   PaymentEditBloc({Payment? payment}) : super(PaymentEditState.fromPayment(payment)) {
@@ -161,7 +164,7 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
         payment = state.toPayment();
       } on Object catch (e) {
         // В случае ошибки при создании платежа
-        print('Ошибка при создании платежа: $e');
+        _log.error('Ошибка при создании платежа: $e');
 
         // Используем существующий платеж, если он есть
         payment = state.payment;
@@ -216,7 +219,7 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
       emit(state.copyWith(payment: payment, clearErrorMessage: true));
     } on Object catch (e) {
       // В случае ошибки просто логируем её, но не меняем состояние
-      print('Ошибка при обновлении черновика платежа: $e');
+      _log.error('Ошибка при обновлении черновика платежа: $e');
     }
   }
 }

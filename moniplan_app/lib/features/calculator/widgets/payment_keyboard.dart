@@ -7,6 +7,7 @@ import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/calculator/_index.dart';
 import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:rpc_dart/logger.dart';
 
 /// Кастомная клавиатура для ввода платежей
 class PaymentKeyboard extends StatefulWidget {
@@ -51,6 +52,7 @@ class PaymentKeyboard extends StatefulWidget {
 }
 
 class _PaymentKeyboardState extends State<PaymentKeyboard> {
+  final _log = RpcLogger('PaymentKeyboard');
   // Внутренний контроллер для поля ввода
   late final TextEditingController _internalAmountController;
 
@@ -81,7 +83,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
       _calculatorStateSubscription?.cancel();
       _calculatorStateSubscription = calculatorBloc.stream.listen(_updateControllersFromState);
     } on Object catch (e) {
-      print('Ошибка при подписке на CalculatorBloc: $e');
+      _log.error('Ошибка при подписке на CalculatorBloc: $e');
     }
   }
 
@@ -137,7 +139,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     try {
       BlocProvider.of<CalculatorBloc>(context).add(DigitPressed(digit));
     } on Object catch (e) {
-      print('Ошибка при добавлении цифры: $e');
+      _log.error('Ошибка при добавлении цифры: $e');
     }
   }
 
@@ -156,7 +158,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
         // Обновляем черновик платежа
         ..add(const PaymentEditUpdateDraft());
     } on Object catch (e) {
-      print('Ошибка при отправке события в PaymentEditBloc: $e');
+      _log.error('Ошибка при отправке события в PaymentEditBloc: $e');
     }
   }
 
@@ -167,7 +169,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     try {
       BlocProvider.of<CalculatorBloc>(context).add(BackspacePressed());
     } on Object catch (e) {
-      print('Ошибка при удалении символа: $e');
+      _log.error('Ошибка при удалении символа: $e');
     }
   }
 
@@ -183,7 +185,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
       // Обновляем состояние калькулятора
       BlocProvider.of<CalculatorBloc>(context).add(ClearPressed());
     } on Object catch (e) {
-      print('Ошибка при сбросе значения: $e');
+      _log.error('Ошибка при сбросе значения: $e');
     }
   }
 
@@ -193,7 +195,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     try {
       BlocProvider.of<CalculatorBloc>(context).add(EqualsPressed());
     } on Object catch (e) {
-      print('Ошибка при применении операции равенства: $e');
+      _log.error('Ошибка при применении операции равенства: $e');
     }
 
     // Добавляем небольшую задержку для анимации нажатия
@@ -216,7 +218,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
           // Переходим к следующему шагу
           ..add(PaymentEditNextStep());
       } on Object catch (e) {
-        print('Ошибка при отправке событий в блок: $e');
+        _log.error('Ошибка при отправке событий в блок: $e');
       }
     });
   }

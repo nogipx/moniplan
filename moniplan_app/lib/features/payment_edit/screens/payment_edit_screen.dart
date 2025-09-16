@@ -8,6 +8,7 @@ import 'package:moniplan_app/features/calculator/bloc/calculator_event.dart';
 import 'package:moniplan_app/features/calculator/widgets/payment_keyboard.dart' as keyboard;
 import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/_index.dart' as edit;
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:rpc_dart/logger.dart';
 
 class PaymentEditScreen extends StatefulWidget {
   final Payment? payment;
@@ -84,6 +85,7 @@ class _PaymentEditView extends StatefulWidget {
 }
 
 class _PaymentEditViewState extends State<_PaymentEditView> {
+  final _log = RpcLogger('PaymentEditView');
   // Используем FocusNode для управления фокусом
   final ValueNotifier<bool> shouldAutoFocusKeyboard = ValueNotifier(true);
 
@@ -153,7 +155,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
             body: Stack(
               children: [
                 _buildBody(context, state),
-                // Показываем панель над клавиатурой
+                // Показываем панель над клавиатой
                 if (MediaQuery.of(context).viewInsets.bottom > 0)
                   Positioned(
                     left: 0,
@@ -501,17 +503,34 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
     required DateTimeRepeat value,
     required DateTimeRepeat groupValue,
   }) {
-    return RadioListTile<DateTimeRepeat>(
-      title: Text(title),
-      value: value,
-      groupValue: groupValue,
-      onChanged: (newValue) {
-        if (newValue != null) {
-          context.read<edit.PaymentEditBloc>().add(edit.PaymentEditRepeatPeriodChanged(newValue));
+    final selected = value == groupValue;
+
+    return InkWell(
+      onTap: () {
+        if (!selected) {
+          context.read<edit.PaymentEditBloc>().add(edit.PaymentEditRepeatPeriodChanged(value));
         }
       },
-      contentPadding: EdgeInsets.zero,
-      dense: true,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Icon(
+                selected ? Icons.radio_button_checked : Icons.radio_button_off,
+                color:
+                    selected
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                size: 20,
+              ),
+            ),
+            Expanded(child: Text(title)),
+          ],
+        ),
+      ),
     );
   }
 

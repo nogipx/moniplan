@@ -28,12 +28,13 @@ Future<void> replaceMainDbFromBytes(Uint8List bytes) async {
 
   // пишем пришедшие байты во временный файл
   final tmp = File('${target.path}.import.tmp');
-  await tmp.parent.create(recursive: true);
+  await tmp.create(recursive: true);
   await tmp.writeAsBytes(bytes, flush: true);
 
   // используем sqlite3 и VACUUM INTO — рекомендуемый путь для импорта
   final backupDb = s3.sqlite3.open(tmp.path);
   try {
+    target.deleteSync();
     // цель должна быть перезаписана "правильным" способом
     backupDb.execute('VACUUM INTO ?', [target.path]);
   } finally {

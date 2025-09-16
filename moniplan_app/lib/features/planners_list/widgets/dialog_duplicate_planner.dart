@@ -92,7 +92,7 @@ void showDialogDuplicatePlanner(
                 Text(
                   'Будут скопированы:\n• Все настройки планнера\n• Все платежи\n• Начальный бюджет: ${originalPlanner.initialBudget.toStringAsFixed(2)} ₽',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    color: Theme.of(context).colorScheme.onSurface.withAlpha((0.7 * 255).round()),
                   ),
                 ),
               ],

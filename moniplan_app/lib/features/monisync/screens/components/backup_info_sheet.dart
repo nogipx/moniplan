@@ -30,7 +30,9 @@ class BackupInfoSheet {
                               height: 4,
                               width: 40,
                               decoration: BoxDecoration(
-                                color: context.theme.colorScheme.onSurfaceVariant.withOpacity(0.3),
+                                color: context.theme.colorScheme.onSurfaceVariant.withAlpha(
+                                  (0.3 * 255).round(),
+                                ),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -72,7 +74,9 @@ class BackupInfoSheet {
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: context.theme.colorScheme.errorContainer.withOpacity(0.5),
+                                color: context.theme.colorScheme.errorContainer.withAlpha(
+                                  (0.5 * 255).round(),
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -114,7 +118,9 @@ class BackupInfoSheet {
                           color: context.theme.colorScheme.surface,
                           boxShadow: [
                             BoxShadow(
-                              color: context.theme.colorScheme.shadow.withOpacity(0.08),
+                              color: context.theme.colorScheme.shadow.withAlpha(
+                                (0.08 * 255).round(),
+                              ),
                               blurRadius: 8,
                               offset: const Offset(0, -4),
                             ),
@@ -176,7 +182,7 @@ class BackupInfoSheet {
 
     return Card(
       elevation: 0,
-      color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+      color: colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -186,7 +192,7 @@ class BackupInfoSheet {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.12),
+                color: iconColor.withAlpha((0.12 * 255).round()),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: iconColor, size: 24),

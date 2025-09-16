@@ -43,7 +43,7 @@ class QuickButton {
   final Color? borderColor;
 
   /// Пользовательский обработчик нажатия с доступом к состоянию калькулятора
-  final Function(CalculatorState state)? onPressed;
+  final ValueChanged<CalculatorState>? onPressed;
 
   /// Иконка (опционально)
   final IconData? icon;

@@ -71,7 +71,9 @@ class PasswordDialog {
                               tooltip: showPassword ? 'Скрыть пароль' : 'Показать пароль',
                             ),
                             filled: true,
-                            fillColor: context.theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                            fillColor: context.theme.colorScheme.surfaceContainerHighest.withAlpha(
+                              (0.3 * 255).round(),
+                            ),
                           ),
                           validator: (value) {
                             if (isExport && (value == null || value.length < 6)) {

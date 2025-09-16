@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
 
+extension ColorX on Color {
+  String get hex {
+    final rHex = (r * 255.0).round().toRadixString(16).padLeft(2, '0');
+    final gHex = (g * 255.0).round().toRadixString(16).padLeft(2, '0');
+    final bHex = (b * 255.0).round().toRadixString(16).padLeft(2, '0');
+    return '#$rHex$gHex$bHex';
+  }
+}
+
 /// Интерполяция для [int]
 int? lerpInt(int? a, int? b, double t) {
-  if (a == null) {
-    return b;
-  } else if (b == null) {
-    return a;
-  }
-
+  if (a == null) return b;
+  if (b == null) return a;
   return (a + (b - a) * t).toInt();
 }
 
 /// Интерполяция для [BorderSide]
 BorderSide? lerpBorderSide(BorderSide? a, BorderSide? b, double t) {
-  if (a == null && b == null) {
-    return null;
-  }
-
-  if (a == null) {
-    return BorderSide.lerp(BorderSide(width: 0, color: b!.color.withAlpha(0)), b, t);
-  }
-  if (b == null) {
-    return BorderSide.lerp(a, BorderSide(width: 0, color: a.color.withAlpha(0)), t);
-  }
+  if (a == null && b == null) return null;
+  if (a == null) return BorderSide.lerp(BorderSide(width: 0, color: b!.color.withAlpha(0)), b, t);
+  if (b == null) return BorderSide.lerp(a, BorderSide(width: 0, color: a.color.withAlpha(0)), t);
   return BorderSide.lerp(a, b, t);
 }
 
@@ -32,10 +30,7 @@ WidgetStateProperty<BorderSide?>? lerpSides(
   WidgetStateProperty<BorderSide?>? b,
   double t,
 ) {
-  if (a == null && b == null) {
-    return null;
-  }
-
+  if (a == null && b == null) return null;
   return _LerpSides(a, b, t);
 }
 
@@ -50,100 +45,78 @@ class _LerpSides implements WidgetStateProperty<BorderSide?> {
   BorderSide? resolve(Set<WidgetState> states) {
     final resolvedA = a?.resolve(states);
     final resolvedB = b?.resolve(states);
-
     return lerpBorderSide(resolvedA, resolvedB, t);
   }
 }
 
 /// Интерполяция для [BoxShadow]
 List<BoxShadow>? lerpBoxShadow(List<BoxShadow>? a, List<BoxShadow>? b, double t) {
-  if ((a?.isEmpty ?? true) && (a?.isNotEmpty ?? false)) {
-    return a;
-  } else if ((b?.isEmpty ?? true) && (a?.isNotEmpty ?? false)) {
-    return b;
-  }
+  if (a == null && b == null) return null;
+  if (a == null) return List<BoxShadow>.from(b!);
+  if (b == null) return List<BoxShadow>.from(a);
 
-  final lerpList = <BoxShadow>[];
-  if (a!.length > b!.length) {
-    for (var i = 0; i < a.length; i++) {
-      final aBoxShadow = a[i];
-      if (b.length < i) {
-        final box = BoxShadow.lerp(aBoxShadow, b[i], t);
-        if (box != null) {
-          lerpList.add(box);
-        }
-      } else {
-        lerpList.add(aBoxShadow);
-      }
-    }
-  } else if (a.length < b.length) {
-    for (var i = 0; i < b.length; i++) {
-      final aBoxShadow = b[i];
-      if (a.length < i) {
-        final box = BoxShadow.lerp(aBoxShadow, a[i], t);
-        if (box != null) {
-          lerpList.add(box);
-        }
-      } else {
-        lerpList.add(aBoxShadow);
-      }
-    }
-  } else {
-    lerpList.addAll(a);
+  final minLen = a.length < b.length ? a.length : b.length;
+  final result = <BoxShadow>[];
+  for (var i = 0; i < minLen; i++) {
+    final box = BoxShadow.lerp(a[i], b[i], t);
+    if (box != null) result.add(box);
   }
-
-  return lerpList;
+  if (a.length > minLen) result.addAll(a.sublist(minLen));
+  if (b.length > minLen) result.addAll(b.sublist(minLen));
+  return result;
 }
 
+/// Возвращает MaterialColor, построенный на основе переданного цвета
 MaterialColor getMaterialColor(Color color) {
-  final red = color.red;
-  final green = color.green;
-  final blue = color.blue;
-  final alpha = color.alpha;
+  final int argb = color.toARGB32();
+  final int a = (argb >> 24) & 0xFF;
+  final int r = (argb >> 16) & 0xFF;
+  final int g = (argb >> 8) & 0xFF;
+  final int b = argb & 0xFF;
 
   final shades = <int, Color>{
-    50: Color.fromARGB(alpha, red, green, blue),
-    100: Color.fromARGB(alpha, red, green, blue),
-    200: Color.fromARGB(alpha, red, green, blue),
-    300: Color.fromARGB(alpha, red, green, blue),
-    400: Color.fromARGB(alpha, red, green, blue),
-    500: Color.fromARGB(alpha, red, green, blue), // default
-    600: Color.fromARGB(alpha, red, green, blue),
-    700: Color.fromARGB(alpha, red, green, blue),
-    800: Color.fromARGB(alpha, red, green, blue),
-    900: Color.fromARGB(alpha, red, green, blue),
+    50: Color.fromARGB(a, r, g, b),
+    100: Color.fromARGB(a, r, g, b),
+    200: Color.fromARGB(a, r, g, b),
+    300: Color.fromARGB(a, r, g, b),
+    400: Color.fromARGB(a, r, g, b),
+    500: Color.fromARGB(a, r, g, b),
+    600: Color.fromARGB(a, r, g, b),
+    700: Color.fromARGB(a, r, g, b),
+    800: Color.fromARGB(a, r, g, b),
+    900: Color.fromARGB(a, r, g, b),
   };
 
-  return MaterialColor(color.value, shades);
+  return MaterialColor(argb, shades);
 }
 
 /// Получение более тёмного цвета в процентном соотношение [percent]
 Color darken(Color c, [int percent = 10]) {
-  var effectivePercent = percent;
-  if (1 > percent) {
-    effectivePercent = 1;
-  } else if (percent > 100) {
-    effectivePercent = 100;
-  }
+  final int pct = percent.clamp(1, 100);
+  final int v = c.toARGB32();
+  final int a = (v >> 24) & 0xFF;
+  final int r = (v >> 16) & 0xFF;
+  final int g = (v >> 8) & 0xFF;
+  final int b = v & 0xFF;
 
-  final f = 1 - effectivePercent / 100;
-  return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(), (c.blue * f).round());
+  final double f = 1 - pct / 100;
+  return Color.fromARGB(a, (r * f).round(), (g * f).round(), (b * f).round());
 }
 
 /// Получение более светлого цвета в процентном соотношение [percent]
 Color lighten(Color c, [int percent = 10]) {
-  var effectivePercent = percent;
-  if (1 > percent) {
-    effectivePercent = 1;
-  } else if (percent > 100) {
-    effectivePercent = 100;
-  }
+  final int pct = percent.clamp(1, 100);
+  final int v = c.toARGB32();
+  final int a = (v >> 24) & 0xFF;
+  final int r = (v >> 16) & 0xFF;
+  final int g = (v >> 8) & 0xFF;
+  final int b = v & 0xFF;
 
-  final p = effectivePercent / 100;
+  final double p = pct / 100;
   return Color.fromARGB(
-    c.alpha,
-    c.red + ((255 - c.red) * p).round(),
-    c.green + ((255 - c.green) * p).round(),
-    c.blue + ((255 - c.blue) * p).round(),
+    a,
+    (r + ((255 - r) * p)).round(),
+    (g + ((255 - g) * p)).round(),
+    (b + ((255 - b) * p)).round(),
   );
 }

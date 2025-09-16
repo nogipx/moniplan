@@ -7,6 +7,7 @@ import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/payment_edit/screens/payment_edit_screen.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:rpc_dart/logger.dart';
 
 class PaymentActionsBottomSheet extends StatefulWidget {
   final Payment payment;
@@ -68,6 +69,8 @@ class PaymentActionsBottomSheet extends StatefulWidget {
 }
 
 class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
+  final _log = RpcLogger('PaymentActionsBottomSheet');
+
   @override
   void initState() {
     super.initState();
@@ -572,7 +575,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
         ).showSnackBar(const SnackBar(content: Text('Не удалось сохранить платеж')));
       }
     } on Object catch (e) {
-      print('Ошибка при сохранении платежа: $e');
+      _log.error('Ошибка при сохранении платежа: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,

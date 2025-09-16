@@ -5,9 +5,7 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 /// Цифровая клавиатура
 class NumericKeypad extends StatelessWidget {
   /// Функция для нажатия на цифру
-  final Function(String) onDigitPressed;
-
-  /// Функция для нажатия на бэкспейс
+  final ValueChanged<String> onDigitPressed;
   final VoidCallback onBackspacePressed;
 
   /// Callback для сброса значения на изначальное

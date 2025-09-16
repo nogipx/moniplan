@@ -1,5 +1,6 @@
 # TODO(anybody): enable strong mode and change warnings to errors in the errors section.
-
+formatter:
+  trailing_commas: preserve
 analyzer:
   exclude:
     - lib/**.g.dart

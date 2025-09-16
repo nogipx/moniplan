@@ -4,10 +4,12 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/database/_index.dart';
-import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
+import 'package:moniplan_app/features/monisync/bloc/monisync_bloc.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,259 +24,484 @@ part 'components/csv_export_dialog.dart';
 part 'components/password_dialog.dart';
 part 'components/protection_selector.dart';
 
-class MonisyncScreen extends StatefulWidget {
+class MonisyncScreen extends StatelessWidget {
   const MonisyncScreen({super.key});
 
   @override
-  State<MonisyncScreen> createState() => _MonisyncScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => MonisyncBloc(appDi: AppDi.instance)..add(MonisyncInitEvent()),
+      child: const _MonisyncScreenContent(),
+    );
+  }
 }
 
-class _MonisyncScreenState extends State<MonisyncScreen> {
-  IMonisyncRepo? _monisyncRepo;
-  final _log = RpcLogger('MoniSync');
-
-  bool _isLoading = false;
+class _MonisyncScreenContent extends StatefulWidget {
+  const _MonisyncScreenContent();
 
   @override
-  void initState() {
-    super.initState();
-  }
+  State<_MonisyncScreenContent> createState() => _MonisyncScreenContentState();
+}
+
+class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
+  final _log = RpcLogger('MoniSync');
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Monisync', style: context.text.displaySmall), centerTitle: true),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Резервное копирование',
-                        style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+    return BlocConsumer<MonisyncBloc, MonisyncState>(
+      listener: _handleStateChanges,
+      builder: (context, state) {
+        final isLoading = state is MonisyncLoadingState;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Monisync', style: context.text.displaySmall),
+            centerTitle: true,
+          ),
+          body:
+              isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SafeArea(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildBackupSection(context),
+                          const SizedBox(height: 36),
+                          _buildInfoSection(context),
+                        ],
                       ),
-                      const SizedBox(height: 20),
-                      BackupActionCard(
-                        title: 'Создать резервную копию',
-                        subtitle: 'Сохранить все ваши данные для будущего восстановления',
-                        icon: Icons.backup_rounded,
-                        iconColor: Colors.blue,
-                        onTap: () => _exportFilePicker(context),
-                      ),
-                      const SizedBox(height: 12),
-                      BackupActionCard(
-                        title: 'Восстановить из резервной копии',
-                        subtitle: 'Восстановить данные из ранее созданного бэкапа',
-                        icon: Icons.restore_rounded,
-                        iconColor: Colors.orange,
-                        onTap: () => _importFilePicker(context),
-                      ),
-                      if (kDebugMode) ...[
-                        const SizedBox(height: 12),
-                        BackupActionCard(
-                          title: 'Скачать базу',
-                          subtitle: '',
-                          icon: Icons.raw_on,
-                          iconColor: Colors.red,
-                          onTap: () => _downloadDb(context),
-                        ),
-                        const SizedBox(height: 12),
-                        BackupActionCard(
-                          title: 'Вставить базу',
-                          subtitle: '',
-                          icon: Icons.add_to_home_screen,
-                          iconColor: Colors.red,
-                          onTap: () => _importDb(context),
-                        ),
-                      ],
-                      const SizedBox(height: 36),
-                      Text(
-                        'Экспорт данных',
-                        style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'О резервных копиях',
-                              style: context.text.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Регулярно создавайте резервные копии ваших данных, чтобы избежать их потери. '
-                              'Вы можете защитить свои данные паролем для дополнительной безопасности.',
-                              style: context.text.bodyMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Экспорт в CSV позволяет вам анализировать ваши платежи в Excel, Google Таблицах и других программах.',
-                              style: context.text.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+        );
+      },
     );
   }
 
-  Future<void> _exportFilePicker(BuildContext context) async {
+  void _handleStateChanges(BuildContext context, MonisyncState state) {
+    if (state is MonisyncErrorState) {
+      showToast(state.message);
+    } else if (state is MonisyncImportResultState) {
+      final message =
+          state.success
+              ? (state.message ?? 'Данные успешно импортированы')
+              : (state.message ?? 'Ошибка при импорте данных');
+      showToast(message);
+    } else if (state is MonisyncNewExportSuccessState) {
+      _handleExportSuccess(context, state);
+    }
+  }
+
+  Widget _buildBackupSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Резервное копирование',
+          style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 20),
+        BackupActionCard(
+          title: 'Создать резервную копию',
+          subtitle: 'Сохранить все ваши данные для будущего восстановления',
+          icon: Icons.backup_rounded,
+          iconColor: Colors.blue,
+          onTap: () => _exportBackup(context),
+        ),
+        const SizedBox(height: 12),
+        BackupActionCard(
+          title: 'Восстановить из резервной копии',
+          subtitle: 'Восстановить данные из ранее созданного бэкапа',
+          icon: Icons.restore_rounded,
+          iconColor: Colors.orange,
+          onTap: () => _importBackup(context),
+        ),
+        const SizedBox(height: 12),
+        BackupActionCard(
+          title: 'Импорт старого бэкапа',
+          subtitle: 'Восстановить данные из старого формата с пользовательским паролем',
+          icon: Icons.history_rounded,
+          iconColor: Colors.purple,
+          onTap: () => _importLegacyBackupDirect(context),
+        ),
+        if (kDebugMode) ..._buildDebugActions(context),
+      ],
+    );
+  }
+
+  List<Widget> _buildDebugActions(BuildContext context) {
+    return [
+      const SizedBox(height: 12),
+      BackupActionCard(
+        title: 'Скачать базу',
+        subtitle: 'Экспорт базы данных (только для разработки)',
+        icon: Icons.raw_on,
+        iconColor: Colors.red,
+        onTap: () => _downloadDb(context),
+      ),
+      const SizedBox(height: 12),
+      BackupActionCard(
+        title: 'Вставить базу',
+        subtitle: 'Импорт базы данных (только для разработки)',
+        icon: Icons.add_to_home_screen,
+        iconColor: Colors.red,
+        onTap: () => _importDb(context),
+      ),
+    ];
+  }
+
+  Widget _buildInfoSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Информация', style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: context.theme.colorScheme.surfaceContainerHighest.withAlpha((0.5 * 255).round()),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'О резервных копиях',
+                style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Регулярно создавайте резервные копии ваших данных, чтобы избежать их потери. '
+                'Все резервные копии защищены паролем для обеспечения безопасности.',
+                style: context.text.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Поддерживается импорт старых резервных копий, созданных с пользовательским паролем.',
+                style: context.text.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _exportBackup(BuildContext context) async {
+    final bloc = context.read<MonisyncBloc>();
     final password = await PasswordDialog.show(context);
-    if (password == null) {
+    if (password == null || password.isEmpty) {
+      showToast('Пароль обязателен для создания резервной копии');
       return;
     }
 
-    setState(() => _isLoading = true);
+    if (!mounted) {
+      return;
+    }
+    bloc.add(MonisyncExportNewEvent(password: password));
+  }
+
+  Future<void> _handleExportSuccess(
+    BuildContext context,
+    MonisyncNewExportSuccessState state,
+  ) async {
+    if (!context.mounted) {
+      return;
+    }
+
+    final shareOption = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: context.theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => _buildExportOptionsSheet(context, title: 'Резервная копия'),
+    );
+
+    if (shareOption == null || !context.mounted) {
+      return;
+    }
 
     try {
-      final now = DateTime.now();
-      final token = await _monisyncRepo?.exportData(now: now, password: password);
-
-      if (token != null) {
-        final bytes = utf8.encode(token);
-        final fileName = _monisyncRepo?.createBackupFileName(now) ?? 'moniplan_backup.moniplan';
-
-        setState(() => _isLoading = false);
-        if (!context.mounted) {
-          return;
-        }
-
-        // Показываем диалог выбора действия
-        final shareOption = await showModalBottomSheet<bool>(
-          context: context,
-          backgroundColor: context.theme.colorScheme.surface,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          builder: (context) => _buildExportOptionsSheet(context, title: 'Резервная копия'),
-        );
-
-        if (shareOption == null) {
-          return; // Пользователь закрыл диалог
-        }
-
-        setState(() => _isLoading = true);
-
-        if (shareOption) {
-          // Поделиться файлом
-          final tempDir = await getTemporaryDirectory();
-          final tempFile = File('${tempDir.path}/$fileName');
-          await tempFile.writeAsBytes(bytes);
-
-          // Импортируем Share из пакета share_plus
-          final xFile = XFile(tempFile.path, mimeType: 'application/octet-stream');
-          await Share.shareXFiles(
-            [xFile],
-            subject: 'Резервная копия Moniplan',
-            text: 'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(now)}',
-          );
-
-          showToast('Резервная копия с паролем отправлена');
-        } else {
-          // Сохранить на устройстве
-          final result = await FilePicker.platform.saveFile(
-            dialogTitle: 'Сохранение резервной копии',
-            fileName: fileName,
-            bytes: bytes,
-          );
-
-          if (result != null) {
-            await File(result).writeAsBytes(bytes);
-
-            showToast('Резервная копия с паролем сохранена');
-          }
-        }
+      if (shareOption) {
+        await _shareFile(state.bytes, state.fileName);
+      } else {
+        await _saveFile(state.bytes, state.fileName);
       }
     } on Object catch (error) {
-      _log.error('Ошибка экспорта', error: error);
-      showToast('Ошибка при экспорте данных');
-    } finally {
-      setState(() => _isLoading = false);
+      _log.error('Ошибка при сохранении/отправке файла', error: error);
+      showToast('Ошибка при сохранении файла');
     }
   }
 
-  Future<void> _downloadDb(BuildContext context) async {
-    setState(() => _isLoading = true);
+  Future<void> _shareFile(List<int> bytes, String fileName) async {
+    final tempDir = await getTemporaryDirectory();
+    final tempFile = File('${tempDir.path}/$fileName');
+    await tempFile.writeAsBytes(bytes);
 
-    try {
-      final now = DateTime.now();
-      final bytes = await AppDb.instance.exportBytes();
-      final fileName = '${_monisyncRepo?.createBackupFileName(now)}.db';
+    final xFile = XFile(tempFile.path, mimeType: 'application/octet-stream');
+    await Share.shareXFiles(
+      [xFile],
+      subject: 'Резервная копия Moniplan',
+      text: 'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(DateTime.now())}',
+    );
 
-      setState(() => _isLoading = false);
-      if (!context.mounted) {
+    showToast('Резервная копия отправлена');
+  }
+
+  Future<void> _saveFile(List<int> bytes, String fileName) async {
+    final result = await FilePicker.platform.saveFile(
+      dialogTitle: 'Сохранение резервной копии',
+      fileName: fileName,
+      bytes: Uint8List.fromList(bytes),
+    );
+
+    if (result != null) {
+      await File(result).writeAsBytes(bytes);
+      showToast('Резервная копия сохранена');
+    }
+  }
+
+  Future<void> _importBackup(BuildContext context) async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.any, withData: true);
+
+    if (result == null) {
+      return;
+    }
+    if (result.files.isEmpty) {
+      return;
+    }
+
+    final picked = result.files.first;
+    final bytes = picked.bytes;
+    final filePath = picked.path;
+
+    if (bytes != null) {
+      // На вебе читаем первые байты из bytes
+      final isNew = _isNewFormatFromBytes(bytes);
+      if (isNew) {
+        final token = utf8.decode(bytes);
+        await _importNewFormatBackupFromToken(context, token);
         return;
       }
 
-      // Показываем диалог выбора действия
-      final shareOption = await showModalBottomSheet<bool>(
-        context: context,
-        backgroundColor: context.theme.colorScheme.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        builder: (context) => _buildExportOptionsSheet(context, title: 'Резервная копия'),
-      );
+      // Если не новый формат, обрабатываем как legacy (уже имеем bytes)
+      // Сохраним временно файл на устройство для совместимости или вызовем обычный flow через чтение информации
+      // Здесь просто вызываем поток чтения информации legacy с помощью временного файла, если нужно.
+      // Для простоты — сохраняем временно и передаем путь
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/${picked.name}');
+      await tempFile.writeAsBytes(bytes);
+      await _importLegacyBackup(context, tempFile.path);
+      return;
+    }
 
-      if (shareOption == null) {
-        return; // Пользователь закрыл диалог
-      }
+    if (filePath == null) {
+      showToast('Ошибка при выборе файла');
+      return;
+    }
 
-      setState(() => _isLoading = true);
-
-      if (shareOption) {
-        // Поделиться файлом
-        final tempDir = await getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/$fileName');
-        await tempFile.writeAsBytes(bytes);
-
-        // Импортируем Share из пакета share_plus
-        final xFile = XFile(tempFile.path, mimeType: 'application/octet-stream');
-        await Share.shareXFiles(
-          [xFile],
-          subject: 'Резервная копия Moniplan',
-          text: 'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(now)}',
-        );
-
-        showToast('Резервная копия с паролем отправлена');
+    // На нативных платформах можно читать первые байты файла
+    try {
+      final isNew = filePath.endsWith('.moniplan') || await _isNewFormatFile(filePath);
+      if (isNew) {
+        await _importNewFormatBackup(context, filePath);
       } else {
-        // Сохранить на устройстве
-        final result = await FilePicker.platform.saveFile(
-          dialogTitle: 'Сохранение резервной копии',
-          fileName: fileName,
-          bytes: bytes,
-        );
-
-        if (result != null) {
-          await File(result).writeAsBytes(bytes);
-
-          showToast('Резервная копия с паролем сохранена');
-        }
+        await _importLegacyBackup(context, filePath);
       }
     } on Object catch (error) {
-      _log.error('Ошибка экспорта', error: error);
-      showToast('Ошибка при экспорте данных');
-    } finally {
-      setState(() => _isLoading = false);
+      _log.error('Ошибка определения формата файла', error: error);
+      showToast('Не удалось определить формат файла');
     }
   }
 
-  /// Показывает нижнюю шторку с выбором способа экспорта
+  /// Проверяет, является ли файл новым форматом (начинается с "v4.local")
+  Future<bool> _isNewFormatFile(String filePath) async {
+    try {
+      final file = File(filePath);
+      final raf = await file.open();
+      const int checkLen = 8; // длина префикса 'v4.local'
+      final bytes = await raf.read(checkLen);
+      await raf.close();
+      return _isNewFormatFromBytes(bytes);
+    } on Object catch (error) {
+      // Если не удалось прочитать — считаем, что не новый формат
+      _log.error('Ошибка при проверке первых байтов файла', error: error);
+      return false;
+    }
+  }
+
+  /// Проверяет первые байты на сигнатуру нового формата
+  bool _isNewFormatFromBytes(Uint8List bytes) {
+    try {
+      if (bytes.isEmpty) {
+        return false;
+      }
+      final int sampleLength = bytes.length < 8 ? bytes.length : 8;
+      final String sample = utf8.decode(bytes.sublist(0, sampleLength), allowMalformed: true);
+      return sample.startsWith('v4.local');
+    } on Object catch (_) {
+      return false;
+    }
+  }
+
+  /// Обработка нового формата когда token уже есть в памяти
+  Future<void> _importNewFormatBackupFromToken(BuildContext context, String token) async {
+    final bloc = context.read<MonisyncBloc>();
+    bloc.add(MonisyncReadNewBackupInfoEvent(token: token));
+
+    await _listenForBackupInfo(context, (state) async {
+      if (state is MonisyncNewBackupInfoState) {
+        await _showBackupInfoAndImport(context, state.backupInfo, token);
+      } else if (state is MonisyncErrorState && !state.isLegacy) {
+        await _requestPasswordAndImportNew(context, token);
+      }
+    });
+  }
+
+  Future<void> _importNewFormatBackup(BuildContext context, String filePath) async {
+    try {
+      final bloc = context.read<MonisyncBloc>();
+      final file = File(filePath);
+      final token = await file.readAsString();
+
+      // Сначала попробуем прочитать информацию о бэкапе без пароля
+      if (!mounted) {
+        return;
+      }
+      bloc.add(MonisyncReadNewBackupInfoEvent(token: token));
+
+      // Слушаем один раз для получения информации о бэкапе
+      await _listenForBackupInfo(context, (state) async {
+        if (state is MonisyncNewBackupInfoState) {
+          await _showBackupInfoAndImport(context, state.backupInfo, token);
+        } else if (state is MonisyncErrorState && !state.isLegacy) {
+          await _requestPasswordAndImportNew(context, token);
+        }
+      });
+    } on Object catch (error) {
+      _log.error('Ошибка при чтении файла', error: error);
+      showToast('Ошибка при чтении файла резервной копии');
+    }
+  }
+
+  Future<void> _requestPasswordAndImportNew(BuildContext context, String token) async {
+    final bloc = context.read<MonisyncBloc>();
+    final password = await PasswordDialog.show(context);
+    if (password == null || password.isEmpty) {
+      showToast('Пароль обязателен для импорта резервной копии');
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+    bloc.add(MonisyncReadNewBackupInfoEvent(token: token, password: password));
+
+    await _listenForBackupInfo(context, (state) async {
+      if (state is MonisyncNewBackupInfoState) {
+        await _importWithToken(context, token, password);
+      }
+    });
+  }
+
+  Future<void> _importLegacyBackup(BuildContext context, String filePath) async {
+    final bloc = context.read<MonisyncBloc>();
+    final password = await PasswordDialog.show(context);
+    if (password == null || password.isEmpty) {
+      showToast('Пароль обязателен для импорта legacy файлов');
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+    bloc.add(MonisyncReadLegacyBackupInfoEvent(filePath: filePath, password: password));
+
+    await _listenForBackupInfo(context, (state) async {
+      if (state is MonisyncLegacyBackupInfoState) {
+        await _showLegacyBackupInfoAndImport(context, filePath, password);
+      }
+    });
+  }
+
+  Future<void> _listenForBackupInfo(BuildContext context, Function(MonisyncState) onState) async {
+    final bloc = context.read<MonisyncBloc>();
+    await for (final state in bloc.stream) {
+      await onState(state);
+      if (state is MonisyncNewBackupInfoState ||
+          state is MonisyncLegacyBackupInfoState ||
+          state is MonisyncErrorState) {
+        break;
+      }
+    }
+  }
+
+  Future<void> _showBackupInfoAndImport(
+    BuildContext context,
+    BackupInfo backupInfo,
+    String token,
+  ) async {
+    if (!context.mounted) {
+      return;
+    }
+
+    final shouldImport = await BackupInfoSheet.show(context, backupInfo);
+    if (shouldImport != true || !context.mounted) {
+      return;
+    }
+
+    final password = await PasswordDialog.show(context);
+    if (password == null || password.isEmpty) {
+      showToast('Пароль обязателен для импорта');
+      return;
+    }
+
+    await _importWithToken(context, token, password);
+  }
+
+  Future<void> _importWithToken(BuildContext context, String token, String password) async {
+    if (context.mounted) {
+      context.read<MonisyncBloc>().add(MonisyncImportNewEvent(token: token, password: password));
+    }
+  }
+
+  Future<void> _showLegacyBackupInfoAndImport(
+    BuildContext context,
+    String filePath,
+    String password,
+  ) async {
+    if (!context.mounted) {
+      return;
+    }
+
+    final shouldImport = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Импорт legacy файла'),
+            content: Text('Импортировать данные из файла?\n\nФайл: ${filePath.split('/').last}'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Отмена'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Импортировать'),
+              ),
+            ],
+          ),
+    );
+
+    if (shouldImport == true && context.mounted) {
+      context.read<MonisyncBloc>().add(
+        MonisyncLegacyImportEvent(filePath: filePath, password: password),
+      );
+    }
+  }
+
   Widget _buildExportOptionsSheet(
     BuildContext context, {
     String title = 'Выберите действие',
@@ -295,101 +522,22 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
                 style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
-            Card(
-              elevation: 0,
-              color: context.theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: InkWell(
-                onTap: () => Navigator.of(context).pop(false),
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: context.theme.colorScheme.secondary.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          Icons.save_alt_rounded,
-                          color: context.theme.colorScheme.secondary,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Сохранить на устройстве',
-                              style: context.text.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              saveText,
-                              style: context.text.bodyMedium?.copyWith(
-                                color: context.theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            _buildOptionCard(
+              context,
+              icon: Icons.save_alt_rounded,
+              title: 'Сохранить на устройстве',
+              subtitle: saveText,
+              onTap: () => Navigator.of(context).pop(false),
+              color: context.theme.colorScheme.secondary,
             ),
             const SizedBox(height: 12),
-            Card(
-              elevation: 0,
-              color: context.theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: InkWell(
-                onTap: () => Navigator.of(context).pop(true),
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: context.theme.colorScheme.primary.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(Icons.share_rounded, color: context.theme.colorScheme.primary),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Поделиться',
-                              style: context.text.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              shareText,
-                              style: context.text.bodyMedium?.copyWith(
-                                color: context.theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            _buildOptionCard(
+              context,
+              icon: Icons.share_rounded,
+              title: 'Поделиться',
+              subtitle: shareText,
+              onTap: () => Navigator.of(context).pop(true),
+              color: context.theme.colorScheme.primary,
             ),
           ],
         ),
@@ -397,90 +545,184 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     );
   }
 
-  Future<void> _importFilePicker(BuildContext context) async {
-    final result = await FilePicker.platform.pickFiles();
-    if (result == null) {
-      return;
-    }
+  Widget _buildOptionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    return Card(
+      elevation: 0,
+      color: context.theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: color.withAlpha((0.12 * 255).round()),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: context.text.bodyMedium?.copyWith(
+                        color: context.theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-    final bytes = result.files.single.bytes;
-    final token = utf8.decode(bytes!.toList());
-    if (!context.mounted) {
-      return;
-    }
-    final password = await PasswordDialog.show(context);
-    if (password == null) {
-      return;
-    }
-    final backupInfo = await _monisyncRepo?.readBackupInfo(token: token, password: password);
-
-    if (backupInfo == null) {
-      showToast('Не удалось прочитать информацию о файле');
-      return;
-    }
-    if (!context.mounted) {
-      return;
-    }
-
-    // Показываем информацию о файле и запрашиваем подтверждение
-    final shouldImport = await BackupInfoSheet.show(context, backupInfo);
-    if (!shouldImport) {
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
+  // Debug функции
+  Future<void> _downloadDb(BuildContext context) async {
     try {
-      await _monisyncRepo?.importData(token: token, password: password);
-      showToast('Данные успешно импортированы');
-    } on Object catch (e) {
-      _log.error('Ошибка импорта', error: e);
-      await _showImportError();
-    } finally {
-      setState(() => _isLoading = false);
+      final now = DateTime.now();
+      final bytes = await AppDb.instance.exportBytes();
+      final fileName = 'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.db';
+
+      if (!context.mounted) {
+        return;
+      }
+
+      final shareOption = await showModalBottomSheet<bool>(
+        context: context,
+        backgroundColor: context.theme.colorScheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (context) => _buildExportOptionsSheet(context, title: 'База данных'),
+      );
+
+      if (shareOption == null) {
+        return;
+      }
+
+      if (shareOption) {
+        await _shareFile(bytes, fileName);
+      } else {
+        await _saveFile(bytes, fileName);
+      }
+    } on Object catch (error) {
+      _log.error('Ошибка экспорта базы данных', error: error);
+      showToast('Ошибка при экспорте базы данных');
     }
   }
 
   Future<void> _importDb(BuildContext context) async {
-    final result = await FilePicker.platform.pickFiles();
-    final bytes = result?.files.single.bytes;
-    if (bytes == null) {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['db'],
+    );
+
+    if (result == null || result.files.isEmpty) {
       return;
     }
 
-    setState(() => _isLoading = true);
+    final filePath = result.files.first.path;
+    if (filePath == null) {
+      showToast('Ошибка при выборе файла');
+      return;
+    }
 
     try {
+      final file = File(filePath);
+      final bytes = await file.readAsBytes();
       await AppDb.instance.overwriteWithBytes(bytes: bytes);
-      showToast('Данные успешно импортированы');
-    } on Object catch (e) {
-      _log.error('Ошибка импорта', error: e);
-      await _showImportError();
-    } finally {
-      setState(() => _isLoading = false);
+      showToast('База данных импортирована');
+    } on Object catch (error) {
+      _log.error('Ошибка импорта базы данных', error: error);
+      showToast('Ошибка при импорте базы данных');
     }
   }
 
-  Future<void> _showImportError() {
-    const errorMessage = 'Не удалось расшифровать файл. Проверьте правильность введенного пароля.';
-
-    return showDialog(
+  Future<void> _importLegacyBackupDirect(BuildContext context) async {
+    // Показываем информационный диалог о требованиях к legacy файлам
+    final shouldContinue = await showDialog<bool>(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Ошибка импорта'),
-            content: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.error_outline, size: 48, color: Colors.red),
-                SizedBox(height: 16),
-                Text(errorMessage),
-              ],
+            title: const Text('Импорт старого бэкапа'),
+            content: const Text(
+              'Для импорта старого бэкапа требуется:\n\n'
+              '• Файл должен быть защищен пользовательским паролем\n'
+              '• Файлы со стандартным шифрованием не поддерживаются\n\n'
+              'Продолжить выбор файла?',
             ),
             actions: [
-              ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('ОК')),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Отмена'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Продолжить'),
+              ),
             ],
           ),
+    );
+
+    if (shouldContinue != true) {
+      return;
+    }
+    if (!context.mounted) {
+      return;
+    }
+
+    // Выбираем файл
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+      dialogTitle: 'Выберите файл старого бэкапа',
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final filePath = result.files.first.path;
+    if (filePath == null) {
+      showToast('Ошибка при выборе файла');
+      return;
+    }
+
+    // Запрашиваем пароль
+    final password = await PasswordDialog.show(context);
+    if (password == null || password.isEmpty) {
+      showToast('Пароль обязателен для импорта legacy файлов');
+      return;
+    }
+
+    // Импортируем напрямую без предварительного просмотра
+    if (!mounted) {
+      return;
+    }
+    context.read<MonisyncBloc>().add(
+      MonisyncLegacyImportEvent(filePath: filePath, password: password),
     );
   }
 }
