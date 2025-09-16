@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:async';
 import 'dart:io';
 
@@ -23,8 +19,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
   final IAppDi appDi;
   IMonisyncRepo? _monisyncRepo;
 
-  ReceiveImportSharingBloc({required this.appDi, RpcLogger? log})
-    : super(ReceiveImportInitialState()) {
+  ReceiveImportSharingBloc({required this.appDi}) : super(ReceiveImportInitialState()) {
     on<ReceiveImportStartReceiveEvent>(_onStartReceive);
     on<ReceiveImportStopReceiveEvent>(_onStopReceive);
     on<ReceiveImportOnDataEvent>(_onData);
@@ -115,7 +110,7 @@ class ReceiveImportSharingBloc extends Bloc<ReceiveImportEvent, ReceiveImportSta
     try {
       final licenseFile = event.licenseFiles.first;
       emit(ReceiveImportLicenseState(licenseFile: licenseFile));
-    } catch (e, trace) {
+    } on Object catch (e, trace) {
       _log.error('Failed to process license file', error: e, stackTrace: trace);
       emit(ReceiveImportResultState(result: ReceiveImportResult.error));
     }

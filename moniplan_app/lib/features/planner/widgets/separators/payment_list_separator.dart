@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
@@ -88,11 +84,10 @@ class PaymentListSeparator extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(child: shrink),
+                    const Expanded(child: shrink),
                     PaymentListDaySeparator(date: currDate, today: today),
-                    Expanded(child: shrink),
+                    const Expanded(child: shrink),
                   ],
                 ),
               ),

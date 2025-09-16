@@ -20,7 +20,7 @@ class OperationsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 56,
       child: Row(
         children: [
@@ -89,7 +89,7 @@ class _OperationButton extends StatelessWidget {
   final CalculatorOperator currentOperator;
   final VoidCallback? onPressed;
 
-  const _OperationButton({required this.operator, this.onPressed, required this.currentOperator});
+  const _OperationButton({required this.operator, required this.currentOperator, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -119,11 +119,10 @@ class _OperationButton extends StatelessWidget {
           }
 
           return Padding(
-            padding: const EdgeInsets.all(6.0),
+            padding: const EdgeInsets.all(6),
             child: Material(
               color: backgroundColor,
               borderRadius: BorderRadius.circular(16),
-              elevation: 0,
               child: InkWell(
                 onTap: onPressed,
                 borderRadius: BorderRadius.circular(16),

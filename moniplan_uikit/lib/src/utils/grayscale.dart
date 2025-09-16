@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
@@ -22,10 +18,7 @@ class Grayscale extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!grayscale) {
-      return IgnorePointer(
-        ignoring: ignore,
-        child: child,
-      );
+      return IgnorePointer(ignoring: ignore, child: child);
     }
 
     final targetColor = color ?? context.color.outline;

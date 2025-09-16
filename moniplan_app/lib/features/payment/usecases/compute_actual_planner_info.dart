@@ -1,12 +1,8 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 // ignore_for_file: prefer_collection_literals
 
 import 'package:moniplan_app/core/_index.dart';
 
-class ComputeActualPlannerInfo implements IUseCase<PlannerActualInfo> {
+class ComputeActualPlannerInfo {
   final String plannerId;
   final num lastUpdatedBudget;
   final Iterable<Payment> payments;
@@ -17,7 +13,6 @@ class ComputeActualPlannerInfo implements IUseCase<PlannerActualInfo> {
     this.lastUpdatedBudget = 0,
   });
 
-  @override
   PlannerActualInfo run() {
     final now = DateTime.now();
     final counts = {'completed': 0, 'waiting': 0, 'disabled': 0, 'total': 0};

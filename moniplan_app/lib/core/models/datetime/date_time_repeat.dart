@@ -1,7 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
+import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_app/utils/_index.dart';
 
@@ -18,7 +15,7 @@ class DateTimeRepeatConverter implements JsonConverter<DateTimeRepeat, int> {
 
 enum DateTimeRepeatType { none, day, week, month, year }
 
-class DateTimeRepeat {
+class DateTimeRepeat with EquatableMixin {
   final DateTimeRepeatType type;
   final int value;
   final int id;
@@ -75,7 +72,7 @@ class DateTimeRepeat {
   static const List<DateTimeRepeat> values = [noRepeat, day, week, month, year];
 
   // Создание пользовательского периода повторения
-  static DateTimeRepeat custom({required DateTimeRepeatType type, required int value}) {
+  factory DateTimeRepeat.custom({required DateTimeRepeatType type, required int value}) {
     if (type == DateTimeRepeatType.none || value <= 0) {
       return noRepeat;
     }
@@ -151,8 +148,10 @@ class DateTimeRepeat {
   }
 
   // Получение периода по ID
-  static DateTimeRepeat from(int? id) {
-    if (id == null) return noRepeat;
+  factory DateTimeRepeat.from(int? id) {
+    if (id == null) {
+      return noRepeat;
+    }
 
     // Проверяем предопределенные периоды
     for (final preset in values) {
@@ -164,16 +163,16 @@ class DateTimeRepeat {
     // Если ID не найден среди предопределенных, пытаемся восстановить пользовательский период
     if (id >= 100 && id < 200) {
       // Дни
-      return custom(type: DateTimeRepeatType.day, value: id - 100);
+      return DateTimeRepeat.custom(type: DateTimeRepeatType.day, value: id - 100);
     } else if (id >= 200 && id < 300) {
       // Недели
-      return custom(type: DateTimeRepeatType.week, value: id - 200);
+      return DateTimeRepeat.custom(type: DateTimeRepeatType.week, value: id - 200);
     } else if (id >= 300 && id < 400) {
       // Месяцы
-      return custom(type: DateTimeRepeatType.month, value: id - 300);
+      return DateTimeRepeat.custom(type: DateTimeRepeatType.month, value: id - 300);
     } else if (id >= 400 && id < 500) {
       // Годы
-      return custom(type: DateTimeRepeatType.year, value: id - 400);
+      return DateTimeRepeat.custom(type: DateTimeRepeatType.year, value: id - 400);
     }
 
     return noRepeat;
@@ -187,10 +186,14 @@ class DateTimeRepeat {
 
     switch (type) {
       case DateTimeRepeatType.day:
-        if (value == 1) return 'Ежедневно';
+        if (value == 1) {
+          return 'Ежедневно';
+        }
         return 'Каждые $value ${_getDaysForm(value)}';
       case DateTimeRepeatType.week:
-        if (value == 1) return 'Еженедельно';
+        if (value == 1) {
+          return 'Еженедельно';
+        }
         return 'Каждые $value ${_getWeeksForm(value)}';
       case DateTimeRepeatType.month:
         if (value == 1) {
@@ -202,7 +205,9 @@ class DateTimeRepeat {
         }
         return 'Каждые $value ${_getMonthsForm(value)}';
       case DateTimeRepeatType.year:
-        if (value == 1) return 'Ежегодно';
+        if (value == 1) {
+          return 'Ежегодно';
+        }
         return 'Каждые $value ${_getYearsForm(value)}';
       case DateTimeRepeatType.none:
         return 'Без повторения';
@@ -252,10 +257,15 @@ class DateTimeRepeat {
 
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) return true;
+    if (identical(this, other)) {
+      return true;
+    }
     return other is DateTimeRepeat && other.id == id;
   }
 
   @override
   int get hashCode => id.hashCode;
+
+  @override
+  List<Object?> get props => [id];
 }

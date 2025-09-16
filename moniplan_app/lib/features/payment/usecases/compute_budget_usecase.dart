@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 // ignore_for_file: prefer_collection_literals
 
 import 'dart:collection';
@@ -13,20 +9,19 @@ import '_index.dart';
 
 /// Вычисляет промежуточные итоги платежей.
 /// Работает с любым списком платежей, не зависит от генерации планера.
-class ComputeBudgetUseCase implements IUseCase<ComputeBudgetUseCaseResult> {
+class ComputeBudgetUseCase {
   final num initialBudget;
   final Iterable<Payment> payments;
 
-  const ComputeBudgetUseCase({this.initialBudget = 0, required this.payments});
+  const ComputeBudgetUseCase({required this.payments, this.initialBudget = 0});
 
-  @override
   ComputeBudgetUseCaseResult run() {
     final budget = LinkedHashMap<Payment, num>();
     final now = DateTime.now().dayBound;
 
     var tempBudget = initialBudget;
 
-    num lastUpdatedBudget = initialBudget;
+    var lastUpdatedBudget = initialBudget;
 
     // Сначала группируем платежи по дате
     final paymentsByDate = <DateTime, List<Payment>>{};

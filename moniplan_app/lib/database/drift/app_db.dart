@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:moniplan_app/database/_index.dart';
 import 'package:rpc_dart/logger.dart';
 
@@ -9,7 +5,7 @@ abstract class AppDb extends IAppDb {
   static late IAppDbFactory _factory;
   static AppDb? _instance;
 
-  static set factory(IAppDbFactory newFactory) {
+  static void setFactory(IAppDbFactory newFactory) {
     _factory = newFactory;
     _instance = _factory() as AppDb;
   }

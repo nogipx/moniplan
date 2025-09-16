@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -13,7 +9,7 @@ void showDeletePaymentDialog(BuildContext context, VoidCallback onDelete, {Payme
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Удаление платежа'),
+        title: const Text('Удаление платежа'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +57,7 @@ void showDeletePaymentDialog(BuildContext context, VoidCallback onDelete, {Payme
             onPressed: () {
               Navigator.of(context).pop(); // Закрываем диалог
             },
-            child: Text('Отмена'),
+            child: const Text('Отмена'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: context.color.error),
@@ -69,7 +65,7 @@ void showDeletePaymentDialog(BuildContext context, VoidCallback onDelete, {Payme
               onDelete(); // Вызываем функцию удаления
               Navigator.of(context).pop(); // Закрываем диалог
             },
-            child: Text('Удалить'),
+            child: const Text('Удалить'),
           ),
         ],
       );

@@ -8,15 +8,15 @@ class KeyboardConstants {
   static const double keyboardHeightFactor = 0.8;
 
   /// Радиус скругления углов клавиатуры
-  static const double keyboardBorderRadius = 20.0;
+  static const double keyboardBorderRadius = 20;
 
   /// Радиус скругления кнопок
-  static const double buttonBorderRadius = 12.0;
+  static const double buttonBorderRadius = 12;
 
   /// Стандартные отступы
-  static const double defaultPadding = 16.0;
-  static const double smallPadding = 8.0;
-  static const double tinyPadding = 4.0;
+  static const double defaultPadding = 16;
+  static const double smallPadding = 8;
+  static const double tinyPadding = 4;
 }
 
 /// Тип клавиатуры для ввода

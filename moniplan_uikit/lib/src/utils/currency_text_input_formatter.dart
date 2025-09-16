@@ -1,28 +1,16 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/services.dart';
 
 class CurrencyTextInputFormatter extends TextInputFormatter {
-  CurrencyTextInputFormatter({
-    this.decimalDigits,
-    this.allowNegative = true,
-  });
+  CurrencyTextInputFormatter({this.decimalDigits, this.allowNegative = true});
 
   final int? decimalDigits;
   final bool allowNegative;
 
   @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) =>
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) =>
       _format(oldValue: oldValue, newValue: newValue);
 
-  String formatInitial(
-    String value,
-  ) =>
+  String formatInitial(String value) =>
       _format(newValue: TextEditingValue(text: value), override: true).text;
 
   RegExp get forbiddenCharacters => RegExp(allowNegative ? r'[^0-9,.-]' : r'[^0-9,.]');
@@ -69,9 +57,7 @@ class CurrencyTextInputFormatter extends TextInputFormatter {
     if (isRemovedCharacter && commasCount == 1 && newValue.text.endsWith(',')) {
       return TextEditingValue(
         text: newValue.text.replaceFirst(',', ''),
-        selection: TextSelection.fromPosition(
-          TextPosition(offset: newValue.text.length - 1),
-        ),
+        selection: TextSelection.fromPosition(TextPosition(offset: newValue.text.length - 1)),
       );
     }
 

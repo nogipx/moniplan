@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
@@ -12,15 +8,14 @@ void showDialogDuplicatePlanner(
   required Planner originalPlanner,
   required Function(DateTime startDate, DateTime endDate, String name) onDuplicate,
 }) {
-  final TextEditingController nameController =
-      TextEditingController()..text = '${originalPlanner.name} (копия)';
+  final nameController = TextEditingController()..text = '${originalPlanner.name} (копия)';
 
-  DateTime startDate = DateTime.now();
-  DateTime endDate = DateTime.now().monthEnd;
-  bool isStartDateValid = true;
+  var startDate = DateTime.now();
+  var endDate = DateTime.now().monthEnd;
+  var isStartDateValid = true;
 
   Future<void> selectStartDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: startDate,
       firstDate: DateTime(2000),
@@ -33,7 +28,7 @@ void showDialogDuplicatePlanner(
   }
 
   Future<void> selectEndDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: endDate,
       firstDate: DateTime(2000),

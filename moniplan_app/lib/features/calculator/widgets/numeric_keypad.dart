@@ -61,7 +61,7 @@ class NumericKeypad extends StatelessWidget {
         Expanded(flex: 3, child: _buildNumericKeypad()),
 
         // Колонка быстрых значений справа (если включена)
-        Expanded(flex: 1, child: Column(children: _buildQuickButtons())),
+        Expanded(child: Column(children: _buildQuickButtons())),
       ],
     );
   }
@@ -134,7 +134,7 @@ class NumericKeypad extends StatelessWidget {
         final borderColor = button.borderColor ?? context.color.primary.withValues(alpha: 0.3);
 
         return Container(
-          margin: const EdgeInsets.all(3.0),
+          margin: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             color: buttonColor,
             borderRadius: BorderRadius.circular(KeyboardConstants.buttonBorderRadius),
@@ -203,7 +203,7 @@ class NumericKeypad extends StatelessWidget {
           // Специальный стиль для точки
           final isDecimalPoint = digit == '.';
           return Container(
-            margin: const EdgeInsets.all(3.0),
+            margin: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               color: effectiveButtonColor,
               borderRadius: BorderRadius.circular(KeyboardConstants.buttonBorderRadius),
@@ -256,7 +256,7 @@ class NumericKeypad extends StatelessWidget {
           final effectiveButtonColor = buttonColor;
           final effectiveIconColor = iconColor;
           return Container(
-            margin: const EdgeInsets.all(3.0),
+            margin: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               color: effectiveButtonColor,
               borderRadius: BorderRadius.circular(KeyboardConstants.buttonBorderRadius),

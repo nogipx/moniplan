@@ -1,14 +1,10 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import '../_index.dart';
 
 /// Based on the repetition setting, dates are generated
 /// that are limited by the specified date boundaries.
 /// This requires some starting date from which the rest will be generated.
 /// Both future and past dates from the specified date are generated.
-class GenerateRepeatDatesUseCase implements IUseCase<List<DateTime>> {
+class GenerateRepeatDatesUseCase {
   final DateTimeRepeat repeat;
   final DateTime base;
   final DateTime dateStart;
@@ -24,7 +20,6 @@ class GenerateRepeatDatesUseCase implements IUseCase<List<DateTime>> {
     this.generatePastDates = false,
   });
 
-  @override
   List<DateTime> run() {
     final hasPastDays = repeat.previous(base).compareTo(dateStart) >= 0;
     final hasFutureDays = repeat.next(base).compareTo(dateEnd) <= 0;

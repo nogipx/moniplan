@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -44,7 +40,7 @@ class PaymentActionsBottomSheet extends StatefulWidget {
     Function(Payment)? onToggleDone,
     bool isVirtualPaymentSelected = false,
   }) async {
-    final plannerBloc = BlocProvider.of<PlannerBloc>(context, listen: false);
+    final plannerBloc = BlocProvider.of<PlannerBloc>(context);
 
     await showModalBottomSheet(
       context: context,
@@ -337,7 +333,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
 
             // Основные кнопки действий
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -420,7 +416,6 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
               child: Row(
                 children: [
                   Expanded(
-                    flex: 1,
                     child: IconButton(
                       onPressed: () {
                         Navigator.pop(context);
@@ -447,7 +442,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                                 (context) => PaymentEditScreen(
                                   payment: widget.payment,
                                   onSave: (updatedPayment) async {
-                                    await onSave(updatedPayment);
+                                    await onSave(context, updatedPayment);
                                   },
                                 ),
                           ),
@@ -465,7 +460,6 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    flex: 1,
                     child: IconButton(
                       onPressed: () {
                         Navigator.pop(context);
@@ -476,7 +470,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                                 (context) => PaymentEditScreen(
                                   payment: widget.payment.copyBaseData(),
                                   onSave: (updatedPayment) async {
-                                    await onSave(updatedPayment);
+                                    await onSave(context, updatedPayment);
                                   },
                                 ),
                           ),
@@ -517,7 +511,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
     );
   }
 
-  Future<void> onSave(Payment updatedPayment) async {
+  Future<void> onSave(BuildContext context, Payment updatedPayment) async {
     try {
       // Проверяем доступность PlannerBloc
       final bloc = widget.plannerBloc;
@@ -577,7 +571,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
           context,
         ).showSnackBar(const SnackBar(content: Text('Не удалось сохранить платеж')));
       }
-    } catch (e) {
+    } on Object catch (e) {
       print('Ошибка при сохранении платежа: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(
@@ -645,12 +639,12 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
 
   // Показывает диалог о необходимости фиксации перед выполнением платежа
   void _showFixationBeforeCompletionDialog(BuildContext context) {
-    final String titleText =
+    final titleText =
         widget.isVirtualPaymentSelected
             ? 'Необходима фиксация виртуального платежа'
             : 'Необходима фиксация повторяющегося платежа';
 
-    final String messageText =
+    final messageText =
         widget.isVirtualPaymentSelected
             ? 'Вы пытаетесь отметить как выполненный виртуальный платеж из повторяющейся серии.'
             : 'Вы пытаетесь отметить как выполненный повторяющийся платеж.';

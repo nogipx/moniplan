@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +14,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MoniplanApp extends StatefulWidget {
-  const MoniplanApp({super.key, required this.sharedPreferences});
+  const MoniplanApp({required this.sharedPreferences, super.key});
 
   final SharedPreferences sharedPreferences;
 
@@ -107,7 +103,6 @@ class _MoniplanAppState extends State<MoniplanApp> {
       builder: (light, dark) {
         return PeriodicThemeChanger(
           type: PeriodicThemeChangerType.rainbow,
-          isEnabled: false,
           changePeriod: const Duration(seconds: 7),
           initialTheme: moniplanThemeGeneratorDynamicSync(
             brightness: _brightness,
@@ -123,7 +118,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
                     dark: dark,
                     light: light,
                   ),
-              ReceiveImportWrapper(child: PlannersListScreen()),
+              const ReceiveImportWrapper(child: PlannersListScreen()),
             );
           },
         );

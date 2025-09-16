@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -33,11 +29,13 @@ class BackupFooterMetadata with _$BackupFooterMetadata {
 
   /// Создает метаданные из footer PASETO токена
   static BackupFooterMetadata? fromFooter(String? footer) {
-    if (footer == null) return null;
+    if (footer == null) {
+      return null;
+    }
     try {
       final json = jsonDecode(footer);
       return BackupFooterMetadata.fromJson(json as Map<String, dynamic>);
-    } catch (_) {
+    } on Object catch (_) {
       return null;
     }
   }

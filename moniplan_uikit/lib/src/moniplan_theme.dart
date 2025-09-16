@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -61,10 +57,7 @@ AppTheme moniplanTheme({
 
   var themeData = AppThemeData.fromStyles(
     customColors: AppColors(scheme: scheme),
-    baseTextStyle: TextStyle(
-      overflow: TextOverflow.visible,
-      fontFamily: 'TTNeoris',
-    ),
+    baseTextStyle: TextStyle(overflow: TextOverflow.visible, fontFamily: 'TTNeoris'),
   );
 
   return (
@@ -72,9 +65,7 @@ AppTheme moniplanTheme({
     themeData: ThemeDataExtension.fromData(
       themeData,
       useMaterial3: true,
-      extensions: [
-        MoniplanExtraColors.from(brightness),
-      ],
+      extensions: [MoniplanExtraColors.from(brightness)],
     ),
   );
 }

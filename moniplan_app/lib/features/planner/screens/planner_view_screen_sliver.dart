@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -20,7 +16,7 @@ import 'package:uuid/uuid.dart';
 class PlannerScreen extends StatelessWidget {
   final String plannerId;
 
-  const PlannerScreen({super.key, required this.plannerId});
+  const PlannerScreen({required this.plannerId, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +55,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
       final plannerBloc = context.read<PlannerBloc>();
       _log.debug('PlannerViewScreen: Вызов saveActualInfo для планера ${plannerBloc.plannerId}');
       plannerBloc.saveActualInfo();
-    } catch (e) {
+    } on Object catch (e) {
       _log.debug('PlannerViewScreen: Ошибка при сохранении actualInfo: $e');
     }
 
@@ -101,7 +97,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
         final today = DateTime.now().dayBound;
         final paymentsByDate = state.getPaymentsByDate;
 
-        final appBar = AppBar(title: titleWidget, actions: []);
+        final appBar = AppBar(title: titleWidget, actions: const []);
 
         final fab = Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,7 +105,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
             Padding(
               padding: const EdgeInsets.only(left: 24),
               child: ElevatedButton(
-                child: Text('Сегодня'),
+                child: const Text('Сегодня'),
                 onPressed: () {
                   _moveToDate(DateTime.now());
                 },
@@ -165,7 +161,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                           context.color.surface.withValues(alpha: .7),
                           context.color.surface.withValues(alpha: 0),
                         ],
-                        stops: [0, .8, 1],
+                        stops: const [0, .8, 1],
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                       ),
@@ -199,33 +195,33 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
         index: state.index,
         alignment: state.alignment,
         scrollController: _scrollController,
-        duration: (estimatedDistance) => Duration(milliseconds: 250),
+        duration: (estimatedDistance) => const Duration(milliseconds: 250),
         curve: (estimatedDistance) => Curves.fastLinearToSlowEaseIn,
       );
     }
   }
 
   void _showCorrectionDialog(BuildContext context) {
-    final TextEditingController controller = TextEditingController();
+    final controller = TextEditingController();
 
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text('Коррекция баланса'),
+            title: const Text('Коррекция баланса'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: controller,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(hintText: 'Сумма'),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(hintText: 'Сумма'),
                   autofocus: true,
                 ),
               ],
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: Text('Отмена')),
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Отмена')),
               TextButton(
                 onPressed: () {
                   if (controller.text.isNotEmpty) {
@@ -236,7 +232,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                     }
                   }
                 },
-                child: Text('Сохранить'),
+                child: const Text('Сохранить'),
               ),
             ],
           ),
@@ -252,7 +248,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
 
     // Создаем платеж типа correction
     final payment = Payment(
-      paymentId: Uuid().v4(),
+      paymentId: const Uuid().v4(),
       plannerId: planner.id,
       date: DateTime.now(),
       isDone: true,
@@ -265,7 +261,8 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
     );
 
     // Сохраняем платеж и обновляем бюджет
-    plannerBloc.add(PlannerEvent.updatePayment(newPayment: payment, create: true));
-    plannerBloc.add(const PlannerEvent.computeBudget());
+    plannerBloc
+      ..add(PlannerEvent.updatePayment(newPayment: payment, create: true))
+      ..add(const PlannerEvent.computeBudget());
   }
 }

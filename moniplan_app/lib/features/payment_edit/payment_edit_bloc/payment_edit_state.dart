@@ -64,7 +64,6 @@ class PaymentEditState extends Equatable {
     DateTime? startDate,
     DateTime? endDate,
     int currentStep = 0,
-    bool showKeyboard = true,
     KeyboardType keyboardType = KeyboardType.amount,
     PaymentEditStatus status = PaymentEditStatus.initial,
     String? errorMessage,
@@ -151,13 +150,11 @@ class PaymentEditState extends Equatable {
     if (payment == null) {
       return PaymentEditState(
         date: DateTime.now().dayBound,
-        showKeyboard: true,
-        keyboardType: KeyboardType.amount,
       );
     }
 
     // Преобразуем налог из десятичной дроби в проценты
-    String taxPercent = '';
+    var taxPercent = '';
     taxPercent = (payment.details.tax * 100).toInt().toString();
 
     return PaymentEditState(
@@ -172,8 +169,6 @@ class PaymentEditState extends Equatable {
       repeatPeriod: payment.repeat,
       startDate: payment.dateStart,
       endDate: payment.dateEnd,
-      showKeyboard: true,
-      keyboardType: KeyboardType.amount,
     );
   }
 
@@ -226,7 +221,6 @@ class PaymentEditState extends Equatable {
         ) ??
         Payment(
           paymentId: const Uuid().v4(),
-          isEnabled: true,
           isDone: isDone,
           date: dateWithoutTime,
           dateStart: startDateWithoutTime,

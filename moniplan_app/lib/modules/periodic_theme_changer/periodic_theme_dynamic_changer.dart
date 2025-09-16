@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -10,9 +6,9 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PeriodicThemeDynamicChanger extends StatefulWidget {
   const PeriodicThemeDynamicChanger({
-    super.key,
     required this.themeProvider,
     required this.builder,
+    super.key,
     this.changePeriod,
     this.initialTheme,
     this.isEnabled = false,
@@ -44,17 +40,15 @@ class _PeriodicThemeChangerState extends State<PeriodicThemeDynamicChanger> {
     final period = widget.changePeriod ?? _defaultPeriod;
 
     _theme = ValueNotifier(widget.initialTheme);
-    _ticker = widget.isEnabled && widget.variants.isNotEmpty
-        ? Timer.periodic(
-            period,
-            (timer) async {
+    _ticker =
+        widget.isEnabled && widget.variants.isNotEmpty
+            ? Timer.periodic(period, (timer) async {
               _theme.value = await widget.themeProvider(
                 variant: widget.variants[counter % widget.variants.length],
               );
               counter++;
-            },
-          )
-        : null;
+            })
+            : null;
 
     super.initState();
   }

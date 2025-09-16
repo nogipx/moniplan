@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/features/monisync/_index.dart';
@@ -42,18 +38,17 @@ class GetItAppDI implements AppDi {
     final dbImpl = AppDbImpl(log: RpcLogger('AppDbImpl'));
     _getIt.registerSingleton<AppDbImpl>(dbImpl, dispose: (impl) => impl.close());
 
-    AppDb.factory = () => GetIt.instance.get<AppDbImpl>();
+    AppDb.setFactory(() => GetIt.instance.get<AppDbImpl>());
     final db = AppDb();
     await db.open();
-    _getIt.registerSingleton<AppDb>(db);
-
-    _getIt.registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform);
-    _getIt.registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: dbImpl));
-
-    _getIt.registerFactoryAsync<IMonisyncRepo>(() async {
-      return MonisyncRepoImpl(appDb: db);
-    });
-    _getIt.registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
+    _getIt
+      ..registerSingleton<AppDb>(db)
+      ..registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform)
+      ..registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: dbImpl))
+      ..registerFactoryAsync<IMonisyncRepo>(() async {
+        return MonisyncRepoImpl(appDb: db);
+      })
+      ..registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
   }
 
   @override

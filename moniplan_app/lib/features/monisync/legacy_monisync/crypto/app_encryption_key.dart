@@ -14,20 +14,26 @@ abstract base class AppEncryptionKey {
 
   bool get isBase64 {
     final str = rawValue;
-    if (str.isEmpty) return false;
+    if (str.isEmpty) {
+      return false;
+    }
 
     // Проверяем, что длина строки кратна 4 (с учетом возможных символов дополнения '=')
-    if (str.length % 4 != 0) return false;
+    if (str.length % 4 != 0) {
+      return false;
+    }
 
     // Проверяем на допустимые символы в Base64
     final regex = RegExp(r'^[A-Za-z0-9+/]*={0,2}$');
-    if (!regex.hasMatch(str)) return false;
+    if (!regex.hasMatch(str)) {
+      return false;
+    }
 
     // Дополнительная проверка через декодирование
     try {
       base64Decode(str);
       return true;
-    } catch (e) {
+    } on Object catch (_) {
       return false;
     }
   }

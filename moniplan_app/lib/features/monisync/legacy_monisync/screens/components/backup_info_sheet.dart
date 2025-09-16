@@ -176,7 +176,7 @@ class BackupInfoSheet {
 
     return Card(
       elevation: 0,
-      color: colorScheme.surfaceVariant.withOpacity(0.3),
+      color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),

@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 extension PeriodDateTime on DateTime {
   DateTime get monthBound => DateTime(year, month);
 
@@ -9,10 +5,7 @@ extension PeriodDateTime on DateTime {
 
   DateTime get minuteBound => DateTime(year, month, day, hour, minute);
 
-  bool isMonthEdge({
-    required DateTime? prevDate,
-    required DateTime? nextDate,
-  }) {
+  bool isMonthEdge({required DateTime? prevDate, required DateTime? nextDate}) {
     if (prevDate == null && nextDate != null) {
       return true;
     } else if (prevDate != null && nextDate == null) {
@@ -25,14 +18,14 @@ extension PeriodDateTime on DateTime {
   }
 
   DateTime addTime({int year = 0, int month = 0, int day = 0}) {
-    return DateTime(this.year + year, this.month + month, this.day + day, hour, minute, 0, 0, 0);
+    return DateTime(this.year + year, this.month + month, this.day + day, hour, minute);
   }
 
   DateTime subtractTime({int year = 0, int month = 0, int day = 0}) {
-    return DateTime(this.year - year, this.month - month, this.day - day, hour, minute, 0, 0, 0);
+    return DateTime(this.year - year, this.month - month, this.day - day, hour, minute);
   }
 
-  DateTime get monthStart => DateTime(year, month, 1);
+  DateTime get monthStart => DateTime(year, month);
   DateTime get monthMedian => monthStart.add(const Duration(days: 14));
   DateTime get monthEnd => DateTime(year, month + 1, 0);
 
@@ -43,10 +36,7 @@ extension PeriodDateTime on DateTime {
 
 // Расширение для статических методов DateTime
 extension DateTimeStatic on DateTime {
-  static DateTime currentYear({
-    required int day,
-    int? month,
-  }) {
+  static DateTime currentYear({required int day, int? month}) {
     final now = DateTime.now();
     return DateTime(now.year, month ?? now.month, day);
   }

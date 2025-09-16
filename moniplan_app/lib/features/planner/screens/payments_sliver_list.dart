@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
@@ -22,11 +18,11 @@ class PaymentsSliverList extends StatelessWidget {
   final List<PaymentsDateGrouped> paymentsByDate;
 
   const PaymentsSliverList({
-    super.key,
     required this.listController,
     required this.paymentsByDate,
     required this.today,
     required this.budget,
+    super.key,
   });
 
   @override
@@ -58,8 +54,6 @@ class PaymentsSliverList extends StatelessWidget {
             isMonthEdge: true,
             today: today,
             payments: group.payments,
-            animationValue: 0,
-            stuckAmount: 0,
             showDaySeparator: false, // Не показываем разделитель дня в месячном разделителе
           ),
 
@@ -70,12 +64,10 @@ class PaymentsSliverList extends StatelessWidget {
 
               return PaymentListSeparator(
                 currDate: group.date,
-                isMonthEdge: false, // Уже показали разделитель месяца выше
                 today: today,
                 payments: group.payments,
                 animationValue: normalizedAnimation,
                 stuckAmount: stuckAmount,
-                showDaySeparator: true, // Показываем только разделитель дня
               );
             },
             content: AnimatedSwitcher(
@@ -99,12 +91,10 @@ class PaymentsSliverList extends StatelessWidget {
 
           return PaymentListSeparator(
             currDate: group.date,
-            isMonthEdge: false,
             today: today,
             payments: group.payments,
             animationValue: normalizedAnimation,
             stuckAmount: stuckAmount,
-            showDaySeparator: true, // Показываем только разделитель дня
           );
         },
         content: AnimatedSwitcher(
@@ -135,7 +125,7 @@ class PaymentsSliverList extends StatelessWidget {
 
         // Добавляем анимацию появления для каждого элемента
         return AnimatedOpacity(
-          opacity: 1.0,
+          opacity: 1,
           duration: Duration(milliseconds: 300 + (index * 50)),
           curve: Curves.easeInOut,
           child: PaymentListItem(

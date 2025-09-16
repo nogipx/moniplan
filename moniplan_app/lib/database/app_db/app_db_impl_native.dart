@@ -21,20 +21,21 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
   MoniplanDriftDb? _db;
   DatabaseConnection? _connection; // держим connection, из него берём executor
-  String? _instancePath;
 
   final bool _inMemory;
-
-  AppDbImpl._(this._log, this._inMemory);
 
   factory AppDbImpl({RpcLogger? log, bool inMemory = false}) {
     return AppDbImpl._(log ?? RpcLogger('AppDbImpl'), inMemory);
   }
 
+  AppDbImpl._(this._log, this._inMemory);
+
   @override
   Future<void> open() async {
     try {
-      if (_connection != null) return;
+      if (_connection != null) {
+        return;
+      }
 
       if (_inMemory) {
         // пустая временная БД в памяти
@@ -44,9 +45,6 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
         // персистентная основная БД
         final conn = await dbconn.openMainDb();
         _connection = conn;
-
-        // сохраним путь к файлу (должен совпадать с logic в connection_native)
-        _instancePath = await _resolvePersistentDbPath();
       }
 
       // Создаём Drift-DB. Предпочтительно — через .connect(...)
@@ -77,7 +75,6 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
         _connection = conn;
         _db = _tryConnectDb(conn);
         await _connection!.executor.ensureOpen(_db!);
-        _instancePath = null; // in-memory
       } else {
         // Заменяем основную БД атомарно
         await dbconn.replaceMainDbFromBytes(bytes);
@@ -86,7 +83,6 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
         _connection = conn;
         _db = _tryConnectDb(conn);
         await _connection!.executor.ensureOpen(_db!);
-        _instancePath = await _resolvePersistentDbPath();
       }
 
       _startWatchChanges();
@@ -105,7 +101,6 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
       _db = null;
       _connection = null;
-      _instancePath = null;
 
       notifyListeners();
     } on Object catch (error, trace) {
@@ -116,6 +111,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
   /// Экспорт текущей базы данных в байты.
   /// Не запускать внутри транзакции.
+  @override
   Future<Uint8List> exportBytes() async {
     final dbInstance = _db;
     if (dbInstance == null) {
@@ -129,7 +125,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       'db_export_${DateTime.now().microsecondsSinceEpoch}.sqlite',
     );
     final tmpFile = File(tmpPath);
-    if (await tmpFile.exists()) {
+    if (tmpFile.existsSync()) {
       await tmpFile.delete();
     }
 
@@ -144,7 +140,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       // Чистим за собой
       try {
         await tmpFile.delete();
-      } catch (_) {}
+      } on Object catch (_) {}
     }
   }
 
@@ -164,14 +160,10 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     }
   }
 
-  Future<String> _resolvePersistentDbPath() async {
-    final dir = await getApplicationDocumentsDirectory();
-    // имя должно совпадать с connection_native.dart
-    return p.join(dir.path, 'app.db');
-  }
-
   Future<void> _updateLastActionDate() async {
-    if (_db == null) throw Exception('Database not opened');
+    if (_db == null) {
+      throw Exception('Database not opened');
+    }
 
     final data = GlobalLastUpdateData(
       lastUpdateId: GlobalLastUpdate.entityId,
@@ -182,7 +174,9 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   void _startWatchChanges() {
-    if (_db == null) throw Exception('Database not opened');
+    if (_db == null) {
+      throw Exception('Database not opened');
+    }
 
     final query = TableUpdateQuery.onAllTables([
       _db!.paymentPlannersDriftTable,

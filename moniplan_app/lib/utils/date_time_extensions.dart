@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 /// Расширения для DateTime
 extension DateTimeExtensions on DateTime {
   /// Возвращает дату без времени (время устанавливается в 00:00:00)
@@ -29,13 +25,13 @@ extension DateTimeExtensions on DateTime {
   bool get isCurrentYear => year == DateTime.now().year;
 
   /// Возвращает первый день месяца
-  DateTime get firstDayOfMonth => DateTime(year, month, 1);
+  DateTime get firstDayOfMonth => DateTime(year, month);
 
   /// Возвращает последний день месяца
   DateTime get lastDayOfMonth => DateTime(year, month + 1, 0);
 
   /// Возвращает первый день года
-  DateTime get firstDayOfYear => DateTime(year, 1, 1);
+  DateTime get firstDayOfYear => DateTime(year);
 
   /// Возвращает последний день года
   DateTime get lastDayOfYear => DateTime(year, 12, 31);
@@ -45,7 +41,7 @@ extension DateTimeExtensions on DateTime {
 
   /// Возвращает номер недели в году
   int get weekOfYear {
-    final firstDayOfYear = DateTime(year, 1, 1);
+    final firstDayOfYear = DateTime(year);
     final dayOfYear = difference(firstDayOfYear).inDays;
     return ((dayOfYear + firstDayOfYear.weekday - 1) / 7).ceil();
   }

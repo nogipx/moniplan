@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
@@ -23,16 +19,16 @@ class MoniplanExtraColors extends ThemeExtension<MoniplanExtraColors> {
   });
 
   MoniplanExtraColors.dark()
-      : brightness = Brightness.dark,
-        moniplanBrand = ExperimentColor.moniplanBrand,
-        moneyPositive = Colors.green,
-        moneyNegative = Colors.red;
+    : brightness = Brightness.dark,
+      moniplanBrand = ExperimentColor.moniplanBrand,
+      moneyPositive = Colors.green,
+      moneyNegative = Colors.red;
 
   MoniplanExtraColors.light()
-      : brightness = Brightness.light,
-        moniplanBrand = ExperimentColor.moniplanBrand,
-        moneyPositive = Colors.green.shade900,
-        moneyNegative = Colors.red.shade900;
+    : brightness = Brightness.light,
+      moniplanBrand = ExperimentColor.moniplanBrand,
+      moneyPositive = Colors.green.shade900,
+      moneyNegative = Colors.red.shade900;
 
   static MoniplanExtraColors from<T>(Brightness brightness) =>
       brightness == Brightness.dark ? MoniplanExtraColors.dark() : MoniplanExtraColors.light();
@@ -53,8 +49,8 @@ class MoniplanExtraColors extends ThemeExtension<MoniplanExtraColors> {
   }
 
   Map<String, Color> get names => {
-        'Brand': moniplanBrand,
-        'Money Positive': moneyPositive,
-        'Money Negative': moneyNegative,
-      };
+    'Brand': moniplanBrand,
+    'Money Positive': moneyPositive,
+    'Money Negative': moneyNegative,
+  };
 }

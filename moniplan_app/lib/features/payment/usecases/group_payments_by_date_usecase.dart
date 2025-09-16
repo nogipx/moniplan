@@ -1,19 +1,14 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
 
 import '_index.dart';
 
-class GroupPaymentsByDateUsecase implements IUseCase<List<PaymentsDateGrouped>> {
+class GroupPaymentsByDateUsecase {
   final List<Payment> payments;
   final DateTime? today;
 
   const GroupPaymentsByDateUsecase({required this.payments, this.today});
 
-  @override
   List<PaymentsDateGrouped> run() {
     final mapped = <DateTime, List<Payment>>{};
 
@@ -26,8 +21,7 @@ class GroupPaymentsByDateUsecase implements IUseCase<List<PaymentsDateGrouped>> 
       mapped[effectiveToday] = [];
     }
 
-    final entries = mapped.entries.toList();
-    entries.sort((a, b) => a.key.compareTo(b.key));
+    final entries = mapped.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
 
     final result =
         entries.map((e) {

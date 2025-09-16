@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:rpc_dart/logger.dart';
@@ -38,7 +34,6 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         result: digit,
         leftOperand: double.tryParse(digit) ?? 0,
         currentOperator: CalculatorOperator.none,
-        rightOperand: null,
         hasResult: false,
       );
       emit(newState);
@@ -64,8 +59,8 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       emit(newState);
     } else {
       // Если оператор уже выбран, добавляем цифру к правому операнду
-      String leftPart = state.result;
-      String rightPart = '';
+      var leftPart = state.result;
+      var rightPart = '';
 
       // Разбиваем текст на части по оператору
       if (state.result.contains(' ${state.currentOperator.symbol} ')) {
@@ -109,7 +104,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
 
     // Если оператор не выбран, удаляем последний символ из левого операнда
     if (state.currentOperator == CalculatorOperator.none) {
-      String newResult = state.result.substring(0, state.result.length - 1);
+      var newResult = state.result.substring(0, state.result.length - 1);
       if (newResult.isEmpty) {
         newResult = '0';
       }
@@ -123,7 +118,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       // Если оператор выбран, проверяем, что удаляем
       final parts = state.result.split(' ${state.currentOperator.symbol} ');
       final leftPart = parts[0];
-      String rightPart = '';
+      var rightPart = '';
       if (parts.length > 1) {
         rightPart = parts[1];
       }
@@ -143,11 +138,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         emit(newState);
       } else {
         // Если правая часть пуста, удаляем оператор
-        final newState = state.copyWith(
-          result: leftPart,
-          currentOperator: CalculatorOperator.none,
-          rightOperand: null,
-        );
+        final newState = state.copyWith(result: leftPart, currentOperator: CalculatorOperator.none);
         emit(newState);
       }
     }
@@ -155,7 +146,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
 
   /// Обработка нажатия на кнопку очистки
   void _onClearPressed(ClearPressed event, Emitter<CalculatorState> emit) {
-    final newState = const CalculatorState();
+    const newState = CalculatorState();
     emit(newState);
   }
 
@@ -174,7 +165,6 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       final newState = state.copyWith(
         result: newResult,
         currentOperator: operation,
-        rightOperand: null,
         hasResult: false,
       );
       emit(newState);
@@ -192,18 +182,14 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     // Если оператор уже выбран, проверяем, есть ли правый операнд
     final parts = state.result.split(' ${state.currentOperator.symbol} ');
     final leftPart = parts[0];
-    String rightPart = '';
+    var rightPart = '';
     if (parts.length > 1) {
       rightPart = parts[1];
     }
 
     // Если правый операнд пуст и нажат тот же оператор, убираем оператор
     if (rightPart.isEmpty && operation == state.currentOperator) {
-      final newState = state.copyWith(
-        result: leftPart,
-        currentOperator: CalculatorOperator.none,
-        rightOperand: null,
-      );
+      final newState = state.copyWith(result: leftPart, currentOperator: CalculatorOperator.none);
       emit(newState);
       return;
     }
@@ -219,7 +205,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     // Если правый операнд не пуст, вычисляем результат и добавляем новый оператор
     try {
       // Вычисляем результат
-      double result = _calculateResult(
+      final result = _calculateResult(
         state.leftOperand,
         state.rightOperand ?? 0,
         state.currentOperator,
@@ -235,20 +221,15 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       final newState = state.copyWith(
         result: newResult,
         leftOperand: result,
-        rightOperand: null,
         currentOperator: operation,
         hasResult: false,
       );
       emit(newState);
-    } catch (e) {
+    } on Object catch (e) {
       _log.error('Ошибка при вычислении: $e');
       // В случае ошибки просто заменяем оператор
       final newResult = '$leftPart ${operation.symbol} ';
-      final newState = state.copyWith(
-        result: newResult,
-        currentOperator: operation,
-        rightOperand: null,
-      );
+      final newState = state.copyWith(result: newResult, currentOperator: operation);
       emit(newState);
     }
   }
@@ -268,7 +249,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     // Проверяем, есть ли правый операнд
     final parts = state.result.split(' ${state.currentOperator.symbol} ');
     final leftPart = parts[0];
-    String rightPart = '';
+    var rightPart = '';
     if (parts.length > 1) {
       rightPart = parts[1];
     }
@@ -281,7 +262,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     // Вычисляем результат
     try {
       // Вычисляем результат
-      double result = _calculateResult(
+      final result = _calculateResult(
         state.leftOperand,
         state.rightOperand ?? 0,
         state.currentOperator,
@@ -294,19 +275,14 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       final newState = state.copyWith(
         result: formattedResult,
         leftOperand: result,
-        rightOperand: null,
         currentOperator: CalculatorOperator.none,
         hasResult: true,
       );
       emit(newState);
-    } catch (e) {
+    } on Object catch (e) {
       _log.error('Ошибка при вычислении: $e');
       // В случае ошибки просто возвращаем левую часть
-      final newState = state.copyWith(
-        result: leftPart,
-        currentOperator: CalculatorOperator.none,
-        rightOperand: null,
-      );
+      final newState = state.copyWith(result: leftPart, currentOperator: CalculatorOperator.none);
       emit(newState);
     }
   }
@@ -345,9 +321,6 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     final newState = CalculatorState(
       result: formattedResult,
       leftOperand: leftOperand,
-      currentOperator: CalculatorOperator.none,
-      rightOperand: null,
-      hasResult: false,
       initialValue: event.value,
     );
     emit(newState);

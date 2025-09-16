@@ -5,7 +5,7 @@ class CsvExportDialog extends StatelessWidget {
   final List<Planner> planners;
   final void Function(String plannerId) onSelect;
 
-  const CsvExportDialog({Key? key, required this.planners, required this.onSelect})
+  const CsvExportDialog({required this.planners, required this.onSelect, Key? key})
     : super(key: key);
 
   @override

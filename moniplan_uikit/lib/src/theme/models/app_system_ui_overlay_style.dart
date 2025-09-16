@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -55,53 +51,52 @@ class AppSystemUiOverlayStyle {
     Brightness? statusBarBrightness,
     Brightness? statusBarIconBrightness,
     bool? systemStatusBarContrastEnforced,
-  }) =>
-      AppSystemUiOverlayStyle(
-        systemNavigationBarColor: systemNavigationBarColor ?? this.systemNavigationBarColor,
-        systemNavigationBarDividerColor:
-            systemNavigationBarDividerColor ?? this.systemNavigationBarDividerColor,
-        systemNavigationBarIconBrightness:
-            systemNavigationBarIconBrightness ?? this.systemNavigationBarIconBrightness,
-        systemNavigationBarContrastEnforced:
-            systemNavigationBarContrastEnforced ?? this.systemNavigationBarContrastEnforced,
-        statusBarColor: statusBarColor ?? this.statusBarColor,
-        statusBarBrightness: statusBarBrightness ?? this.statusBarBrightness,
-        statusBarIconBrightness: statusBarIconBrightness ?? this.statusBarIconBrightness,
-        systemStatusBarContrastEnforced:
-            systemStatusBarContrastEnforced ?? this.systemStatusBarContrastEnforced,
-      );
+  }) => AppSystemUiOverlayStyle(
+    systemNavigationBarColor: systemNavigationBarColor ?? this.systemNavigationBarColor,
+    systemNavigationBarDividerColor:
+        systemNavigationBarDividerColor ?? this.systemNavigationBarDividerColor,
+    systemNavigationBarIconBrightness:
+        systemNavigationBarIconBrightness ?? this.systemNavigationBarIconBrightness,
+    systemNavigationBarContrastEnforced:
+        systemNavigationBarContrastEnforced ?? this.systemNavigationBarContrastEnforced,
+    statusBarColor: statusBarColor ?? this.statusBarColor,
+    statusBarBrightness: statusBarBrightness ?? this.statusBarBrightness,
+    statusBarIconBrightness: statusBarIconBrightness ?? this.statusBarIconBrightness,
+    systemStatusBarContrastEnforced:
+        systemStatusBarContrastEnforced ?? this.systemStatusBarContrastEnforced,
+  );
 
   /// Возвращает сконфигурированный [SystemUiOverlayStyle]
   SystemUiOverlayStyle get value => SystemUiOverlayStyle(
-        statusBarColor: statusBarColor,
-        systemNavigationBarColor: systemNavigationBarColor,
-        statusBarBrightness: statusBarBrightness,
-        statusBarIconBrightness: statusBarIconBrightness,
-        systemNavigationBarIconBrightness: systemNavigationBarIconBrightness,
-        systemNavigationBarDividerColor: systemNavigationBarDividerColor,
-        systemNavigationBarContrastEnforced: systemNavigationBarContrastEnforced,
-        systemStatusBarContrastEnforced: systemStatusBarContrastEnforced,
-      );
+    statusBarColor: statusBarColor,
+    systemNavigationBarColor: systemNavigationBarColor,
+    statusBarBrightness: statusBarBrightness,
+    statusBarIconBrightness: statusBarIconBrightness,
+    systemNavigationBarIconBrightness: systemNavigationBarIconBrightness,
+    systemNavigationBarDividerColor: systemNavigationBarDividerColor,
+    systemNavigationBarContrastEnforced: systemNavigationBarContrastEnforced,
+    systemStatusBarContrastEnforced: systemStatusBarContrastEnforced,
+  );
 
   /// Стиль по умолчанию для [SystemUiOverlayStyle]
   AppSystemUiOverlayStyle.get(AppColors colors)
-      : statusBarColor = Colors.transparent,
-        systemNavigationBarColor = colors.scheme.surface,
-        statusBarBrightness = switch (colors.brightness) {
-          Brightness.light => Brightness.light,
-          _ => Brightness.dark,
-        },
-        statusBarIconBrightness = switch (colors.brightness) {
-          Brightness.light => Brightness.dark,
-          _ => Brightness.light,
-        },
-        systemNavigationBarIconBrightness = switch (colors.brightness) {
-          Brightness.light => Brightness.dark,
-          _ => Brightness.light,
-        },
-        systemNavigationBarDividerColor = Colors.transparent,
-        systemNavigationBarContrastEnforced = false,
-        systemStatusBarContrastEnforced = false;
+    : statusBarColor = Colors.transparent,
+      systemNavigationBarColor = colors.scheme.surface,
+      statusBarBrightness = switch (colors.brightness) {
+        Brightness.light => Brightness.light,
+        _ => Brightness.dark,
+      },
+      statusBarIconBrightness = switch (colors.brightness) {
+        Brightness.light => Brightness.dark,
+        _ => Brightness.light,
+      },
+      systemNavigationBarIconBrightness = switch (colors.brightness) {
+        Brightness.light => Brightness.dark,
+        _ => Brightness.light,
+      },
+      systemNavigationBarDividerColor = Colors.transparent,
+      systemNavigationBarContrastEnforced = false,
+      systemStatusBarContrastEnforced = false;
 
   /// Интерполяция для анимированных переходов между [AppSystemUiOverlayStyle]
   AppSystemUiOverlayStyle lerp(AppSystemUiOverlayStyle? b, double t) {
@@ -111,10 +106,16 @@ class AppSystemUiOverlayStyle {
 
     return AppSystemUiOverlayStyle(
       statusBarColor: Color.lerp(statusBarColor, b?.statusBarColor, t),
-      systemNavigationBarColor:
-          Color.lerp(systemNavigationBarColor, b?.systemNavigationBarColor, t),
-      systemNavigationBarDividerColor:
-          Color.lerp(systemNavigationBarDividerColor, b?.systemNavigationBarDividerColor, t),
+      systemNavigationBarColor: Color.lerp(
+        systemNavigationBarColor,
+        b?.systemNavigationBarColor,
+        t,
+      ),
+      systemNavigationBarDividerColor: Color.lerp(
+        systemNavigationBarDividerColor,
+        b?.systemNavigationBarDividerColor,
+        t,
+      ),
       systemNavigationBarIconBrightness:
           t < 0.5 ? systemNavigationBarIconBrightness : b?.systemNavigationBarIconBrightness,
       systemNavigationBarContrastEnforced:

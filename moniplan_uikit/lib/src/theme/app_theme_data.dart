@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 
 import 'models/_index.dart';
@@ -43,20 +39,16 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
     AppShadowTheme? shadow,
     AppTextTheme? text,
     AppAppBarTheme? appBar,
-  }) =>
-      AppThemeData(
-        colors: colors ?? this.colors,
-        button: button ?? this.button,
-        shadow: shadow ?? this.shadow,
-        text: text ?? this.text,
-        appBar: appBar ?? this.appBar,
-      );
+  }) => AppThemeData(
+    colors: colors ?? this.colors,
+    button: button ?? this.button,
+    shadow: shadow ?? this.shadow,
+    text: text ?? this.text,
+    appBar: appBar ?? this.appBar,
+  );
 
   @override
-  ThemeExtension<AppThemeData> lerp(
-    covariant ThemeExtension<AppThemeData>? other,
-    double t,
-  ) {
+  ThemeExtension<AppThemeData> lerp(covariant ThemeExtension<AppThemeData>? other, double t) {
     if (other is! AppThemeData) {
       return this;
     }
@@ -82,27 +74,18 @@ class AppThemeData extends ThemeExtension<AppThemeData> {
   }) {
     final effectiveBrightness = customColors != null ? customColors.brightness : brightness;
 
-    final effectiveColors = customColors ??
-        AppColors.get(
-          effectiveBrightness ?? Brightness.light,
-        );
+    final effectiveColors = customColors ?? AppColors.get(effectiveBrightness ?? Brightness.light);
 
-    final effectiveTextTheme = customTextTheme?.copyWith(
-          colors: effectiveColors,
-        ) ??
-        AppTextTheme.get(
-          colors: effectiveColors,
-          baseTextStyle: baseTextStyle ?? TextStyle(),
-        );
+    final effectiveTextTheme =
+        customTextTheme?.copyWith(colors: effectiveColors) ??
+        AppTextTheme.get(colors: effectiveColors, baseTextStyle: baseTextStyle ?? TextStyle());
 
-    final effectiveButtonStyle = customButtonStyle?.copyWith(
-          colors: effectiveColors,
-        ) ??
-        AppButtonStyle(
-          colors: effectiveColors,
-        );
+    final effectiveButtonStyle =
+        customButtonStyle?.copyWith(colors: effectiveColors) ??
+        AppButtonStyle(colors: effectiveColors);
 
-    final effectiveAppBarTheme = customAppBar?.copyWith() ??
+    final effectiveAppBarTheme =
+        customAppBar?.copyWith() ??
         AppAppBarTheme.get(
           appColors: effectiveColors,
           textTheme: effectiveTextTheme,

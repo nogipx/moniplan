@@ -159,7 +159,7 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
 
       try {
         payment = state.toPayment();
-      } catch (e) {
+      } on Object catch (e) {
         // В случае ошибки при создании платежа
         print('Ошибка при создании платежа: $e');
 
@@ -174,7 +174,7 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
 
       // Эмитим состояние с успешным сохранением
       emit(state.copyWith(status: PaymentEditStatus.success, payment: payment));
-    } catch (e) {
+    } on Object catch (e) {
       // Эмитим состояние с ошибкой
       emit(
         state.copyWith(
@@ -188,7 +188,9 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
   /// Обработчик прямого перехода на указанный шаг
   void _onGoToStep(PaymentEditGoToStep event, Emitter<PaymentEditState> emit) {
     // Проверяем, что шаг находится в допустимом диапазоне
-    if (event.step < 0 || event.step > 2) return;
+    if (event.step < 0 || event.step > 2) {
+      return;
+    }
 
     // Если переходим на первый шаг, показываем клавиатуру
     final showKeyboard = event.step == 0;
@@ -212,7 +214,7 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
 
       // Обновляем состояние с новым платежом
       emit(state.copyWith(payment: payment, clearErrorMessage: true));
-    } catch (e) {
+    } on Object catch (e) {
       // В случае ошибки просто логируем её, но не меняем состояние
       print('Ошибка при обновлении черновика платежа: $e');
     }

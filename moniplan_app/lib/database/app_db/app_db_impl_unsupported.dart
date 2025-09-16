@@ -4,11 +4,12 @@ import 'package:rpc_dart/rpc_dart.dart';
 import '../_index.dart';
 
 class AppDbImpl extends ChangeNotifier implements AppDb {
-  AppDbImpl._();
-
+  // ignore: avoid_unused_constructor_parameters
   factory AppDbImpl({RpcLogger? log, bool inMemory = false}) {
     return AppDbImpl._();
   }
+
+  AppDbImpl._();
 
   @override
   Future<void> close() {

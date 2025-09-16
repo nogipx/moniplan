@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
@@ -63,8 +59,6 @@ class PlannerState with _$PlannerState {
           id: state.plannerId,
           dateStart: DateTime.now(),
           dateEnd: DateTime.now().add(const Duration(days: 30)),
-          payments: const [],
-          initialBudget: 0,
           isGenerationAllowed: true,
         ),
     error:
@@ -73,7 +67,6 @@ class PlannerState with _$PlannerState {
           dateStart: DateTime.now(),
           dateEnd: DateTime.now().add(const Duration(days: 30)),
           payments: state.payments,
-          initialBudget: 0,
           isGenerationAllowed: true,
         ),
     orElse:
@@ -81,8 +74,6 @@ class PlannerState with _$PlannerState {
           id: '',
           dateStart: DateTime.now(),
           dateEnd: DateTime.now().add(const Duration(days: 30)),
-          payments: const [],
-          initialBudget: 0,
           isGenerationAllowed: true,
         ),
   );

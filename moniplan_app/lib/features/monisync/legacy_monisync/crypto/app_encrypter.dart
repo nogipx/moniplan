@@ -31,7 +31,7 @@ abstract base class AppEncrypter extends IAppEncrypter {
   @override
   Uint8List decryptBytes(Uint8List bytes, {Map<String, dynamic>? options}) {
     // Сначала проверяем наличие метаданных
-    Uint8List result = bytes;
+    var result = bytes;
 
     // Проверяем наличие метаданных в байтах
     if (IAppEncrypter.hasMetadata(result)) {

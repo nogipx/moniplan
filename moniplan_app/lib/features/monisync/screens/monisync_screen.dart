@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -9,11 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
-import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
@@ -37,37 +31,13 @@ class MonisyncScreen extends StatefulWidget {
 
 class _MonisyncScreenState extends State<MonisyncScreen> {
   IMonisyncRepo? _monisyncRepo;
-  final IPlannerRepo _plannerRepo = AppDi.instance.getPlannerRepo();
   final _log = RpcLogger('MoniSync');
 
-  List<Planner> _planners = [];
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _loadPlanners();
-  }
-
-  Future<void> _loadPlanners() async {
-    _monisyncRepo = await AppDi.instance.getMonisyncRepo();
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final planners = await _plannerRepo.getPlanners();
-      setState(() {
-        _planners = planners;
-      });
-    } catch (e) {
-      _log.error('Ошибка загрузки планеров', error: e);
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
   @override
@@ -93,7 +63,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
                         subtitle: 'Сохранить все ваши данные для будущего восстановления',
                         icon: Icons.backup_rounded,
                         iconColor: Colors.blue,
-                        onTap: _exportFilePicker,
+                        onTap: () => _exportFilePicker(context),
                       ),
                       const SizedBox(height: 12),
                       BackupActionCard(
@@ -101,7 +71,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
                         subtitle: 'Восстановить данные из ранее созданного бэкапа',
                         icon: Icons.restore_rounded,
                         iconColor: Colors.orange,
-                        onTap: _importFilePicker,
+                        onTap: () => _importFilePicker(context),
                       ),
                       if (kDebugMode) ...[
                         const SizedBox(height: 12),
@@ -110,7 +80,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
                           subtitle: '',
                           icon: Icons.raw_on,
                           iconColor: Colors.red,
-                          onTap: _downloadDb,
+                          onTap: () => _downloadDb(context),
                         ),
                         const SizedBox(height: 12),
                         BackupActionCard(
@@ -118,7 +88,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
                           subtitle: '',
                           icon: Icons.add_to_home_screen,
                           iconColor: Colors.red,
-                          onTap: _importDb,
+                          onTap: () => _importDb(context),
                         ),
                       ],
                       const SizedBox(height: 36),
@@ -130,7 +100,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: context.theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                          color: context.theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -163,9 +133,11 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     );
   }
 
-  Future<void> _exportFilePicker() async {
-    final password = await PasswordDialog.show(context, isExport: true);
-    if (password == null) return;
+  Future<void> _exportFilePicker(BuildContext context) async {
+    final password = await PasswordDialog.show(context);
+    if (password == null) {
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -178,6 +150,9 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
         final fileName = _monisyncRepo?.createBackupFileName(now) ?? 'moniplan_backup.moniplan';
 
         setState(() => _isLoading = false);
+        if (!context.mounted) {
+          return;
+        }
 
         // Показываем диалог выбора действия
         final shareOption = await showModalBottomSheet<bool>(
@@ -186,16 +161,12 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
-          builder:
-              (context) => _buildExportOptionsSheet(
-                context,
-                title: 'Резервная копия',
-                saveText: 'Файл будет сохранен в выбранном месте',
-                shareText: 'Отправить через мессенджер или почту',
-              ),
+          builder: (context) => _buildExportOptionsSheet(context, title: 'Резервная копия'),
         );
 
-        if (shareOption == null) return; // Пользователь закрыл диалог
+        if (shareOption == null) {
+          return; // Пользователь закрыл диалог
+        }
 
         setState(() => _isLoading = true);
 
@@ -229,7 +200,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
           }
         }
       }
-    } catch (error) {
+    } on Object catch (error) {
       _log.error('Ошибка экспорта', error: error);
       showToast('Ошибка при экспорте данных');
     } finally {
@@ -237,15 +208,18 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     }
   }
 
-  Future<void> _downloadDb() async {
+  Future<void> _downloadDb(BuildContext context) async {
     setState(() => _isLoading = true);
 
     try {
       final now = DateTime.now();
       final bytes = await AppDb.instance.exportBytes();
-      final fileName = "${_monisyncRepo?.createBackupFileName(now)}.db";
+      final fileName = '${_monisyncRepo?.createBackupFileName(now)}.db';
 
       setState(() => _isLoading = false);
+      if (!context.mounted) {
+        return;
+      }
 
       // Показываем диалог выбора действия
       final shareOption = await showModalBottomSheet<bool>(
@@ -254,16 +228,12 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        builder:
-            (context) => _buildExportOptionsSheet(
-              context,
-              title: 'Резервная копия',
-              saveText: 'Файл будет сохранен в выбранном месте',
-              shareText: 'Отправить через мессенджер или почту',
-            ),
+        builder: (context) => _buildExportOptionsSheet(context, title: 'Резервная копия'),
       );
 
-      if (shareOption == null) return; // Пользователь закрыл диалог
+      if (shareOption == null) {
+        return; // Пользователь закрыл диалог
+      }
 
       setState(() => _isLoading = true);
 
@@ -296,7 +266,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
           showToast('Резервная копия с паролем сохранена');
         }
       }
-    } catch (error) {
+    } on Object catch (error) {
       _log.error('Ошибка экспорта', error: error);
       showToast('Ошибка при экспорте данных');
     } finally {
@@ -327,7 +297,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
             ),
             Card(
               elevation: 0,
-              color: context.theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              color: context.theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: InkWell(
                 onTap: () => Navigator.of(context).pop(false),
@@ -377,7 +347,7 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
             const SizedBox(height: 12),
             Card(
               elevation: 0,
-              color: context.theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              color: context.theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: InkWell(
                 onTap: () => Navigator.of(context).pop(true),
@@ -427,57 +397,43 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     );
   }
 
-  Future<void> _showSuccessPasswordBackupDialog() {
-    return showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Экспорт завершен'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.check_circle, size: 48, color: Colors.green),
-                const SizedBox(height: 16),
-                const Text('Резервная копия успешно сохранена и защищена паролем.'),
-                const SizedBox(height: 8),
-                Text(
-                  'Не забудьте пароль, иначе вы не сможете восстановить данные!',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
-                ),
-              ],
-            ),
-            actions: [
-              ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('ОК')),
-            ],
-          ),
-    );
-  }
-
-  Future<void> _importFilePicker() async {
+  Future<void> _importFilePicker(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles();
-    if (result == null) return;
+    if (result == null) {
+      return;
+    }
 
     final bytes = result.files.single.bytes;
     final token = utf8.decode(bytes!.toList());
-    final password = await PasswordDialog.show(context, isExport: true);
-    if (password == null) return;
+    if (!context.mounted) {
+      return;
+    }
+    final password = await PasswordDialog.show(context);
+    if (password == null) {
+      return;
+    }
     final backupInfo = await _monisyncRepo?.readBackupInfo(token: token, password: password);
 
     if (backupInfo == null) {
       showToast('Не удалось прочитать информацию о файле');
       return;
     }
+    if (!context.mounted) {
+      return;
+    }
 
     // Показываем информацию о файле и запрашиваем подтверждение
     final shouldImport = await BackupInfoSheet.show(context, backupInfo);
-    if (!shouldImport) return;
+    if (!shouldImport) {
+      return;
+    }
 
     setState(() => _isLoading = true);
 
     try {
       await _monisyncRepo?.importData(token: token, password: password);
       showToast('Данные успешно импортированы');
-    } catch (e) {
+    } on Object catch (e) {
       _log.error('Ошибка импорта', error: e);
       await _showImportError();
     } finally {
@@ -485,17 +441,19 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
     }
   }
 
-  Future<void> _importDb() async {
+  Future<void> _importDb(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles();
     final bytes = result?.files.single.bytes;
-    if (bytes == null) return;
+    if (bytes == null) {
+      return;
+    }
 
     setState(() => _isLoading = true);
 
     try {
       await AppDb.instance.overwriteWithBytes(bytes: bytes);
       showToast('Данные успешно импортированы');
-    } catch (e) {
+    } on Object catch (e) {
       _log.error('Ошибка импорта', error: e);
       await _showImportError();
     } finally {
@@ -504,18 +462,18 @@ class _MonisyncScreenState extends State<MonisyncScreen> {
   }
 
   Future<void> _showImportError() {
-    String errorMessage = 'Не удалось расшифровать файл. Проверьте правильность введенного пароля.';
+    const errorMessage = 'Не удалось расшифровать файл. Проверьте правильность введенного пароля.';
 
     return showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             title: const Text('Ошибка импорта'),
-            content: Column(
+            content: const Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 16),
+                Icon(Icons.error_outline, size: 48, color: Colors.red),
+                SizedBox(height: 16),
                 Text(errorMessage),
               ],
             ),

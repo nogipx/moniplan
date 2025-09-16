@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
@@ -47,19 +43,10 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
           isScrollable: true,
           padding: EdgeInsets.zero,
           controller: _tabController,
-          tabs: sections
-              .map(
-                (e) => Tab(
-                  text: e.$1,
-                ),
-              )
-              .toList(),
+          tabs: sections.map((e) => Tab(text: e.$1)).toList(),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: sections.map((e) => e.$2).toList(),
-      ),
+      body: TabBarView(controller: _tabController, children: sections.map((e) => e.$2).toList()),
     );
   }
 
@@ -165,15 +152,9 @@ class _AppColorsDisplayScreenState extends State<AppColorsDisplayScreen>
                 leading: Container(
                   width: 24,
                   height: 24,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
+                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                 ),
-                title: Text(
-                  colorName,
-                  style: style,
-                ),
+                title: Text(colorName, style: style),
                 subtitle: Text(
                   '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}',
                   style: style,

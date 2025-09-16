@@ -1,15 +1,8 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
-typedef MoniplanThemeGeneratorRainbow = AppTheme Function({
-  Brightness? brightness,
-  int? rainbowSeed,
-  Color? rainbowColor,
-});
+typedef MoniplanThemeGeneratorRainbow =
+    AppTheme Function({Brightness? brightness, int? rainbowSeed, Color? rainbowColor});
 
 /// ### Logical Behavior Description
 ///
@@ -33,6 +26,5 @@ AppTheme moniplanThemeGeneratorRainbow({
     rainbow: true,
     rainbowColor: rainbowColor,
     rainbowSeed: rainbowSeed,
-    contrast: 0,
   );
 }

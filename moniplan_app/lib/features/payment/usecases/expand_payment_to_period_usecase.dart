@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:uuid/uuid.dart';
@@ -10,7 +6,7 @@ import 'package:uuid/uuid.dart';
 /// список платежей.
 /// У каждого платежа будет указан [plannerId].
 /// Используется каждый раз, когда перегенирируем планер.
-class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseCaseResult> {
+class ExpandPaymentToPeriodUseCase {
   /// С этим id будут связаны все платежи.
   final String plannerId;
 
@@ -26,7 +22,6 @@ class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseC
     required this.endPeriod,
   });
 
-  @override
   ExpandPaymentToPeriodUseCaseResult run() {
     const uuid = Uuid();
     final start = startPeriod;
@@ -89,7 +84,6 @@ class ExpandPaymentToPeriodUseCase implements IUseCase<ExpandPaymentToPeriodUseC
           base: baseDate,
           dateStart: targetDateStart,
           dateEnd: targetDateEnd,
-          generatePastDates: false,
         ).run();
 
     // Затем в каждую сгенерированную дату копируем платеж

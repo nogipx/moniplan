@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
@@ -9,8 +5,8 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class ExtendedAppFloatingButton extends StatelessWidget {
   const ExtendedAppFloatingButton({
-    super.key,
     required this.onPressed,
+    super.key,
     this.onLongPressed,
     this.onDoubleTap,
   });
@@ -36,7 +32,7 @@ class ExtendedAppFloatingButton extends StatelessWidget {
               context,
             ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
           },
-      child: FloatingActionButton(child: const Icon(Icons.add), onPressed: onPressed),
+      child: FloatingActionButton(onPressed: onPressed, child: const Icon(Icons.add)),
     );
   }
 }

@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 part of 'receive_import_sharing_bloc.dart';
 
 abstract class ReceiveImportEvent {}
@@ -33,7 +29,7 @@ class ReceiveImportOnDecisionEvent implements ReceiveImportEvent {
   final bool shouldImport;
   final String? password;
 
-  /// TODO(nogipx): do think about partial import instead of fully replace database.
+  // TODO(nogipx): do think about partial import instead of fully replace database.
 
   ReceiveImportOnDecisionEvent({required this.shouldImport, this.acceptedBackup, this.password});
 }

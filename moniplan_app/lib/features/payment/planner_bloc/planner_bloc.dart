@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 // ignore_for_file: prefer_collection_literals
 
 import 'dart:async';
@@ -46,8 +42,8 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
 
   PlannerBloc({required this.plannerId, required IPlannerRepo paymentPlannerRepo})
     : _plannerRepo = paymentPlannerRepo,
-      super(PlannerInitialState()) {
-    on<PlannerComputeBudgetEvent>((e, emit) => _onCompute(e, emit), transformer: droppable());
+      super(const PlannerInitialState()) {
+    on<PlannerComputeBudgetEvent>(_onCompute, transformer: droppable());
 
     on<PlannerEvent>(
       (e, emit) => switch (e) {
@@ -178,7 +174,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
 
       // Сохраняем платеж с повторными попытками в случае ошибки
       Payment? result;
-      int retryCount = 0;
+      var retryCount = 0;
       const maxRetries = 3;
 
       while (retryCount < maxRetries) {
@@ -197,7 +193,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
           } else {
             _log.warning('Сохранение платежа вернуло null (попытка ${retryCount + 1}/$maxRetries)');
           }
-        } catch (e) {
+        } on Object catch (e) {
           _log.error('Ошибка при сохранении платежа (попытка ${retryCount + 1}/$maxRetries): $e');
         }
 

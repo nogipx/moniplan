@@ -1,23 +1,16 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 import '_index.dart';
 
-enum PeriodicThemeChangerType {
-  dynamic,
-  rainbow,
-}
+enum PeriodicThemeChangerType { dynamic, rainbow }
 
 class PeriodicThemeChanger extends StatelessWidget {
   const PeriodicThemeChanger({
-    super.key,
     required this.type,
     required this.builder,
+    super.key,
     this.initialTheme,
     this.isEnabled = false,
     this.changePeriod,
@@ -46,21 +39,21 @@ class PeriodicThemeChanger extends StatelessWidget {
 
     return switch (type) {
       PeriodicThemeChangerType.dynamic => PeriodicThemeDynamicChanger(
-          builder: builder,
-          initialTheme: initialTheme,
-          themeProvider: moniplanThemeGeneratorDynamic,
-          isEnabled: isEnabled,
-          changePeriod: changePeriod,
-          variants: variants,
-        ),
+        builder: builder,
+        initialTheme: initialTheme,
+        themeProvider: moniplanThemeGeneratorDynamic,
+        isEnabled: isEnabled,
+        changePeriod: changePeriod,
+        variants: variants,
+      ),
       PeriodicThemeChangerType.rainbow => PeriodicThemeRainbowChanger(
-          builder: builder,
-          initialTheme: initialTheme,
-          themeProvider: moniplanThemeGeneratorRainbow,
-          isEnabled: isEnabled,
-          changePeriod: changePeriod,
-          rainbowSeedGenerator: rainbowSeedGenerator,
-        ),
+        builder: builder,
+        initialTheme: initialTheme,
+        themeProvider: moniplanThemeGeneratorRainbow,
+        isEnabled: isEnabled,
+        changePeriod: changePeriod,
+        rainbowSeedGenerator: rainbowSeedGenerator,
+      ),
     };
   }
 }

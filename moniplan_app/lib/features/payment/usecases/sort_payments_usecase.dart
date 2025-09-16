@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:moniplan_app/core/_index.dart';
 
 /// Юзкейс для сортировки платежей по единому алгоритму
@@ -15,16 +11,13 @@ import 'package:moniplan_app/core/_index.dart';
 ///    - Активные незавершенные платежи (isDone == false && isEnabled == true)
 /// 4. По типу (доходы перед расходами)
 /// 5. По сумме (от большей к меньшей)
-class SortPaymentsUsecase implements IUseCase<List<Payment>> {
+class SortPaymentsUsecase {
   final List<Payment> payments;
 
   const SortPaymentsUsecase({required this.payments});
 
-  @override
   List<Payment> run() {
-    final sortedPayments = List<Payment>.from(payments);
-
-    sortedPayments.sort((a, b) {
+    final sortedPayments = List<Payment>.from(payments)..sort((a, b) {
       // Коррекция всегда в конце (после всех других платежей)
       if (a.type == PaymentType.correction && b.type != PaymentType.correction) {
         return 1; // a (коррекция) идет после b
@@ -38,10 +31,18 @@ class SortPaymentsUsecase implements IUseCase<List<Payment>> {
       // 2 - выключенные (isEnabled == false)
       // 3 - активные незавершенные (isDone == false && isEnabled == true)
       int getPriority(Payment p) {
-        if (p.isDone && p.isEnabled) return 1;
-        if (p.isDone && !p.isEnabled) return 2;
-        if (!p.isDone && !p.isEnabled) return 3;
-        if (!p.isDone && p.isEnabled) return 4;
+        if (p.isDone && p.isEnabled) {
+          return 1;
+        }
+        if (p.isDone && !p.isEnabled) {
+          return 2;
+        }
+        if (!p.isDone && !p.isEnabled) {
+          return 3;
+        }
+        if (!p.isDone && p.isEnabled) {
+          return 4;
+        }
         return 5;
       }
 

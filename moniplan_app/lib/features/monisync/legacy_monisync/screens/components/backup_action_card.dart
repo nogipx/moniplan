@@ -9,12 +9,7 @@ class BackupActionCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const BackupActionCard({
-    Key? key,
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.iconColor,
-    required this.onTap,
+    required this.title, required this.subtitle, required this.icon, required this.iconColor, required this.onTap, Key? key,
   }) : super(key: key);
 
   @override
@@ -27,7 +22,7 @@ class BackupActionCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(

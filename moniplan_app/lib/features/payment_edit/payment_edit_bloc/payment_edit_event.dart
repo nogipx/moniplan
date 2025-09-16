@@ -83,7 +83,7 @@ class PaymentEditDateChanged extends PaymentEditEvent {
 class PaymentEditIsDoneChanged extends PaymentEditEvent {
   final bool isDone;
 
-  const PaymentEditIsDoneChanged(this.isDone);
+  const PaymentEditIsDoneChanged({required this.isDone});
 
   @override
   List<Object> get props => [isDone];

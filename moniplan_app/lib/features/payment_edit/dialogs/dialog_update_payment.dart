@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -83,7 +79,7 @@ Future<void> updateDialog({
 
       // Ждем результат операции
       return await completer.future;
-    } catch (e) {
+    } on Object catch (e) {
       print('Ошибка при сохранении платежа: $e');
       showToast('Ошибка при сохранении платежа');
       return false;
@@ -117,7 +113,7 @@ Future<void> updateDialog({
   }
 
   Future<DateTime?> selectDate(BuildContext context, DateTime initialDate) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: DateTime(2000),
@@ -174,12 +170,12 @@ Future<void> updateDialog({
       onDelete: delete,
       onMove: move,
       onFixation: targetPayment.isRepeat ? fixate : null,
-      onToggleEnabled: (payment) => save(payment),
-      onToggleDone: (payment) => save(payment),
+      onToggleEnabled: save,
+      onToggleDone: save,
       isVirtualPaymentSelected: wasVirtualPaymentSelected,
     );
   }
 
   // Обновляем бюджет после всех операций
-  context.read<PlannerBloc>().add(PlannerEvent.computeBudget());
+  context.read<PlannerBloc>().add(const PlannerEvent.computeBudget());
 }

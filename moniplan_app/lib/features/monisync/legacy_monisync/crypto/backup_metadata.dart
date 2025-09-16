@@ -98,11 +98,17 @@ class BackupMetadata {
 
   /// Вспомогательная функция для сравнения списков байт
   static bool _listEquals<T>(List<T>? a, List<T>? b) {
-    if (a == null) return b == null;
-    if (b == null || a.length != b.length) return false;
+    if (a == null) {
+      return b == null;
+    }
+    if (b == null || a.length != b.length) {
+      return false;
+    }
 
     for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
+      if (a[i] != b[i]) {
+        return false;
+      }
     }
 
     return true;

@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -21,13 +17,13 @@ class DebugGradientPainter extends CustomPainter {
     const radius = 10.0;
 
     // Создание замкнутого пути для дебаг режима
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(0, 0, size.width, size.height),
-          const Radius.circular(radius),
-        ),
-      );
+    final path =
+        Path()..addRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(0, 0, size.width, size.height),
+            const Radius.circular(radius),
+          ),
+        );
 
     // Использование PathMetric для равномерного вычисления точки на пути
     final metrics = path.computeMetrics().toList();
@@ -44,10 +40,12 @@ class DebugGradientPainter extends CustomPainter {
     );
 
     final bounds = path.getBounds(); // Определение границ пути для корректного наложения градиента
-    final paint = Paint()
-      ..shader = gradient.createShader(bounds) // Применение градиента
-      ..strokeWidth = 2.0 // Ширина линии в режиме дебага
-      ..style = PaintingStyle.stroke; // Стиль рисования — только обводка
+    final paint =
+        Paint()
+          ..shader = gradient.createShader(bounds) // Применение градиента
+          ..strokeWidth =
+              2.0 // Ширина линии в режиме дебага
+          ..style = PaintingStyle.stroke; // Стиль рисования — только обводка
 
     // Отрисовка полного градиента на канвасе
     canvas.drawPath(path, paint);

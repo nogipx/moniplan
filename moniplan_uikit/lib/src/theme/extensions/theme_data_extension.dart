@@ -1,16 +1,9 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 
 import '../_index.dart';
 
-typedef ThemeDataGenerator = ThemeData Function(
-  AppThemeData data,
-  List<ThemeExtension> extensions,
-  bool useMaterial3,
-);
+typedef ThemeDataGenerator =
+    ThemeData Function(AppThemeData data, List<ThemeExtension> extensions, bool useMaterial3);
 
 /// Расширение для [ThemeData]
 extension ThemeDataExtension on ThemeData {

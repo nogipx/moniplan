@@ -6,7 +6,7 @@ class PasswordDialog {
   static Future<String?> show(BuildContext context, {bool isExport = true}) {
     final controller = TextEditingController();
     final formKey = GlobalKey<FormState>();
-    bool showPassword = false;
+    var showPassword = false;
 
     return showDialog<String>(
       context: context,
@@ -71,7 +71,7 @@ class PasswordDialog {
                               tooltip: showPassword ? 'Скрыть пароль' : 'Показать пароль',
                             ),
                             filled: true,
-                            fillColor: context.theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                            fillColor: context.theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
                           ),
                           validator: (value) {
                             if (isExport && (value == null || value.length < 6)) {

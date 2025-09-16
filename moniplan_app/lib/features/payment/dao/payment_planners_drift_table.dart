@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:drift/drift.dart';
 
 @TableIndex(name: 'index_planner_id', columns: {#plannerId})
@@ -16,7 +12,7 @@ class PaymentPlannersDriftTable extends Table {
 
   /// Money section
   ///
-  RealColumn get initialBudget => real().withDefault(const Constant(0.0))();
+  RealColumn get initialBudget => real().withDefault(const Constant(0))();
 
   /// Status section
   ///

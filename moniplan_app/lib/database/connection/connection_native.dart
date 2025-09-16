@@ -35,10 +35,12 @@ Future<void> replaceMainDbFromBytes(Uint8List bytes) async {
   final backupDb = s3.sqlite3.open(tmp.path);
   try {
     // цель должна быть перезаписана "правильным" способом
-    backupDb.execute("VACUUM INTO ?", [target.path]);
+    backupDb.execute('VACUUM INTO ?', [target.path]);
   } finally {
     backupDb.dispose();
-    if (await tmp.exists()) await tmp.delete();
+    if (tmp.existsSync()) {
+      await tmp.delete();
+    }
   }
   // после этого заново откройте AppDatabase поверх openMainDb().
 }
@@ -67,9 +69,11 @@ Future<DatabaseConnection> openInMemoryDbFromBytes(Uint8List bytes) async {
       /* no-op, просто дождаться */
     }
     // создаем Drift-экзекутор поверх уже открытой in-memory базы
-    return DatabaseConnection(NativeDatabase.opened(dst, closeUnderlyingOnClose: true));
+    return DatabaseConnection(NativeDatabase.opened(dst));
   } finally {
     src.dispose();
-    if (await tmp.exists()) await tmp.delete();
+    if (tmp.existsSync()) {
+      await tmp.delete();
+    }
   }
 }

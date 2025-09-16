@@ -13,7 +13,7 @@ class StatisticsRepoImpl implements IStatisticsRepo {
   Future<BudgetStatistics> getStatistics({required String plannerId}) async {
     final useCase = GenerateBudgetStatisticsUseCase(plannerRepo: plannerRepo, plannerId: plannerId);
 
-    return await useCase.run();
+    return useCase.run();
   }
 
   @override
@@ -29,6 +29,6 @@ class StatisticsRepoImpl implements IStatisticsRepo {
       dateEnd: end,
     );
 
-    return await useCase.run();
+    return useCase.run();
   }
 }

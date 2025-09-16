@@ -22,16 +22,18 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
   final bool _inMemory;
 
-  AppDbImpl._(this._log, this._inMemory, this._databaseName);
-
   factory AppDbImpl({RpcLogger? log, bool inMemory = false, String? databaseName}) {
     return AppDbImpl._(log ?? RpcLogger('AppDbImpl'), inMemory, databaseName ?? 'app_db');
   }
 
+  AppDbImpl._(this._log, this._inMemory, this._databaseName);
+
   @override
   Future<void> open() async {
     try {
-      if (_connection != null) return;
+      if (_connection != null) {
+        return;
+      }
 
       if (_inMemory) {
         // Эфемерная БД в памяти. Подаём "пустые" байты: SQLite создаст файл при первой записи.
@@ -101,6 +103,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   /// Экспорт текущей персистентной базы как Uint8List.
   /// Требует чтобы `sqlite3.wasm` и `drift_worker.dart.js` лежали в /web и чтобы
   /// имя БД совпадало с тем, что ты используешь при open().
+  @override
   Future<Uint8List> exportBytes() async {
     if (_inMemory) {
       throw UnsupportedError('Экспорт из временной (in-memory) БД в браузере не поддержан.');
@@ -144,7 +147,9 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   Future<void> _updateLastActionDate() async {
-    if (_db == null) throw Exception('Database not opened');
+    if (_db == null) {
+      throw Exception('Database not opened');
+    }
 
     final data = GlobalLastUpdateData(
       lastUpdateId: GlobalLastUpdate.entityId,
@@ -155,7 +160,9 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   }
 
   void _startWatchChanges() {
-    if (_db == null) throw Exception('Database not opened');
+    if (_db == null) {
+      throw Exception('Database not opened');
+    }
 
     final query = TableUpdateQuery.onAllTables([
       _db!.paymentPlannersDriftTable,

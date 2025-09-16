@@ -58,7 +58,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
   StreamSubscription<CalculatorState>? _calculatorStateSubscription;
 
   // Текущая ставка налога (по умолчанию 0)
-  double _currentTaxRate = 0.0;
+  double _currentTaxRate = 0;
 
   @override
   void initState() {
@@ -79,10 +79,8 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     try {
       final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
       _calculatorStateSubscription?.cancel();
-      _calculatorStateSubscription = calculatorBloc.stream.listen((state) {
-        _updateControllersFromState(state);
-      });
-    } catch (e) {
+      _calculatorStateSubscription = calculatorBloc.stream.listen(_updateControllersFromState);
+    } on Object catch (e) {
       print('Ошибка при подписке на CalculatorBloc: $e');
     }
   }
@@ -137,9 +135,8 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
 
     // Добавляем цифру через блок калькулятора
     try {
-      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
-      calculatorBloc.add(DigitPressed(digit));
-    } catch (e) {
+      BlocProvider.of<CalculatorBloc>(context).add(DigitPressed(digit));
+    } on Object catch (e) {
       print('Ошибка при добавлении цифры: $e');
     }
   }
@@ -154,11 +151,11 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     try {
       final paymentEditBloc = context.read<PaymentEditBloc>();
       final taxPercent = (newRate * 100).toInt().toString();
-      paymentEditBloc.add(PaymentEditTaxChanged(taxPercent));
-
-      // Обновляем черновик платежа
-      paymentEditBloc.add(const PaymentEditUpdateDraft());
-    } catch (e) {
+      paymentEditBloc
+        ..add(PaymentEditTaxChanged(taxPercent))
+        // Обновляем черновик платежа
+        ..add(const PaymentEditUpdateDraft());
+    } on Object catch (e) {
       print('Ошибка при отправке события в PaymentEditBloc: $e');
     }
   }
@@ -168,9 +165,8 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     HapticFeedback.lightImpact();
 
     try {
-      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
-      calculatorBloc.add(BackspacePressed());
-    } catch (e) {
+      BlocProvider.of<CalculatorBloc>(context).add(BackspacePressed());
+    } on Object catch (e) {
       print('Ошибка при удалении символа: $e');
     }
   }
@@ -182,23 +178,21 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     try {
       // Устанавливаем изначальное значение в контроллер
       _internalAmountController.text = '';
-      _internalAmountController.selection = TextSelection.collapsed(offset: 0);
+      _internalAmountController.selection = const TextSelection.collapsed(offset: 0);
 
       // Обновляем состояние калькулятора
-      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
-      calculatorBloc.add(ClearPressed());
-    } catch (e) {
+      BlocProvider.of<CalculatorBloc>(context).add(ClearPressed());
+    } on Object catch (e) {
       print('Ошибка при сбросе значения: $e');
     }
   }
 
   /// Обрабатывает нажатие кнопки "Готово" или "Дальше"
-  void _handleDonePressed(CalculatorState calculatorState) {
+  void _handleDonePressed(BuildContext context, CalculatorState calculatorState) {
     // Сначала применяем операцию "=" для вычисления результата
     try {
-      final calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
-      calculatorBloc.add(EqualsPressed());
-    } catch (e) {
+      BlocProvider.of<CalculatorBloc>(context).add(EqualsPressed());
+    } on Object catch (e) {
       print('Ошибка при применении операции равенства: $e');
     }
 
@@ -215,14 +209,13 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
 
         // Сохраняем налог
         final taxPercent = (_currentTaxRate * 100).toInt().toString();
-        paymentEditBloc.add(PaymentEditTaxChanged(taxPercent));
-
-        // Обновляем черновик платежа
-        paymentEditBloc.add(const PaymentEditUpdateDraft());
-
-        // Переходим к следующему шагу
-        paymentEditBloc.add(PaymentEditNextStep());
-      } catch (e) {
+        paymentEditBloc
+          ..add(PaymentEditTaxChanged(taxPercent))
+          // Обновляем черновик платежа
+          ..add(const PaymentEditUpdateDraft())
+          // Переходим к следующему шагу
+          ..add(PaymentEditNextStep());
+      } on Object catch (e) {
         print('Ошибка при отправке событий в блок: $e');
       }
     });
@@ -232,11 +225,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
   Widget build(BuildContext context) {
     return CalculatorBlocProvider(
       initialValue: _internalAmountController.text,
-      child: BlocBuilder<CalculatorBloc, CalculatorState>(
-        builder: (context, state) {
-          return _buildKeyboard(context, state);
-        },
-      ),
+      child: BlocBuilder<CalculatorBloc, CalculatorState>(builder: _buildKeyboard),
     );
   }
 
@@ -247,7 +236,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
     final typeColor = isExpense ? context.color.secondary : context.color.primary;
     final typeText = isExpense ? 'Расход' : 'Доход';
 
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height * KeyboardConstants.keyboardHeightFactor,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -261,7 +250,6 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
             isDarkMode: isDarkMode,
             showTax:
                 widget.paymentType == PaymentType.income, // Показываем налог только для доходов
-            taxName: 'Налог',
             taxRate: _currentTaxRate,
             onTaxRateChanged: _handleTaxRateChanged,
           ),
@@ -305,7 +293,7 @@ class _PaymentKeyboardState extends State<PaymentKeyboard> {
                     textColor: context.color.onTertiaryContainer,
                     borderColor: context.color.tertiaryContainer,
                     onPressed: (calculatorState) {
-                      _handleDonePressed(calculatorState);
+                      _handleDonePressed(context, calculatorState);
                       HapticFeedback.heavyImpact();
                     },
                   ),

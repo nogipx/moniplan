@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 export 'global_last_update.dart';
 export 'payment_dao.dart';
 export 'payment_planners_drift_table.dart';

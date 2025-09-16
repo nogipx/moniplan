@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -10,9 +6,9 @@ typedef RainbowSeedGenerator = int Function();
 
 class PeriodicThemeRainbowChanger extends StatefulWidget {
   const PeriodicThemeRainbowChanger({
-    super.key,
     required this.themeProvider,
     required this.builder,
+    super.key,
     this.initialTheme,
     this.isEnabled = false,
     this.changePeriod,
@@ -47,9 +43,7 @@ class _PeriodicThemeChangerState extends State<PeriodicThemeRainbowChanger>
 
   void _listenTheme() {
     if (widget.rainbowSeedGenerator == null) {
-      final theme = widget.themeProvider(
-        rainbowColor: generateRainbowColor(_animation.value),
-      );
+      final theme = widget.themeProvider(rainbowColor: generateRainbowColor(_animation.value));
 
       setState(() {
         _theme = theme;
@@ -82,12 +76,10 @@ class _PeriodicThemeChangerState extends State<PeriodicThemeRainbowChanger>
     if (_shouldAnimate) {
       final period = widget.changePeriod ?? _defaultPeriod;
       // Создаём и запускаем внутренний контроллер анимации
-      _controller = AnimationController(
-        duration: period,
-        vsync: this,
-      )
-        ..repeat()
-        ..addListener(_listenTheme);
+      _controller =
+          AnimationController(duration: period, vsync: this)
+            ..repeat()
+            ..addListener(_listenTheme);
       _animation = _controller!;
     } else {
       // Анимация отключена
@@ -103,12 +95,10 @@ class _PeriodicThemeChangerState extends State<PeriodicThemeRainbowChanger>
       if (widget.isEnabled) {
         // Анимация была отключена, теперь включена
         // Создаём и запускаем внутренний контроллер анимации
-        _controller = AnimationController(
-          duration: widget.changePeriod,
-          vsync: this,
-        )
-          ..repeat()
-          ..addListener(_listenTheme);
+        _controller =
+            AnimationController(duration: widget.changePeriod, vsync: this)
+              ..repeat()
+              ..addListener(_listenTheme);
         _animation = _controller!;
       } else {
         // Анимация была включена, теперь отключена
@@ -119,12 +109,10 @@ class _PeriodicThemeChangerState extends State<PeriodicThemeRainbowChanger>
     } else if (_shouldAnimate) {
       // Если внешняя анимация стала null, создаём внутренний контроллер
       if (_controller == null) {
-        _controller = AnimationController(
-          duration: widget.changePeriod,
-          vsync: this,
-        )
-          ..repeat()
-          ..addListener(_listenTheme);
+        _controller =
+            AnimationController(duration: widget.changePeriod, vsync: this)
+              ..repeat()
+              ..addListener(_listenTheme);
         _animation = _controller!;
       }
     }

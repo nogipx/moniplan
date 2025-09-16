@@ -1,17 +1,12 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:moniplan_app/core/_index.dart';
 
 typedef CheckPaymentCanApplyUpdateResult = ({bool canUpdate, Set<String> errorKeys});
 
-class CheckPaymentCanApplyUpdate implements IUseCase<CheckPaymentCanApplyUpdateResult> {
+class CheckPaymentCanApplyUpdate {
   final Payment updatedPayment;
 
   const CheckPaymentCanApplyUpdate({required this.updatedPayment});
 
-  @override
   CheckPaymentCanApplyUpdateResult run() {
     final errorKeys = <String>[];
 

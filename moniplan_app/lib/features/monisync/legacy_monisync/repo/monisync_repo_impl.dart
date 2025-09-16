@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:collection';
 import 'dart:io';
 import 'dart:typed_data';
@@ -26,7 +22,7 @@ class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
   Future<bool> isFilePasswordProtected(String filePath) async {
     try {
       final file = File(filePath);
-      if (!await file.exists()) {
+      if (!file.existsSync()) {
         return false;
       }
 
@@ -40,7 +36,7 @@ class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
       }
 
       return false;
-    } catch (e) {
+    } on Object catch (_) {
       return false;
     }
   }
@@ -48,7 +44,7 @@ class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
   @override
   Future<void> importDataFromFile({required String filePath, String? password}) async {
     final file = File(filePath);
-    if (!await file.exists()) {
+    if (!file.existsSync()) {
       throw Exception('Файл не найден');
     }
 
@@ -69,7 +65,7 @@ class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
     final cleanedPath = filePath.replaceAll('file://', '');
     final file = File(cleanedPath);
 
-    if (!await file.exists()) {
+    if (!file.existsSync()) {
       return null;
     }
 
@@ -87,7 +83,6 @@ class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
         creationDate: null,
         plannersCount: 0,
         backupMetadata: metadata,
-        isLegacyBackup: false,
         additionalInfo:
             metadata.isEncrypted == true
                 ? {'key_type': metadata.hasPassword ? 'password' : 'app_key', 'format': 'metadata'}
@@ -108,10 +103,9 @@ class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
     return _tryDecryptWithKeys(
       bytes,
       LinkedHashMap.from({
-        MonisyncEncryptionKeyV2(): (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
+        MonisyncEncryptionKeyV2(): (key) => Salsa20MonisyncEncrypter(key),
         if (password != null)
-          PasswordEncryptionKey.fromPassword(password):
-              (key) => Salsa20MonisyncEncrypter(key, enableMetadata: true),
+          PasswordEncryptionKey.fromPassword(password): (key) => Salsa20MonisyncEncrypter(key),
       }),
     );
   }
@@ -129,7 +123,7 @@ class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
           return decryptedBytes;
         }
         continue;
-      } catch (_) {
+      } on Object catch (_) {
         continue;
       }
     }
@@ -164,7 +158,7 @@ class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
       0x00,
     ];
 
-    for (int i = 0; i < signature.length; i++) {
+    for (var i = 0; i < signature.length; i++) {
       if (bytes[i] != signature[i]) {
         return false;
       }

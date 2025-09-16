@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:equatable/equatable.dart';
 import 'package:expressions/expressions.dart';
 
@@ -88,14 +84,18 @@ class CalculatorState extends Equatable {
 
     // Получаем операнды из текста
     final parts = text.split(' ${currentOperator.symbol} ');
-    if (parts.length < 2) return this;
+    if (parts.length < 2) {
+      return this;
+    }
 
     final leftText = parts[0].trim();
     final rightText = parts[1].trim();
 
     // Проверяем, что оба операнда являются числами
     final leftOperand = double.tryParse(leftText);
-    if (leftOperand == null) return this;
+    if (leftOperand == null) {
+      return this;
+    }
 
     // Если правый операнд пуст или только минус, возвращаем текущее состояние
     if (rightText.isEmpty || rightText == '-') {
@@ -103,7 +103,9 @@ class CalculatorState extends Equatable {
     }
 
     final parsedRight = double.tryParse(rightText);
-    if (parsedRight == null) return this;
+    if (parsedRight == null) {
+      return this;
+    }
 
     final rightOperand = parsedRight;
 
@@ -113,7 +115,7 @@ class CalculatorState extends Equatable {
     // Парсим и вычисляем выражение
     double result;
     try {
-      final evaluator = const ExpressionEvaluator();
+      const evaluator = ExpressionEvaluator();
       final parsedExpression = Expression.parse(expression);
       result = evaluator.eval(parsedExpression, {}) as double;
 
@@ -121,7 +123,7 @@ class CalculatorState extends Equatable {
       if (currentOperator == CalculatorOperator.divide && rightOperand == 0) {
         result = leftOperand; // Если делим на ноль, сохраняем левый операнд
       }
-    } catch (e) {
+    } on Object catch (_) {
       // В случае ошибки вычисления, возвращаем левый операнд
       result = leftOperand;
     }
@@ -132,7 +134,9 @@ class CalculatorState extends Equatable {
     if (isEquals) {
       // Если нажата кнопка "=", обновляем выражение
       final resultDouble = double.tryParse(formattedResult);
-      if (resultDouble == null) return this;
+      if (resultDouble == null) {
+        return this;
+      }
 
       // Проверяем, является ли число целым
       final isInteger = resultDouble == resultDouble.toInt();
@@ -140,7 +144,6 @@ class CalculatorState extends Equatable {
       return copyWith(
         result: formattedResult,
         leftOperand: isInteger ? resultDouble.toInt().toDouble() : resultDouble,
-        rightOperand: null,
         currentOperator: CalculatorOperator.none,
         hasResult: true,
       );

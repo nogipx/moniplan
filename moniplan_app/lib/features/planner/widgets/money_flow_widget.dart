@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
@@ -11,7 +7,7 @@ import 'package:moniplan_uikit/moniplan_uikit.dart';
 class MoneyFlowWidget extends StatelessWidget {
   final MoneyFlowUseCaseResult state;
 
-  const MoneyFlowWidget({super.key, required this.state});
+  const MoneyFlowWidget({required this.state, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -66,8 +62,6 @@ class MoneyFlowWidget extends StatelessWidget {
                     Icons.account_balance_rounded,
                     state.initialBalance,
                     CurrencyDataCommon.rub,
-                    showPlusSign: false,
-                    isHighlighted: false,
                   ),
                   Row(
                     children: [
@@ -77,7 +71,6 @@ class MoneyFlowWidget extends StatelessWidget {
                         Icons.account_balance_wallet_rounded,
                         state.balance,
                         CurrencyDataCommon.rub,
-                        showPlusSign: false,
                         isHighlighted: true,
                       ),
                       const SizedBox(width: 4),
@@ -120,7 +113,6 @@ class MoneyFlowWidget extends StatelessWidget {
                       Icons.arrow_upward_rounded,
                       state.totalOutcome,
                       CurrencyDataCommon.rub,
-                      showPlusSign: false,
                       isIncome: false,
                     ),
                   ),

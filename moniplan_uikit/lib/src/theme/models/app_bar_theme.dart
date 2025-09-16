@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -98,24 +94,23 @@ class AppAppBarTheme {
     TextStyle? toolbarTextStyle,
     TextStyle? titleTextStyle,
     SystemUiOverlayStyle? systemOverlayStyle,
-  }) =>
-      AppAppBarTheme(
-        backgroundColor: backgroundColor ?? this.backgroundColor,
-        foregroundColor: foregroundColor ?? this.foregroundColor,
-        elevation: elevation ?? this.elevation,
-        scrolledUnderElevation: scrolledUnderElevation ?? this.scrolledUnderElevation,
-        shadowColor: shadowColor ?? this.shadowColor,
-        surfaceTintColor: surfaceTintColor ?? this.surfaceTintColor,
-        shape: shape ?? this.shape,
-        iconTheme: iconTheme ?? this.iconTheme,
-        actionsIconTheme: actionsIconTheme ?? this.actionsIconTheme,
-        centerTitle: centerTitle ?? this.centerTitle,
-        titleSpacing: titleSpacing ?? this.titleSpacing,
-        toolbarHeight: toolbarHeight ?? this.toolbarHeight,
-        toolbarTextStyle: toolbarTextStyle ?? this.toolbarTextStyle,
-        titleTextStyle: titleTextStyle ?? this.titleTextStyle,
-        systemOverlayStyle: systemOverlayStyle ?? this.systemOverlayStyle,
-      );
+  }) => AppAppBarTheme(
+    backgroundColor: backgroundColor ?? this.backgroundColor,
+    foregroundColor: foregroundColor ?? this.foregroundColor,
+    elevation: elevation ?? this.elevation,
+    scrolledUnderElevation: scrolledUnderElevation ?? this.scrolledUnderElevation,
+    shadowColor: shadowColor ?? this.shadowColor,
+    surfaceTintColor: surfaceTintColor ?? this.surfaceTintColor,
+    shape: shape ?? this.shape,
+    iconTheme: iconTheme ?? this.iconTheme,
+    actionsIconTheme: actionsIconTheme ?? this.actionsIconTheme,
+    centerTitle: centerTitle ?? this.centerTitle,
+    titleSpacing: titleSpacing ?? this.titleSpacing,
+    toolbarHeight: toolbarHeight ?? this.toolbarHeight,
+    toolbarTextStyle: toolbarTextStyle ?? this.toolbarTextStyle,
+    titleTextStyle: titleTextStyle ?? this.titleTextStyle,
+    systemOverlayStyle: systemOverlayStyle ?? this.systemOverlayStyle,
+  );
 
   /// Интерполяция для анимированных переходов между [AppAppBarTheme]
   AppAppBarTheme lerp(AppAppBarTheme? b, double t) {
@@ -143,41 +138,41 @@ class AppAppBarTheme {
 
   /// Возвращает сконфигурированный [AppBarTheme]
   AppBarTheme get value => AppBarTheme(
-        backgroundColor: backgroundColor,
-        foregroundColor: foregroundColor,
-        elevation: elevation,
-        scrolledUnderElevation: scrolledUnderElevation,
-        shadowColor: shadowColor,
-        surfaceTintColor: surfaceTintColor,
-        shape: shape,
-        iconTheme: iconTheme,
-        actionsIconTheme: actionsIconTheme,
-        centerTitle: centerTitle,
-        titleSpacing: titleSpacing,
-        toolbarHeight: toolbarHeight,
-        toolbarTextStyle: toolbarTextStyle,
-        titleTextStyle: titleTextStyle,
-        systemOverlayStyle: systemOverlayStyle,
-      );
+    backgroundColor: backgroundColor,
+    foregroundColor: foregroundColor,
+    elevation: elevation,
+    scrolledUnderElevation: scrolledUnderElevation,
+    shadowColor: shadowColor,
+    surfaceTintColor: surfaceTintColor,
+    shape: shape,
+    iconTheme: iconTheme,
+    actionsIconTheme: actionsIconTheme,
+    centerTitle: centerTitle,
+    titleSpacing: titleSpacing,
+    toolbarHeight: toolbarHeight,
+    toolbarTextStyle: toolbarTextStyle,
+    titleTextStyle: titleTextStyle,
+    systemOverlayStyle: systemOverlayStyle,
+  );
 
   /// Стиль по умолчанию для [AppBarTheme]
   AppAppBarTheme.get({
     required AppColors appColors,
     required AppTextTheme textTheme,
     required AppSystemUiOverlayStyle systemUiOverlay,
-  })  : backgroundColor = appColors.scheme.surfaceContainer,
-        foregroundColor = appColors.scheme.onSurface,
-        elevation = 0,
-        scrolledUnderElevation = 0,
-        shadowColor = Colors.transparent,
-        surfaceTintColor = Colors.transparent,
-        shape = null,
-        iconTheme = null,
-        actionsIconTheme = null,
-        centerTitle = true,
-        titleSpacing = 0,
-        toolbarHeight = kToolbarHeight,
-        toolbarTextStyle = textTheme.displayLarge,
-        titleTextStyle = textTheme.displayLarge,
-        systemOverlayStyle = systemUiOverlay.value;
+  }) : backgroundColor = appColors.scheme.surfaceContainer,
+       foregroundColor = appColors.scheme.onSurface,
+       elevation = 0,
+       scrolledUnderElevation = 0,
+       shadowColor = Colors.transparent,
+       surfaceTintColor = Colors.transparent,
+       shape = null,
+       iconTheme = null,
+       actionsIconTheme = null,
+       centerTitle = true,
+       titleSpacing = 0,
+       toolbarHeight = kToolbarHeight,
+       toolbarTextStyle = textTheme.displayLarge,
+       titleTextStyle = textTheme.displayLarge,
+       systemOverlayStyle = systemUiOverlay.value;
 }

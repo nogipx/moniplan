@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:moniplan_app/core/_index.dart';
 
 abstract interface class IPlannerRepo {
@@ -17,6 +13,14 @@ abstract interface class IPlannerRepo {
 
   /// Удаление планнера.
   Future<void> deletePlanner(String plannerId);
+
+  /// Создание копии планнера
+  Future<Planner?> duplicatePlanner({
+    required String originalPlannerId,
+    required DateTime newStartDate,
+    required DateTime newEndDate,
+    String? newName,
+  });
 
   /// Обновление результатов просчета планнера.
   Future<PlannerActualInfo?> updatePlannerActualInfo({

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rpc_dart/logger.dart';
 
 import '../bloc/_index.dart';
 
@@ -9,7 +10,7 @@ class CalculatorBlocProvider extends StatefulWidget {
   final Widget child;
   final String initialValue;
 
-  const CalculatorBlocProvider({super.key, required this.child, this.initialValue = ''});
+  const CalculatorBlocProvider({required this.child, super.key, this.initialValue = ''});
 
   @override
   State<CalculatorBlocProvider> createState() => _CalculatorBlocProviderState();
@@ -18,6 +19,7 @@ class CalculatorBlocProvider extends StatefulWidget {
 class _CalculatorBlocProviderState extends State<CalculatorBlocProvider> {
   late CalculatorBloc _calculatorBloc;
   bool _isExternalBloc = false;
+  final _log = RpcLogger('CalculatorBlocProvider');
 
   @override
   void initState() {
@@ -32,8 +34,8 @@ class _CalculatorBlocProviderState extends State<CalculatorBlocProvider> {
     try {
       _calculatorBloc = BlocProvider.of<CalculatorBloc>(context);
       _isExternalBloc = true;
-      print('Используем существующий CalculatorBloc из контекста');
-    } catch (e) {
+      _log.debug('Используем существующий CalculatorBloc из контекста');
+    } on Object catch (_) {
       // Если блока нет, создаем новый
       _calculatorBloc = CalculatorBloc();
 
@@ -42,7 +44,7 @@ class _CalculatorBlocProviderState extends State<CalculatorBlocProvider> {
         _calculatorBloc.add(SetInitialValue(widget.initialValue));
       }
 
-      print('Создан новый CalculatorBloc');
+      _log.debug('Создан новый CalculatorBloc');
       _isExternalBloc = false;
     }
   }
@@ -52,7 +54,7 @@ class _CalculatorBlocProviderState extends State<CalculatorBlocProvider> {
     // Закрываем блок только если мы его создали
     if (!_isExternalBloc) {
       _calculatorBloc.close();
-      print('Закрыт локальный CalculatorBloc');
+      _log.debug('Закрыт локальный CalculatorBloc');
     }
     super.dispose();
   }

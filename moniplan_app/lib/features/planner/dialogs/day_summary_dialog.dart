@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -91,7 +87,7 @@ class _DaySummaryDialogState extends State<DaySummaryDialog> with SingleTickerPr
       backgroundColor:
           hasTotalNegativeBalance ? context.color.errorContainer.withValues(alpha: 0.1) : null,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,7 +147,7 @@ class _DaySummaryDialogState extends State<DaySummaryDialog> with SingleTickerPr
             if (widget.payments.isEmpty)
               const Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  padding: EdgeInsets.symmetric(vertical: 8),
                   child: Text('Нет платежей на этот день'),
                 ),
               )
@@ -186,7 +182,7 @@ class _DaySummaryDialogState extends State<DaySummaryDialog> with SingleTickerPr
     bool isBold = false,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -220,7 +216,7 @@ class _DaySummaryDialogState extends State<DaySummaryDialog> with SingleTickerPr
         animation: _animationController,
         builder: (context, child) {
           return Container(
-            margin: const EdgeInsets.symmetric(vertical: 4.0),
+            margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: context.color.errorContainer.withValues(
@@ -229,7 +225,6 @@ class _DaySummaryDialogState extends State<DaySummaryDialog> with SingleTickerPr
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: color.withValues(alpha: 0.3 + 0.3 * _animationController.value),
-                width: 1,
               ),
             ),
             child: Row(
@@ -277,7 +272,7 @@ class _DaySummaryDialogState extends State<DaySummaryDialog> with SingleTickerPr
     final amount = moneyFormat.format(payment.normalizedMoney.abs());
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Icon(

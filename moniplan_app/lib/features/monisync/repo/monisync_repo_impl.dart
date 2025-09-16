@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -130,7 +126,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         return utf8.decode(base64Url.decode(parts.last));
       }
       return null;
-    } catch (e) {
+    } on Object catch (_) {
       return null;
     }
   }

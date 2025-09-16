@@ -5,6 +5,7 @@ import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/calculator/_index.dart';
 import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/payment_edit_bloc.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:rpc_dart/logger.dart';
 
 /// Компонент отображения полей ввода и результатов
 class InputDisplay extends StatefulWidget {
@@ -46,6 +47,7 @@ class InputDisplay extends StatefulWidget {
 class _InputDisplayState extends State<InputDisplay> {
   // Текущая ставка налога
   late double _currentTaxRate;
+  final _log = RpcLogger('InputDisplay');
 
   @override
   void initState() {
@@ -63,9 +65,9 @@ class _InputDisplayState extends State<InputDisplay> {
         // Преобразуем из процентов в десятичную дробь
         _currentTaxRate = taxValue / 100;
       }
-    } catch (e) {
+    } on Object catch (e) {
       // Если не удалось получить налог из состояния, используем значение из виджета
-      print('Не удалось получить налог из состояния в initState: $e');
+      _log.debug('Не удалось получить налог из состояния в initState: $e');
     }
   }
 
@@ -87,18 +89,20 @@ class _InputDisplayState extends State<InputDisplay> {
         // Если налог из состояния пустой, но изменился taxRate в виджете
         _currentTaxRate = widget.taxRate;
       }
-    } catch (e) {
+    } on Object catch (e) {
       // В случае ошибки используем значение из виджета
       if (widget.taxRate != oldWidget.taxRate) {
         _currentTaxRate = widget.taxRate;
       }
-      print('Ошибка при получении налога из состояния: $e');
+      _log.debug('Ошибка при получении налога из состояния: $e');
     }
   }
 
   /// Форматирует число с разделителями тысяч
   String _formatNumber(String text) {
-    if (text.isEmpty) return '0';
+    if (text.isEmpty) {
+      return '0';
+    }
 
     // Проверяем, содержит ли строка арифметические операторы
     if (text.contains('+') || text.contains('-') || text.contains('×') || text.contains('÷')) {
@@ -115,7 +119,7 @@ class _InputDisplayState extends State<InputDisplay> {
     String formattedInteger;
     try {
       formattedInteger = integerPart.isEmpty ? '0' : formatter.format(int.parse(integerPart));
-    } catch (e) {
+    } on Object catch (_) {
       // В случае ошибки возвращаем исходный текст
       return text;
     }
@@ -132,19 +136,19 @@ class _InputDisplayState extends State<InputDisplay> {
   /// Результат вычислений и текущий оператор
   Widget _buildCalculationResult(BuildContext context) {
     // Используем цвета из темы приложения
-    final Color resultColor =
+    final resultColor =
         widget.paymentType == PaymentType.expense ? context.color.secondary : context.color.primary;
-    final Color taxColor = context.color.secondary;
+    final taxColor = context.color.secondary;
 
-    final String sign = widget.paymentType == PaymentType.expense ? '-' : '+';
-    final num result = (num.tryParse(widget.state.result) ?? 0).abs();
+    final sign = widget.paymentType == PaymentType.expense ? '-' : '+';
+    final result = (num.tryParse(widget.state.result) ?? 0).abs();
 
     // Форматируем результат с разделителями тысяч
     final formatter = NumberFormat('#,###.##', 'ru_RU');
 
     // Рассчитываем налог (уменьшает итоговую сумму) только для доходов
-    final bool isIncome = widget.paymentType == PaymentType.income;
-    final bool showTaxInfo = widget.showTax && isIncome;
+    final isIncome = widget.paymentType == PaymentType.income;
+    final showTaxInfo = widget.showTax && isIncome;
 
     final taxAmount = showTaxInfo ? result * _currentTaxRate : 0;
     final netAmount = showTaxInfo ? result - taxAmount : result; // Чистая сумма после вычета налога
@@ -172,7 +176,7 @@ class _InputDisplayState extends State<InputDisplay> {
       decoration: BoxDecoration(
         color: context.color.surface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(KeyboardConstants.buttonBorderRadius),
-        border: Border.all(color: context.color.outline.withValues(alpha: 0.1), width: 1),
+        border: Border.all(color: context.color.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -291,7 +295,7 @@ class _InputDisplayState extends State<InputDisplay> {
   void _showTaxRateDialog() {
     final taxRates = [0.0, 0.01, 0.04, 0.06, 0.13];
     final customController = TextEditingController();
-    bool isCustomSelected = !taxRates.contains(_currentTaxRate);
+    var isCustomSelected = !taxRates.contains(_currentTaxRate);
 
     if (isCustomSelected) {
       // Если текущая ставка - пользовательская, заполняем поле ввода
@@ -304,7 +308,7 @@ class _InputDisplayState extends State<InputDisplay> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Выберите ставку налога'),
+              title: const Text('Выберите ставку налога'),
               content: SizedBox(
                 width: double.maxFinite,
                 child: Column(
@@ -348,7 +352,7 @@ class _InputDisplayState extends State<InputDisplay> {
 
                     // Разделитель
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Divider(
                         height: 1,
                         color: widget.theme.colorScheme.outline.withValues(alpha: 0.3),
@@ -419,8 +423,10 @@ class _InputDisplayState extends State<InputDisplay> {
                         });
                         // Фокусируемся на поле ввода
                         FocusScope.of(context).requestFocus(FocusNode());
-                        Future.delayed(Duration(milliseconds: 50), () {
-                          FocusScope.of(context).requestFocus(FocusNode());
+                        Future.delayed(const Duration(milliseconds: 50), () {
+                          if (context.mounted) {
+                            FocusScope.of(context).requestFocus(FocusNode());
+                          }
                         });
                       },
                     ),
@@ -447,10 +453,7 @@ class _InputDisplayState extends State<InputDisplay> {
       decoration: BoxDecoration(
         color: widget.theme.colorScheme.surface,
         border: Border(
-          bottom: BorderSide(
-            color: widget.theme.colorScheme.outline.withValues(alpha: 0.1),
-            width: 1,
-          ),
+          bottom: BorderSide(color: widget.theme.colorScheme.outline.withValues(alpha: 0.1)),
         ),
       ),
       child: Column(
@@ -472,7 +475,7 @@ class _InputDisplayState extends State<InputDisplay> {
     required TextEditingController controller,
     required BuildContext context,
   }) {
-    final Color fieldColor =
+    final fieldColor =
         widget.paymentType == PaymentType.expense ? context.color.secondary : context.color.primary;
 
     return Container(
@@ -483,14 +486,14 @@ class _InputDisplayState extends State<InputDisplay> {
       decoration: BoxDecoration(
         color: context.color.surface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(KeyboardConstants.buttonBorderRadius),
-        border: Border.all(color: fieldColor, width: 1),
+        border: Border.all(color: fieldColor),
       ),
       child: ValueListenableBuilder<TextEditingValue>(
         valueListenable: controller,
         builder: (context, value, child) {
           // Форматируем значение для отображения
-          String rawText = value.text.isEmpty ? '0' : value.text;
-          String formattedText = _formatNumber(rawText);
+          final rawText = value.text.isEmpty ? '0' : value.text;
+          final formattedText = _formatNumber(rawText);
 
           return Text(
             '$formattedText ₽',

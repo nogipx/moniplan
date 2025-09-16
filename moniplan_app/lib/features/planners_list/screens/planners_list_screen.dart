@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'dart:async';
 
 import 'package:drift_db_viewer/drift_db_viewer.dart';
@@ -121,12 +117,12 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                 builder: (context) {
                   final data = _actualPlanners.value;
                   if (data.isEmpty) {
-                    return Column(
+                    return const Column(
                       children: [
                         Expanded(
                           child: SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            child: const Center(
+                            physics: AlwaysScrollableScrollPhysics(),
+                            child: Center(
                               child: Padding(
                                 padding: EdgeInsets.only(top: 30),
                                 child: Text('No planners'),
@@ -196,7 +192,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                                 //         );
                                 //       }
                                 //     }
-                                //   } catch (e) {
+                                //   } on Object catch (e) {
                                 //     // Показываем ошибку
                                 //     if (context.mounted) {
                                 //       ScaffoldMessenger.of(context).showSnackBar(

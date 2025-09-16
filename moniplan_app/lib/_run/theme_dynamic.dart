@@ -1,16 +1,10 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
-typedef MoniplanThemeGeneratorDynamic = Future<AppTheme> Function({
-  Brightness? brightness,
-  FlexSchemeVariant? variant,
-});
+typedef MoniplanThemeGeneratorDynamic =
+    Future<AppTheme> Function({Brightness? brightness, FlexSchemeVariant? variant});
 
 Future<AppTheme> moniplanThemeGeneratorDynamic({
   Brightness? brightness,
@@ -20,14 +14,9 @@ Future<AppTheme> moniplanThemeGeneratorDynamic({
       brightness ?? WidgetsBinding.instance.platformDispatcher.platformBrightness;
 
   return moniplanTheme(
-    seedScheme: await _getDynamicScheme(
-      effectiveBrightness,
-      debug: true,
-    ),
+    seedScheme: await _getDynamicScheme(effectiveBrightness, debug: true),
     brightness: effectiveBrightness,
     variant: variant ?? FlexSchemeVariant.vivid,
-    rainbow: false,
-    contrast: 0,
   );
 }
 
@@ -44,8 +33,6 @@ AppTheme moniplanThemeGeneratorDynamicSync({
     seedScheme: brightness == Brightness.dark ? dark : light,
     brightness: effectiveBrightness,
     variant: variant ?? FlexSchemeVariant.vivid,
-    rainbow: false,
-    contrast: 0,
   );
 }
 
@@ -65,14 +52,11 @@ Future<ColorScheme?> _getDynamicScheme(Brightness brightness, {bool debug = fals
   }
 
   try {
-    final Color? accentColor = await DynamicColorPlugin.getAccentColor();
+    final accentColor = await DynamicColorPlugin.getAccentColor();
 
     if (accentColor != null) {
       trace('dynamic_color: Accent color detected.');
-      final scheme = ColorScheme.fromSeed(
-        seedColor: accentColor,
-        brightness: brightness,
-      );
+      final scheme = ColorScheme.fromSeed(seedColor: accentColor, brightness: brightness);
       return scheme;
     }
   } on PlatformException {

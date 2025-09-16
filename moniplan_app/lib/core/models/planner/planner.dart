@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_app/core/_index.dart';
 
@@ -10,8 +6,6 @@ part 'planner.g.dart';
 
 @Freezed()
 class Planner with _$Planner {
-  const Planner._();
-
   const factory Planner({
     required final String id,
     required final DateTime dateStart,
@@ -22,6 +16,7 @@ class Planner with _$Planner {
     @Default(0) final num initialBudget,
     final PlannerActualInfo? actualInfo,
   }) = _Planner;
+  const Planner._();
 
   factory Planner.fromJson(Map<String, dynamic> json) => _$PlannerFromJson(json);
 

@@ -1,14 +1,10 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PaymentListItem extends StatelessWidget {
-  const PaymentListItem({super.key, required this.payment, this.mediateSummary, this.onPressed});
+  const PaymentListItem({required this.payment, super.key, this.mediateSummary, this.onPressed});
 
   final Payment payment;
   final num? mediateSummary;
@@ -24,7 +20,7 @@ class PaymentListItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       elevation: shouldGrayscale ? 0 : 1,
       color: _getCardColor(context, shouldGrayscale, hasNegativeBalance, isCorrection),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide.none),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(12),
@@ -53,7 +49,6 @@ class PaymentListItem extends StatelessWidget {
     final statusIcon = _getStatusIcon(context);
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Иконка типа платежа или предупреждения
         Icon(
@@ -129,7 +124,9 @@ class PaymentListItem extends StatelessWidget {
   }
 
   Widget _buildBudgetWidget(BuildContext context) {
-    if (mediateSummary == null) return const SizedBox();
+    if (mediateSummary == null) {
+      return const SizedBox();
+    }
 
     return MoneyColoredWidget(
       value: mediateSummary,
@@ -161,8 +158,12 @@ class PaymentListItem extends StatelessWidget {
   }
 
   IconData _getPaymentIcon(bool hasNegativeBalance, bool isCorrection) {
-    if (hasNegativeBalance) return Icons.warning_amber_rounded;
-    if (isCorrection) return Icons.sync_alt;
+    if (hasNegativeBalance) {
+      return Icons.warning_amber_rounded;
+    }
+    if (isCorrection) {
+      return Icons.sync_alt;
+    }
     return payment.type == PaymentType.income
         ? Icons.arrow_downward_rounded
         : Icons.arrow_upward_rounded;
@@ -175,9 +176,15 @@ class PaymentListItem extends StatelessWidget {
     bool isCorrection,
     Color textColor,
   ) {
-    if (shouldGrayscale) return textColor;
-    if (hasNegativeBalance) return context.color.error;
-    if (isCorrection) return Colors.yellowAccent;
+    if (shouldGrayscale) {
+      return textColor;
+    }
+    if (hasNegativeBalance) {
+      return context.color.error;
+    }
+    if (isCorrection) {
+      return Colors.yellowAccent;
+    }
 
     return payment.type == PaymentType.income
         ? context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green
@@ -190,9 +197,15 @@ class PaymentListItem extends StatelessWidget {
     bool hasNegativeBalance,
     bool isCorrection,
   ) {
-    if (isCorrection) return context.color.surfaceContainerHighest;
-    if (shouldGrayscale) return context.color.surfaceContainerLowest;
-    if (hasNegativeBalance) return context.color.errorContainer.withValues(alpha: .2);
+    if (isCorrection) {
+      return context.color.surfaceContainerHighest;
+    }
+    if (shouldGrayscale) {
+      return context.color.surfaceContainerLowest;
+    }
+    if (hasNegativeBalance) {
+      return context.color.errorContainer.withValues(alpha: .2);
+    }
 
     return payment.type == PaymentType.income
         ? context.color.primaryContainer.withValues(alpha: .4)
@@ -200,7 +213,9 @@ class PaymentListItem extends StatelessWidget {
   }
 
   Widget _buildRepeatWidget(BuildContext context, bool shouldGrayscale, Color textColor) {
-    if (!payment.isRepeat) return const SizedBox();
+    if (!payment.isRepeat) {
+      return const SizedBox();
+    }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -240,8 +255,7 @@ class PaymentListItem extends StatelessWidget {
 
   Widget _buildBudgetPredict(BuildContext context, num summary, Widget budgetPredictWidget) {
     final isNegative = summary < 0;
-    final IconData icon =
-        isNegative ? Icons.warning_amber_rounded : Icons.account_balance_wallet_outlined;
+    final icon = isNegative ? Icons.warning_amber_rounded : Icons.account_balance_wallet_outlined;
     final color = isNegative ? context.color.error : context.color.tertiary;
 
     if (isNegative) {
@@ -250,7 +264,7 @@ class PaymentListItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.color.errorContainer.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: context.color.error.withValues(alpha: 0.5), width: 1),
+          border: Border.all(color: context.color.error.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
               color: context.color.error.withValues(alpha: 0.2),

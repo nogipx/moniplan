@@ -1,14 +1,8 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:moniplan_app/utils/_index.dart';
-
-import '_index.dart';
 
 /// Based on given dates boundaries, filters the items
 /// that are limited by these boundaries.
-class ConstrainItemsInPeriodUseCase<T> implements IUseCase<List<T>> {
+class ConstrainItemsInPeriodUseCase<T> {
   final Iterable<T> items;
   final DateTime dateStart;
   final DateTime dateEnd;
@@ -21,7 +15,6 @@ class ConstrainItemsInPeriodUseCase<T> implements IUseCase<List<T>> {
     required this.dateExtractor,
   });
 
-  @override
   List<T> run() {
     final start = dateStart.dayBound;
     final end = dateEnd.dayBound;

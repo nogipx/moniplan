@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +13,7 @@ class PaymentEditScreen extends StatefulWidget {
   final Payment? payment;
   final Function(Payment) onSave;
 
-  const PaymentEditScreen({this.payment, required this.onSave, super.key});
+  const PaymentEditScreen({required this.onSave, this.payment, super.key});
 
   @override
   State<PaymentEditScreen> createState() => _PaymentEditScreenState();
@@ -167,7 +163,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
                     child: Container(
                       color: Theme.of(context).colorScheme.surface,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -191,7 +187,6 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
               ],
             ),
             bottomNavigationBar: _buildBottomBar(context, state),
-            bottomSheet: null,
           ),
         );
       },
@@ -208,7 +203,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
               state.currentStep == 0
                   ? _buildCurrentStep(context, state)
                   : SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16),
                     child: _buildCurrentStep(context, state),
                   ),
         ),
@@ -258,7 +253,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
     final paymentType = state.payment != null ? state.payment!.details.type : state.type;
 
     // Получаем налог из платежа или из состояния
-    double taxRate = 0.0;
+    double taxRate = 0;
     if (state.payment != null) {
       taxRate = state.payment!.details.tax;
     } else if (state.tax.isNotEmpty) {
@@ -526,7 +521,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
     DateTime initialDate,
     Function(DateTime?) onDateSelected,
   ) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: DateTime(2000),
@@ -557,7 +552,7 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             border: Border(
-              top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1), width: 1),
+              top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
             ),
           ),
           child: Row(
@@ -748,17 +743,18 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
     try {
       final calculatorBloc = context.read<CalculatorBloc>();
       final amount = calculatorBloc.state.result;
-      bloc.add(edit.PaymentEditAmountChanged(amount));
-
-      // Обновляем черновик платежа
-      bloc.add(const edit.PaymentEditUpdateDraft());
-    } catch (e) {
+      bloc
+        ..add(edit.PaymentEditAmountChanged(amount))
+        // Обновляем черновик платежа
+        ..add(const edit.PaymentEditUpdateDraft());
+    } on Object catch (e) {
       print('Ошибка при получении значения из CalculatorBloc: $e');
 
       // Проверяем, что сумма не пустая
       if (state.amount.isEmpty) {
-        bloc.add(const edit.PaymentEditAmountChanged('0'));
-        bloc.add(const edit.PaymentEditUpdateDraft());
+        bloc
+          ..add(const edit.PaymentEditAmountChanged('0'))
+          ..add(const edit.PaymentEditUpdateDraft());
       }
     }
   }
@@ -928,7 +924,9 @@ class _TitleInputStepState extends State<_TitleInputStep> {
               Switch(
                 value: isDone,
                 onChanged: (value) {
-                  context.read<edit.PaymentEditBloc>().add(edit.PaymentEditIsDoneChanged(value));
+                  context.read<edit.PaymentEditBloc>().add(
+                    edit.PaymentEditIsDoneChanged(isDone: value),
+                  );
                 },
               ),
             ],
@@ -944,7 +942,7 @@ class _TitleInputStepState extends State<_TitleInputStep> {
     DateTime initialDate,
     Function(DateTime?) onDateSelected,
   ) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: DateTime(2000),

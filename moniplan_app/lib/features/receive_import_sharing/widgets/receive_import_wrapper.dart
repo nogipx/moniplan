@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/features/monisync/screens/monisync_screen.dart';
@@ -12,7 +8,7 @@ import 'package:oktoast/oktoast.dart';
 class ReceiveImportWrapper extends StatefulWidget {
   final Widget child;
 
-  const ReceiveImportWrapper({super.key, required this.child});
+  const ReceiveImportWrapper({required this.child, super.key});
 
   @override
   State<ReceiveImportWrapper> createState() => _ReceiveImportWrapperState();
@@ -110,17 +106,17 @@ class _ReceiveImportWrapperState extends State<ReceiveImportWrapper> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text('Импорт завершен'),
+            title: const Text('Импорт завершен'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.check_circle, size: 48, color: context.theme.colorScheme.primary),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(message),
               ],
             ),
             actions: [
-              FilledButton(onPressed: () => Navigator.of(context).pop(), child: Text('ОК')),
+              FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('ОК')),
             ],
           ),
     );
@@ -137,12 +133,12 @@ class _ReceiveImportWrapperState extends State<ReceiveImportWrapper> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.error_outline, size: 48, color: context.theme.colorScheme.error),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(message),
               ],
             ),
             actions: [
-              FilledButton(onPressed: () => Navigator.of(context).pop(), child: Text('ОК')),
+              FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('ОК')),
             ],
           ),
     );

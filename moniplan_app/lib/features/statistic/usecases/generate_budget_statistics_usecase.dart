@@ -26,7 +26,7 @@ import '../models/_index.dart';
 ///
 /// Исключения:
 /// - Выбрасывает исключение, если планировщик с указанным [plannerId] не найден.
-class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics> {
+class GenerateBudgetStatisticsUseCase {
   final IPlannerRepo plannerRepo;
   final String plannerId;
   final DateTime? dateStart;
@@ -39,16 +39,15 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
     this.dateEnd,
   });
 
-  @override
   Future<BudgetStatistics> run() async {
-    final planner = await plannerRepo.getPlannerById(plannerId, withActualInfo: false);
+    final planner = await plannerRepo.getPlannerById(plannerId);
     if (planner == null) {
       throw Exception('Planner not found');
     }
 
     final payments = await plannerRepo.getPaymentsByPlannerId(plannerId: plannerId);
     if (payments.isEmpty) {
-      return BudgetStatistics(totalBudget: {}, incomes: {}, expenses: {});
+      return const BudgetStatistics(totalBudget: {}, incomes: {}, expenses: {});
     }
 
     final targetPlanner =
@@ -72,12 +71,13 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
               ).run(),
         ).run();
 
+    // ignore:omit_local_variable_types
     final BudgetStatisticsTotal totalBudget = {};
-    final Map<DateTime, num> incomes = {};
-    final Map<DateTime, num> expenses = {};
-    final Map<DateTime, num> corrections = {};
+    final incomes = <DateTime, num>{};
+    final expenses = <DateTime, num>{};
+    final corrections = <DateTime, num>{};
 
-    num runningTotal = planner.initialBudget;
+    var runningTotal = planner.initialBudget;
 
     for (var i = 0; i < paymentsByDate.length; i++) {
       final group = paymentsByDate[i];
@@ -88,7 +88,7 @@ class GenerateBudgetStatisticsUseCase implements IUseCaseAsync<BudgetStatistics>
       double dailyIncome = 0;
       double dailyExpense = 0;
       double dailyCorrection = 0;
-      bool allCompleted = true;
+      var allCompleted = true;
 
       for (final payment in dayPayments) {
         if (payment.isEnabled) {

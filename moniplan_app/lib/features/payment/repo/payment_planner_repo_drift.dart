@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:drift/drift.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/database/_index.dart';
@@ -24,7 +20,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
   Future<T> _guard<T>(Future<T> Function() action, {String name = ''}) async {
     try {
       // Механизм повторных попыток с экспоненциальной задержкой
-      int retryCount = 0;
+      var retryCount = 0;
       const maxRetries = 5;
       const initialDelay = Duration(milliseconds: 100);
 
@@ -65,7 +61,9 @@ final class PlannerRepoDrift implements IPlannerRepo {
     return _guard(name: 'getPlannerById', () async {
       // Получаем данные планировщика
       final plannerDao = await _getPlannerById(id);
-      if (plannerDao == null) return null;
+      if (plannerDao == null) {
+        return null;
+      }
 
       // Получаем платежи планировщика
       final payments = await getPaymentsByPlannerId(plannerId: id);
@@ -88,26 +86,6 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
       // Словарь для хранения платежей по планировщикам
       final paymentsForPlanner = <String, List<Payment>>{};
-
-      // Если нужны платежи, получаем их для всех планировщиков
-      if (withPayments) {
-        final plannersIds = plannersDao.map((e) => e.plannerId).toSet();
-
-        // Получаем все платежи для всех планировщиков
-        final allPaymentsDao =
-            await appDb.db.managers.paymentsComposedDriftTable
-                .filter((f) => f.plannerId.isIn(plannersIds))
-                .get();
-
-        // Преобразуем DAO в доменные объекты
-        final allPayments = allPaymentsDao.map(_paymentMapper.toDomain).toList();
-
-        // Группируем платежи по планировщикам
-        for (final payment in allPayments) {
-          final list = paymentsForPlanner.putIfAbsent(payment.plannerId, () => []);
-          list.add(payment);
-        }
-      }
 
       // Словарь для хранения актуальной информации по планировщикам
       final actualInfosForPlanner = <String, PlannerActualInfo?>{};
@@ -253,7 +231,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
   }) {
     return _guard(name: 'duplicatePlanner', () async {
       // Получаем оригинальный планнер со всеми платежами
-      final originalPlanner = await getPlannerById(originalPlannerId, withActualInfo: false);
+      final originalPlanner = await getPlannerById(originalPlannerId);
       if (originalPlanner == null) {
         throw Exception('Original planner with id "$originalPlannerId" not found');
       }
@@ -402,7 +380,7 @@ final class PlannerRepoDrift implements IPlannerRepo {
 
         // Возвращаем обновленную информацию
         return plannerActualInfo;
-      } catch (e) {
+      } on Object catch (e) {
         print('Ошибка при обновлении актуальной информации о планировщике: $e');
         return null;
       }

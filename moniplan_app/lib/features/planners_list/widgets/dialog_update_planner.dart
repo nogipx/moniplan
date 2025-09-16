@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
@@ -9,21 +5,19 @@ import 'package:moniplan_app/utils/_index.dart';
 
 void showDialogUpdatePlanner(
   BuildContext context, {
-  Planner? planner,
   required Function(DateTime, DateTime, String, String) onSave,
+  Planner? planner,
   Function()? onDelete,
   Function()? onDuplicate,
 }) {
-  final TextEditingController numberController =
-      TextEditingController()..text = planner?.initialBudget.toString() ?? '';
-  final TextEditingController nameController =
-      TextEditingController()..text = planner?.name.toString() ?? '';
-  DateTime startDate = planner?.dateStart ?? DateTime.now();
-  DateTime endDate = planner?.dateEnd ?? DateTime.now().monthEnd;
-  bool isStartDateValid = true;
+  final numberController = TextEditingController()..text = planner?.initialBudget.toString() ?? '';
+  final nameController = TextEditingController()..text = planner?.name.toString() ?? '';
+  var startDate = planner?.dateStart ?? DateTime.now();
+  var endDate = planner?.dateEnd ?? DateTime.now().monthEnd;
+  var isStartDateValid = true;
 
   Future<void> selectStartDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: startDate,
       firstDate: DateTime(2000),
@@ -36,7 +30,7 @@ void showDialogUpdatePlanner(
   }
 
   Future<void> selectEndDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: endDate,
       firstDate: DateTime(2000),
@@ -85,7 +79,7 @@ void showDialogUpdatePlanner(
                 TextField(
                   controller: nameController,
                   keyboardType: TextInputType.text,
-                  decoration: InputDecoration(labelText: 'Enter a name'),
+                  decoration: const InputDecoration(labelText: 'Enter a name'),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -93,7 +87,7 @@ void showDialogUpdatePlanner(
                     Text('Start date: ${dateFormat.format(startDate)}'),
                     if (planner == null)
                       IconButton(
-                        icon: Icon(Icons.calendar_today),
+                        icon: const Icon(Icons.calendar_today),
                         onPressed: () async {
                           await selectStartDate(context);
                           setState(() {});
@@ -101,12 +95,12 @@ void showDialogUpdatePlanner(
                       ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Row(
                   children: <Widget>[
                     Text('End date: ${dateFormat.format(endDate)}'),
                     IconButton(
-                      icon: Icon(Icons.calendar_today),
+                      icon: const Icon(Icons.calendar_today),
                       onPressed: () async {
                         await selectEndDate(context);
                         setState(() {});
@@ -114,12 +108,12 @@ void showDialogUpdatePlanner(
                     ),
                   ],
                 ),
-                if (!isStartDateValid) Text('Start date cannot be after end date'),
-                SizedBox(height: 16),
+                if (!isStartDateValid) const Text('Start date cannot be after end date'),
+                const SizedBox(height: 16),
                 TextField(
                   controller: numberController,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: 'Enter a initial budget'),
+                  decoration: const InputDecoration(labelText: 'Enter a initial budget'),
                 ),
               ],
             ),
@@ -128,7 +122,7 @@ void showDialogUpdatePlanner(
                 onPressed: () {
                   Navigator.of(context).pop(); // Закрываем диалог
                 },
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed:

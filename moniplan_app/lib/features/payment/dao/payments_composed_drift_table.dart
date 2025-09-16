@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2025 Karim "nogipx" Mamatkazin <nogipx@gmail.com>
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 import 'package:drift/drift.dart';
 
 @TableIndex(name: 'index_planner_id_at_payment', columns: {#plannerId})
@@ -24,8 +20,8 @@ class PaymentsComposedDriftTable extends Table {
 
   /// Money section
   ///
-  RealColumn get paymentMoney => real().withDefault(const Constant(0.0))();
-  RealColumn get paymentTax => real().withDefault(const Constant(0.0))();
+  RealColumn get paymentMoney => real().withDefault(const Constant(0))();
+  RealColumn get paymentTax => real().withDefault(const Constant(0))();
   IntColumn get paymentTypeId => integer().withDefault(const Constant(0))();
   TextColumn get currencyCode => text().nullable()();
   IntColumn get currencyPrecision => integer().nullable()();
