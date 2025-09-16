@@ -6,8 +6,10 @@
 
 import 'dart:collection';
 
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
+
+import '_index.dart';
 
 /// Вычисляет промежуточные итоги платежей.
 /// Работает с любым списком платежей, не зависит от генерации планера.

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment_edit/payment_edit_bloc/payment_edit_event.dart';
 import 'package:moniplan_app/utils/_index.dart';
 

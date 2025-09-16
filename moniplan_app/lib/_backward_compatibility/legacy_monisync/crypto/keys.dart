@@ -1,4 +1,4 @@
-import 'package:moniplan_app/env/env.dart';
+import 'package:moniplan_app/core/env/env.dart';
 
 import 'app_encryption_key.dart';
 

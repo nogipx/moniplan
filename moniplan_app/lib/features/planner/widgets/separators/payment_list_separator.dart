@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';

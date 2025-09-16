@@ -4,7 +4,8 @@
 
 // ignore_for_file: invalid_annotation_target
 
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:moniplan_app/core/_index.dart';
 
 part 'payment_details.freezed.dart';
 part 'payment_details.g.dart';

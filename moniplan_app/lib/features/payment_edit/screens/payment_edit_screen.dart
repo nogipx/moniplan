@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/calculator/bloc/calculator_bloc.dart';
 import 'package:moniplan_app/features/calculator/bloc/calculator_event.dart';
 import 'package:moniplan_app/features/calculator/widgets/payment_keyboard.dart' as keyboard;

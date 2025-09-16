@@ -1,5 +1,7 @@
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:equatable/equatable.dart';
+import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
+import 'package:uuid/uuid.dart';
 
 /// Состояние для блока редактирования платежа
 class PaymentEditState extends Equatable {

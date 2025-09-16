@@ -4,7 +4,7 @@
 
 // ignore_for_file: prefer_collection_literals
 
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:moniplan_app/core/_index.dart';
 
 class ComputeActualPlannerInfo implements IUseCase<PlannerActualInfo> {
   final String plannerId;

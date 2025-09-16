@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/locale.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:moniplan_app/core/_index.dart';
 import 'package:rpc_dart/logger.dart';
 
 extension CurrencyDouble on num {

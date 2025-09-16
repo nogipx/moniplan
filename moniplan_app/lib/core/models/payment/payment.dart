@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // ignore_for_file: invalid_annotation_target
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:moniplan_app/core/_index.dart';
 
 part 'payment.freezed.dart';
 part 'payment.g.dart';

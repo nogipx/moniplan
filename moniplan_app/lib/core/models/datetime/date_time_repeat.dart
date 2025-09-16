@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:moniplan_app/utils/_index.dart';
 
 /// Конвертер для сериализации/десериализации DateTimeRepeat

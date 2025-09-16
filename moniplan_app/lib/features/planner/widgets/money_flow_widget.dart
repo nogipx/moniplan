@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter/material.dart';
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
+import 'package:moniplan_app/features/payment/usecases/money_flow_usecase.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class MoneyFlowWidget extends StatelessWidget {

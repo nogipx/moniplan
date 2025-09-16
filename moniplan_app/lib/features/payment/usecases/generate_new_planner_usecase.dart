@@ -2,7 +2,10 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:moniplan_app/core/_index.dart';
+import 'package:uuid/uuid.dart';
+
+import '_index.dart';
 
 /// Генерирует планер, добавляя в него повторяющиеся операции.
 class GenerateNewPlannerUseCase implements IUseCase<GenerateNewPlannerUseCaseResult> {

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import '../_index.dart';
 
 /// Based on the repetition setting, dates are generated
 /// that are limited by the specified date boundaries.

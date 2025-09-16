@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:licensify/licensify.dart';
 
 import '../models/backup_info.dart';
 

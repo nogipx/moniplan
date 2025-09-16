@@ -4,10 +4,10 @@
 
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/database/_index.dart';
-import 'package:moniplan_app/domain/moniplan_domain.dart';
 import 'package:moniplan_app/features/monisync/_index.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
+import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
 import 'package:moniplan_app/features/statistic/repo/i_statistics_repo.dart';
 import 'package:moniplan_app/features/statistic/repo/statistics_repository.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -23,8 +23,6 @@ abstract interface class IAppDi {
   Future<IMonisyncRepo> getMonisyncRepo();
 
   IStatisticsRepo getStatisticsRepo();
-
-  IFeaturesManager getFeaturesManager();
 }
 
 abstract class AppDi implements IAppDi {
@@ -71,9 +69,6 @@ class GetItAppDI implements AppDi {
 
   @override
   IStatisticsRepo getStatisticsRepo() => _getIt.get();
-
-  @override
-  IFeaturesManager getFeaturesManager() => _getIt.get();
 
   @override
   T get<T extends Object>() => _getIt.get<T>();

@@ -1,4 +1,4 @@
-import 'package:moniplan_app/domain/moniplan_domain.dart';
+import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
 
 import '../models/_index.dart';
 import '../usecases/_index.dart';
