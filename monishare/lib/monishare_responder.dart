@@ -1,19 +1,21 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:rpc_dart/rpc_dart.dart';
 
 import 'models.dart';
 import 'monishare_contract.dart';
+import 'monishare_responder_repository.dart';
 
 /// Реализация серверного контракта MoniShare.
 class MoniShareResponder extends RpcResponderContract {
   MoniShareResponder({
+    MoniShareResponderRepository? repository,
     Duration? defaultInviteTtl,
     DateTime Function()? clock,
     String Function()? idGenerator,
-  })  : _defaultInviteTtl = defaultInviteTtl ?? const Duration(days: 7),
+  })  : _repository = repository ?? InMemoryMoniShareResponderRepository(),
+        _defaultInviteTtl = defaultInviteTtl ?? const Duration(days: 7),
         _clock = clock ?? DateTime.now,
         _idGenerator = idGenerator ?? _generateId,
         super(
@@ -21,15 +23,10 @@ class MoniShareResponder extends RpcResponderContract {
           dataTransferMode: RpcDataTransferMode.codec,
         );
 
+  final MoniShareResponderRepository _repository;
   final Duration _defaultInviteTtl;
   final DateTime Function() _clock;
   final String Function() _idGenerator;
-
-  final Map<String, Space> _spaces = {};
-  final Map<String, List<OperationRecord>> _opsBySpace = {};
-  final Map<String, int> _lastOpIndexBySpace = {};
-  final Map<String, Invite> _invites = {};
-  final Map<String, StreamController<OpsNotification>> _spaceStreams = {};
 
   static final Random _random = Random.secure();
 
@@ -110,12 +107,7 @@ class MoniShareResponder extends RpcResponderContract {
 
   @override
   void dispose() {
-    for (final controller in _spaceStreams.values) {
-      if (!controller.isClosed) {
-        controller.close();
-      }
-    }
-    _spaceStreams.clear();
+    _repository.dispose();
     super.dispose();
   }
 
@@ -124,15 +116,13 @@ class MoniShareResponder extends RpcResponderContract {
     RpcContext? context,
   }) async {
     var candidate = request.plannerSpaceIdHint ?? _idGenerator();
-    while (_spaces.containsKey(candidate)) {
+    while (await _repository.spaceExists(candidate)) {
       candidate = _idGenerator();
     }
 
     final now = _clock();
     final space = Space(plannerSpaceId: candidate, createdAt: now);
-    _spaces[candidate] = space;
-    _opsBySpace[candidate] = <OperationRecord>[];
-    _lastOpIndexBySpace[candidate] = 0;
+    await _repository.createSpace(space);
 
     return SpacesRegisterResponse(space: space);
   }
@@ -141,14 +131,14 @@ class MoniShareResponder extends RpcResponderContract {
     SpacesArchiveRequest request, {
     RpcContext? context,
   }) async {
-    final space = _requireSpace(request.plannerSpaceId);
+    final space = await _requireSpace(request.plannerSpaceId);
 
     if (space.archivedAt != null) {
       return SpacesArchiveResponse(space: space);
     }
 
     final archived = space.copyWith(archivedAt: _clock());
-    _spaces[space.plannerSpaceId] = archived;
+    await _repository.saveSpace(archived);
     return SpacesArchiveResponse(space: archived);
   }
 
@@ -156,7 +146,7 @@ class MoniShareResponder extends RpcResponderContract {
     OpsAppendRequest request, {
     RpcContext? context,
   }) async {
-    final space = _requireSpace(request.plannerSpaceId);
+    final space = await _requireSpace(request.plannerSpaceId);
 
     if (space.archivedAt != null) {
       throw MoniShareException(
@@ -166,42 +156,16 @@ class MoniShareResponder extends RpcResponderContract {
     }
 
     final payloads = request.operations;
-    if (payloads.isEmpty) {
-      return OpsAppendResponse(
-        plannerSpaceId: request.plannerSpaceId,
-        lastOpIdx: _lastOpIndexBySpace[space.plannerSpaceId] ?? 0,
-        appendedCount: 0,
-      );
-    }
-
-    final operations = _opsBySpace[space.plannerSpaceId] ??= [];
-    var lastIdx = _lastOpIndexBySpace[space.plannerSpaceId] ?? 0;
-
-    for (final payload in payloads) {
-      lastIdx += 1;
-      final record = OperationRecord(
-        plannerSpaceId: space.plannerSpaceId,
-        opIdx: lastIdx,
-        tsServer: _clock(),
-        actorPseudoId: payload.actorPseudoId,
-        cipherLen: payload.cipherLen,
-        cipherHash: payload.cipherHash,
-        ciphertextB64: payload.ciphertextB64,
-      );
-      operations.add(record);
-    }
-
-    _lastOpIndexBySpace[space.plannerSpaceId] = lastIdx;
-    _notifySubscribers(
+    final appendResult = await _repository.appendOperations(
       space.plannerSpaceId,
-      lastIdx: lastIdx,
-      batchSize: payloads.length,
+      payloads,
+      _clock,
     );
 
     return OpsAppendResponse(
       plannerSpaceId: space.plannerSpaceId,
-      lastOpIdx: lastIdx,
-      appendedCount: payloads.length,
+      lastOpIdx: appendResult.lastOpIdx,
+      appendedCount: appendResult.appendedCount,
     );
   }
 
@@ -209,40 +173,31 @@ class MoniShareResponder extends RpcResponderContract {
     OpsPullRequest request, {
     RpcContext? context,
   }) async {
-    _requireSpace(request.plannerSpaceId);
+    await _requireSpace(request.plannerSpaceId);
 
-    final operations = _opsBySpace[request.plannerSpaceId] ?? const [];
-    final filtered = operations
-        .where((op) => op.opIdx > request.sinceOpIdx)
-        .sortedBy<num>((op) => op.opIdx)
-        .toList();
+    final operations = await _repository.fetchOperations(
+      request.plannerSpaceId,
+      request.sinceOpIdx,
+      limit: request.limit,
+    );
 
-    final limited = request.limit == null
-        ? filtered
-        : filtered.take(request.limit!).toList();
-
-    return OpsPullResponse(operations: limited);
+    return OpsPullResponse(operations: operations);
   }
 
   Stream<OpsNotification> _handleOpsSubscribe(
     OpsSubscribeRequest request, {
     RpcContext? context,
-  }) {
-    _requireSpace(request.plannerSpaceId);
+  }) async* {
+    await _requireSpace(request.plannerSpaceId);
 
-    final controller = _spaceStreams.putIfAbsent(
-      request.plannerSpaceId,
-      () => StreamController<OpsNotification>.broadcast(),
-    );
-
-    return controller.stream;
+    yield* _repository.subscribeToSpace(request.plannerSpaceId);
   }
 
   Future<InvitesMutationResponse> _handleInvitesCreate(
     InvitesCreateRequest request, {
     RpcContext? context,
   }) async {
-    _requireSpace(request.plannerSpaceId);
+    await _requireSpace(request.plannerSpaceId);
 
     final inviteId = _idGenerator();
     final createdAt = _clock();
@@ -259,7 +214,7 @@ class MoniShareResponder extends RpcResponderContract {
       ownerHandshakeB64: request.ownerHandshakeB64,
     );
 
-    _invites[inviteId] = invite;
+    await _repository.saveInvite(invite);
 
     return InvitesMutationResponse(invite: invite);
   }
@@ -268,7 +223,7 @@ class MoniShareResponder extends RpcResponderContract {
     InvitesRespondRequest request, {
     RpcContext? context,
   }) async {
-    final invite = _requireInvite(request.inviteId);
+    final invite = await _requireInvite(request.inviteId);
     _ensureInviteActive(invite);
 
     if (invite.state != InviteState.created) {
@@ -283,7 +238,7 @@ class MoniShareResponder extends RpcResponderContract {
       joinerHandshakeB64: request.joinerHandshakeB64,
     );
 
-    _invites[invite.inviteId] = updated;
+    await _repository.saveInvite(updated);
     return InvitesMutationResponse(invite: updated);
   }
 
@@ -291,7 +246,7 @@ class MoniShareResponder extends RpcResponderContract {
     InvitesFinalizeRequest request, {
     RpcContext? context,
   }) async {
-    final invite = _requireInvite(request.inviteId);
+    final invite = await _requireInvite(request.inviteId);
     _ensureInviteActive(invite);
 
     if (invite.state != InviteState.responded) {
@@ -307,7 +262,7 @@ class MoniShareResponder extends RpcResponderContract {
       encryptedEnvelopeB64: request.encryptedEnvelopeB64,
     );
 
-    _invites[invite.inviteId] = updated;
+    await _repository.saveInvite(updated);
     return InvitesMutationResponse(invite: updated);
   }
 
@@ -315,22 +270,22 @@ class MoniShareResponder extends RpcResponderContract {
     InvitesFetchRequest request, {
     RpcContext? context,
   }) async {
-    final invite = _invites[request.inviteId];
+    final invite = await _repository.findInvite(request.inviteId);
     if (invite == null) {
       return const InvitesFetchResponse(invite: null);
     }
 
     if (_isExpired(invite)) {
       final expired = invite.copyWith(state: InviteState.expired);
-      _invites[invite.inviteId] = expired;
+      await _repository.saveInvite(expired);
       return InvitesFetchResponse(invite: expired);
     }
 
     return InvitesFetchResponse(invite: invite);
   }
 
-  Space _requireSpace(String plannerSpaceId) {
-    final space = _spaces[plannerSpaceId];
+  Future<Space> _requireSpace(String plannerSpaceId) async {
+    final space = await _repository.findSpace(plannerSpaceId);
     if (space == null) {
       throw MoniShareException(
         'space_not_found',
@@ -340,8 +295,8 @@ class MoniShareResponder extends RpcResponderContract {
     return space;
   }
 
-  Invite _requireInvite(String inviteId) {
-    final invite = _invites[inviteId];
+  Future<Invite> _requireInvite(String inviteId) async {
+    final invite = await _repository.findInvite(inviteId);
     if (invite == null) {
       throw MoniShareException(
           'invite_not_found', 'Invite $inviteId not found');
@@ -349,7 +304,7 @@ class MoniShareResponder extends RpcResponderContract {
 
     if (_isExpired(invite)) {
       final expired = invite.copyWith(state: InviteState.expired);
-      _invites[invite.inviteId] = expired;
+      await _repository.saveInvite(expired);
       throw MoniShareException('invite_expired', 'Invite $inviteId expired');
     }
 
@@ -368,25 +323,5 @@ class MoniShareResponder extends RpcResponderContract {
       return false;
     }
     return _clock().isAfter(invite.expiresAt!);
-  }
-
-  void _notifySubscribers(
-    String plannerSpaceId, {
-    required int lastIdx,
-    required int batchSize,
-  }) {
-    final controller = _spaceStreams[plannerSpaceId];
-    if (controller == null || controller.isClosed) {
-      return;
-    }
-
-    final notification = OpsNotification(
-      plannerSpaceId: plannerSpaceId,
-      lastOpIdx: lastIdx,
-      batchSize: batchSize,
-    );
-
-    // Не логируем содержимое операций.
-    controller.add(notification);
   }
 }
