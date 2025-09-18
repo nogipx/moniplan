@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/database/_index.dart';
+import 'package:moniplan_app/features/monishare/_index.dart';
 import 'package:moniplan_app/features/monisync/_index.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
@@ -49,6 +50,16 @@ class GetItAppDI implements AppDi {
         return MonisyncRepoImpl(appDb: db);
       })
       ..registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
+
+    final monishareService = MonishareService();
+    await monishareService.ensureStarted();
+
+    _getIt
+      ..registerSingleton<MonishareService>(
+        monishareService,
+        dispose: (service) => service.dispose(),
+      )
+      ..registerSingleton<MonishareLocalStore>(MonishareLocalStore());
   }
 
   @override

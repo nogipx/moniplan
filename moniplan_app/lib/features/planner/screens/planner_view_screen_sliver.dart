@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
+import 'package:moniplan_app/features/monishare/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
@@ -97,7 +98,24 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
         final today = DateTime.now().dayBound;
         final paymentsByDate = state.getPaymentsByDate;
 
-        final appBar = AppBar(title: titleWidget, actions: const []);
+        final plannerId = context.read<PlannerBloc>().plannerId;
+
+        final appBar = AppBar(
+          title: titleWidget,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.share_lock),
+              tooltip: 'MoniShare',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => MonisharePlannerScreen(plannerId: plannerId),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
 
         final fab = Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

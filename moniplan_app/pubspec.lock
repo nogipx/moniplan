@@ -743,6 +743,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  monishare:
+    dependency: "direct main"
+    description:
+      path: "../monishare"
+      relative: true
+    source: path
+    version: "0.1.0"
   nested:
     dependency: transitive
     description:
