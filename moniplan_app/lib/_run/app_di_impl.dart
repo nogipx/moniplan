@@ -54,12 +54,21 @@ class GetItAppDI implements AppDi {
     final monishareService = MonishareService();
     await monishareService.ensureStarted();
 
+    final monishareLocalStore = MonishareLocalStore();
+
     _getIt
       ..registerSingleton<MonishareService>(
         monishareService,
         dispose: (service) => service.dispose(),
       )
-      ..registerSingleton<MonishareLocalStore>(MonishareLocalStore());
+      ..registerSingleton<MonishareLocalStore>(monishareLocalStore)
+      ..registerSingleton<MonishareRepository>(
+        MonishareRepository(
+          plannerRepo: getPlannerRepo(),
+          monishareService: monishareService,
+          localStore: monishareLocalStore,
+        ),
+      );
   }
 
   @override

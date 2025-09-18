@@ -1,65 +1,133 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/monishare/_index.dart';
-import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
-class MonishareDashboardScreen extends StatefulWidget {
+class MonishareDashboardScreen extends StatelessWidget {
   const MonishareDashboardScreen({super.key});
 
   @override
-  State<MonishareDashboardScreen> createState() =>
-      _MonishareDashboardScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => MonishareDashboardBloc(
+        repository: AppDi.instance.get<MonishareRepository>(),
+      )..add(const MonishareDashboardStarted()),
+      child: const _MonishareDashboardView(),
+    );
+  }
 }
 
-class _MonishareDashboardScreenState extends State<MonishareDashboardScreen> {
-  final IPlannerRepo _plannerRepo = AppDi.instance.getPlannerRepo();
-  final MonishareLocalStore _localStore = AppDi.instance.get<MonishareLocalStore>();
-  final MonishareService _service = AppDi.instance.get<MonishareService>();
+class _MonishareDashboardView extends StatelessWidget {
+  const _MonishareDashboardView();
 
-  var _isLoading = true;
-  List<Planner> _planners = const [];
-  Map<String, MonishareSpaceInfo> _spaces = const {};
+  Future<void> _onRefresh(BuildContext context) async {
+    final bloc = context.read<MonishareDashboardBloc>();
+    bloc.add(const MonishareDashboardRefreshRequested());
+    await bloc.stream.firstWhere((state) => !state.isLoading);
+  }
 
   @override
-  void initState() {
-    super.initState();
-    _load();
+  Widget build(BuildContext context) {
+    return BlocListener<MonishareDashboardBloc, MonishareDashboardState>(
+      listenWhen: (previous, current) =>
+          previous.message != current.message ||
+          previous.errorMessage != current.errorMessage,
+      listener: (context, state) {
+        final messenger = ScaffoldMessenger.of(context);
+        if (state.message != null && state.message!.isNotEmpty) {
+          messenger.showSnackBar(SnackBar(content: Text(state.message!)));
+        } else if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
+          messenger.showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+        }
+        if (state.message != null || state.errorMessage != null) {
+          context.read<MonishareDashboardBloc>().add(const MonishareDashboardMessageCleared());
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('MoniShare', style: context.text.displaySmall),
+        ),
+        body: BlocBuilder<MonishareDashboardBloc, MonishareDashboardState>(
+          builder: (context, state) {
+            if (state.isLoading && state.planners.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return RefreshIndicator(
+              onRefresh: () => _onRefresh(context),
+              child: ListView(
+                padding: const EdgeInsets.all(AppSpace.s16),
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  _ConnectionCard(state: state),
+                  const SizedBox(height: AppSpace.s16),
+                  Text('Планнеры', style: context.text.titleLarge),
+                  const SizedBox(height: AppSpace.s8),
+                  ..._buildPlannerTiles(context, state),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
 
-  Future<void> _load() async {
-    await _service.ensureStarted();
-    final planners =
-        await _plannerRepo.getPlanners(withPayments: false, withActualInfo: false);
-    final spaces = <String, MonishareSpaceInfo>{};
-    for (final planner in planners) {
-      final info = await _localStore.loadSpace(planner.id);
-      if (info != null) {
-        spaces[planner.id] = info;
-      }
+  List<Widget> _buildPlannerTiles(
+    BuildContext context,
+    MonishareDashboardState state,
+  ) {
+    if (state.planners.isEmpty) {
+      return [
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpace.s16),
+            child: Text('Пока нет доступных планнеров', style: context.text.bodyLarge),
+          ),
+        ),
+      ];
     }
 
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _planners = planners;
-      _spaces = spaces;
-      _isLoading = false;
-    });
+    return state.planners.map((planner) {
+      final space = state.spaces[planner.id];
+      final title = planner.name.isEmpty ? 'Без названия' : planner.name;
+      return Card(
+        child: ListTile(
+          title: Text(title, style: context.text.titleMedium),
+          subtitle: space != null
+              ? Text('Активно пространство ${space.plannerSpaceId}', style: context.text.bodyMedium)
+              : Text('MoniShare ещё не настроен', style: context.text.bodyMedium),
+          trailing: Icon(
+            space != null ? Icons.lock_open_rounded : Icons.lock_outline,
+            color: space != null ? context.color.primary : context.color.outline,
+          ),
+          onTap: () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => MonisharePlannerScreen(plannerId: planner.id),
+              ),
+            );
+            if (!context.mounted) {
+              return;
+            }
+            context.read<MonishareDashboardBloc>().add(const MonishareDashboardRefreshRequested());
+          },
+        ),
+      );
+    }).toList();
   }
+}
 
-  Future<void> _refresh() async {
-    setState(() {
-      _isLoading = true;
-    });
-    await _load();
-  }
+class _ConnectionCard extends StatelessWidget {
+  const _ConnectionCard({required this.state});
 
-  Widget _buildConnectionCard(BuildContext context) {
-    final isConnected = _service.isConnected;
+  final MonishareDashboardState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final isConnected = state.isConnected;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -92,13 +160,13 @@ class _MonishareDashboardScreenState extends State<MonishareDashboardScreen> {
             if (!isConnected) ...[
               const SizedBox(height: AppSpace.s16),
               FilledButton.icon(
-                onPressed: () async {
-                  await _service.ensureStarted();
-                  if (!mounted) {
-                    return;
-                  }
-                  setState(() {});
-                },
+                onPressed: state.isConnecting
+                    ? null
+                    : () {
+                        context
+                            .read<MonishareDashboardBloc>()
+                            .add(const MonishareDashboardConnectionRequested());
+                      },
                 icon: const Icon(Icons.power_settings_new),
                 label: const Text('Запустить транспорт'),
               ),
@@ -106,73 +174,6 @@ class _MonishareDashboardScreenState extends State<MonishareDashboardScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  List<Widget> _buildPlannerTiles(BuildContext context) {
-    if (_planners.isEmpty) {
-      return [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpace.s16),
-            child: Text('Пока нет доступных планнеров', style: context.text.bodyLarge),
-          ),
-        ),
-      ];
-    }
-
-    return _planners.map((planner) {
-      final space = _spaces[planner.id];
-      final title = planner.name.isEmpty ? 'Без названия' : planner.name;
-      return Card(
-        child: ListTile(
-          title: Text(title, style: context.text.titleMedium),
-          subtitle: space != null
-              ? Text('Активно пространство ${space.plannerSpaceId}',
-                  style: context.text.bodyMedium)
-              : Text('MoniShare ещё не настроен', style: context.text.bodyMedium),
-          trailing: Icon(
-            space != null ? Icons.lock_open_rounded : Icons.lock_outline,
-            color: space != null ? context.color.primary : context.color.outline,
-          ),
-          onTap: () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => MonisharePlannerScreen(plannerId: planner.id),
-              ),
-            );
-            if (!mounted) {
-              return;
-            }
-            await _refresh();
-          },
-        ),
-      );
-    }).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('MoniShare', style: context.text.displaySmall),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _refresh,
-              child: ListView(
-                padding: const EdgeInsets.all(AppSpace.s16),
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  _buildConnectionCard(context),
-                  const SizedBox(height: AppSpace.s16),
-                  Text('Планнеры', style: context.text.titleLarge),
-                  const SizedBox(height: AppSpace.s8),
-                  ..._buildPlannerTiles(context),
-                ],
-              ),
-            ),
     );
   }
 }
