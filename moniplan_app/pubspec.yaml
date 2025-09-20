@@ -19,6 +19,8 @@ dependencies:
   # Modules
   moniplan_uikit:
     path: ../moniplan_uikit
+  monishare:
+    path: ../monishare
 
   feature_core: ^2.0.0
   freezed_annotation: ^2.4.4
