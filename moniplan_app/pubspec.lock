@@ -592,6 +592,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
+  http2:
+    dependency: transitive
+    description:
+      name: http2
+      sha256: "382d3aefc5bd6dc68c6b892d7664f29b5beb3251611ae946a98d35158a82bbfa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.1"
   http_multi_server:
     dependency: transitive
     description:
@@ -1026,11 +1034,17 @@ packages:
   rpc_dart:
     dependency: "direct main"
     description:
-      name: rpc_dart
-      sha256: a8c1186b691570dc4d18281b248560026f63fb2d98844e4f12a7cce52da8b3e5
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.2"
+      path: "/Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart"
+      relative: false
+    source: path
+    version: "2.3.0"
+  rpc_dart_transports:
+    dependency: "direct main"
+    description:
+      path: "/Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_transports"
+      relative: false
+    source: path
+    version: "1.2.0"
   rxdart:
     dependency: transitive
     description:
@@ -1332,6 +1346,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  universal_io:
+    dependency: transitive
+    description:
+      name: universal_io
+      sha256: "1722b2dcc462b4b2f3ee7d188dad008b6eb4c40bbd03a3de451d82c78bba9aad"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.2"
   url_launcher_linux:
     dependency: transitive
     description:

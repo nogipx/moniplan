@@ -6,6 +6,13 @@ version: 2.0.0+50
 environment:
   sdk: '>=3.7.0 <4.0.0'
 
+dependency_overrides:
+  pointycastle: ^3.6.2
+  rpc_dart:
+    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart
+  rpc_dart_transports:
+    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_transports
+
 dependencies:
   flutter:
     sdk: flutter
@@ -15,6 +22,7 @@ dependencies:
   paseto_dart: ^1.0.1
   data_manage: ^3.0.2
   rpc_dart: ^2.2.2
+  rpc_dart_transports: ^1.1.2
 
   # Modules
   moniplan_uikit:
@@ -98,8 +106,7 @@ dev_dependencies:
   # Tools
   packo: 0.5.1
 
-dependency_overrides:
-  pointycastle: ^3.6.2
+
   
 flutter:
   uses-material-design: true
