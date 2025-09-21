@@ -7,6 +7,8 @@ import 'package:rpc_dart_transports/rpc_dart_transports.dart';
 part 'rpc_health_event.dart';
 part 'rpc_health_state.dart';
 
+enum RpcTransportType { http2, webSocket, auto }
+
 /// Универсальный BLoC для мониторинга health любого RpcCallerEndpoint.
 ///
 /// Start через RpcHealthStart (можно передать endpoint, transport или host+port).
@@ -14,12 +16,15 @@ class RpcHealthBloc extends Bloc<RpcHealthEvent, RpcHealthState> {
   final _log = RpcLogger('RpcHealthBloc');
   final Duration _defaultInterval;
   final Duration _defaultTimeout;
+  final RpcTransportType _transportType;
 
   RpcHealthBloc({
+    RpcTransportType transportType = RpcTransportType.auto,
     Duration defaultInterval = const Duration(seconds: 10),
     Duration defaultTimeout = const Duration(seconds: 3),
   }) : _defaultTimeout = defaultTimeout,
        _defaultInterval = defaultInterval,
+       _transportType = transportType,
        super(RpcHealthState.initial()) {
     on<RpcHealthStart>(_onStart);
     on<RpcHealthStop>(_onStop);
@@ -70,17 +75,30 @@ class RpcHealthBloc extends Bloc<RpcHealthEvent, RpcHealthState> {
       // Создаём транспорт/endpoint если нужно
       if (initialEndpoint != null) {
         _log.debug('Using provided endpoint');
+        emit(
+          state.copyWith(
+            endpoint: initialEndpoint,
+            ownsEndpoint: false,
+          ),
+        );
         // используем переданный endpoint — ничего не создаём
       } else if (initialHost != null && initialPort != null) {
         final host = initialHost;
         final port = initialPort;
         _log.debug('Connecting transport to $host:$port (kIsWeb=$kIsWeb)');
         IRpcTransport transport;
+
         if (kIsWeb) {
           transport = RpcWebSocketCallerTransport.connect(Uri.parse('ws://$host:$port'));
           _log.debug('Created WebSocket transport');
         } else {
-          transport = await RpcHttp2CallerTransport.connect(host: host, port: port);
+          transport = switch (_transportType) {
+            RpcTransportType.auto => await RpcHttp2CallerTransport.connect(host: host, port: port),
+            RpcTransportType.webSocket => RpcWebSocketCallerTransport.connect(
+              Uri.parse('ws://$host:$port'),
+            ),
+            RpcTransportType.http2 => await RpcHttp2CallerTransport.connect(host: host, port: port),
+          };
           _log.debug('Created HTTP2 transport');
         }
         final endpoint = RpcCallerEndpoint(transport: transport)..start();
@@ -135,6 +153,11 @@ class RpcHealthBloc extends Bloc<RpcHealthEvent, RpcHealthState> {
       final endpoint = state.endpoint;
       if (endpoint == null) {
         _log.warning('No endpoint available during health check - setting disconnected');
+        emit(RpcHealthState.disconnected());
+        return;
+      }
+
+      if (endpoint.transport.isClosed) {
         emit(RpcHealthState.disconnected());
         return;
       }
@@ -215,6 +238,7 @@ class RpcHealthBloc extends Bloc<RpcHealthEvent, RpcHealthState> {
     try {
       final timeout = state.timeout ?? _defaultTimeout;
       _log.debug('Performing health() call with timeout ${timeout}s');
+      await endpoint.ping();
       final health = await endpoint.health().timeout(timeout);
       _log.debug('Health response received: isHealthy=${health.isHealthy}');
       return health.isHealthy;

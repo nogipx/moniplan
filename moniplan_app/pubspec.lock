@@ -1034,16 +1034,18 @@ packages:
   rpc_dart:
     dependency: "direct main"
     description:
-      path: "/Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart"
-      relative: false
-    source: path
+      name: rpc_dart
+      sha256: d1f06514341f46d72c31bc153bba6e56a559cbf773f0d1ea2c5c0707709ef083
+      url: "https://pub.dev"
+    source: hosted
     version: "2.3.0"
   rpc_dart_transports:
     dependency: "direct main"
     description:
-      path: "/Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_transports"
-      relative: false
-    source: path
+      name: rpc_dart_transports
+      sha256: "1eaf1d794eb146348bce85315dccc5d5f4d090c00f9d2d549f60a17881e0112d"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.2.0"
   rxdart:
     dependency: transitive

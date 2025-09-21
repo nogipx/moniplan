@@ -67,7 +67,9 @@ class _MoniplanAppState extends State<MoniplanApp> {
           ),
           BlocProvider(
             create: (context) {
-              return RpcHealthBloc()..add(
+              return RpcHealthBloc(
+                transportType: RpcTransportType.webSocket,
+              )..add(
                 RpcHealthStart(
                   data: context.read<RpcHealthInitialData>(),
                 ),
