@@ -5,35 +5,41 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/monishare/models/monishare_space_info.dart';
 import 'package:moniplan_app/features/monishare/repository/monishare_repository.dart';
+import 'package:moniplan_app/modules/rpc_health/bloc/rpc_health_bloc.dart';
 
 part 'monishare_dashboard_event.dart';
 part 'monishare_dashboard_state.dart';
 
-class MonishareDashboardBloc
-    extends Bloc<MonishareDashboardEvent, MonishareDashboardState> {
-  MonishareDashboardBloc({required MonishareRepository repository})
-      : _repository = repository,
-        super(MonishareDashboardState.initial(isConnected: repository.isConnected)) {
+class MonishareDashboardBloc extends Bloc<MonishareDashboardEvent, MonishareDashboardState> {
+  MonishareDashboardBloc({
+    required RpcHealthStatus initialHealthStatus,
+    required Stream<RpcHealthStatus> healthStatus,
+    required MonishareRepository repository,
+  }) : _repository = repository,
+       super(
+         MonishareDashboardState.initial(
+           isConnected: initialHealthStatus == RpcHealthStatus.healthy,
+         ),
+       ) {
     on<MonishareDashboardStarted>(_onStarted);
     on<MonishareDashboardRefreshRequested>(_onRefreshRequested);
     on<MonishareDashboardConnectionRequested>(_onConnectionRequested);
     on<_MonishareDashboardStatusChanged>(_onStatusChanged);
     on<MonishareDashboardMessageCleared>(_onMessageCleared);
 
-    _statusSubscription = _repository.statusStream.listen((isConnected) {
-      add(_MonishareDashboardStatusChanged(isConnected: isConnected));
+    _statusSubscription = healthStatus.listen((status) {
+      add(_MonishareDashboardStatusChanged(isConnected: status == RpcHealthStatus.healthy));
     });
   }
 
   final MonishareRepository _repository;
-  StreamSubscription<bool>? _statusSubscription;
+  StreamSubscription<RpcHealthStatus>? _statusSubscription;
 
   Future<void> _onStarted(
     MonishareDashboardStarted event,
     Emitter<MonishareDashboardState> emit,
   ) async {
     emit(state.copyWith(isLoading: true, message: null, errorMessage: null));
-    await _repository.ensureServiceStarted();
     await _loadData(emit);
   }
 
@@ -83,7 +89,6 @@ class MonishareDashboardBloc
 
     emit(state.copyWith(isConnecting: true, message: null, errorMessage: null));
     try {
-      await _repository.ensureServiceStarted();
       emit(state.copyWith(isConnecting: false));
     } on Object catch (error) {
       emit(

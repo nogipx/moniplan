@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
-import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/monishare/_index.dart';
+import 'package:moniplan_app/modules/rpc_health/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:monishare/models.dart';
+import 'package:monishare/monishare_client.dart';
+import 'package:provider/provider.dart';
 
 class MonisharePlannerScreen extends StatefulWidget {
   const MonisharePlannerScreen({required this.plannerId, super.key});
@@ -35,27 +37,39 @@ class _MonisharePlannerScreenState extends State<MonisharePlannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => MonisharePlannerBloc(
-        plannerId: widget.plannerId,
-        repository: AppDi.instance.get<MonishareRepository>(),
-      )..add(const MonisharePlannerStarted()),
-      child: BlocListener<MonisharePlannerBloc, MonisharePlannerState>(
-        listenWhen: (previous, current) =>
-            previous.message != current.message ||
-            previous.errorMessage != current.errorMessage,
-        listener: (context, state) {
-          final messenger = ScaffoldMessenger.of(context);
-          if (state.message != null && state.message!.isNotEmpty) {
-            messenger.showSnackBar(SnackBar(content: Text(state.message!)));
-          } else if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
-            messenger.showSnackBar(SnackBar(content: Text(state.errorMessage!)));
-          }
-          if (state.message != null || state.errorMessage != null) {
-            context.read<MonisharePlannerBloc>().add(const MonisharePlannerMessageCleared());
-          }
+    return Provider<MonishareRepository>(
+      create: (context) {
+        return MonishareRepository(
+          plannerRepo: AppDi.instance.getPlannerRepo(),
+          client: MoniShareClient(context.rpcHealthBloc.state.endpoint!),
+          localStore: MonishareLocalStore(),
+        );
+      },
+      child: BlocProvider(
+        create: (context) {
+          return MonisharePlannerBloc(
+            plannerId: widget.plannerId,
+            repository: context.read<MonishareRepository>(),
+          )..add(const MonisharePlannerStarted());
         },
-        child: _MonisharePlannerView(joinInviteController: _joinInviteController),
+        child: BlocListener<MonisharePlannerBloc, MonisharePlannerState>(
+          listenWhen: (previous, current) {
+            return previous.message != current.message ||
+                previous.errorMessage != current.errorMessage;
+          },
+          listener: (context, state) {
+            final messenger = ScaffoldMessenger.of(context);
+            if (state.message != null && state.message!.isNotEmpty) {
+              messenger.showSnackBar(SnackBar(content: Text(state.message!)));
+            } else if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
+              messenger.showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+            }
+            if (state.message != null || state.errorMessage != null) {
+              context.read<MonisharePlannerBloc>().add(const MonisharePlannerMessageCleared());
+            }
+          },
+          child: _MonisharePlannerView(joinInviteController: _joinInviteController),
+        ),
       ),
     );
   }
@@ -78,21 +92,22 @@ class _MonisharePlannerView extends StatelessWidget {
               style: context.text.displaySmall,
             ),
           ),
-          body: state.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(AppSpace.s16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSpaceCard(context, state),
-                      const SizedBox(height: AppSpace.s16),
-                      if (state.space != null) _buildOperationsSection(context, state),
-                      const SizedBox(height: AppSpace.s16),
-                      _buildInvitesSection(context, state),
-                    ],
+          body:
+              state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppSpace.s16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSpaceCard(context, state),
+                        const SizedBox(height: AppSpace.s16),
+                        if (state.space != null) _buildOperationsSection(context, state),
+                        const SizedBox(height: AppSpace.s16),
+                        _buildInvitesSection(context, state),
+                      ],
+                    ),
                   ),
-                ),
         );
       },
     );
@@ -118,17 +133,16 @@ class _MonisharePlannerView extends StatelessWidget {
               Row(
                 children: [
                   FilledButton.icon(
-                    onPressed: state.ownerBusy
-                        ? null
-                        : () => bloc.add(const MonisharePlannerEnsureSpaceRequested()),
+                    onPressed:
+                        state.ownerBusy
+                            ? null
+                            : () => bloc.add(const MonisharePlannerEnsureSpaceRequested()),
                     icon: const Icon(Icons.cloud_upload_outlined),
                     label: const Text('Создать пространство'),
                   ),
                   const SizedBox(width: AppSpace.s12),
                   OutlinedButton.icon(
-                    onPressed: state.joinerBusy
-                        ? null
-                        : () => _onFetchJoinerInvite(context),
+                    onPressed: state.joinerBusy ? null : () => _onFetchJoinerInvite(context),
                     icon: const Icon(Icons.login_rounded),
                     label: const Text('Подключиться по инвайту'),
                   ),
@@ -170,30 +184,34 @@ class _MonisharePlannerView extends StatelessWidget {
               runSpacing: AppSpace.s8,
               children: [
                 FilledButton.icon(
-                  onPressed: state.ownerBusy
-                      ? null
-                      : () => bloc.add(const MonisharePlannerAppendSnapshotRequested()),
+                  onPressed:
+                      state.ownerBusy
+                          ? null
+                          : () => bloc.add(const MonisharePlannerAppendSnapshotRequested()),
                   icon: const Icon(Icons.send_rounded),
                   label: const Text('Опубликовать снимок'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: state.ownerBusy
-                      ? null
-                      : () => bloc.add(const MonisharePlannerRefreshOperationsRequested()),
+                  onPressed:
+                      state.ownerBusy
+                          ? null
+                          : () => bloc.add(const MonisharePlannerRefreshOperationsRequested()),
                   icon: const Icon(Icons.refresh_rounded),
                   label: const Text('Обновить операции'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: state.ownerBusy
-                      ? null
-                      : () => bloc.add(const MonisharePlannerCreateInviteRequested()),
+                  onPressed:
+                      state.ownerBusy
+                          ? null
+                          : () => bloc.add(const MonisharePlannerCreateInviteRequested()),
                   icon: const Icon(Icons.qr_code_2),
                   label: const Text('Создать инвайт'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: state.ownerBusy
-                      ? null
-                      : () => bloc.add(const MonisharePlannerRefreshInvitesRequested()),
+                  onPressed:
+                      state.ownerBusy
+                          ? null
+                          : () => bloc.add(const MonisharePlannerRefreshInvitesRequested()),
                   icon: const Icon(Icons.list_alt_rounded),
                   label: const Text('Обновить инвайты'),
                 ),
@@ -243,23 +261,26 @@ class _MonisharePlannerView extends StatelessWidget {
               label: const Text('Получить инвайт'),
             ),
             OutlinedButton.icon(
-              onPressed: state.joinerBusy || invite == null
-                  ? null
-                  : () => bloc.add(const MonisharePlannerJoinerRespondRequested()),
+              onPressed:
+                  state.joinerBusy || invite == null
+                      ? null
+                      : () => bloc.add(const MonisharePlannerJoinerRespondRequested()),
               icon: const Icon(Icons.reply),
               label: const Text('Отправить ответ'),
             ),
             OutlinedButton.icon(
-              onPressed: state.joinerBusy || invite == null
-                  ? null
-                  : () => bloc.add(const MonisharePlannerJoinerRefreshRequested()),
+              onPressed:
+                  state.joinerBusy || invite == null
+                      ? null
+                      : () => bloc.add(const MonisharePlannerJoinerRefreshRequested()),
               icon: const Icon(Icons.update),
               label: const Text('Проверить статус'),
             ),
             OutlinedButton.icon(
-              onPressed: state.joinerBusy || invite?.encryptedEnvelopeB64 == null
-                  ? null
-                  : () => bloc.add(const MonisharePlannerApplyEnvelopeRequested()),
+              onPressed:
+                  state.joinerBusy || invite?.encryptedEnvelopeB64 == null
+                      ? null
+                      : () => bloc.add(const MonisharePlannerApplyEnvelopeRequested()),
               icon: const Icon(Icons.download_done),
               label: const Text('Применить конверт'),
             ),
@@ -293,18 +314,24 @@ class _MonisharePlannerView extends StatelessWidget {
             Text('Статус: ${invite.state.name}', style: context.text.bodyMedium),
             if (invite.ownerHandshakeB64 != null) ...[
               const SizedBox(height: AppSpace.s4),
-              SelectableText('Handshake владельца: ${invite.ownerHandshakeB64!}',
-                  style: context.text.bodySmall),
+              SelectableText(
+                'Handshake владельца: ${invite.ownerHandshakeB64!}',
+                style: context.text.bodySmall,
+              ),
             ],
             if (state.joinerResponseB64 != null) ...[
               const SizedBox(height: AppSpace.s4),
-              SelectableText('Ваш ответ: ${state.joinerResponseB64}',
-                  style: context.text.bodySmall),
+              SelectableText(
+                'Ваш ответ: ${state.joinerResponseB64}',
+                style: context.text.bodySmall,
+              ),
             ],
             if (invite.finalHandshakeB64 != null) ...[
               const SizedBox(height: AppSpace.s4),
-              SelectableText('Финальный handshake: ${invite.finalHandshakeB64!}',
-                  style: context.text.bodySmall),
+              SelectableText(
+                'Финальный handshake: ${invite.finalHandshakeB64!}',
+                style: context.text.bodySmall,
+              ),
             ],
             if (invite.encryptedEnvelopeB64 != null) ...[
               const SizedBox(height: AppSpace.s8),
@@ -335,8 +362,7 @@ class _MonisharePlannerView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Журнал операций (${state.operations.length})',
-                style: context.text.titleLarge),
+            Text('Журнал операций (${state.operations.length})', style: context.text.titleLarge),
             const SizedBox(height: AppSpace.s12),
             ...state.operations.map((op) => _buildOperationTile(context, op)),
           ],
@@ -380,9 +406,10 @@ class _MonisharePlannerView extends StatelessWidget {
         return AlertDialog(
           title: Text('Операция #${record.opIdx}'),
           content: SingleChildScrollView(
-            child: decoded != null
-                ? SelectableText(decoded)
-                : const Text('Payload не является текстовым содержимым'),
+            child:
+                decoded != null
+                    ? SelectableText(decoded)
+                    : const Text('Payload не является текстовым содержимым'),
           ),
           actions: [
             TextButton(
@@ -394,8 +421,9 @@ class _MonisharePlannerView extends StatelessWidget {
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: decoded!));
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(const SnackBar(content: Text('Payload скопирован')));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Payload скопирован')));
                 },
                 child: const Text('Скопировать'),
               ),
@@ -451,8 +479,9 @@ class _MonisharePlannerView extends StatelessWidget {
                   tooltip: 'Скопировать ID',
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: invite.inviteId));
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(const SnackBar(content: Text('ID скопирован')));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('ID скопирован')));
                   },
                 ),
               ],
@@ -461,29 +490,41 @@ class _MonisharePlannerView extends StatelessWidget {
             Text('Создан: ${invite.createdAt.toIso8601String()}', style: context.text.bodySmall),
             Text('Статус: ${invite.state.name}', style: context.text.bodyMedium),
             if (invite.expiresAt != null)
-              Text('Истекает: ${invite.expiresAt!.toIso8601String()}', style: context.text.bodySmall),
+              Text(
+                'Истекает: ${invite.expiresAt!.toIso8601String()}',
+                style: context.text.bodySmall,
+              ),
             const SizedBox(height: AppSpace.s8),
-            SelectableText('Handshake владельца: ${invite.ownerHandshakeB64}',
-                style: context.text.bodySmall),
+            SelectableText(
+              'Handshake владельца: ${invite.ownerHandshakeB64}',
+              style: context.text.bodySmall,
+            ),
             if (invite.joinerHandshakeB64 != null)
-              SelectableText('Handshake участника: ${invite.joinerHandshakeB64}',
-                  style: context.text.bodySmall),
+              SelectableText(
+                'Handshake участника: ${invite.joinerHandshakeB64}',
+                style: context.text.bodySmall,
+              ),
             if (invite.finalHandshakeB64 != null)
-              SelectableText('Финальный handshake: ${invite.finalHandshakeB64}',
-                  style: context.text.bodySmall),
+              SelectableText(
+                'Финальный handshake: ${invite.finalHandshakeB64}',
+                style: context.text.bodySmall,
+              ),
             if (invite.encryptedEnvelopeB64 != null) ...[
               const SizedBox(height: AppSpace.s4),
-              SelectableText('Конверт: ${invite.encryptedEnvelopeB64}',
-                  style: context.text.bodySmall),
+              SelectableText(
+                'Конверт: ${invite.encryptedEnvelopeB64}',
+                style: context.text.bodySmall,
+              ),
             ],
             const SizedBox(height: AppSpace.s8),
             Row(
               children: [
                 if (invite.state == InviteState.responded && invite.encryptedEnvelopeB64 == null)
                   FilledButton.icon(
-                    onPressed: state.ownerBusy
-                        ? null
-                        : () => bloc.add(
+                    onPressed:
+                        state.ownerBusy
+                            ? null
+                            : () => bloc.add(
                               MonisharePlannerFinalizeInviteRequested(invite: invite),
                             ),
                     icon: const Icon(Icons.lock_open_rounded),
@@ -510,8 +551,8 @@ class _MonisharePlannerView extends StatelessWidget {
 
   void _onFetchJoinerInvite(BuildContext context) {
     final id = joinInviteController.text.trim();
-    context
-        .read<MonisharePlannerBloc>()
-        .add(MonisharePlannerJoinerInviteFetchRequested(inviteId: id));
+    context.read<MonisharePlannerBloc>().add(
+      MonisharePlannerJoinerInviteFetchRequested(inviteId: id),
+    );
   }
 }

@@ -1,20 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
-import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/monishare/_index.dart';
+import 'package:moniplan_app/modules/rpc_health/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
+import 'package:monishare/monishare_client.dart';
+import 'package:provider/provider.dart';
 
 class MonishareDashboardScreen extends StatelessWidget {
   const MonishareDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => MonishareDashboardBloc(
-        repository: AppDi.instance.get<MonishareRepository>(),
-      )..add(const MonishareDashboardStarted()),
-      child: const _MonishareDashboardView(),
+    return Provider(
+      create: (context) {
+        final endpoint = context.rpcHealthBloc.state.endpoint;
+        return MonishareRepository(
+          plannerRepo: AppDi.instance.getPlannerRepo(),
+          client: endpoint != null ? MoniShareClient(endpoint) : null,
+          localStore: MonishareLocalStore(),
+        );
+      },
+      child: BlocProvider(
+        create: (context) {
+          return MonishareDashboardBloc(
+            initialHealthStatus: context.rpcHealthBloc.state.status,
+            healthStatus: context.rpcHealthBloc.stream.map((e) => e.status),
+            repository: context.read(),
+          )..add(const MonishareDashboardStarted());
+        },
+        child: const _MonishareDashboardView(),
+      ),
     );
   }
 }
@@ -23,17 +39,17 @@ class _MonishareDashboardView extends StatelessWidget {
   const _MonishareDashboardView();
 
   Future<void> _onRefresh(BuildContext context) async {
-    final bloc = context.read<MonishareDashboardBloc>();
-    bloc.add(const MonishareDashboardRefreshRequested());
+    final bloc =
+        context.read<MonishareDashboardBloc>()..add(const MonishareDashboardRefreshRequested());
     await bloc.stream.firstWhere((state) => !state.isLoading);
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<MonishareDashboardBloc, MonishareDashboardState>(
-      listenWhen: (previous, current) =>
-          previous.message != current.message ||
-          previous.errorMessage != current.errorMessage,
+      listenWhen: (previous, current) {
+        return previous.message != current.message || previous.errorMessage != current.errorMessage;
+      },
       listener: (context, state) {
         final messenger = ScaffoldMessenger.of(context);
         if (state.message != null && state.message!.isNotEmpty) {
@@ -96,9 +112,13 @@ class _MonishareDashboardView extends StatelessWidget {
       return Card(
         child: ListTile(
           title: Text(title, style: context.text.titleMedium),
-          subtitle: space != null
-              ? Text('Активно пространство ${space.plannerSpaceId}', style: context.text.bodyMedium)
-              : Text('MoniShare ещё не настроен', style: context.text.bodyMedium),
+          subtitle:
+              space != null
+                  ? Text(
+                    'Активно пространство ${space.plannerSpaceId}',
+                    style: context.text.bodyMedium,
+                  )
+                  : Text('MoniShare ещё не настроен', style: context.text.bodyMedium),
           trailing: Icon(
             space != null ? Icons.lock_open_rounded : Icons.lock_outline,
             color: space != null ? context.color.primary : context.color.outline,
@@ -160,13 +180,14 @@ class _ConnectionCard extends StatelessWidget {
             if (!isConnected) ...[
               const SizedBox(height: AppSpace.s16),
               FilledButton.icon(
-                onPressed: state.isConnecting
-                    ? null
-                    : () {
-                        context
-                            .read<MonishareDashboardBloc>()
-                            .add(const MonishareDashboardConnectionRequested());
-                      },
+                onPressed:
+                    state.isConnecting
+                        ? null
+                        : () {
+                          context.read<MonishareDashboardBloc>().add(
+                            const MonishareDashboardConnectionRequested(),
+                          );
+                        },
                 icon: const Icon(Icons.power_settings_new),
                 label: const Text('Запустить транспорт'),
               ),

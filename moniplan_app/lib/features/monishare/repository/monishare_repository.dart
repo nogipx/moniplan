@@ -4,7 +4,6 @@ import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/monishare/models/monishare_invite_local.dart';
 import 'package:moniplan_app/features/monishare/models/monishare_space_info.dart';
 import 'package:moniplan_app/features/monishare/services/monishare_local_store.dart';
-import 'package:moniplan_app/features/monishare/services/monishare_service.dart';
 import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
 import 'package:monishare/models.dart';
 import 'package:monishare/monishare_client.dart';
@@ -14,26 +13,18 @@ import 'package:monishare/monishare_contract.dart';
 class MonishareRepository {
   MonishareRepository({
     required IPlannerRepo plannerRepo,
-    required MonishareService monishareService,
+    required MoniShareClient? client,
     required MonishareLocalStore localStore,
   }) : _plannerRepo = plannerRepo,
-       _monishareService = monishareService,
+       _client = client,
        _localStore = localStore;
 
   final IPlannerRepo _plannerRepo;
-  final MonishareService _monishareService;
+  final MoniShareClient? _client;
   final MonishareLocalStore _localStore;
 
-  bool get isConnected => _monishareService.isConnected;
-
-  Stream<bool> get statusStream => _monishareService.statusStream;
-
-  MoniShareClient get _client => _monishareService.client;
-
-  Future<void> ensureServiceStarted() => _monishareService.ensureStarted();
-
   Future<List<Planner>> loadPlanners() {
-    return _plannerRepo.getPlanners(withPayments: false, withActualInfo: false);
+    return _plannerRepo.getPlanners(withActualInfo: false);
   }
 
   Future<Planner?> loadPlanner(String plannerId) {
@@ -73,6 +64,9 @@ class MonishareRepository {
   }
 
   Future<SpacesRegisterResponse> registerSpace({String? plannerSpaceIdHint}) {
+    if (_client == null) {
+      throw Exception('MoniShare client is not initialized');
+    }
     return _client.spacesRegister(plannerSpaceIdHint: plannerSpaceIdHint);
   }
 
@@ -81,6 +75,9 @@ class MonishareRepository {
     required int sinceOpIdx,
     int? limit,
   }) {
+    if (_client == null) {
+      throw Exception('MoniShare client is not initialized');
+    }
     return _client.opsPull(plannerSpaceId: plannerSpaceId, sinceOpIdx: sinceOpIdx, limit: limit);
   }
 
@@ -88,10 +85,16 @@ class MonishareRepository {
     required String plannerSpaceId,
     required List<OperationPayload> operations,
   }) {
+    if (_client == null) {
+      throw Exception('MoniShare client is not initialized');
+    }
     return _client.opsAppend(plannerSpaceId: plannerSpaceId, operations: operations);
   }
 
   Stream<OpsNotification> subscribeToOperations(String plannerSpaceId) {
+    if (_client == null) {
+      throw Exception('MoniShare client is not initialized');
+    }
     return _client.opsSubscribe(plannerSpaceId: plannerSpaceId);
   }
 
@@ -101,6 +104,9 @@ class MonishareRepository {
     DateTime? expiresAt,
     int? ttlSeconds,
   }) {
+    if (_client == null) {
+      throw Exception('MoniShare client is not initialized');
+    }
     return _client.invitesCreate(
       plannerSpaceId: plannerSpaceId,
       ownerHandshakeB64: ownerHandshakeB64,
@@ -113,6 +119,9 @@ class MonishareRepository {
     required String inviteId,
     required String joinerHandshakeB64,
   }) {
+    if (_client == null) {
+      throw Exception('MoniShare client is not initialized');
+    }
     return _client.invitesRespond(inviteId: inviteId, joinerHandshakeB64: joinerHandshakeB64);
   }
 
@@ -121,6 +130,9 @@ class MonishareRepository {
     required String finalHandshakeB64,
     required String encryptedEnvelopeB64,
   }) {
+    if (_client == null) {
+      throw Exception('MoniShare client is not initialized');
+    }
     return _client.invitesFinalize(
       inviteId: inviteId,
       finalHandshakeB64: finalHandshakeB64,
@@ -129,6 +141,9 @@ class MonishareRepository {
   }
 
   Future<InvitesFetchResponse> fetchInvite(String inviteId) {
+    if (_client == null) {
+      throw Exception('MoniShare client is not initialized');
+    }
     return _client.invitesFetch(inviteId: inviteId);
   }
 }

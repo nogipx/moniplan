@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/database/_index.dart';
-import 'package:moniplan_app/features/monishare/_index.dart';
 import 'package:moniplan_app/features/monisync/_index.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
@@ -27,8 +26,6 @@ abstract class AppDi implements IAppDi {
 
   @override
   AppDb getDb();
-
-  T get<T extends Object>();
 }
 
 class GetItAppDI implements AppDi {
@@ -50,25 +47,6 @@ class GetItAppDI implements AppDi {
         return MonisyncRepoImpl(appDb: db);
       })
       ..registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
-
-    final monishareService = MonishareService();
-    await monishareService.ensureStarted();
-
-    final monishareLocalStore = MonishareLocalStore();
-
-    _getIt
-      ..registerSingleton<MonishareService>(
-        monishareService,
-        dispose: (service) => service.dispose(),
-      )
-      ..registerSingleton<MonishareLocalStore>(monishareLocalStore)
-      ..registerSingleton<MonishareRepository>(
-        MonishareRepository(
-          plannerRepo: getPlannerRepo(),
-          monishareService: monishareService,
-          localStore: monishareLocalStore,
-        ),
-      );
   }
 
   @override
@@ -84,7 +62,4 @@ class GetItAppDI implements AppDi {
 
   @override
   IStatisticsRepo getStatisticsRepo() => _getIt.get();
-
-  @override
-  T get<T extends Object>() => _getIt.get<T>();
 }

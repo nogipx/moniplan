@@ -14,14 +14,13 @@ import 'package:monishare/models.dart';
 part 'monishare_planner_event.dart';
 part 'monishare_planner_state.dart';
 
-class MonisharePlannerBloc
-    extends Bloc<MonisharePlannerEvent, MonisharePlannerState> {
+class MonisharePlannerBloc extends Bloc<MonisharePlannerEvent, MonisharePlannerState> {
   MonisharePlannerBloc({
     required this.plannerId,
     required MonishareRepository repository,
-  })  : _repository = repository,
-        _random = _createRandom(),
-        super(const MonisharePlannerState()) {
+  }) : _repository = repository,
+       _random = _createRandom(),
+       super(const MonisharePlannerState()) {
     on<MonisharePlannerStarted>(_onStarted);
     on<MonisharePlannerEnsureSpaceRequested>(_onEnsureSpaceRequested);
     on<MonisharePlannerRefreshOperationsRequested>(_onRefreshOperationsRequested);
@@ -64,8 +63,6 @@ class MonisharePlannerBloc
     Emitter<MonisharePlannerState> emit,
   ) async {
     emit(state.copyWith(isLoading: true, clearMessages: true));
-
-    await _repository.ensureServiceStarted();
 
     try {
       final planner = await _repository.loadPlanner(plannerId);
@@ -148,9 +145,8 @@ class MonisharePlannerBloc
         plannerSpaceId: space.plannerSpaceId,
         sinceOpIdx: 0,
       );
-      final lastIdx = response.operations.isEmpty
-          ? space.lastSyncedOpIdx
-          : response.operations.last.opIdx;
+      final lastIdx =
+          response.operations.isEmpty ? space.lastSyncedOpIdx : response.operations.last.opIdx;
       final updatedSpace = space.copyWith(lastSyncedOpIdx: lastIdx);
       await _repository.saveSpace(updatedSpace);
       emit(
@@ -352,9 +348,9 @@ class MonisharePlannerBloc
         return;
       }
       await _subscription?.cancel();
-      _subscription = _repository
-          .subscribeToOperations(space.plannerSpaceId)
-          .listen((notification) {
+      _subscription = _repository.subscribeToOperations(space.plannerSpaceId).listen((
+        notification,
+      ) {
         add(_MonisharePlannerNotificationReceived(notification: notification));
       });
       emit(state.copyWith(isSubscribed: true));
