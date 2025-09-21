@@ -11,6 +11,7 @@ cl dir: # Flutter clean
     cd {{dir}} && fvm flutter clean
 
 pubget:
+    {{call_recipe}} pg monishare
     {{call_recipe}} pg moniplan_uikit
     {{call_recipe}} pg moniplan_app
 
