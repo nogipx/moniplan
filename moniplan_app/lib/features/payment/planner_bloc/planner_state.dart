@@ -7,7 +7,7 @@ import '../usecases/_index.dart';
 part 'planner_state.freezed.dart';
 
 @Freezed()
-class PlannerState with _$PlannerState {
+abstract class PlannerState with _$PlannerState {
   const PlannerState._();
 
   const factory PlannerState.initial({
@@ -45,37 +45,33 @@ class PlannerState with _$PlannerState {
       maybeMap<Map<Payment, num>>(budgetComputed: (v) => v.budget, orElse: () => const {});
 
   Planner get resultingPlanner => maybeMap<Planner>(
-    budgetComputed:
-        (state) => Planner(
-          id: state.plannerId,
-          dateStart: state.dateStart ?? DateTime.now(),
-          dateEnd: state.dateEnd ?? DateTime.now().add(const Duration(days: 30)),
-          payments: state.payments,
-          initialBudget: state.moneyFlow.initialBalance,
-          isGenerationAllowed: true,
-        ),
-    initial:
-        (state) => Planner(
-          id: state.plannerId,
-          dateStart: DateTime.now(),
-          dateEnd: DateTime.now().add(const Duration(days: 30)),
-          isGenerationAllowed: true,
-        ),
-    error:
-        (state) => Planner(
-          id: state.plannerId,
-          dateStart: DateTime.now(),
-          dateEnd: DateTime.now().add(const Duration(days: 30)),
-          payments: state.payments,
-          isGenerationAllowed: true,
-        ),
-    orElse:
-        () => Planner(
-          id: '',
-          dateStart: DateTime.now(),
-          dateEnd: DateTime.now().add(const Duration(days: 30)),
-          isGenerationAllowed: true,
-        ),
+    budgetComputed: (state) => Planner(
+      id: state.plannerId,
+      dateStart: state.dateStart ?? DateTime.now(),
+      dateEnd: state.dateEnd ?? DateTime.now().add(const Duration(days: 30)),
+      payments: state.payments,
+      initialBudget: state.moneyFlow.initialBalance,
+      isGenerationAllowed: true,
+    ),
+    initial: (state) => Planner(
+      id: state.plannerId,
+      dateStart: DateTime.now(),
+      dateEnd: DateTime.now().add(const Duration(days: 30)),
+      isGenerationAllowed: true,
+    ),
+    error: (state) => Planner(
+      id: state.plannerId,
+      dateStart: DateTime.now(),
+      dateEnd: DateTime.now().add(const Duration(days: 30)),
+      payments: state.payments,
+      isGenerationAllowed: true,
+    ),
+    orElse: () => Planner(
+      id: '',
+      dateStart: DateTime.now(),
+      dateEnd: DateTime.now().add(const Duration(days: 30)),
+      isGenerationAllowed: true,
+    ),
   );
 }
 

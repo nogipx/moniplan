@@ -89,14 +89,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
-  fixnum:
-    dependency: transitive
-    description:
-      name: fixnum
-      sha256: b6dc7065e46c974bc7c5f143080a6764ec7a4be6da1285ececdc37be96de53be
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.1"
   frontend_server_client:
     dependency: transitive
     description:
@@ -228,16 +220,18 @@ packages:
   rpc_dart:
     dependency: "direct main"
     description:
-      path: "/Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart"
-      relative: false
-    source: path
+      name: rpc_dart
+      sha256: d1f06514341f46d72c31bc153bba6e56a559cbf773f0d1ea2c5c0707709ef083
+      url: "https://pub.dev"
+    source: hosted
     version: "2.3.0"
   rpc_dart_transports:
     dependency: "direct main"
     description:
-      path: "/Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_transports"
-      relative: false
-    source: path
+      name: rpc_dart_transports
+      sha256: "1eaf1d794eb146348bce85315dccc5d5f4d090c00f9d2d549f60a17881e0112d"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.2.0"
   shelf:
     dependency: transitive
@@ -295,14 +289,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.1"
-  sprintf:
-    dependency: transitive
-    description:
-      name: sprintf
-      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -375,14 +361,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.2"
-  uuid:
-    dependency: transitive
-    description:
-      name: uuid
-      sha256: a5be9ef6618a7ac1e964353ef476418026db906c4facdedaa299b7a2e71690ff
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.5.1"
   vm_service:
     dependency: transitive
     description:

@@ -62,17 +62,13 @@ class _MoniplanAppState extends State<MoniplanApp> {
       ),
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(
-            create: (context) => ReceiveImportSharingBloc(appDi: AppDi.instance),
-          ),
+          // BlocProvider(
+          //   create: (context) => ReceiveImportSharingBloc(appDi: AppDi.instance),
+          // ),
           BlocProvider(
             create: (context) {
               return RpcHealthBloc(
                 transportType: RpcTransportType.webSocket,
-              )..add(
-                RpcHealthStart(
-                  data: context.read<RpcHealthInitialData>(),
-                ),
               );
             },
           ),
@@ -87,29 +83,28 @@ class _MoniplanAppState extends State<MoniplanApp> {
                 // localizationsDelegates: [S.delegate],
                 // supportedLocales: S.delegate.supportedLocales,
                 // locale: const Locale('ru'), // Укажите текущую локаль
-                builder:
-                    (context, child) => ResponsiveBreakpoints.builder(
-                      breakpoints: [
-                        const Breakpoint(start: 0, end: 450, name: MOBILE),
-                        const Breakpoint(start: 451, end: 800, name: TABLET),
-                        const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                        const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
-                      ],
-                      child: Stack(
-                        children: [
-                          Positioned.fill(child: child!),
-                          const Positioned(
-                            top: 0,
-                            right: 0,
-                            left: 0,
-                            child: Align(
-                              alignment: Alignment.topCenter,
-                              child: RpcHealthStatusWidget(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                builder: (context, child) => ResponsiveBreakpoints.builder(
+                  breakpoints: [
+                    const Breakpoint(start: 0, end: 450, name: MOBILE),
+                    const Breakpoint(start: 451, end: 800, name: TABLET),
+                    const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                    const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+                  ],
+                  child: Stack(
+                    children: [
+                      Positioned.fill(child: child!),
+                      // const Positioned(
+                      //   top: 0,
+                      //   right: 0,
+                      //   left: 0,
+                      //   child: Align(
+                      //     alignment: Alignment.topCenter,
+                      //     child: RpcHealthStatusWidget(),
+                      //   ),
+                      // ),
+                    ],
+                  ),
+                ),
                 home: Builder(
                   builder: (context) {
                     return GestureDetector(

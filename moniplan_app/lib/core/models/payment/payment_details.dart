@@ -10,7 +10,7 @@ part 'payment_details.g.dart';
 ///
 /// Financial data and description of the Payment.
 @freezed
-class PaymentDetails with _$PaymentDetails {
+abstract class PaymentDetails with _$PaymentDetails {
   @CurrencyConverter()
   @JsonSerializable()
   @Assert('tax >= 0.0 && tax <= 1.0')

@@ -7,7 +7,7 @@ part 'backup_footer_metadata.g.dart';
 
 /// Метаданные, хранящиеся в footer PASETO токена
 @freezed
-class BackupFooterMetadata with _$BackupFooterMetadata {
+abstract class BackupFooterMetadata with _$BackupFooterMetadata {
   const factory BackupFooterMetadata({
     /// Временная метка создания бэкапа
     required DateTime timestamp,

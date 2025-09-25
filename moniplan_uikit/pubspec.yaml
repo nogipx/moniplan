@@ -5,14 +5,14 @@ publish_to: none
 
 environment:
   sdk: '>=3.7.0 <4.0.0'
-  flutter: ">=3.27.0"
+  flutter: ">=3.35.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
   material_color_utilities: any
-  flex_seed_scheme: ^3.4.1
+  flex_seed_scheme: ^3.5.1
 
 dev_dependencies:
   flutter_lints: ^5.0.0

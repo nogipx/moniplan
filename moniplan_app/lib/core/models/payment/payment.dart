@@ -7,7 +7,7 @@ part 'payment.freezed.dart';
 part 'payment.g.dart';
 
 @freezed
-class Payment with _$Payment, EquatableMixin {
+abstract class Payment with _$Payment, EquatableMixin {
   static const virtualPaymentId = 'virtual_payment_id';
 
   @CurrencyConverter()

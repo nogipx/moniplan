@@ -5,7 +5,7 @@ part 'planner.freezed.dart';
 part 'planner.g.dart';
 
 @Freezed()
-class Planner with _$Planner {
+abstract class Planner with _$Planner {
   const factory Planner({
     required final String id,
     required final DateTime dateStart,

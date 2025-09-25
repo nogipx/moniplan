@@ -4,7 +4,7 @@ part 'planner_actual_info.freezed.dart';
 part 'planner_actual_info.g.dart';
 
 @Freezed()
-class PlannerActualInfo with _$PlannerActualInfo {
+abstract class PlannerActualInfo with _$PlannerActualInfo {
   const factory PlannerActualInfo({
     required final String plannerId,
     required final DateTime updatedAt,
