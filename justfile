@@ -1,5 +1,7 @@
 #!/usr/bin/env just --justfile
 call_recipe := just_executable() + " --justfile=" + justfile()
+ver dir='.':
+    cd {{dir}} && echo $(if command -v yq >/dev/null; then yq -r '.version' {{dir}}/pubspec.yaml; else grep -E '^\s*version:' pubspec.yaml | head -n1 | sed -E 's/^\s*version:\s*"?([^"#]+)"?\s*(#.*)?$/\1/'; fi)
 pg dir: # Pubget
     cd {{dir}} && fvm dart pub get
 br dir: # Build runner
@@ -51,7 +53,7 @@ release_apk:
     cd moniplan_app && fvm flutter build apk --release --obfuscate --split-debug-info=../.artifacts/apk-debug-info
     mkdir -p ../.artifacts
     rm -f ../.artifacts/moniplan.apk || true
-    cd moniplan_app && cp build/app/outputs/flutter-apk/app-release.apk ../.artifacts/moniplan_$(fvm dart run packo helpers --current-version).apk
+    cd moniplan_app && cp build/app/outputs/flutter-apk/app-release.apk ../.artifacts/moniplan_$(just ver moniplan_app).apk
 
 update_env:
     if [ -f moniplan_app/lib/core/config/env.g.dart ]; then rm moniplan_app/lib/core/config/env.g.dart; fi
