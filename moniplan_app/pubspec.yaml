@@ -8,10 +8,10 @@ environment:
 
 dependency_overrides:
   pointycastle: ^3.6.2
-#  rpc_dart:
-#    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart
-#  rpc_dart_transports:
-#    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_transports
+  rpc_dart:
+    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart
+  rpc_dart_transports:
+    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_transports
 
 dependencies:
   flutter:
