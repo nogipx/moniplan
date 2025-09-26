@@ -26,6 +26,9 @@ class TurnRelayState {
     this.responderContracts = const [],
     this.options = const TurnRelayClientOptions(),
     this.isRequestingPeerConnection = false,
+    this.chatMessages = const <TurnRelayChatMessage>[],
+    this.isChatReady = false,
+    this.isSendingChatMessage = false,
   });
 
   final TurnRelayStatus status;
@@ -40,6 +43,9 @@ class TurnRelayState {
   final List<RpcResponderContract> responderContracts;
   final TurnRelayClientOptions options;
   final bool isRequestingPeerConnection;
+  final List<TurnRelayChatMessage> chatMessages;
+  final bool isChatReady;
+  final bool isSendingChatMessage;
 
   bool get hasPeer => peer != null;
 
@@ -60,6 +66,9 @@ class TurnRelayState {
     List<RpcResponderContract>? responderContracts,
     TurnRelayClientOptions? options,
     bool? isRequestingPeerConnection,
+    List<TurnRelayChatMessage>? chatMessages,
+    bool? isChatReady,
+    bool? isSendingChatMessage,
   }) {
     return TurnRelayState(
       status: status ?? this.status,
@@ -89,6 +98,12 @@ class TurnRelayState {
       options: options ?? this.options,
       isRequestingPeerConnection:
           isRequestingPeerConnection ?? this.isRequestingPeerConnection,
+      chatMessages: chatMessages != null
+          ? List<TurnRelayChatMessage>.unmodifiable(chatMessages)
+          : this.chatMessages,
+      isChatReady: isChatReady ?? this.isChatReady,
+      isSendingChatMessage:
+          isSendingChatMessage ?? this.isSendingChatMessage,
     );
   }
 }

@@ -56,6 +56,16 @@ class TurnRelayConnectRequestConsumed extends TurnRelayEvent {
   const TurnRelayConnectRequestConsumed();
 }
 
+class TurnRelayChatMessageSubmitted extends TurnRelayEvent {
+  const TurnRelayChatMessageSubmitted({
+    required this.authorId,
+    required this.text,
+  });
+
+  final String authorId;
+  final String text;
+}
+
 class _TurnRelayConnectRequestReceived extends TurnRelayEvent {
   const _TurnRelayConnectRequestReceived(this.request);
 
@@ -64,6 +74,19 @@ class _TurnRelayConnectRequestReceived extends TurnRelayEvent {
 
 class _TurnRelayConnectRequestStreamFailed extends TurnRelayEvent {
   const _TurnRelayConnectRequestStreamFailed(this.error, this.stackTrace);
+
+  final Object error;
+  final StackTrace stackTrace;
+}
+
+class _TurnRelayChatMessageReceived extends TurnRelayEvent {
+  const _TurnRelayChatMessageReceived(this.message);
+
+  final TurnRelayChatMessage message;
+}
+
+class _TurnRelayChatStreamFailed extends TurnRelayEvent {
+  const _TurnRelayChatStreamFailed(this.error, this.stackTrace);
 
   final Object error;
   final StackTrace stackTrace;
