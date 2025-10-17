@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/features/planners_list/_index.dart';
-import 'package:moniplan_app/features/receive_import_sharing/bloc/_index.dart';
 import 'package:moniplan_app/features/receive_import_sharing/widgets/receive_import_wrapper.dart';
 import 'package:moniplan_app/modules/periodic_theme_changer/periodic_theme_changer.dart';
 import 'package:moniplan_app/modules/rpc_health/_index.dart';
+import 'package:moniplan_app/modules/turn_relay/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
@@ -66,6 +66,9 @@ class _MoniplanAppState extends State<MoniplanApp> {
           //   create: (context) => ReceiveImportSharingBloc(appDi: AppDi.instance),
           // ),
           BlocProvider(
+            create: (context) => TurnRelayBloc()..add(TurnRelayEvent.),
+          ),
+          BlocProvider(
             create: (context) {
               return RpcHealthBloc(
                 transportType: RpcTransportType.webSocket,
@@ -109,11 +112,12 @@ class _MoniplanAppState extends State<MoniplanApp> {
                   builder: (context) {
                     return GestureDetector(
                       onTap: () {
-                        Navigator.of(
-                          context,
-                        ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
+                        // Navigator.of(
+                        //   context,
+                        // ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
                       },
-                      child: home,
+                      // child: home,
+                      child: TurnRelayChatScreen(),
                     );
                   },
                 ),

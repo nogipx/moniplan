@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
@@ -17,10 +16,10 @@ part 'turn_relay_state.dart';
 /// BLoC, управляющий жизненным циклом подключения к TURN relay и
 /// отслеживающий поступающие запросы на подключение от других пиров.
 class TurnRelayBloc extends Bloc<TurnRelayEvent, TurnRelayState> {
-  TurnRelayBloc({TurnRelayState? initialState})
-      : _log = RpcLogger('TurnRelayBloc'),
-        _chatResponder = TurnRelayChatResponder(),
-        super(initialState ?? TurnRelayState.initial()) {
+  TurnRelayBloc({TurnRelayState? initialState, required TurnRelayChatResponder})
+    : _log = RpcLogger('TurnRelayBloc'),
+      _chatResponder = TurnRelayChatResponder(),
+      super(initialState ?? TurnRelayState.initial()) {
     _chatMessageSubscription = _chatResponder.messages.listen(
       (message) => add(_TurnRelayChatMessageReceived(message)),
       onError: (Object error, StackTrace stackTrace) {
@@ -498,12 +497,13 @@ class TurnRelayBloc extends Bloc<TurnRelayEvent, TurnRelayState> {
     }
 
     _deliveredChatMessageIds.add(messageId);
-    final next = <TurnRelayChatMessage>[
-      for (final message in current)
-        if (message.id != messageId) message,
-    ]
-      ..add(incoming)
-      ..sort((a, b) => a.sentAt.compareTo(b.sentAt));
+    final next =
+        <TurnRelayChatMessage>[
+            for (final message in current)
+              if (message.id != messageId) message,
+          ]
+          ..add(incoming)
+          ..sort((a, b) => a.sentAt.compareTo(b.sentAt));
 
     return List<TurnRelayChatMessage>.unmodifiable(next);
   }

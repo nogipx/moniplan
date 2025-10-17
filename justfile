@@ -18,6 +18,7 @@ pubget:
     {{call_recipe}} pg moniplan_app
 
 runner:
+    {{call_recipe}} pg monishare
     {{call_recipe}} pg moniplan_uikit
     {{call_recipe}} br moniplan_app
 
