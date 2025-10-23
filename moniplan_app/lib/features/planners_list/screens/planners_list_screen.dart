@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
@@ -88,11 +87,6 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
               ],
             ),
             floatingActionButton: GestureDetector(
-              onLongPress: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => DriftDbViewer(AppDi.instance.getDb().db)),
-                );
-              },
               onDoubleTap: () {
                 Navigator.of(
                   context,

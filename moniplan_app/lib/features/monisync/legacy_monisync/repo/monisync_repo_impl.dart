@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:moniplan_app/database/drift/app_db.dart';
+import 'package:moniplan_app/database/_index.dart';
 
 import '../crypto/_index.dart';
 import '../crypto/keys.dart';

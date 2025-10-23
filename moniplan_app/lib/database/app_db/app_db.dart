@@ -1,5 +1,7 @@
-import 'package:moniplan_app/database/_index.dart';
-import 'package:rpc_dart/logger.dart';
+import 'package:rpc_dart_data/rpc_dart_data.dart';
+
+import '../interfaces/i_app_db.dart';
+import 'app_db_impl.dart';
 
 abstract class AppDb extends IAppDb {
   static late IAppDbFactory _factory;
@@ -15,11 +17,15 @@ abstract class AppDb extends IAppDb {
   }
 
   static AppDbImpl detachedInMemory() {
-    final db = AppDbImpl(inMemory: true, log: RpcLogger('TempAppDb'));
+    final db = AppDbImpl(inMemory: true);
     return db;
   }
 
-  static IAppDb get instance => _instance ??= _factory() as AppDb;
+  static AppDb get instance => _instance ??= _factory() as AppDb;
 
-  MoniplanDriftDb get db;
+  DataService get service;
+
+  bool get isOpen;
+
+  Future<void> touchLastActionDate();
 }

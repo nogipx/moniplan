@@ -9,9 +9,20 @@ environment:
 dependency_overrides:
   pointycastle: ^3.6.2
   rpc_dart:
-    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart
+    git:
+      url: https://github.com/nogipx/rpc_dart
+      ref: main
+      path: packages/rpc_dart
   rpc_dart_transports:
-    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_transports
+    git:
+      url: https://github.com/nogipx/rpc_dart
+      ref: main
+      path: packages/rpc_dart_transports
+  rpc_dart_data:
+    git:
+      url: https://github.com/nogipx/rpc_dart
+      ref: main
+      path: packages/rpc_dart_data
 
 dependencies:
   flutter:
@@ -72,13 +83,15 @@ dependencies:
 
   # Persistent
   shared_preferences: ^2.3.3
-  drift_db_viewer: 2.1.0
+  # Database transport is handled via rpc_dart_data
+  rpc_dart_data:
+    git:
+      url: https://github.com/nogipx/rpc_dart
+      ref: main
+      path: packages/rpc_dart_data
 #  sqlite3_flutter_libs: ^0.5.39
   path_provider: ^2.1.5
   path: ^1.9.1
-
-  # Persistence
-  drift: ^2.28.1
 
   # State
   bloc: ^9.0.0
@@ -96,7 +109,6 @@ dev_dependencies:
   build_runner: ^2.4.15
   freezed: ^3.2.3
   json_serializable: ^6.9.0
-  drift_dev: ^2.22.1
   envied_generator: ^1.1.1
 
 
