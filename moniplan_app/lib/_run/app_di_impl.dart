@@ -42,7 +42,7 @@ class GetItAppDI implements AppDi {
     _getIt
       ..registerSingleton<AppDb>(db)
       ..registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform)
-      ..registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: dbImpl))
+      ..registerSingleton<IPlannerRepo>(PlannerRepoDataService(appDb: dbImpl))
       ..registerFactoryAsync<IMonisyncRepo>(() async {
         return MonisyncRepoImpl(appDb: db);
       })
