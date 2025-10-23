@@ -83,6 +83,7 @@ dependencies:
 
   # Persistent
   shared_preferences: ^2.3.3
+  sqlite3: ^2.9.3
   # Database transport is handled via rpc_dart_data
   rpc_dart_data:
     git:
