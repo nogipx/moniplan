@@ -7,10 +7,10 @@ environment:
   sdk: '>=3.3.0 <4.0.0'
 
 dependency_overrides:
-#  rpc_dart:
-#    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart
-#  rpc_dart_transports:
-#    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_transports
+  rpc_dart:
+    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart
+  rpc_dart_transports:
+    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_transports
 
 dependencies:
   collection: ^1.18.0
