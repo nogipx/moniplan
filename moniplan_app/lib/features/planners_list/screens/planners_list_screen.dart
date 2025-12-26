@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/database/_index.dart';
-import 'package:moniplan_app/features/monishare/_index.dart';
 import 'package:moniplan_app/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
@@ -71,16 +70,6 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                           return const MonisyncScreen();
                         },
                       ),
-                    );
-                  },
-                ),
-                const SizedBox(width: AppSpace.s10),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.share, size: 18),
-                  label: const Text('MoniShare'),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const MonishareDashboardScreen()),
                     );
                   },
                 ),

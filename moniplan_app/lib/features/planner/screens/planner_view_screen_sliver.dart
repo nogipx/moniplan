@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
-import 'package:moniplan_app/features/monishare/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
@@ -83,12 +82,14 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
       },
       builder: (context, state) {
         final dateStartRaw = state.mapOrNull(budgetComputed: (s) => s.dateStart);
-        final dateStartString =
-            dateStartRaw != null ? DateFormat(plannerBoundDateFormat).format(dateStartRaw) : '';
+        final dateStartString = dateStartRaw != null
+            ? DateFormat(plannerBoundDateFormat).format(dateStartRaw)
+            : '';
 
         final dateEndRaw = state.mapOrNull(budgetComputed: (s) => s.dateEnd);
-        final dateEndString =
-            dateEndRaw != null ? DateFormat(plannerBoundDateFormat).format(dateEndRaw) : '';
+        final dateEndString = dateEndRaw != null
+            ? DateFormat(plannerBoundDateFormat).format(dateEndRaw)
+            : '';
 
         final titleWidget = Text(
           '$dateStartString - $dateEndString',
@@ -102,19 +103,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
 
         final appBar = AppBar(
           title: titleWidget,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.share),
-              tooltip: 'MoniShare',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => MonisharePlannerScreen(plannerId: plannerId),
-                  ),
-                );
-              },
-            ),
-          ],
+          actions: [],
         );
 
         final fab = Row(
@@ -224,36 +213,35 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Коррекция баланса'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: controller,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(hintText: 'Сумма'),
-                  autofocus: true,
-                ),
-              ],
+      builder: (context) => AlertDialog(
+        title: const Text('Коррекция баланса'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(hintText: 'Сумма'),
+              autofocus: true,
             ),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Отмена')),
-              TextButton(
-                onPressed: () {
-                  if (controller.text.isNotEmpty) {
-                    final amount = double.tryParse(controller.text);
-                    if (amount != null) {
-                      _saveCorrectionPayment(amount);
-                      Navigator.pop(context);
-                    }
-                  }
-                },
-                child: const Text('Сохранить'),
-              ),
-            ],
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Отмена')),
+          TextButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                final amount = double.tryParse(controller.text);
+                if (amount != null) {
+                  _saveCorrectionPayment(amount);
+                  Navigator.pop(context);
+                }
+              }
+            },
+            child: const Text('Сохранить'),
           ),
+        ],
+      ),
     );
   }
 

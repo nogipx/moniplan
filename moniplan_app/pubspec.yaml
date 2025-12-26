@@ -8,21 +8,18 @@ environment:
 
 dependency_overrides:
   pointycastle: ^3.6.2
-  rpc_dart:
-    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart
-  rpc_dart_transports:
-    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_transports
 
 dependencies:
   flutter:
     sdk: flutter
 
   # nogipx-libs
-  licensify: ^3.1.0
-  paseto_dart: ^1.0.1
+  licensify: ^4.4.0
+  paseto_dart: ^2.0.0
   data_manage: ^3.0.2
-  rpc_dart: ^2.3.0
-  rpc_dart_transports: ^1.2.0
+  rpc_dart: ^2.4.0
+  rpc_dart_transports: ^1.7.1
+  rpc_flutter: ^0.0.1
 
   # Modules
   moniplan_uikit:
@@ -31,9 +28,9 @@ dependencies:
     path: ../monishare
 
   freezed_annotation: ^3.1.0
-  uuid: ^4.5.1
+  uuid: ^4.5.2
   json_annotation: ^4.9.0
-  collection: ^1.18.0
+  collection: ^1.19.1
 
   # UI
   responsive_framework: ^1.5.1
@@ -53,7 +50,9 @@ dependencies:
   sticky_headers: 0.3.0+2
 
   # Data management
-  flutter_bloc: ^9.0.0
+  bloc: ^9.0.0
+  bloc_concurrency: ^0.3.0
+  flutter_bloc: ^9.1.1
 
   # Data
   cross_file: ^0.3.4+2
@@ -81,8 +80,7 @@ dependencies:
   drift: ^2.28.1
 
   # State
-  bloc: ^9.0.0
-  bloc_concurrency: ^0.3.0
+
 
 dev_dependencies:
   flutter_lints: ^6.0.0

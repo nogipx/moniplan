@@ -19,5 +19,7 @@ abstract interface class IMonisyncRepo {
 LicensifySymmetricKey getLicensifyPasswordKey(String password) {
   final bytes = utf8.encode(password);
   final digest = sha256.convert(bytes);
-  return LicensifySymmetricKey.xchacha20(Uint8List.fromList(digest.bytes.take(32).toList()));
+  return LicensifySymmetricKey.xchacha20(
+    keyBytes: Uint8List.fromList(digest.bytes.take(32).toList()),
+  );
 }

@@ -4,14 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/features/planners_list/_index.dart';
-import 'package:moniplan_app/features/receive_import_sharing/bloc/_index.dart';
 import 'package:moniplan_app/features/receive_import_sharing/widgets/receive_import_wrapper.dart';
 import 'package:moniplan_app/modules/periodic_theme_changer/periodic_theme_changer.dart';
-import 'package:moniplan_app/modules/rpc_health/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,72 +52,59 @@ class _MoniplanAppState extends State<MoniplanApp> {
   }
 
   Widget app(AppTheme theme, Widget home) {
-    return Provider<RpcHealthInitialData>.value(
-      value: const RpcHealthInitialData(
-        host: 'localhost',
-        port: 8081,
-      ),
-      child: MultiBlocProvider(
-        providers: [
-          // BlocProvider(
-          //   create: (context) => ReceiveImportSharingBloc(appDi: AppDi.instance),
-          // ),
-          BlocProvider(
-            create: (context) {
-              return RpcHealthBloc(
-                transportType: RpcTransportType.webSocket,
-              );
-            },
-          ),
-        ],
-        child: AnimatedBuilder(
-          animation: AppDi.instance.getDb() as AppDbImpl,
-          builder: (context, _) {
-            return OKToast(
-              child: MaterialApp(
-                debugShowCheckedModeBanner: false,
-                theme: theme.themeData,
-                // localizationsDelegates: [S.delegate],
-                // supportedLocales: S.delegate.supportedLocales,
-                // locale: const Locale('ru'), // Укажите текущую локаль
-                builder: (context, child) => ResponsiveBreakpoints.builder(
-                  breakpoints: [
-                    const Breakpoint(start: 0, end: 450, name: MOBILE),
-                    const Breakpoint(start: 451, end: 800, name: TABLET),
-                    const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                    const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+    return MultiBlocProvider(
+      providers: [
+        // BlocProvider(
+        //   create: (context) => ReceiveImportSharingBloc(appDi: AppDi.instance),
+        // ),
+      ],
+      child: AnimatedBuilder(
+        animation: AppDi.instance.getDb() as AppDbImpl,
+        builder: (context, _) {
+          return OKToast(
+            child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: theme.themeData,
+              // localizationsDelegates: [S.delegate],
+              // supportedLocales: S.delegate.supportedLocales,
+              // locale: const Locale('ru'), // Укажите текущую локаль
+              builder: (context, child) => ResponsiveBreakpoints.builder(
+                breakpoints: [
+                  const Breakpoint(start: 0, end: 450, name: MOBILE),
+                  const Breakpoint(start: 451, end: 800, name: TABLET),
+                  const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                  const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+                ],
+                child: Stack(
+                  children: [
+                    Positioned.fill(child: child!),
+                    // const Positioned(
+                    //   top: 0,
+                    //   right: 0,
+                    //   left: 0,
+                    //   child: Align(
+                    //     alignment: Alignment.topCenter,
+                    //     child: RpcHealthStatusWidget(),
+                    //   ),
+                    // ),
                   ],
-                  child: Stack(
-                    children: [
-                      Positioned.fill(child: child!),
-                      // const Positioned(
-                      //   top: 0,
-                      //   right: 0,
-                      //   left: 0,
-                      //   child: Align(
-                      //     alignment: Alignment.topCenter,
-                      //     child: RpcHealthStatusWidget(),
-                      //   ),
-                      // ),
-                    ],
-                  ),
-                ),
-                home: Builder(
-                  builder: (context) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.of(
-                          context,
-                        ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
-                      },
-                      child: home,
-                    );
-                  },
                 ),
               ),
-            );
-          },
-        ),
+              home: Builder(
+                builder: (context) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
+                    },
+                    child: home,
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }
