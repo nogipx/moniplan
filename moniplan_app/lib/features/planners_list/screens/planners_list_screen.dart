@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
 import 'package:moniplan_app/features/planner/_index.dart';
@@ -77,11 +75,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
               ],
             ),
             floatingActionButton: GestureDetector(
-              onLongPress: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => DriftDbViewer(AppDi.instance.getDb().db)),
-                );
-              },
+              onLongPress: null,
               onDoubleTap: () {
                 Navigator.of(
                   context,
@@ -228,7 +222,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
     );
   }
 
-  Future<void> _updatePlannersList({List<PaymentPlannersDriftTableData>? newPlanners}) async {
+  Future<void> _updatePlannersList() async {
     await Future.delayed(const Duration(milliseconds: 100));
     final planners = await _plannerRepo.getPlanners();
     _actualPlanners.value = planners;

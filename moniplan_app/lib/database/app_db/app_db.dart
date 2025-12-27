@@ -1,5 +1,7 @@
-import 'package:moniplan_app/database/_index.dart';
+import 'package:moniplan_app/database/interfaces/i_app_db.dart';
 import 'package:rpc_dart/logger.dart';
+
+import 'app_db_impl.dart';
 
 abstract class AppDb extends IAppDb {
   static late IAppDbFactory _factory;
@@ -19,7 +21,5 @@ abstract class AppDb extends IAppDb {
     return db;
   }
 
-  static IAppDb get instance => _instance ??= _factory() as AppDb;
-
-  MoniplanDriftDb get db;
+  static AppDb get instance => _instance ??= _factory() as AppDb;
 }

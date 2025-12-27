@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:licensify/licensify.dart';
 import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/features/monisync/models/backup_footer_metadata.dart';
-import 'package:moniplan_app/features/payment/repo/payment_planner_repo_drift.dart';
+import 'package:moniplan_app/features/payment/repo/payment_planner_repo_data_service.dart';
 import 'package:rpc_dart/logger.dart';
 
 import '../models/backup_info.dart';
@@ -99,7 +99,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       await tempDb.open();
       await tempDb.overwriteWithBytes(bytes: bytes);
 
-      final plannerRepo = PlannerRepoDrift(appDb: tempDb);
+      final plannerRepo = PlannerRepoDataService(appDb: tempDb);
       final planners = await plannerRepo.getPlanners();
 
       await tempDb.close();

@@ -19,7 +19,13 @@ dependencies:
   data_manage: ^3.0.2
   rpc_dart: ^2.4.0
   rpc_dart_transports: ^1.7.1
+  rpc_dart_data: ^3.4.2
   rpc_flutter: ^0.0.1
+
+  # Data management
+  bloc: ^9.0.0
+  bloc_concurrency: ^0.3.0
+  flutter_bloc: ^9.1.1
 
   # Modules
   moniplan_uikit:
@@ -31,8 +37,6 @@ dependencies:
   uuid: ^4.5.2
   json_annotation: ^4.9.0
   collection: ^1.19.1
-
-  # UI
   responsive_framework: ^1.5.1
   draggable_scrollbar: 0.1.0
   permission_handler: ^12.0.1
@@ -43,18 +47,9 @@ dependencies:
 #    git: https://github.com/nogipx/receive_sharing_intent
   oktoast: 3.4.0
   fl_chart: ^1.1.1
-
-  # Sliver
   sliver_tools: 0.2.12
   super_sliver_list: 0.4.1
   sticky_headers: 0.3.0+2
-
-  # Data management
-  bloc: ^9.0.0
-  bloc_concurrency: ^0.3.0
-  flutter_bloc: ^9.1.1
-
-  # Data
   cross_file: ^0.3.4+2
   logging: any
   get_it: ^8.2.0
@@ -68,19 +63,9 @@ dependencies:
   stack_trace: ^1.12.1
   flutter_secure_storage: ^10.0.0-beta.4
   envied: ^1.1.1
-
-  # Persistent
   shared_preferences: ^2.3.3
-  drift_db_viewer: 2.1.0
-#  sqlite3_flutter_libs: ^0.5.39
   path_provider: ^2.1.5
   path: ^1.9.1
-
-  # Persistence
-  drift: ^2.28.1
-
-  # State
-
 
 dev_dependencies:
   flutter_lints: ^6.0.0
@@ -94,7 +79,6 @@ dev_dependencies:
   build_runner: ^2.4.15
   freezed: ^3.2.3
   json_serializable: ^6.9.0
-  drift_dev: ^2.22.1
   envied_generator: ^1.1.1
 
 

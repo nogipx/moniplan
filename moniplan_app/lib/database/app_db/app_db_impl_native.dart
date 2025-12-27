@@ -1,64 +1,64 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
-import 'package:moniplan_app/database/connection/connection_native.dart' as dbconn;
-import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:rpc_dart/logger.dart';
+import 'package:rpc_dart_data/rpc_dart_data.dart';
 
-import '../_index.dart';
+import 'app_db.dart';
 
 class AppDbImpl extends ChangeNotifier implements AppDb {
-  StreamSubscription? _listenChanges;
-  RpcLogger? _log;
-
-  @override
-  MoniplanDriftDb get db => _db!;
-
-  MoniplanDriftDb? _db;
-  DatabaseConnection? _connection; // держим connection, из него берём executor
-
   final bool _inMemory;
+  final RpcLogger _log;
+
+  DatabaseConnection? _connection;
+  SqliteDataStorageAdapter? _storage;
+  SqliteDataRepository? _repository;
+  InMemoryDataServiceEnvironment? _env;
+  String? _dbPath;
+
+  AppDbImpl._(this._log, this._inMemory);
 
   factory AppDbImpl({RpcLogger? log, bool inMemory = false}) {
     return AppDbImpl._(log ?? RpcLogger('AppDbImpl'), inMemory);
   }
 
-  AppDbImpl._(this._log, this._inMemory);
+  @override
+  DataServiceClient get dataService {
+    final client = _env?.client;
+    if (client == null) {
+      throw StateError('Database not opened');
+    }
+    return client;
+  }
 
   @override
   Future<void> open() async {
+    if (_env != null) {
+      return;
+    }
+
     try {
-      if (_connection != null) {
-        return;
-      }
+      final path = await _resolveDbPath();
+      _connection = await openFileDb(
+        options: SqliteConnectionOptions(nativePath: path),
+      );
 
-      if (_inMemory) {
-        // пустая временная БД в памяти
-        final executor = NativeDatabase.memory();
-        _connection = DatabaseConnection(executor);
-      } else {
-        // персистентная основная БД
-        final conn = await dbconn.openMainDb();
-        _connection = conn;
-      }
+      _storage = SqliteDataStorageAdapter.connection(
+        _connection!,
+        isInMemory: _inMemory,
+      );
+      await _storage!.ensureReady();
 
-      // Создаём Drift-DB. Предпочтительно — через .connect(...)
-      // Если у твоего класса нет конструктора .connect, используй executor:
-      //   _db = MoniplanDriftDb(dbExecutor: _connection!.executor);
-      _db = _tryConnectDb(_connection!);
+      _repository = SqliteDataRepository(storage: _storage!);
+      _env = await DataServiceFactory.inMemory(repository: _repository);
 
-      // Опционально «прогреем» БД (откроет и прогонит миграции)
-      await _connection!.executor.ensureOpen(_db!);
-
-      _startWatchChanges();
       notifyListeners();
     } on Object catch (error, trace) {
-      _log?.critical('open', error: error, stackTrace: trace);
+      _log.error('open failed', error: error, stackTrace: trace);
       rethrow;
     }
   }
@@ -66,130 +66,66 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   @override
   Future<void> overwriteWithBytes({required Uint8List bytes}) async {
     try {
-      // Закрываем текущую
       await _close();
-
-      if (_inMemory) {
-        // Временная БД из байт (полностью в памяти)
-        final conn = await dbconn.openInMemoryDbFromBytes(bytes);
-        _connection = conn;
-        _db = _tryConnectDb(conn);
-        await _connection!.executor.ensureOpen(_db!);
-      } else {
-        // Заменяем основную БД атомарно
-        await dbconn.replaceMainDbFromBytes(bytes);
-        // И открываем заново основную
-        final conn = await dbconn.openMainDb();
-        _connection = conn;
-        _db = _tryConnectDb(conn);
-        await _connection!.executor.ensureOpen(_db!);
-      }
-
-      _startWatchChanges();
-      notifyListeners();
+      final path = await _resolveDbPath();
+      final file = File(path);
+      await file.parent.create(recursive: true);
+      await file.writeAsBytes(bytes, flush: true);
+      await open();
     } on Object catch (error, trace) {
-      _log?.critical('overwriteWithBytes', error: error, stackTrace: trace);
+      _log.error('overwriteWithBytes failed', error: error, stackTrace: trace);
       rethrow;
     }
+  }
+
+  @override
+  Future<Uint8List> exportBytes() async {
+    final path = await _resolveDbPath();
+    final file = File(path);
+    if (!file.existsSync()) {
+      throw StateError('Database not opened');
+    }
+    return await file.readAsBytes();
   }
 
   @override
   Future<void> close() async {
-    try {
-      _stopWatchChanges();
-      await _close();
-
-      _db = null;
-      _connection = null;
-
-      notifyListeners();
-    } on Object catch (error, trace) {
-      _log?.critical('close', error: error, stackTrace: trace);
-      rethrow;
-    }
-  }
-
-  /// Экспорт текущей базы данных в байты.
-  /// Не запускать внутри транзакции.
-  @override
-  Future<Uint8List> exportBytes() async {
-    final dbInstance = _db;
-    if (dbInstance == null) {
-      throw StateError('Database not opened');
-    }
-
-    // Временный файл для «чистой» копии
-    final tmpDir = await getTemporaryDirectory();
-    final tmpPath = p.join(
-      tmpDir.path,
-      'db_export_${DateTime.now().microsecondsSinceEpoch}.sqlite',
-    );
-    final tmpFile = File(tmpPath);
-    if (tmpFile.existsSync()) {
-      await tmpFile.delete();
-    }
-
-    // VACUUM INTO создаёт полноценный sqlite-файл без WAL/SHM
-    // Важно: не оборачивать в транзакцию.
-    await dbInstance.customStatement('VACUUM INTO ?', [tmpPath]);
-
-    try {
-      final bytes = await tmpFile.readAsBytes();
-      return bytes;
-    } finally {
-      // Чистим за собой
-      try {
-        await tmpFile.delete();
-      } on Object catch (_) {}
-    }
-  }
-
-  // --- internals -------------------------------------------------------------
-
-  MoniplanDriftDb _tryConnectDb(DatabaseConnection conn) {
-    // fallback: используем executor-подпись
-    return MoniplanDriftDb(dbExecutor: conn.executor);
+    await _close();
+    notifyListeners();
   }
 
   Future<void> _close() async {
     try {
-      await _db?.close();
+      await _env?.dispose();
     } finally {
-      // Закрываем нижележащий executor (файл/память)
-      await _connection?.executor.close();
+      _env = null;
+      _repository = null;
+      try {
+        await _storage?.dispose();
+      } finally {
+        _storage = null;
+      }
+      try {
+        await _connection?.close();
+      } finally {
+        _connection = null;
+      }
     }
   }
 
-  Future<void> _updateLastActionDate() async {
-    if (_db == null) {
-      throw Exception('Database not opened');
+  Future<String> _resolveDbPath() async {
+    if (_dbPath != null) {
+      return _dbPath!;
     }
 
-    final data = GlobalLastUpdateData(
-      lastUpdateId: GlobalLastUpdate.entityId,
-      updatedAt: DateTime.now(),
-    );
-
-    _db!.globalLastUpdate.insertOne(data, mode: InsertMode.insertOrReplace);
-  }
-
-  void _startWatchChanges() {
-    if (_db == null) {
-      throw Exception('Database not opened');
+    if (_inMemory) {
+      final dir = await getTemporaryDirectory();
+      _dbPath = p.join(dir.path, 'app_db_temp.sqlite');
+      return _dbPath!;
     }
 
-    final query = TableUpdateQuery.onAllTables([
-      _db!.paymentPlannersDriftTable,
-      _db!.paymentsComposedDriftTable,
-    ]);
-
-    _listenChanges = _db!.tableUpdates(query).listen((_) {
-      _updateLastActionDate();
-    });
-  }
-
-  void _stopWatchChanges() {
-    _listenChanges?.cancel();
-    _listenChanges = null;
+    final dir = await getApplicationDocumentsDirectory();
+    _dbPath = p.join(dir.path, 'app.db');
+    return _dbPath!;
   }
 }

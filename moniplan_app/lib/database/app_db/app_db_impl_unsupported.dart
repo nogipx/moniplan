@@ -1,7 +1,10 @@
-import 'package:flutter/widgets.dart';
-import 'package:rpc_dart/rpc_dart.dart';
+import 'dart:typed_data';
 
-import '../_index.dart';
+import 'package:flutter/widgets.dart';
+import 'package:rpc_dart/logger.dart';
+import 'package:rpc_dart_data/rpc_dart_data.dart';
+
+import 'app_db.dart';
 
 class AppDbImpl extends ChangeNotifier implements AppDb {
   // ignore: avoid_unused_constructor_parameters
@@ -12,12 +15,12 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   AppDbImpl._();
 
   @override
+  DataServiceClient get dataService => throw UnsupportedError('Not supported on this platform');
+
+  @override
   Future<void> close() {
     throw UnimplementedError();
   }
-
-  @override
-  MoniplanDriftDb get db => throw UnimplementedError();
 
   @override
   Future<void> open() {

@@ -4,6 +4,7 @@ import 'package:moniplan_app/features/monisync/_index.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
+import 'package:moniplan_app/features/payment/repo/payment_planner_repo_data_service.dart';
 import 'package:moniplan_app/features/statistic/repo/i_statistics_repo.dart';
 import 'package:moniplan_app/features/statistic/repo/statistics_repository.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -42,7 +43,7 @@ class GetItAppDI implements AppDi {
     _getIt
       ..registerSingleton<AppDb>(db)
       ..registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform)
-      ..registerSingleton<IPlannerRepo>(PlannerRepoDrift(appDb: dbImpl))
+      ..registerSingleton<IPlannerRepo>(PlannerRepoDataService(appDb: db))
       ..registerFactoryAsync<IMonisyncRepo>(() async {
         return MonisyncRepoImpl(appDb: db);
       })
