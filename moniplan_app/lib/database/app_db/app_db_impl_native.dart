@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -42,10 +43,14 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     }
 
     try {
-      final path = await _resolveDbPath();
-      _connection = await openFileDb(
-        options: SqliteConnectionOptions(nativePath: path),
-      );
+      if (_inMemory) {
+        _connection = await openInMemoryDb();
+      } else {
+        final path = await _resolveDbPath();
+        _connection = await openFileDb(
+          options: SqliteConnectionOptions(nativePath: path),
+        );
+      }
 
       _storage = SqliteDataStorageAdapter.connection(
         _connection!,
@@ -66,12 +71,12 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   @override
   Future<void> overwriteWithBytes({required Uint8List bytes}) async {
     try {
-      await _close();
-      final path = await _resolveDbPath();
-      final file = File(path);
-      await file.parent.create(recursive: true);
-      await file.writeAsBytes(bytes, flush: true);
-      await open();
+      if (_env == null) {
+        await open();
+      }
+      final payload = utf8.decode(bytes);
+      await dataService.importDatabase(payload: payload, replaceExisting: true);
+      notifyListeners();
     } on Object catch (error, trace) {
       _log.error('overwriteWithBytes failed', error: error, stackTrace: trace);
       rethrow;
@@ -80,12 +85,11 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
 
   @override
   Future<Uint8List> exportBytes() async {
-    final path = await _resolveDbPath();
-    final file = File(path);
-    if (!file.existsSync()) {
-      throw StateError('Database not opened');
+    if (_env == null) {
+      await open();
     }
-    return await file.readAsBytes();
+    final export = await dataService.exportDatabase();
+    return Uint8List.fromList(utf8.encode(export.payload));
   }
 
   @override

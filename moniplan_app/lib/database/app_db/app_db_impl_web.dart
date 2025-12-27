@@ -40,13 +40,15 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     }
 
     try {
-      if (_inMemory) {
-        // Web storage is in-memory by default; flag retained for API parity.
-      }
-      _connection = await openFileDb(); // web implementation is in-memory
+      final options = SqliteConnectionOptions(
+        webSqliteWasmUri: Uri.parse('sqlite3mc.wasm'),
+      );
+      _connection = _inMemory
+          ? await openInMemoryDb(options: options)
+          : await openFileDb(options: options);
       _storage = SqliteDataStorageAdapter.connection(
         _connection!,
-        isInMemory: true,
+        isInMemory: _inMemory,
       );
       await _storage!.ensureReady();
       _repository = SqliteDataRepository(storage: _storage!);
@@ -80,7 +82,11 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
       throw StateError('Database not opened');
     }
     final export = await client.exportDatabase();
-    return Uint8List.fromList(utf8.encode(export.payload));
+    final builder = BytesBuilder();
+    await for (final chunk in export.payloadStream!) {
+      builder.add(chunk);
+    }
+    return builder.takeBytes();
   }
 
   @override

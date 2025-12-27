@@ -8,6 +8,8 @@ environment:
 
 dependency_overrides:
   pointycastle: ^3.6.2
+  rpc_dart_data:
+    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_data
 
 dependencies:
   flutter:
@@ -19,7 +21,8 @@ dependencies:
   data_manage: ^3.0.2
   rpc_dart: ^2.4.0
   rpc_dart_transports: ^1.7.1
-  rpc_dart_data: ^3.4.2
+  rpc_dart_data:
+    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_data
   rpc_flutter: ^0.0.1
 
   # Data management
