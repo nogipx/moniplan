@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
@@ -61,28 +61,39 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     }
   }
 
-  @override
-  Future<void> overwriteWithBytes({required Uint8List bytes}) async {
-    try {
-      if (_env == null) {
-        await open();
-      }
-      final payload = utf8.decode(bytes);
-      await dataService.importDatabase(payload: payload, replaceExisting: true);
-      notifyListeners();
-    } on Object catch (error, trace) {
-      _log.error('overwriteWithBytes failed', error: error, stackTrace: trace);
-      rethrow;
-    }
+  Future<Uint8List> exportBytes() async {
+    // Deprecated shim: prefer exportSqlite. Kept for backward compatibility.
+    return exportSqlite();
   }
 
   @override
-  Future<Uint8List> exportBytes() async {
-    if (_env == null) {
-      await open();
+  Future<Uint8List> exportSqlite() async {
+    if (kIsWeb || _inMemory) {
+      throw UnsupportedError('SQLite export is not available for in-memory/web storage');
     }
-    final export = await dataService.exportDatabase();
-    return Uint8List.fromList(utf8.encode(export.payload));
+
+    await open();
+    final path = await _resolveDbPath();
+    final file = File(path);
+    if (await file.exists()) {
+      return await file.readAsBytes();
+    }
+
+    throw StateError('SQLite file is missing at $path');
+  }
+
+  @override
+  Future<void> importSqlite({required Uint8List bytes}) async {
+    if (kIsWeb || _inMemory) {
+      throw UnsupportedError('SQLite import is not available for in-memory/web storage');
+    }
+
+    await _close();
+    final path = await _resolveDbPath();
+    final file = File(path);
+    await file.writeAsBytes(bytes, flush: true);
+    await open();
+    notifyListeners();
   }
 
   @override

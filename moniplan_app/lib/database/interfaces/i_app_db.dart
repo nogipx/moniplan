@@ -14,7 +14,9 @@ abstract class IAppDb {
 
   Future<void> open();
 
-  Future<void> overwriteWithBytes({required Uint8List bytes});
+  /// Экспортирует SQLite-файл базы данных (только для persistent-хранилища).
+  Future<Uint8List> exportSqlite();
 
-  Future<Uint8List> exportBytes();
+  /// Импортирует SQLite-файл базы данных (только для persistent-хранилища).
+  Future<void> importSqlite({required Uint8List bytes});
 }

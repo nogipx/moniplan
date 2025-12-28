@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/features/monisync/bloc/monisync_bloc.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
@@ -23,6 +22,8 @@ part 'components/backup_info_sheet.dart';
 part 'components/csv_export_dialog.dart';
 part 'components/password_dialog.dart';
 part 'components/protection_selector.dart';
+
+enum _ExportFormat { dataService, sqlite }
 
 class MonisyncScreen extends StatelessWidget {
   const MonisyncScreen({super.key});
@@ -116,14 +117,6 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
           icon: Icons.restore_rounded,
           iconColor: Colors.orange,
           onTap: () => _importBackup(context),
-        ),
-        const SizedBox(height: 12),
-        BackupActionCard(
-          title: 'Импорт старого бэкапа',
-          subtitle: 'Восстановить данные из старого формата с пользовательским паролем',
-          icon: Icons.history_rounded,
-          iconColor: Colors.purple,
-          onTap: () => _importLegacyBackupDirect(context),
         ),
         if (kDebugMode) ..._buildDebugActions(context),
       ],
@@ -285,15 +278,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
         await _importNewFormatBackupFromToken(context, token);
         return;
       }
-
-      // Если не новый формат, обрабатываем как legacy (уже имеем bytes)
-      // Сохраним временно файл на устройство для совместимости или вызовем обычный flow через чтение информации
-      // Здесь просто вызываем поток чтения информации legacy с помощью временного файла, если нужно.
-      // Для простоты — сохраняем временно и передаем путь
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/${picked.name}');
-      await tempFile.writeAsBytes(bytes);
-      await _importLegacyBackup(context, tempFile.path);
+      showToast('Неподдерживаемый формат резервной копии');
       return;
     }
 
@@ -308,7 +293,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
       if (isNew) {
         await _importNewFormatBackup(context, filePath);
       } else {
-        await _importLegacyBackup(context, filePath);
+        showToast('Неподдерживаемый формат резервной копии');
       }
     } on Object catch (error) {
       _log.error('Ошибка определения формата файла', error: error);
@@ -354,7 +339,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     await _listenForBackupInfo(context, (state) async {
       if (state is MonisyncNewBackupInfoState) {
         await _showBackupInfoAndImport(context, state.backupInfo, token);
-      } else if (state is MonisyncErrorState && !state.isLegacy) {
+      } else if (state is MonisyncErrorState) {
         await _requestPasswordAndImportNew(context, token);
       }
     });
@@ -376,7 +361,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
       await _listenForBackupInfo(context, (state) async {
         if (state is MonisyncNewBackupInfoState) {
           await _showBackupInfoAndImport(context, state.backupInfo, token);
-        } else if (state is MonisyncErrorState && !state.isLegacy) {
+        } else if (state is MonisyncErrorState) {
           await _requestPasswordAndImportNew(context, token);
         }
       });
@@ -406,33 +391,11 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     });
   }
 
-  Future<void> _importLegacyBackup(BuildContext context, String filePath) async {
-    final bloc = context.read<MonisyncBloc>();
-    final password = await PasswordDialog.show(context);
-    if (password == null || password.isEmpty) {
-      showToast('Пароль обязателен для импорта legacy файлов');
-      return;
-    }
-
-    if (!mounted) {
-      return;
-    }
-    bloc.add(MonisyncReadLegacyBackupInfoEvent(filePath: filePath, password: password));
-
-    await _listenForBackupInfo(context, (state) async {
-      if (state is MonisyncLegacyBackupInfoState) {
-        await _showLegacyBackupInfoAndImport(context, filePath, password);
-      }
-    });
-  }
-
   Future<void> _listenForBackupInfo(BuildContext context, Function(MonisyncState) onState) async {
     final bloc = context.read<MonisyncBloc>();
     await for (final state in bloc.stream) {
       await onState(state);
-      if (state is MonisyncNewBackupInfoState ||
-          state is MonisyncLegacyBackupInfoState ||
-          state is MonisyncErrorState) {
+      if (state is MonisyncNewBackupInfoState || state is MonisyncErrorState) {
         break;
       }
     }
@@ -464,41 +427,6 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
   Future<void> _importWithToken(BuildContext context, String token, String password) async {
     if (context.mounted) {
       context.read<MonisyncBloc>().add(MonisyncImportNewEvent(token: token, password: password));
-    }
-  }
-
-  Future<void> _showLegacyBackupInfoAndImport(
-    BuildContext context,
-    String filePath,
-    String password,
-  ) async {
-    if (!context.mounted) {
-      return;
-    }
-
-    final shouldImport = await showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Импорт legacy файла'),
-            content: Text('Импортировать данные из файла?\n\nФайл: ${filePath.split('/').last}'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Отмена'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Импортировать'),
-              ),
-            ],
-          ),
-    );
-
-    if (shouldImport == true && context.mounted) {
-      context.read<MonisyncBloc>().add(
-        MonisyncLegacyImportEvent(filePath: filePath, password: password),
-      );
     }
   }
 
@@ -602,9 +530,25 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
   // Debug функции
   Future<void> _downloadDb(BuildContext context) async {
     try {
+      final format = await _pickExportFormat(context);
+      if (format == null) {
+        return;
+      }
+
       final now = DateTime.now();
-      final bytes = await AppDb.instance.exportBytes();
-      final fileName = 'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.db';
+      late final List<int> bytes;
+      late final String fileName;
+
+      if (format == _ExportFormat.dataService) {
+        final dataService = AppDi.instance.getDataService();
+        final export = await dataService.exportDatabase();
+        bytes = utf8.encode(export.payload);
+        fileName = 'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.json';
+      } else {
+        final db = AppDi.instance.getDb();
+        bytes = await db.exportSqlite();
+        fileName = 'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.db';
+      }
 
       if (!context.mounted) {
         return;
@@ -637,7 +581,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
   Future<void> _importDb(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['db'],
+      allowedExtensions: ['json', 'db'],
     );
 
     if (result == null || result.files.isEmpty) {
@@ -652,77 +596,51 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
 
     try {
       final file = File(filePath);
-      final bytes = await file.readAsBytes();
-      await AppDb.instance.overwriteWithBytes(bytes: bytes);
-      showToast('База данных импортирована');
+      if (filePath.toLowerCase().endsWith('.json')) {
+        final payload = await file.readAsString();
+        final dataService = AppDi.instance.getDataService();
+        await dataService.importDatabase(payload: payload, replaceExisting: true);
+        showToast('База данных импортирована через IDataService');
+      } else {
+        final bytes = await file.readAsBytes();
+        final db = AppDi.instance.getDb();
+        await db.importSqlite(bytes: bytes);
+        showToast('База данных импортирована из файла SQLite');
+      }
     } on Object catch (error) {
       _log.error('Ошибка импорта базы данных', error: error);
       showToast('Ошибка при импорте базы данных');
     }
   }
 
-  Future<void> _importLegacyBackupDirect(BuildContext context) async {
-    // Показываем информационный диалог о требованиях к legacy файлам
-    final shouldContinue = await showDialog<bool>(
+  Future<_ExportFormat?> _pickExportFormat(BuildContext context) {
+    return showModalBottomSheet<_ExportFormat>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Импорт старого бэкапа'),
-            content: const Text(
-              'Для импорта старого бэкапа требуется:\n\n'
-              '• Файл должен быть защищен пользовательским паролем\n'
-              '• Файлы со стандартным шифрованием не поддерживаются\n\n'
-              'Продолжить выбор файла?',
+      backgroundColor: context.theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.cloud_download),
+              title: const Text('Экспорт через IDataService (JSON)'),
+              subtitle: const Text('Использует exportDatabase/importDatabase'),
+              onTap: () => Navigator.of(context).pop(_ExportFormat.dataService),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Отмена'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Продолжить'),
-              ),
-            ],
-          ),
-    );
-
-    if (shouldContinue != true) {
-      return;
-    }
-    if (!context.mounted) {
-      return;
-    }
-
-    // Выбираем файл
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-      dialogTitle: 'Выберите файл старого бэкапа',
-    );
-
-    if (result == null || result.files.isEmpty) {
-      return;
-    }
-
-    final filePath = result.files.first.path;
-    if (filePath == null) {
-      showToast('Ошибка при выборе файла');
-      return;
-    }
-
-    // Запрашиваем пароль
-    final password = await PasswordDialog.show(context);
-    if (password == null || password.isEmpty) {
-      showToast('Пароль обязателен для импорта legacy файлов');
-      return;
-    }
-
-    // Импортируем напрямую без предварительного просмотра
-    if (!mounted) {
-      return;
-    }
-    context.read<MonisyncBloc>().add(
-      MonisyncLegacyImportEvent(filePath: filePath, password: password),
+            ListTile(
+              leading: const Icon(Icons.storage),
+              title: const Text('Экспорт SQLite файла (.db)'),
+              subtitle: const Text('Файл базы данных напрямую'),
+              onTap: () => Navigator.of(context).pop(_ExportFormat.sqlite),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
     );
   }
+
 }

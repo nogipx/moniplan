@@ -5,8 +5,6 @@ import 'dart:convert';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
-import 'package:moniplan_app/features/monisync/legacy_monisync/repo/i_manual_monisync_repo.dart';
-import 'package:moniplan_app/features/monisync/legacy_monisync/repo/password_only_monisync_repo_impl.dart';
 import 'package:moniplan_app/features/monisync/models/backup_info.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:rpc_dart/logger.dart';
@@ -19,34 +17,21 @@ class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
   final _log = RpcLogger('MonisyncBloc');
 
   IMonisyncRepo? _newRepo;
-  LegacyIMonisyncRepo? _legacyRepo;
 
   MonisyncBloc({required this.appDi}) : super(MonisyncInitialState()) {
     on<MonisyncInitEvent>(_onInit);
     on<MonisyncExportNewEvent>(_onExportNew);
     on<MonisyncImportNewEvent>(_onImportNew);
     on<MonisyncReadNewBackupInfoEvent>(_onReadNewBackupInfo);
-    on<MonisyncLegacyImportEvent>(_onLegacyImport);
-    on<MonisyncReadLegacyBackupInfoEvent>(_onReadLegacyBackupInfo);
-    on<MonisyncCheckLegacyPasswordProtectionEvent>(_onCheckLegacyPasswordProtection);
-  }
-
-  /// Создание Legacy репозитория для работы только с паролями пользователя
-  /// Исключает поддержку стандартного ключа приложения для повышения безопасности
-  LegacyIMonisyncRepo _createLegacyRepo() {
-    // Используем новую реализацию, которая работает только с паролями
-    return PasswordOnlyLegacyMonisyncRepoImpl(dataService: appDi.getDataService());
   }
 
   FutureOr<void> _onInit(MonisyncInitEvent event, Emitter<MonisyncState> emit) async {
     try {
       _newRepo = await appDi.getMonisyncRepo();
-      // Создаем legacy репозиторий локально
-      _legacyRepo = _createLegacyRepo();
       emit(MonisyncInitialState());
     } on Object catch (e, s) {
       _log.error('Failed to init repos', error: e, stackTrace: s);
-      emit(MonisyncErrorState(message: 'Не удалось инициализировать репозитории', isLegacy: false));
+      emit(MonisyncErrorState(message: 'Не удалось инициализировать репозитории'));
     }
   }
 
@@ -66,7 +51,7 @@ class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
       emit(MonisyncNewExportSuccessState(token: token, bytes: bytes, fileName: fileName));
     } on Object catch (e, s) {
       _log.error('Export failed', error: e, stackTrace: s);
-      emit(MonisyncErrorState(message: 'Ошибка при экспорте данных', isLegacy: false));
+      emit(MonisyncErrorState(message: 'Ошибка при экспорте данных'));
     }
   }
 
@@ -82,7 +67,6 @@ class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
         MonisyncImportResultState(
           success: true,
           message: 'Данные успешно импортированы',
-          isLegacy: false,
         ),
       );
     } on Object catch (e, s) {
@@ -91,7 +75,6 @@ class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
         MonisyncImportResultState(
           success: false,
           message: 'Не удалось импортировать данные',
-          isLegacy: false,
         ),
       );
     }
@@ -113,7 +96,6 @@ class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
         emit(
           MonisyncErrorState(
             message: 'Неверный формат бэкапа или неправильный пароль',
-            isLegacy: false,
           ),
         );
         return;
@@ -122,89 +104,7 @@ class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
       emit(MonisyncNewBackupInfoState(backupInfo: info));
     } on Object catch (e, s) {
       _log.error('Read backup info failed', error: e, stackTrace: s);
-      emit(MonisyncErrorState(message: 'Ошибка при чтении информации о бэкапе', isLegacy: false));
-    }
-  }
-
-  Future<void> _onLegacyImport(MonisyncLegacyImportEvent event, Emitter<MonisyncState> emit) async {
-    emit(MonisyncLoadingState());
-
-    try {
-      // Создаем или используем существующий legacy репозиторий
-      final repo = _legacyRepo ??= _createLegacyRepo();
-
-      await repo.importDataFromFile(filePath: event.filePath, password: event.password);
-
-      emit(
-        MonisyncImportResultState(
-          success: true,
-          message: 'Legacy данные успешно импортированы',
-          isLegacy: true,
-        ),
-      );
-    } on Object catch (e, s) {
-      _log.error('Legacy import failed', error: e, stackTrace: s);
-      emit(
-        MonisyncImportResultState(
-          success: false,
-          message: 'Не удалось импортировать legacy данные',
-          isLegacy: true,
-        ),
-      );
-    }
-  }
-
-  Future<void> _onReadLegacyBackupInfo(
-    MonisyncReadLegacyBackupInfoEvent event,
-    Emitter<MonisyncState> emit,
-  ) async {
-    emit(MonisyncLoadingState());
-
-    try {
-      // Создаем или используем существующий legacy репозиторий
-      final repo = _legacyRepo ??= _createLegacyRepo();
-
-      final info = await repo.readBackupInfo(filePath: event.filePath, password: event.password);
-
-      if (info == null) {
-        emit(
-          MonisyncErrorState(
-            message: 'Неверный формат legacy бэкапа или неправильный пароль',
-            isLegacy: true,
-          ),
-        );
-        return;
-      }
-
-      emit(MonisyncLegacyBackupInfoState(backupInfo: info));
-    } on Object catch (e, s) {
-      _log.error('Read legacy backup info failed', error: e, stackTrace: s);
-      emit(
-        MonisyncErrorState(message: 'Ошибка при чтении информации о legacy бэкапе', isLegacy: true),
-      );
-    }
-  }
-
-  Future<void> _onCheckLegacyPasswordProtection(
-    MonisyncCheckLegacyPasswordProtectionEvent event,
-    Emitter<MonisyncState> emit,
-  ) async {
-    emit(MonisyncLoadingState());
-
-    try {
-      // Создаем или используем существующий legacy репозиторий
-      final repo = _legacyRepo ??= _createLegacyRepo();
-
-      final isProtected = await repo.isFilePasswordProtected(event.filePath);
-      emit(MonisyncLegacyPasswordProtectionState(isPasswordProtected: isProtected));
-    } on Object catch (e, s) {
-      _log.error('Check legacy password protection failed', error: e, stackTrace: s);
-      emit(
-        MonisyncErrorState(
-          message: 'Ошибка при проверке защиты паролем legacy бэкапа',
-          isLegacy: true,
-        ),
-      );
+      emit(MonisyncErrorState(message: 'Ошибка при чтении информации о бэкапе'));
     }
   }
 

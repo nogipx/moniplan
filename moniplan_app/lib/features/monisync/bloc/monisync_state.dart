@@ -21,27 +21,14 @@ class MonisyncNewBackupInfoState extends MonisyncState {
   MonisyncNewBackupInfoState({required this.backupInfo});
 }
 
-/// Состояния для legacy формата
-class MonisyncLegacyBackupInfoState extends MonisyncState {
-  final LegacyBackupInfo backupInfo;
-  MonisyncLegacyBackupInfoState({required this.backupInfo});
-}
-
-class MonisyncLegacyPasswordProtectionState extends MonisyncState {
-  final bool isPasswordProtected;
-  MonisyncLegacyPasswordProtectionState({required this.isPasswordProtected});
-}
-
 /// Общие состояния результата
 class MonisyncImportResultState extends MonisyncState {
   final bool success;
   final String? message;
-  final bool isLegacy;
-  MonisyncImportResultState({required this.success, required this.isLegacy, this.message});
+  MonisyncImportResultState({required this.success, this.message});
 }
 
 class MonisyncErrorState extends MonisyncState {
   final String message;
-  final bool isLegacy;
-  MonisyncErrorState({required this.message, required this.isLegacy});
+  MonisyncErrorState({required this.message});
 }

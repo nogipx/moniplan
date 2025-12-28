@@ -26,23 +26,3 @@ class MonisyncReadNewBackupInfoEvent extends MonisyncEvent {
   final String? password;
   MonisyncReadNewBackupInfoEvent({required this.token, this.password});
 }
-
-/// Legacy импорт - теперь ТРЕБУЕТ пароль
-class MonisyncLegacyImportEvent extends MonisyncEvent {
-  final String filePath;
-  final String password; // Убираем nullable - пароль обязателен
-  MonisyncLegacyImportEvent({required this.filePath, required this.password});
-}
-
-/// Чтение информации о legacy бэкапе - теперь ТРЕБУЕТ пароль
-class MonisyncReadLegacyBackupInfoEvent extends MonisyncEvent {
-  final String filePath;
-  final String password; // Убираем nullable - пароль обязателен
-  MonisyncReadLegacyBackupInfoEvent({required this.filePath, required this.password});
-}
-
-/// Проверка защиты паролем для legacy бэкапа
-class MonisyncCheckLegacyPasswordProtectionEvent extends MonisyncEvent {
-  final String filePath;
-  MonisyncCheckLegacyPasswordProtectionEvent({required this.filePath});
-}
