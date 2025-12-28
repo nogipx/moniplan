@@ -3,10 +3,10 @@ import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
 import 'package:licensify/licensify.dart';
-import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/features/monisync/models/backup_footer_metadata.dart';
 import 'package:moniplan_app/features/payment/repo/payment_planner_repo_data_service.dart';
 import 'package:rpc_dart/logger.dart';
+import 'package:rpc_dart_data/rpc_dart_data.dart';
 
 import '../models/backup_info.dart';
 import 'i_manual_monisync_repo.dart';
@@ -15,10 +15,10 @@ import 'i_manual_monisync_repo.dart';
 const String backupDateFormat = 'yyyyMMdd_HHmmss';
 
 class MonisyncRepoImpl implements IMonisyncRepo {
-  final AppDb appDb;
+  final IDataService dataService;
   final _log = RpcLogger('MonisyncRepoImpl');
 
-  MonisyncRepoImpl({required this.appDb});
+  MonisyncRepoImpl({required this.dataService});
 
   @override
   Future<String> exportData({required DateTime now, required String password}) async {
@@ -58,8 +58,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       );
 
       final content = decryptedData['content'] as String;
-      await appDb.open();
-      await appDb.overwriteWithBytes(bytes: base64Decode(content));
+      await _importDatabaseBytes(dataService, base64Decode(content));
     } on Object catch (e, s) {
       _log.error('Ошибка при чтении информации о бэкапе', error: e, stackTrace: s);
       rethrow;
@@ -94,22 +93,22 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       final content = decryptedData['content'] as String;
       final bytes = base64Decode(content);
 
-      await AppDb.instance.close();
-      final tempDb = AppDb.detachedInMemory();
-      await tempDb.open();
-      await tempDb.overwriteWithBytes(bytes: bytes);
+      final tempEnv = await DataServiceFactory.inMemory();
+      try {
+        await _importDatabaseBytes(tempEnv.client, bytes);
 
-      final plannerRepo = PlannerRepoDataService(appDb: tempDb);
-      final planners = await plannerRepo.getPlanners();
+        final plannerRepo = PlannerRepoDataService(dataService: tempEnv.client);
+        final planners = await plannerRepo.getPlanners();
 
-      await tempDb.close();
-
-      return BackupInfo(
-        token: token,
-        creationDate: metadata?.timestamp,
-        plannersCount: planners.length,
-        metadata: metadata,
-      );
+        return BackupInfo(
+          token: token,
+          creationDate: metadata?.timestamp,
+          plannersCount: planners.length,
+          metadata: metadata,
+        );
+      } finally {
+        await tempEnv.dispose();
+      }
     } on Object catch (e, s) {
       _log.error('Ошибка при чтении информации о бэкапе', error: e, stackTrace: s);
       rethrow;
@@ -133,11 +132,20 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
   /// Получает байты базы данных
   Future<Uint8List> getDatabaseBytes() async {
-    final bytes = await appDb.exportBytes();
-    return bytes;
+    return _exportDatabaseBytes(dataService);
   }
 
   @override
   String createBackupFileName(DateTime date) =>
       'db_${DateFormat(backupDateFormat).format(date)}.moniplan';
+
+  Future<void> _importDatabaseBytes(IDataService target, Uint8List bytes) async {
+    final payload = utf8.decode(bytes);
+    await target.importDatabase(payload: payload, replaceExisting: true);
+  }
+
+  Future<Uint8List> _exportDatabaseBytes(IDataService target) async {
+    final export = await target.exportDatabase();
+    return Uint8List.fromList(utf8.encode(export.payload));
+  }
 }

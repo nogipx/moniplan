@@ -1,8 +1,9 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:moniplan_app/database/app_db/app_db.dart';
+import 'package:rpc_dart_data/rpc_dart_data.dart';
 
 import '../crypto/_index.dart';
 import '../crypto/keys.dart';
@@ -14,9 +15,9 @@ const String backupDateFormat = 'yyyyMMdd_HHmmss';
 
 class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
   final IAppEncrypter encrypter;
-  final AppDb appDb;
+  final IDataService dataService;
 
-  LegacyMonisyncRepoImpl({required this.encrypter, required this.appDb});
+  LegacyMonisyncRepoImpl({required this.encrypter, required this.dataService});
 
   @override
   Future<bool> isFilePasswordProtected(String filePath) async {
@@ -57,7 +58,7 @@ class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
     }
 
     // Импортируем из временного файла
-    await appDb.overwriteWithBytes(bytes: decryptedBytes);
+    await _importDatabaseBytes(decryptedBytes);
   }
 
   @override
@@ -165,5 +166,10 @@ class LegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
     }
 
     return true;
+  }
+
+  Future<void> _importDatabaseBytes(Uint8List bytes) async {
+    final payload = utf8.decode(bytes);
+    await dataService.importDatabase(payload: payload, replaceExisting: true);
   }
 }

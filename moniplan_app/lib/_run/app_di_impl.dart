@@ -9,11 +9,14 @@ import 'package:moniplan_app/features/statistic/repo/i_statistics_repo.dart';
 import 'package:moniplan_app/features/statistic/repo/statistics_repository.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rpc_dart/logger.dart';
+import 'package:rpc_dart_data/rpc_dart_data.dart';
 
 abstract interface class IAppDi {
   Future<void> setup();
 
   IAppDb getDb();
+
+  IDataService getDataService();
 
   IPlannerRepo getPlannerRepo();
 
@@ -27,6 +30,9 @@ abstract class AppDi implements IAppDi {
 
   @override
   AppDb getDb();
+
+  @override
+  IDataService getDataService();
 }
 
 class GetItAppDI implements AppDi {
@@ -40,18 +46,23 @@ class GetItAppDI implements AppDi {
     AppDb.setFactory(() => GetIt.instance.get<AppDbImpl>());
     final db = AppDb();
     await db.open();
+    final dataService = db.dataService;
     _getIt
       ..registerSingleton<AppDb>(db)
+      ..registerSingleton<IDataService>(dataService)
       ..registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform)
-      ..registerSingleton<IPlannerRepo>(PlannerRepoDataService(appDb: db))
+      ..registerSingleton<IPlannerRepo>(PlannerRepoDataService(dataService: dataService))
       ..registerFactoryAsync<IMonisyncRepo>(() async {
-        return MonisyncRepoImpl(appDb: db);
+        return MonisyncRepoImpl(dataService: dataService);
       })
       ..registerSingleton<IStatisticsRepo>(StatisticsRepoImpl(plannerRepo: getPlannerRepo()));
   }
 
   @override
   AppDb getDb() => _getIt.get();
+
+  @override
+  IDataService getDataService() => _getIt.get();
 
   @override
   IPlannerRepo getPlannerRepo() => _getIt.get();

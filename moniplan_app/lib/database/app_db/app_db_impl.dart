@@ -25,7 +25,7 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
   String? _dbPath;
 
   @override
-  DataServiceClient get dataService {
+  IDataService get dataService {
     final client = _env?.client;
     if (client == null) {
       throw StateError('Database not opened');

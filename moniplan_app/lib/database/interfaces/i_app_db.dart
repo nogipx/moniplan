@@ -8,7 +8,7 @@ abstract class IAppDb {
   /// Клиент rpc_dart_data для CRUD-операций.
   ///
   /// Доступен только после [open].
-  DataServiceClient get dataService;
+  IDataService get dataService;
 
   Future<void> close();
 

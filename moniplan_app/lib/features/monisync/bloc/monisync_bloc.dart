@@ -35,7 +35,7 @@ class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
   /// Исключает поддержку стандартного ключа приложения для повышения безопасности
   LegacyIMonisyncRepo _createLegacyRepo() {
     // Используем новую реализацию, которая работает только с паролями
-    return PasswordOnlyLegacyMonisyncRepoImpl(appDb: appDi.getDb());
+    return PasswordOnlyLegacyMonisyncRepoImpl(dataService: appDi.getDataService());
   }
 
   FutureOr<void> _onInit(MonisyncInitEvent event, Emitter<MonisyncState> emit) async {

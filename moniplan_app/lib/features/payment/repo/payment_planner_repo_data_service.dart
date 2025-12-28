@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/database/_index.dart';
 import 'package:rpc_dart/logger.dart';
 import 'package:rpc_dart_data/rpc_dart_data.dart';
 import 'package:uuid/uuid.dart';
@@ -9,16 +8,16 @@ import 'package:uuid/uuid.dart';
 import 'i_payment_planner_repo.dart';
 
 class PlannerRepoDataService implements IPlannerRepo {
-  PlannerRepoDataService({required this.appDb}) : _log = RpcLogger('PlannerRepoDataService');
+  PlannerRepoDataService({required IDataService dataService})
+    : _dataService = dataService,
+      _log = RpcLogger('PlannerRepoDataService');
 
-  final AppDb appDb;
+  final IDataService _dataService;
   final RpcLogger _log;
 
   static const _plannersCollection = 'planners';
   static const _paymentsCollection = 'payments';
   static const _actualInfoCollection = 'planner_actual_info';
-
-  DataServiceClient get _dataService => appDb.dataService;
 
   Future<T> _guard<T>(String name, Future<T> Function() action) async {
     try {

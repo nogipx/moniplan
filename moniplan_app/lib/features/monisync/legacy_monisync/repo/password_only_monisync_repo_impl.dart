@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:moniplan_app/database/interfaces/i_app_db.dart';
+import 'package:rpc_dart_data/rpc_dart_data.dart';
 
 import '../crypto/_index.dart';
 import 'i_manual_monisync_repo.dart';
@@ -13,9 +14,9 @@ const String backupDateFormat = 'yyyyMMdd_HHmmss';
 /// Реализация legacy репозитория, которая работает ТОЛЬКО с паролями пользователя
 /// Исключает поддержку стандартного ключа приложения для повышения безопасности
 class PasswordOnlyLegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
-  final IAppDb appDb;
+  final IDataService dataService;
 
-  PasswordOnlyLegacyMonisyncRepoImpl({required this.appDb});
+  PasswordOnlyLegacyMonisyncRepoImpl({required this.dataService});
 
   @override
   Future<bool> isFilePasswordProtected(String filePath) async {
@@ -69,7 +70,7 @@ class PasswordOnlyLegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
     }
 
     // Импортируем из временного файла
-    await appDb.overwriteWithBytes(bytes: decryptedBytes);
+    await _importDatabaseBytes(decryptedBytes);
   }
 
   @override
@@ -194,5 +195,10 @@ class PasswordOnlyLegacyMonisyncRepoImpl implements LegacyIMonisyncRepo {
     }
 
     return true;
+  }
+
+  Future<void> _importDatabaseBytes(Uint8List bytes) async {
+    final payload = utf8.decode(bytes);
+    await dataService.importDatabase(payload: payload, replaceExisting: true);
   }
 }
