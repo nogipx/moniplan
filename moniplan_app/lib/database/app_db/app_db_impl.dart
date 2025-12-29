@@ -2,12 +2,32 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:moniplan_app/database/interfaces/i_app_db.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:rpc_dart/logger.dart';
 import 'package:rpc_dart_data/rpc_dart_data.dart';
 
-import 'app_db.dart';
+abstract class AppDb extends IAppDb {
+  static late IAppDbFactory _factory;
+  static AppDb? _instance;
+
+  static void setFactory(IAppDbFactory newFactory) {
+    _factory = newFactory;
+    _instance = _factory() as AppDb;
+  }
+
+  factory AppDb() {
+    return _instance ??= _factory() as AppDb;
+  }
+
+  static AppDbImpl detachedInMemory() {
+    final db = AppDbImpl(inMemory: true, log: RpcLogger('TempAppDb'));
+    return db;
+  }
+
+  static AppDb get instance => _instance ??= _factory() as AppDb;
+}
 
 /// Универсальный AppDb поверх rpc_dart_data. Использует SQLite файл на IO и OPFS/IndexedDB на web.
 class AppDbImpl extends ChangeNotifier implements AppDb {
@@ -61,11 +81,6 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     }
   }
 
-  Future<Uint8List> exportBytes() async {
-    // Deprecated shim: prefer exportSqlite. Kept for backward compatibility.
-    return exportSqlite();
-  }
-
   @override
   Future<Uint8List> exportSqlite() async {
     if (kIsWeb || _inMemory) {
@@ -75,8 +90,8 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     await open();
     final path = await _resolveDbPath();
     final file = File(path);
-    if (await file.exists()) {
-      return await file.readAsBytes();
+    if (file.existsSync()) {
+      return file.readAsBytesSync();
     }
 
     throw StateError('SQLite file is missing at $path');
@@ -147,8 +162,6 @@ class AppDbImpl extends ChangeNotifier implements AppDb {
     final wasmUri = Uri.parse('sqlite3mc.wasm');
     return SqliteConnectionOptions(
       webSqliteWasmUri: wasmUri,
-      webFileName: 'app.db',
-      webVfsMode: WebVfsMode.opfs,
     );
   }
 

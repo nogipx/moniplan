@@ -540,9 +540,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
       late final String fileName;
 
       if (format == _ExportFormat.dataService) {
-        final dataService = AppDi.instance.getDataService();
-        final export = await dataService.exportDatabase();
-        bytes = utf8.encode(export.payload);
+        bytes = await _exportDataServiceDump();
         fileName = 'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.json';
       } else {
         final db = AppDi.instance.getDb();
@@ -643,4 +641,17 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     );
   }
 
+  Future<List<int>> _exportDataServiceDump() async {
+    final dataService = AppDi.instance.getDataService();
+    final export = await dataService.exportDatabase(includePayloadString: false);
+    final stream = export.payloadStream;
+    if (stream != null) {
+      final chunks = <int>[];
+      await for (final chunk in stream) {
+        chunks.addAll(chunk);
+      }
+      return chunks;
+    }
+    return utf8.encode(export.payload);
+  }
 }

@@ -63,8 +63,7 @@ class BackupInfoSheet {
                             _buildInfoItem(
                               context,
                               title: 'Метаданные',
-                              subtitle:
-                                  'Создано ${info.metadata?.timestamp}\nКоличество планнеров: ${info.plannersCount}',
+                              subtitle: 'Создано ${info.metadata?.timestamp}',
                               icon: Icons.info_outline,
                               isPrimary: false,
                             ),

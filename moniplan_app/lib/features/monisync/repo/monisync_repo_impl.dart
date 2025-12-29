@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:intl/intl.dart';
 import 'package:licensify/licensify.dart';
 import 'package:moniplan_app/features/monisync/models/backup_footer_metadata.dart';
-import 'package:moniplan_app/features/payment/repo/payment_planner_repo_data_service.dart';
 import 'package:rpc_dart/logger.dart';
 import 'package:rpc_dart_data/rpc_dart_data.dart';
 
@@ -22,7 +21,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
   @override
   Future<String> exportData({required DateTime now, required String password}) async {
-    final dbBytes = await getDatabaseBytes();
+    final dbBytes = await _exportDatabaseBytes(dataService);
 
     // Создаем метаданные для footer
     final metadata = BackupFooterMetadata(timestamp: now);
@@ -79,7 +78,6 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         token: token,
         creationDate: metadata?.timestamp,
         metadata: metadata,
-        plannersCount: 0,
       );
     }
 
@@ -97,13 +95,9 @@ class MonisyncRepoImpl implements IMonisyncRepo {
       try {
         await _importDatabaseBytes(tempEnv.client, bytes);
 
-        final plannerRepo = PlannerRepoDataService(dataService: tempEnv.client);
-        final planners = await plannerRepo.getPlanners();
-
         return BackupInfo(
           token: token,
           creationDate: metadata?.timestamp,
-          plannersCount: planners.length,
           metadata: metadata,
         );
       } finally {
@@ -130,11 +124,6 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     }
   }
 
-  /// Получает байты базы данных
-  Future<Uint8List> getDatabaseBytes() async {
-    return _exportDatabaseBytes(dataService);
-  }
-
   @override
   String createBackupFileName(DateTime date) =>
       'db_${DateFormat(backupDateFormat).format(date)}.moniplan';
@@ -145,7 +134,20 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   Future<Uint8List> _exportDatabaseBytes(IDataService target) async {
-    final export = await target.exportDatabase();
-    return Uint8List.fromList(utf8.encode(export.payload));
+    final payload = await _readExportPayload(target);
+    return Uint8List.fromList(utf8.encode(payload));
+  }
+
+  Future<String> _readExportPayload(IDataService target) async {
+    final export = await target.exportDatabase(includePayloadString: false);
+    final stream = export.payloadStream;
+    if (stream != null) {
+      final buffer = StringBuffer();
+      await for (final chunk in stream.transform(utf8.decoder)) {
+        buffer.write(chunk);
+      }
+      return buffer.toString();
+    }
+    return export.payload;
   }
 }
