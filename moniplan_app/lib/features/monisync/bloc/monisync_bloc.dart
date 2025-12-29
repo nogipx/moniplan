@@ -4,15 +4,20 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
+import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/features/monisync/legacy_monisync/repo/i_manual_monisync_repo.dart';
 import 'package:moniplan_app/features/monisync/legacy_monisync/repo/password_only_monisync_repo_impl.dart';
 import 'package:moniplan_app/features/monisync/models/backup_info.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
+import 'package:moniplan_app/features/monisync/services/ndjson_export_service.dart';
 import 'package:rpc_dart/logger.dart';
 
 part 'monisync_event.dart';
 part 'monisync_state.dart';
+
+const _ndjsonFileDateFormat = 'yyyyMMdd_HHmmss';
 
 class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
   final IAppDi appDi;
@@ -24,6 +29,7 @@ class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
   MonisyncBloc({required this.appDi}) : super(MonisyncInitialState()) {
     on<MonisyncInitEvent>(_onInit);
     on<MonisyncExportNewEvent>(_onExportNew);
+    on<MonisyncExportNdjsonEvent>(_onExportNdjson);
     on<MonisyncImportNewEvent>(_onImportNew);
     on<MonisyncReadNewBackupInfoEvent>(_onReadNewBackupInfo);
     on<MonisyncLegacyImportEvent>(_onLegacyImport);
@@ -66,6 +72,31 @@ class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
       emit(MonisyncNewExportSuccessState(token: token, bytes: bytes, fileName: fileName));
     } on Object catch (e, s) {
       _log.error('Export failed', error: e, stackTrace: s);
+      emit(MonisyncErrorState(message: 'Ошибка при экспорте данных', isLegacy: false));
+    }
+  }
+
+  Future<void> _onExportNdjson(
+    MonisyncExportNdjsonEvent event,
+    Emitter<MonisyncState> emit,
+  ) async {
+    emit(MonisyncLoadingState());
+
+    try {
+      final exporter = NdjsonExportService(appDb: appDi.getDb() as AppDb);
+      final result = await exporter.export();
+
+      final now = DateTime.now();
+      final fileName = 'moniplan_export_${DateFormat(_ndjsonFileDateFormat).format(now)}.ndjson';
+
+      emit(
+        MonisyncNdjsonExportSuccessState(
+          bytes: utf8.encode(result.content),
+          fileName: fileName,
+        ),
+      );
+    } on Object catch (e, s) {
+      _log.error('NDJSON export failed', error: e, stackTrace: s);
       emit(MonisyncErrorState(message: 'Ошибка при экспорте данных', isLegacy: false));
     }
   }

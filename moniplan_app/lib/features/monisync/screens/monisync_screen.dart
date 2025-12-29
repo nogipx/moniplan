@@ -89,7 +89,29 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
               : (state.message ?? 'Ошибка при импорте данных');
       showToast(message);
     } else if (state is MonisyncNewExportSuccessState) {
-      _handleExportSuccess(context, state);
+      _handleExportSuccess(
+        context,
+        bytes: state.bytes,
+        fileName: state.fileName,
+        sheetTitle: 'Резервная копия',
+        shareSubject: 'Резервная копия Moniplan',
+        shareText: 'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(DateTime.now())}',
+        saveDialogTitle: 'Сохранение резервной копии',
+      );
+    } else if (state is MonisyncNdjsonExportSuccessState) {
+      _handleExportSuccess(
+        context,
+        bytes: state.bytes,
+        fileName: state.fileName,
+        sheetTitle: 'Экспорт NDJSON',
+        saveDescription: 'Сохранить NDJSON-файл в выбранном месте',
+        shareDescription: 'Поделиться NDJSON-файлом',
+        shareSubject: 'Экспорт Moniplan (NDJSON)',
+        shareText: 'NDJSON экспорт Moniplan от ${DateFormat('dd.MM.yyyy').format(DateTime.now())}',
+        saveDialogTitle: 'Сохранение NDJSON-файла',
+        shareSuccessMessage: 'NDJSON-файл отправлен',
+        saveSuccessMessage: 'NDJSON-файл сохранен',
+      );
     }
   }
 
@@ -108,6 +130,14 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
           icon: Icons.backup_rounded,
           iconColor: Colors.blue,
           onTap: () => _exportBackup(context),
+        ),
+        const SizedBox(height: 12),
+        BackupActionCard(
+          title: 'Экспорт в NDJSON',
+          subtitle: 'Выгрузить данные текущей системы в текстовом формате',
+          icon: Icons.data_object,
+          iconColor: Colors.teal,
+          onTap: () => _exportNdjson(context),
         ),
         const SizedBox(height: 12),
         BackupActionCard(
@@ -202,10 +232,23 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     bloc.add(MonisyncExportNewEvent(password: password));
   }
 
+  void _exportNdjson(BuildContext context) {
+    context.read<MonisyncBloc>().add(MonisyncExportNdjsonEvent());
+  }
+
   Future<void> _handleExportSuccess(
-    BuildContext context,
-    MonisyncNewExportSuccessState state,
-  ) async {
+    BuildContext context, {
+    required List<int> bytes,
+    required String fileName,
+    String sheetTitle = 'Резервная копия',
+    String saveDescription = 'Файл будет сохранен в выбранном месте',
+    String shareDescription = 'Отправить через мессенджер или почту',
+    String? shareSubject,
+    String? shareText,
+    String? saveDialogTitle,
+    String shareSuccessMessage = 'Резервная копия отправлена',
+    String saveSuccessMessage = 'Резервная копия сохранена',
+  }) async {
     if (!context.mounted) {
       return;
     }
@@ -216,7 +259,13 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => _buildExportOptionsSheet(context, title: 'Резервная копия'),
+      builder:
+          (context) => _buildExportOptionsSheet(
+            context,
+            title: sheetTitle,
+            saveText: saveDescription,
+            shareText: shareDescription,
+          ),
     );
 
     if (shareOption == null || !context.mounted) {
@@ -225,9 +274,21 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
 
     try {
       if (shareOption) {
-        await _shareFile(state.bytes, state.fileName);
+        await _shareFile(
+          bytes,
+          fileName,
+          subject: shareSubject,
+          text: shareText ??
+              'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(DateTime.now())}',
+          successMessage: shareSuccessMessage,
+        );
       } else {
-        await _saveFile(state.bytes, state.fileName);
+        await _saveFile(
+          bytes,
+          fileName,
+          dialogTitle: saveDialogTitle ?? 'Сохранение резервной копии',
+          successMessage: saveSuccessMessage,
+        );
       }
     } on Object catch (error) {
       _log.error('Ошибка при сохранении/отправке файла', error: error);
@@ -235,7 +296,13 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     }
   }
 
-  Future<void> _shareFile(List<int> bytes, String fileName) async {
+  Future<void> _shareFile(
+    List<int> bytes,
+    String fileName, {
+    String? subject,
+    String? text,
+    String successMessage = 'Резервная копия отправлена',
+  }) async {
     final tempDir = await getTemporaryDirectory();
     final tempFile = File('${tempDir.path}/$fileName');
     await tempFile.writeAsBytes(bytes);
@@ -243,23 +310,28 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     final xFile = XFile(tempFile.path, mimeType: 'application/octet-stream');
     await Share.shareXFiles(
       [xFile],
-      subject: 'Резервная копия Moniplan',
-      text: 'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(DateTime.now())}',
+      subject: subject ?? 'Резервная копия Moniplan',
+      text: text ?? 'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(DateTime.now())}',
     );
 
-    showToast('Резервная копия отправлена');
+    showToast(successMessage);
   }
 
-  Future<void> _saveFile(List<int> bytes, String fileName) async {
+  Future<void> _saveFile(
+    List<int> bytes,
+    String fileName, {
+    String dialogTitle = 'Сохранение резервной копии',
+    String successMessage = 'Резервная копия сохранена',
+  }) async {
     final result = await FilePicker.platform.saveFile(
-      dialogTitle: 'Сохранение резервной копии',
+      dialogTitle: dialogTitle,
       fileName: fileName,
       bytes: Uint8List.fromList(bytes),
     );
 
     if (result != null) {
       await File(result).writeAsBytes(bytes);
-      showToast('Резервная копия сохранена');
+      showToast(successMessage);
     }
   }
 

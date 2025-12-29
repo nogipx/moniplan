@@ -13,6 +13,9 @@ class MonisyncExportNewEvent extends MonisyncEvent {
   MonisyncExportNewEvent({required this.password});
 }
 
+/// Экспорт данных в NDJSON
+class MonisyncExportNdjsonEvent extends MonisyncEvent {}
+
 /// Импорт из нового формата
 class MonisyncImportNewEvent extends MonisyncEvent {
   final String token;

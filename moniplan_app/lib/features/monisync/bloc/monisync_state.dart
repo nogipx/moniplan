@@ -16,6 +16,12 @@ class MonisyncNewExportSuccessState extends MonisyncState {
   MonisyncNewExportSuccessState({required this.token, required this.bytes, required this.fileName});
 }
 
+class MonisyncNdjsonExportSuccessState extends MonisyncState {
+  final List<int> bytes;
+  final String fileName;
+  MonisyncNdjsonExportSuccessState({required this.bytes, required this.fileName});
+}
+
 class MonisyncNewBackupInfoState extends MonisyncState {
   final BackupInfo backupInfo;
   MonisyncNewBackupInfoState({required this.backupInfo});

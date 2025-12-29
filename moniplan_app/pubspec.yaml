@@ -73,7 +73,7 @@ dependencies:
   # Persistent
   shared_preferences: ^2.3.3
   drift_db_viewer: 2.1.0
-#  sqlite3_flutter_libs: ^0.5.39
+  sqlite3_flutter_libs: ^0.5.39
   path_provider: ^2.1.5
   path: ^1.9.1
 
