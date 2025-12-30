@@ -25,6 +25,7 @@ dependencies:
   rpc_flutter: ^0.0.1
 
   # Data management
+  archive: ^4.0.7
   bloc: ^9.1.0
   bloc_concurrency: ^0.3.0
   flutter_bloc: ^9.1.1

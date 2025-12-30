@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:intl/intl.dart';
 import 'package:licensify/licensify.dart';
 import 'package:moniplan_app/features/monisync/models/backup_footer_metadata.dart';
@@ -20,8 +21,12 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   MonisyncRepoImpl({required this.dataService});
 
   @override
-  Future<String> exportData({required DateTime now, required String password}) async {
+  Future<String> exportData({
+    required DateTime now,
+    required String password,
+  }) async {
     final dbBytes = await _exportDatabaseBytes(dataService);
+    final compressed = _gzipEncode(dbBytes);
 
     // Создаем метаданные для footer
     final metadata = BackupFooterMetadata(timestamp: now);
@@ -31,12 +36,19 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     try {
       // Шифруем содержимое базы данных с метаданными в footer
       return await Licensify.encryptData(
-        data: {'content': base64Encode(dbBytes)},
+        data: {
+          'content': base64Encode(compressed),
+          'compression': 'gzip',
+        },
         encryptionKey: encryptionKey,
         footer: metadata.toFooter(),
       );
     } on Object catch (e, s) {
-      _log.error('Ошибка при чтении информации о бэкапе', error: e, stackTrace: s);
+      _log.error(
+        'Ошибка при чтении информации о бэкапе',
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     } finally {
       encryptionKey.dispose();
@@ -44,7 +56,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   @override
-  Future<void> importData({required String token, required String password}) async {
+  Future<void> importData({
+    required String token,
+    required String password,
+  }) async {
     if (!token.startsWith('v4.local.')) {
       throw Exception('Неверный формат данных');
     }
@@ -56,10 +71,14 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         encryptionKey: encryptionKey,
       );
 
-      final content = decryptedData['content'] as String;
-      await _importDatabaseBytes(dataService, base64Decode(content));
+      final bytes = _decodeDatabaseBytes(decryptedData);
+      await _importDatabaseBytes(dataService, bytes);
     } on Object catch (e, s) {
-      _log.error('Ошибка при чтении информации о бэкапе', error: e, stackTrace: s);
+      _log.error(
+        'Ошибка при чтении информации о бэкапе',
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     } finally {
       encryptionKey.dispose();
@@ -67,7 +86,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   @override
-  Future<BackupInfo?> readBackupInfo({required String token, String? password}) async {
+  Future<BackupInfo?> readBackupInfo({
+    required String token,
+    String? password,
+  }) async {
     if (!token.startsWith('v4.local.')) {
       return null;
     }
@@ -88,8 +110,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         encryptionKey: encryptionKey,
       );
 
-      final content = decryptedData['content'] as String;
-      final bytes = base64Decode(content);
+      final bytes = _decodeDatabaseBytes(decryptedData);
 
       final tempEnv = await DataServiceFactory.inMemory();
       try {
@@ -104,10 +125,51 @@ class MonisyncRepoImpl implements IMonisyncRepo {
         await tempEnv.dispose();
       }
     } on Object catch (e, s) {
-      _log.error('Ошибка при чтении информации о бэкапе', error: e, stackTrace: s);
+      _log.error(
+        'Ошибка при чтении информации о бэкапе',
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     } finally {
       encryptionKey.dispose();
+    }
+  }
+
+  Uint8List _decodeDatabaseBytes(Map<String, dynamic> decryptedData) {
+    final content = decryptedData['content'] as String;
+    final compression = decryptedData['compression'] as String?;
+    final encodedBytes = base64Decode(content);
+
+    final bytes = Uint8List.fromList(encodedBytes);
+    if (compression == 'gzip') {
+      final decoded = _gzipDecode(bytes);
+      if (decoded != null) {
+        return decoded;
+      }
+    }
+
+    return bytes;
+  }
+
+  Uint8List _gzipEncode(Uint8List data) {
+    try {
+      final encoded = const GZipEncoder().encode(data);
+      if (encoded.isNotEmpty) {
+        return Uint8List.fromList(encoded);
+      }
+    } on Object catch (_) {
+      // Fallback to uncompressed on encode errors.
+    }
+    return data;
+  }
+
+  Uint8List? _gzipDecode(Uint8List compressed) {
+    try {
+      final decoded = const GZipDecoder().decodeBytes(compressed, verify: false);
+      return Uint8List.fromList(decoded);
+    } on Object catch (_) {
+      return null;
     }
   }
 
@@ -128,7 +190,10 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   String createBackupFileName(DateTime date) =>
       'db_${DateFormat(backupDateFormat).format(date)}.moniplan';
 
-  Future<void> _importDatabaseBytes(IDataService target, Uint8List bytes) async {
+  Future<void> _importDatabaseBytes(
+    IDataService target,
+    Uint8List bytes,
+  ) async {
     final payload = utf8.decode(bytes);
     await target.importDatabase(payload: payload, replaceExisting: true);
   }
