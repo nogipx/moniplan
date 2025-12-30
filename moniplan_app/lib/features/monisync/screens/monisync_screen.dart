@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -31,7 +32,8 @@ class MonisyncScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MonisyncBloc(appDi: AppDi.instance)..add(MonisyncInitEvent()),
+      create: (context) =>
+          MonisyncBloc(appDi: AppDi.instance)..add(MonisyncInitEvent()),
       child: const _MonisyncScreenContent(),
     );
   }
@@ -59,22 +61,21 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
             title: Text('Monisync', style: context.text.displaySmall),
             centerTitle: true,
           ),
-          body:
-              isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : SafeArea(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildBackupSection(context),
-                          const SizedBox(height: 36),
-                          _buildInfoSection(context),
-                        ],
-                      ),
+          body: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SafeArea(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildBackupSection(context),
+                        const SizedBox(height: 36),
+                        _buildInfoSection(context),
+                      ],
                     ),
                   ),
+                ),
         );
       },
     );
@@ -84,10 +85,9 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     if (state is MonisyncErrorState) {
       showToast(state.message);
     } else if (state is MonisyncImportResultState) {
-      final message =
-          state.success
-              ? (state.message ?? 'Данные успешно импортированы')
-              : (state.message ?? 'Ошибка при импорте данных');
+      final message = state.success
+          ? (state.message ?? 'Данные успешно импортированы')
+          : (state.message ?? 'Ошибка при импорте данных');
       showToast(message);
     } else if (state is MonisyncNewExportSuccessState) {
       _handleExportSuccess(context, state);
@@ -136,7 +136,8 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
       const SizedBox(height: 12),
       BackupActionCard(
         title: 'Вставить базу',
-        subtitle: 'Импорт базы данных (только для разработки)',
+        subtitle:
+            'Импорт базы данных (.json/.ndjson/.db, только для разработки)',
         icon: Icons.add_to_home_screen,
         iconColor: Colors.red,
         onTap: () => _importDb(context),
@@ -148,12 +149,17 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Информация', style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        Text(
+          'Информация',
+          style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 20),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: context.theme.colorScheme.surfaceContainerHighest.withAlpha((0.5 * 255).round()),
+            color: context.theme.colorScheme.surfaceContainerHighest.withAlpha(
+              (0.5 * 255).round(),
+            ),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -161,7 +167,9 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
             children: [
               Text(
                 'О резервных копиях',
-                style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: context.text.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
@@ -209,7 +217,8 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => _buildExportOptionsSheet(context, title: 'Резервная копия'),
+      builder: (context) =>
+          _buildExportOptionsSheet(context, title: 'Резервная копия'),
     );
 
     if (shareOption == null || !context.mounted) {
@@ -237,7 +246,8 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     await Share.shareXFiles(
       [xFile],
       subject: 'Резервная копия Moniplan',
-      text: 'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(DateTime.now())}',
+      text:
+          'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(DateTime.now())}',
     );
 
     showToast('Резервная копия отправлена');
@@ -257,7 +267,10 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
   }
 
   Future<void> _importBackup(BuildContext context) async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.any, withData: true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+      withData: true,
+    );
 
     if (result == null) {
       return;
@@ -289,7 +302,8 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
 
     // На нативных платформах можно читать первые байты файла
     try {
-      final isNew = filePath.endsWith('.moniplan') || await _isNewFormatFile(filePath);
+      final isNew =
+          filePath.endsWith('.moniplan') || await _isNewFormatFile(filePath);
       if (isNew) {
         await _importNewFormatBackup(context, filePath);
       } else {
@@ -324,7 +338,10 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
         return false;
       }
       final int sampleLength = bytes.length < 8 ? bytes.length : 8;
-      final String sample = utf8.decode(bytes.sublist(0, sampleLength), allowMalformed: true);
+      final String sample = utf8.decode(
+        bytes.sublist(0, sampleLength),
+        allowMalformed: true,
+      );
       return sample.startsWith('v4.local');
     } on Object catch (_) {
       return false;
@@ -332,7 +349,10 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
   }
 
   /// Обработка нового формата когда token уже есть в памяти
-  Future<void> _importNewFormatBackupFromToken(BuildContext context, String token) async {
+  Future<void> _importNewFormatBackupFromToken(
+    BuildContext context,
+    String token,
+  ) async {
     final bloc = context.read<MonisyncBloc>();
     bloc.add(MonisyncReadNewBackupInfoEvent(token: token));
 
@@ -345,7 +365,10 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     });
   }
 
-  Future<void> _importNewFormatBackup(BuildContext context, String filePath) async {
+  Future<void> _importNewFormatBackup(
+    BuildContext context,
+    String filePath,
+  ) async {
     try {
       final bloc = context.read<MonisyncBloc>();
       final file = File(filePath);
@@ -371,7 +394,10 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     }
   }
 
-  Future<void> _requestPasswordAndImportNew(BuildContext context, String token) async {
+  Future<void> _requestPasswordAndImportNew(
+    BuildContext context,
+    String token,
+  ) async {
     final bloc = context.read<MonisyncBloc>();
     final password = await PasswordDialog.show(context);
     if (password == null || password.isEmpty) {
@@ -391,7 +417,10 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     });
   }
 
-  Future<void> _listenForBackupInfo(BuildContext context, Function(MonisyncState) onState) async {
+  Future<void> _listenForBackupInfo(
+    BuildContext context,
+    Function(MonisyncState) onState,
+  ) async {
     final bloc = context.read<MonisyncBloc>();
     await for (final state in bloc.stream) {
       await onState(state);
@@ -424,9 +453,15 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     await _importWithToken(context, token, password);
   }
 
-  Future<void> _importWithToken(BuildContext context, String token, String password) async {
+  Future<void> _importWithToken(
+    BuildContext context,
+    String token,
+    String password,
+  ) async {
     if (context.mounted) {
-      context.read<MonisyncBloc>().add(MonisyncImportNewEvent(token: token, password: password));
+      context.read<MonisyncBloc>().add(
+        MonisyncImportNewEvent(token: token, password: password),
+      );
     }
   }
 
@@ -447,7 +482,9 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
               padding: const EdgeInsets.only(bottom: 16),
               child: Text(
                 title,
-                style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: context.text.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             _buildOptionCard(
@@ -483,7 +520,9 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
   }) {
     return Card(
       elevation: 0,
-      color: context.theme.colorScheme.surfaceContainerHighest.withAlpha((0.3 * 255).round()),
+      color: context.theme.colorScheme.surfaceContainerHighest.withAlpha(
+        (0.3 * 255).round(),
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
@@ -508,7 +547,9 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
                   children: [
                     Text(
                       title,
-                      style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                      style: context.text.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -541,11 +582,13 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
 
       if (format == _ExportFormat.dataService) {
         bytes = await _exportDataServiceDump();
-        fileName = 'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.json';
+        fileName =
+            'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.ndjson';
       } else {
         final db = AppDi.instance.getDb();
         bytes = await db.exportSqlite();
-        fileName = 'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.db';
+        fileName =
+            'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.db';
       }
 
       if (!context.mounted) {
@@ -558,7 +601,8 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        builder: (context) => _buildExportOptionsSheet(context, title: 'База данных'),
+        builder: (context) =>
+            _buildExportOptionsSheet(context, title: 'База данных'),
       );
 
       if (shareOption == null) {
@@ -579,28 +623,36 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
   Future<void> _importDb(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['json', 'db'],
+      allowedExtensions: ['json', 'ndjson', 'db'],
+      withData: true,
     );
 
     if (result == null || result.files.isEmpty) {
       return;
     }
 
-    final filePath = result.files.first.path;
-    if (filePath == null) {
-      showToast('Ошибка при выборе файла');
-      return;
-    }
+    final pickedFile = result.files.first;
+    final extension = (pickedFile.extension ?? '').toLowerCase();
 
     try {
-      final file = File(filePath);
-      if (filePath.toLowerCase().endsWith('.json')) {
-        final payload = await file.readAsString();
+      if (extension == 'json' || extension == 'ndjson') {
+        final payload = await _readPickedFileAsString(pickedFile);
+        if (payload == null) {
+          showToast('Не удалось прочитать файл');
+          return;
+        }
         final dataService = AppDi.instance.getDataService();
-        await dataService.importDatabase(payload: payload, replaceExisting: true);
+        await dataService.importDatabase(
+          payload: payload,
+          replaceExisting: true,
+        );
         showToast('База данных импортирована через IDataService');
       } else {
-        final bytes = await file.readAsBytes();
+        final bytes = await _readPickedFileAsBytes(pickedFile);
+        if (bytes == null) {
+          showToast('Не удалось прочитать файл');
+          return;
+        }
         final db = AppDi.instance.getDb();
         await db.importSqlite(bytes: bytes);
         showToast('База данных импортирована из файла SQLite');
@@ -609,6 +661,42 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
       _log.error('Ошибка импорта базы данных', error: error);
       showToast('Ошибка при импорте базы данных');
     }
+  }
+
+  Future<String?> _readPickedFileAsString(PlatformFile file) async {
+    if (file.bytes != null) {
+      return utf8.decode(file.bytes!);
+    }
+
+    final path = file.path;
+    if (path == null) {
+      return null;
+    }
+
+    final ioFile = File(path);
+    if (!ioFile.existsSync()) {
+      return null;
+    }
+
+    return ioFile.readAsString();
+  }
+
+  Future<Uint8List?> _readPickedFileAsBytes(PlatformFile file) async {
+    if (file.bytes != null) {
+      return file.bytes;
+    }
+
+    final path = file.path;
+    if (path == null) {
+      return null;
+    }
+
+    final ioFile = File(path);
+    if (!ioFile.existsSync()) {
+      return null;
+    }
+
+    return ioFile.readAsBytes();
   }
 
   Future<_ExportFormat?> _pickExportFormat(BuildContext context) {
@@ -624,7 +712,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
           children: [
             ListTile(
               leading: const Icon(Icons.cloud_download),
-              title: const Text('Экспорт через IDataService (JSON)'),
+              title: const Text('Экспорт через IDataService (NDJSON)'),
               subtitle: const Text('Использует exportDatabase/importDatabase'),
               onTap: () => Navigator.of(context).pop(_ExportFormat.dataService),
             ),
@@ -643,7 +731,9 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
 
   Future<List<int>> _exportDataServiceDump() async {
     final dataService = AppDi.instance.getDataService();
-    final export = await dataService.exportDatabase(includePayloadString: false);
+    final export = await dataService.exportDatabase(
+      includePayloadString: false,
+    );
     final stream = export.payloadStream;
     if (stream != null) {
       final chunks = <int>[];
