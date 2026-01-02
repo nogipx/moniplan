@@ -75,12 +75,6 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
               ],
             ),
             floatingActionButton: GestureDetector(
-              onLongPress: null,
-              onDoubleTap: () {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
-              },
               child: FloatingActionButton(
                 child: const Icon(Icons.add),
                 onPressed: () {

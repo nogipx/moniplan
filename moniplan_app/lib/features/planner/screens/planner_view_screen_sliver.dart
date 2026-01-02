@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/_common/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
 import 'package:moniplan_app/utils/_index.dart';
@@ -13,6 +12,7 @@ import 'package:super_sliver_list/super_sliver_list.dart';
 import 'package:uuid/uuid.dart';
 
 import '../widgets/payments_sliver_list.dart';
+import 'planner_stats_screen.dart';
 
 class PlannerScreen extends StatelessWidget {
   final String plannerId;
@@ -100,11 +100,26 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
         final today = DateTime.now().dayBound;
         final paymentsByDate = state.getPaymentsByDate;
 
-        final plannerId = context.read<PlannerBloc>().plannerId;
+        final bloc = context.read<PlannerBloc>();
 
         final appBar = AppBar(
           title: titleWidget,
-          actions: [],
+          actions: [
+            IconButton(
+              tooltip: 'Статистика',
+              icon: const Icon(Icons.insights_outlined),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider.value(
+                      value: bloc,
+                      child: const PlannerStatsScreen(),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         );
 
         final fab = Row(
@@ -119,13 +134,16 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                 },
               ),
             ),
-            ExtendedAppFloatingButton(
-              onLongPressed: () {
+            GestureDetector(
+              onLongPress: () {
                 _showCorrectionDialog(context);
               },
-              onPressed: () {
-                updateDialog(context: context, plannerRepo: AppDi.instance.getPlannerRepo());
-              },
+              child: FloatingActionButton(
+                onPressed: () {
+                  updateDialog(context: context, plannerRepo: AppDi.instance.getPlannerRepo());
+                },
+                child: const Icon(Icons.add),
+              ),
             ),
           ],
         );
@@ -187,6 +205,9 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
 
   Future<void> _moveToDate(DateTime date, {bool jump = false}) async {
     await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) {
+      return;
+    }
     final state = context.read<PlannerBloc>().state.getPaymentsByDate.getIndexOfDate(date);
     if (state == null || !_listController.isAttached) {
       return;

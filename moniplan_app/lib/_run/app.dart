@@ -76,14 +76,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
             ),
             home: Builder(
               builder: (context) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.of(
-                      context,
-                    ).push(MaterialPageRoute(builder: (context) => AppColorsDisplayScreen()));
-                  },
-                  child: home,
-                );
+                return home;
               },
             ),
           ),
