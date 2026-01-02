@@ -40,6 +40,7 @@ class GetItAppDI implements AppDi {
   Future<void> setup() async {
     final db = AppDbImpl(log: RpcLogger('AppDbImpl'));
     _getIt.registerSingleton<IAppDb>(db, dispose: (impl) => impl.close());
+    await db.open();
 
     final dataService = db.dataService;
     _getIt

@@ -5,8 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:moniplan_app/database/interfaces/i_app_db.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:rpc_dart/logger.dart';
+import 'package:rpc_dart/rpc_dart.dart';
 import 'package:rpc_dart_data/rpc_dart_data.dart';
+import 'package:rpc_dart_transports/rpc_dart_transports.dart';
 
 /// Универсальный AppDb поверх rpc_dart_data. Использует SQLite файл на IO и OPFS/IndexedDB на web.
 class AppDbImpl extends ChangeNotifier implements IAppDb {
@@ -20,7 +21,7 @@ class AppDbImpl extends ChangeNotifier implements IAppDb {
   DatabaseConnection? _connection;
   SqliteDataStorageAdapter? _storage;
   SqliteDataRepository? _repository;
-  InMemoryDataServiceEnvironment? _env;
+  _AppDbEnvironment? _env;
   String? _dbPath;
 
   @override
@@ -39,19 +40,9 @@ class AppDbImpl extends ChangeNotifier implements IAppDb {
     }
 
     try {
-      final options = _buildOptions();
-      _connection = _inMemory
-          ? await openInMemoryDb(options: options)
-          : await _openPersistentConnection(options);
-
-      _storage = SqliteDataStorageAdapter.connection(
-        _connection!,
-        isInMemory: _inMemory,
-      );
-      await _storage!.ensureReady();
-
-      _repository = SqliteDataRepository(storage: _storage!);
-      _env = await DataServiceFactory.inMemory(repository: _repository);
+      final dbPath = !_inMemory && !kIsWeb ? await _resolveDbPath() : null;
+      final options = _buildOptions(nativePath: dbPath);
+      _env = kIsWeb ? await _openLocalEnvironment(options) : await _openIsolateEnvironment(options);
 
       notifyListeners();
     } on Object catch (error, trace) {
@@ -101,18 +92,68 @@ class AppDbImpl extends ChangeNotifier implements IAppDb {
       await _env?.dispose();
     } finally {
       _env = null;
-      _repository = null;
-      try {
-        await _storage?.dispose();
-      } finally {
-        _storage = null;
-      }
-      try {
-        await _connection?.close();
-      } finally {
-        _connection = null;
-      }
+      await _disposeLocalResources();
     }
+  }
+
+  Future<_AppDbEnvironment> _openIsolateEnvironment(
+    SqliteConnectionOptions options,
+  ) async {
+    final config = _AppDbIsolateConfig(
+      inMemory: _inMemory,
+      nativePath: options.nativePath,
+    );
+
+    final isolate = await RpcIsolateTransport.spawn(
+      entrypoint: _appDbIsolateEntrypoint,
+      customParams: config.toMap(),
+      isolateId: 'app-db',
+      debugName: 'AppDbIsolate',
+    );
+
+    try {
+      final client = DataServiceFactory.createClient(
+        transport: isolate.transport,
+        transferMode: RpcDataTransferMode.zeroCopy,
+        debugLabel: 'AppDbClient',
+      );
+
+      return _AppDbEnvironment(
+        client: client,
+        dispose: () async {
+          await client.close();
+          isolate.kill();
+        },
+      );
+    } catch (_) {
+      isolate.kill();
+      rethrow;
+    }
+  }
+
+  Future<_AppDbEnvironment> _openLocalEnvironment(
+    SqliteConnectionOptions options,
+  ) async {
+    _connection = _inMemory
+        ? await openInMemoryDb(options: options)
+        : await _openPersistentConnection(options);
+
+    _storage = SqliteDataStorageAdapter.connection(
+      _connection!,
+      isInMemory: _inMemory,
+    );
+    await _storage!.ensureReady();
+
+    _repository = SqliteDataRepository(storage: _storage!);
+    final env = await DataServiceFactory.inMemory(repository: _repository);
+
+    return _AppDbEnvironment(
+      client: env.client,
+      dispose: () async {
+        await env.dispose();
+        await _disposeLocalResources();
+      },
+    );
   }
 
   Future<DatabaseConnection> _openPersistentConnection(
@@ -137,9 +178,10 @@ class AppDbImpl extends ChangeNotifier implements IAppDb {
     return openFileDb(options: opts);
   }
 
-  SqliteConnectionOptions _buildOptions() {
+  SqliteConnectionOptions _buildOptions({String? nativePath}) {
     final wasmUri = Uri.parse('sqlite3mc.wasm');
     return SqliteConnectionOptions(
+      nativePath: nativePath,
       webSqliteWasmUri: wasmUri,
     );
   }
@@ -158,5 +200,128 @@ class AppDbImpl extends ChangeNotifier implements IAppDb {
     final dir = await getApplicationDocumentsDirectory();
     _dbPath = p.join(dir.path, 'app.db');
     return _dbPath!;
+  }
+
+  Future<void> _disposeLocalResources() async {
+    try {
+      if (_repository != null) {
+        await _repository!.dispose();
+      } else if (_storage != null) {
+        await _storage!.dispose();
+      } else if (_connection != null) {
+        await _connection!.close();
+      }
+    } finally {
+      _repository = null;
+      _storage = null;
+      _connection = null;
+    }
+  }
+}
+
+class _AppDbEnvironment {
+  _AppDbEnvironment({
+    required this.client,
+    required Future<void> Function() dispose,
+  }) : _dispose = dispose;
+
+  final IDataService client;
+  final Future<void> Function() _dispose;
+
+  Future<void> dispose() => _dispose();
+}
+
+class _AppDbIsolateConfig {
+  const _AppDbIsolateConfig({
+    required this.inMemory,
+    this.nativePath,
+  });
+
+  final bool inMemory;
+  final String? nativePath;
+
+  Map<String, dynamic> toMap() => <String, dynamic>{
+    'inMemory': inMemory,
+    'nativePath': nativePath,
+  };
+
+  factory _AppDbIsolateConfig.fromMap(Map<String, dynamic> map) {
+    return _AppDbIsolateConfig(
+      inMemory: map['inMemory'] as bool? ?? false,
+      nativePath: map['nativePath'] as String?,
+    );
+  }
+
+  SqliteConnectionOptions toOptions() {
+    return SqliteConnectionOptions(nativePath: nativePath);
+  }
+}
+
+@pragma('vm:entry-point')
+Future<void> _appDbIsolateEntrypoint(
+  IRpcTransport transport,
+  Map<String, dynamic> customParams,
+) async {
+  final log = RpcLogger('AppDbIsolate');
+  final config = _AppDbIsolateConfig.fromMap(customParams);
+  final shutdown = Completer<void>();
+
+  transport.incomingMessages.listen(
+    (_) {},
+    onDone: () {
+      if (!shutdown.isCompleted) {
+        shutdown.complete();
+      }
+    },
+  );
+
+  DatabaseConnection? connection;
+  SqliteDataStorageAdapter? storage;
+  SqliteDataRepository? repository;
+  DataServiceServer? server;
+
+  try {
+    final options = config.toOptions();
+    if (!config.inMemory && options.nativePath == null) {
+      throw StateError('nativePath is required for persistent database in isolate');
+    }
+
+    connection = config.inMemory
+        ? await openInMemoryDb(options: options)
+        : await openFileDb(options: options);
+
+    storage = SqliteDataStorageAdapter.connection(
+      connection,
+      isInMemory: config.inMemory,
+    );
+    await storage.ensureReady();
+
+    repository = SqliteDataRepository(storage: storage);
+
+    server = DataServiceFactory.createServer(
+      transport: transport,
+      repository: repository,
+      transferMode: RpcDataTransferMode.zeroCopy,
+      debugLabel: 'AppDbServer',
+    );
+    await server.start();
+
+    await shutdown.future;
+  } catch (error, stackTrace) {
+    log.error(
+      'Failed to start App DB isolate',
+      error: error,
+      stackTrace: stackTrace,
+    );
+    rethrow;
+  } finally {
+    await server?.close();
+    await repository?.dispose();
+    if (repository == null && storage != null) {
+      await storage.dispose();
+    }
+    if (connection != null && storage == null && repository == null) {
+      await connection.close();
+    }
   }
 }
