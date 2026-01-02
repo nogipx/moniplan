@@ -13,7 +13,8 @@ class PlannerRepoDataService implements IPlannerRepo {
         collection: 'planners',
         dataService: dataService,
         fromJson: Planner.fromJson,
-        toJson: (planner) => planner.copyWith(payments: [], actualInfo: null).toJson(),
+        toJson: (planner) =>
+            planner.copyWith(payments: [], actualInfo: null).toJson(),
         idSelector: (planner) => planner.id,
         idField: 'id',
       ),
@@ -32,14 +33,64 @@ class PlannerRepoDataService implements IPlannerRepo {
         toJson: (info) => info.toJson(),
         idSelector: (info) => info.plannerId,
         idField: 'plannerId',
+      ),
+      _settings = DataCollection<PlannerSettings>(
+        collection: 'planner_settings',
+        dataService: dataService,
+        fromJson: PlannerSettings.fromJson,
+        toJson: (settings) => settings.toJson(),
+        idSelector: (settings) => settings.id,
       );
 
   final DataCollection<Planner> _planners;
   final DataCollection<Payment> _payments;
   final DataCollection<PlannerActualInfo> _actualInfo;
+  final DataCollection<PlannerSettings> _settings;
+
+  static const _plannerSettingsId = 'current';
 
   @override
-  Future<Planner?> getPlannerById(String id, {bool withActualInfo = false}) async {
+  Future<String?> getCurrentPlannerId() async {
+    final settings = await _settings.get(_plannerSettingsId);
+    return settings?.data.currentPlannerId;
+  }
+
+  @override
+  Future<Planner?> getCurrentPlanner({bool withActualInfo = false}) async {
+    final currentPlannerId = await getCurrentPlannerId();
+    if (currentPlannerId == null) {
+      return null;
+    }
+    return getPlannerById(currentPlannerId, withActualInfo: withActualInfo);
+  }
+
+  @override
+  Future<void> setCurrentPlanner(String plannerId) async {
+    final planner = await getPlannerById(plannerId);
+    if (planner == null) {
+      throw Exception('Planner "$plannerId" not found');
+    }
+    final settings = PlannerSettings(
+      id: _plannerSettingsId,
+      currentPlannerId: plannerId,
+    );
+    await _settings.upsert(settings);
+  }
+
+  @override
+  Future<void> clearCurrentPlanner() async {
+    final settings = await _settings.get(_plannerSettingsId);
+    if (settings == null) {
+      return;
+    }
+    await _settings.delete(_plannerSettingsId);
+  }
+
+  @override
+  Future<Planner?> getPlannerById(
+    String id, {
+    bool withActualInfo = false,
+  }) async {
     final record = await _planners.get(id);
     if (record == null) {
       return null;
@@ -47,15 +98,24 @@ class PlannerRepoDataService implements IPlannerRepo {
 
     final planner = record.data;
     final payments = await getPaymentsByPlannerId(plannerId: id);
-    final actualInfo = withActualInfo ? await getPlannerActualInfo(plannerId: id) : null;
+    final actualInfo = withActualInfo
+        ? await getPlannerActualInfo(plannerId: id)
+        : null;
 
     return planner.copyWith(payments: payments, actualInfo: actualInfo);
   }
 
   @override
-  Future<List<Planner>> getPlanners({bool withPayments = false, bool withActualInfo = true}) async {
-    final response = await _planners.list(options: const QueryOptions(limit: 1000));
-    final planners = response.map((record) => record.data).toList(growable: false);
+  Future<List<Planner>> getPlanners({
+    bool withPayments = false,
+    bool withActualInfo = true,
+  }) async {
+    final response = await _planners.list(
+      options: const QueryOptions(limit: 1000),
+    );
+    final planners = response
+        .map((record) => record.data)
+        .toList(growable: false);
 
     if (!withPayments && !withActualInfo) {
       return planners;
@@ -66,7 +126,9 @@ class PlannerRepoDataService implements IPlannerRepo {
       final payments = withPayments
           ? await getPaymentsByPlannerId(plannerId: planner.id)
           : const <Payment>[];
-      final actualInfo = withActualInfo ? await getPlannerActualInfo(plannerId: planner.id) : null;
+      final actualInfo = withActualInfo
+          ? await getPlannerActualInfo(plannerId: planner.id)
+          : null;
       result.add(planner.copyWith(payments: payments, actualInfo: actualInfo));
     }
     return result;
@@ -75,7 +137,9 @@ class PlannerRepoDataService implements IPlannerRepo {
   @override
   Future<Planner?> savePlanner(Planner planner) async {
     if (!planner.isGenerationAllowed) {
-      throw Exception('Cannot persist generated planners. Only blueprints allowed to persist.');
+      throw Exception(
+        'Cannot persist generated planners. Only blueprints allowed to persist.',
+      );
     }
     if (planner.id.isEmpty) {
       throw Exception('Invalid planner. Planner should have id.');
@@ -86,7 +150,10 @@ class PlannerRepoDataService implements IPlannerRepo {
   }
 
   @override
-  Future<Payment?> getPaymentById({required String plannerId, required String paymentId}) async {
+  Future<Payment?> getPaymentById({
+    required String plannerId,
+    required String paymentId,
+  }) async {
     final record = await _payments.get(paymentId);
     if (record == null) {
       return null;
@@ -96,7 +163,9 @@ class PlannerRepoDataService implements IPlannerRepo {
   }
 
   @override
-  Future<List<Payment>> getPaymentsByPlannerId({required String plannerId}) async {
+  Future<List<Payment>> getPaymentsByPlannerId({
+    required String plannerId,
+  }) async {
     final response = await _payments.list(
       filter: RecordFilter(equals: {'plannerId': plannerId}),
       options: const QueryOptions(limit: 5000),
@@ -114,7 +183,9 @@ class PlannerRepoDataService implements IPlannerRepo {
     final existing = await _payments.get(target.paymentId);
 
     if (existing == null && !allowCreate) {
-      throw Exception('Payment "${payment.paymentId}" is not linked with Planner "$plannerId"');
+      throw Exception(
+        'Payment "${payment.paymentId}" is not linked with Planner "$plannerId"',
+      );
     }
 
     await _payments.upsert(target);
@@ -127,6 +198,10 @@ class PlannerRepoDataService implements IPlannerRepo {
     if (payments.isNotEmpty) {
       await _payments.bulkDelete(payments.map((p) => p.paymentId).toList());
     }
+    final currentPlannerId = await getCurrentPlannerId();
+    if (currentPlannerId == plannerId) {
+      await clearCurrentPlanner();
+    }
     await _planners.delete(plannerId);
     await _actualInfo.delete(plannerId);
   }
@@ -138,12 +213,19 @@ class PlannerRepoDataService implements IPlannerRepo {
     required DateTime newEndDate,
     String? newName,
   }) async {
-    final original = await getPlannerById(originalPlannerId, withActualInfo: false);
+    final original = await getPlannerById(
+      originalPlannerId,
+      withActualInfo: false,
+    );
     if (original == null) {
-      throw Exception('Original planner with id "$originalPlannerId" not found');
+      throw Exception(
+        'Original planner with id "$originalPlannerId" not found',
+      );
     }
 
-    final originalPayments = await getPaymentsByPlannerId(plannerId: originalPlannerId);
+    final originalPayments = await getPaymentsByPlannerId(
+      plannerId: originalPlannerId,
+    );
     final newPlannerId = const Uuid().v4();
     final plannerName = newName ?? '${original.name} (копия)';
 
@@ -175,10 +257,18 @@ class PlannerRepoDataService implements IPlannerRepo {
   }
 
   @override
-  Future<void> deletePayment({required String plannerId, required String paymentId}) async {
-    final payment = await getPaymentById(plannerId: plannerId, paymentId: paymentId);
+  Future<void> deletePayment({
+    required String plannerId,
+    required String paymentId,
+  }) async {
+    final payment = await getPaymentById(
+      plannerId: plannerId,
+      paymentId: paymentId,
+    );
     if (payment == null) {
-      throw Exception('Payment "$paymentId" is not linked with Planner "$plannerId"');
+      throw Exception(
+        'Payment "$paymentId" is not linked with Planner "$plannerId"',
+      );
     }
     await _payments.delete(paymentId);
   }
@@ -191,7 +281,9 @@ class PlannerRepoDataService implements IPlannerRepo {
     final record = await _payments.get(paymentId);
     final payment = record?.data;
     if (payment == null || payment.plannerId != plannerId) {
-      throw Exception('Cannot find payment with id "$paymentId" in planner "$plannerId"');
+      throw Exception(
+        'Cannot find payment with id "$paymentId" in planner "$plannerId"',
+      );
     }
     if (!payment.isRepeatParent) {
       throw Exception('Payment should be repeated and parent');
@@ -203,7 +295,9 @@ class PlannerRepoDataService implements IPlannerRepo {
       dateStart: null,
       dateEnd: null,
     );
-    final updatedOriginalPayment = payment.copyWith(date: payment.repeat.next(payment.date));
+    final updatedOriginalPayment = payment.copyWith(
+      date: payment.repeat.next(payment.date),
+    );
 
     await _payments.upsert(copiedPayment.copyWith(plannerId: plannerId));
     await _payments.upsert(updatedOriginalPayment);
@@ -212,7 +306,9 @@ class PlannerRepoDataService implements IPlannerRepo {
   }
 
   @override
-  Future<PlannerActualInfo?> getPlannerActualInfo({required String plannerId}) async {
+  Future<PlannerActualInfo?> getPlannerActualInfo({
+    required String plannerId,
+  }) async {
     final record = await _actualInfo.get(plannerId);
     return record?.data;
   }

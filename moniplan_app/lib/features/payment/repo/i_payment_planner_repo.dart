@@ -4,9 +4,21 @@ abstract interface class IPlannerRepo {
   /// Получение списка планнеров.
   Future<List<Planner>> getPlanners({bool withPayments = false, bool withActualInfo = true});
 
+  /// Id текущего планнера если выбран.
+  Future<String?> getCurrentPlannerId();
+
+  /// Получение текущего планнера если он выбран.
+  Future<Planner?> getCurrentPlanner({bool withActualInfo = false});
+
   /// Получение планнера по id.
   /// Можно запросить вместе с актуальной ифнормацией.
   Future<Planner?> getPlannerById(String id, {bool withActualInfo = false});
+
+  /// Назначение планнера текущим.
+  Future<void> setCurrentPlanner(String plannerId);
+
+  /// Очистить флаг текущего планнера.
+  Future<void> clearCurrentPlanner();
 
   /// Сохранение планнера.
   Future<Planner?> savePlanner(Planner planner);

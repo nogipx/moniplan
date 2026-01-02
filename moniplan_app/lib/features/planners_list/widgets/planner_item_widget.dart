@@ -6,10 +6,18 @@ import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class PlannerItemWidget extends StatelessWidget {
-  const PlannerItemWidget({required this.planner, super.key, this.onPressed});
+  const PlannerItemWidget({
+    required this.planner,
+    super.key,
+    this.onPressed,
+    this.onToggleCurrent,
+    this.isCurrent = false,
+  });
 
   final Planner planner;
   final VoidCallback? onPressed;
+  final VoidCallback? onToggleCurrent;
+  final bool isCurrent;
 
   @override
   Widget build(BuildContext context) {
@@ -24,23 +32,66 @@ class PlannerItemWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (planner.name.isNotEmpty) ...[
-                Text(planner.name, style: context.text.titleLarge),
-                const SizedBox(height: 8),
-              ],
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    DateFormat(plannerBoundDateFormat).format(planner.dateStart),
-                    style: context.theme.textTheme.bodyMedium,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (planner.name.isNotEmpty) ...[
+                          Text(planner.name, style: context.text.titleLarge),
+                          const SizedBox(height: 4),
+                        ],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              DateFormat(
+                                plannerBoundDateFormat,
+                              ).format(planner.dateStart),
+                              style: context.theme.textTheme.bodyMedium,
+                            ),
+                            Text(
+                              DateFormat(
+                                plannerBoundDateFormat,
+                              ).format(planner.dateEnd),
+                              style: context.theme.textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  Text(
-                    DateFormat(plannerBoundDateFormat).format(planner.dateEnd),
-                    style: context.theme.textTheme.bodyMedium,
+                  IconButton(
+                    tooltip: isCurrent
+                        ? 'Снять отметку текущего планнера'
+                        : 'Сделать планнер текущим',
+                    onPressed: onToggleCurrent,
+                    icon: Icon(
+                      isCurrent ? Icons.push_pin : Icons.push_pin_outlined,
+                      color: isCurrent
+                          ? context.color.primary
+                          : context.color.outline,
+                    ),
                   ),
                 ],
               ),
+              if (isCurrent) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.star, size: 16, color: context.color.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Текущий план',
+                      style: context.text.labelMedium?.copyWith(
+                        color: context.color.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -75,12 +126,11 @@ class PlannerItemWidget extends StatelessWidget {
                       currency: CurrencyDataCommon.rub,
                       showPlusSign: false,
                     ),
-                    iconColor:
-                        needToPay.toInt() == 0
-                            ? Colors.grey
-                            : needToPay > 0
-                            ? Colors.green
-                            : Colors.red,
+                    iconColor: needToPay.toInt() == 0
+                        ? Colors.grey
+                        : needToPay > 0
+                        ? Colors.green
+                        : Colors.red,
                   ),
                 ],
               ),

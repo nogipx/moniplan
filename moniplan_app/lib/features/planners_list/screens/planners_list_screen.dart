@@ -21,17 +21,19 @@ class PlannersListScreen extends StatefulWidget {
 class _PlannersListScreenState extends State<PlannersListScreen> {
   IPlannerRepo get _plannerRepo => AppDi.instance.getPlannerRepo();
   final _actualPlanners = ValueNotifier<List<Planner>>([]);
+  final _currentPlannerId = ValueNotifier<String?>(null);
+  bool _openedCurrentOnStart = false;
 
   @override
   void initState() {
-    _updatePlannersList();
+    _updatePlannersList(openCurrentAfterLoad: true);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: Listenable.merge([_actualPlanners]),
+      animation: Listenable.merge([_actualPlanners, _currentPlannerId]),
       builder: (context, _) {
         return RefreshIndicator(
           onRefresh: _updatePlannersList,
@@ -89,7 +91,9 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                         initialBudget: num.tryParse(money) ?? 0,
                         isGenerationAllowed: true,
                       );
-                      await _plannerRepo.savePlanner(newPlanner).then((planner) async {
+                      await _plannerRepo.savePlanner(newPlanner).then((
+                        planner,
+                      ) async {
                         await _updatePlannersList();
                         if (planner != null) {
                           _openPlanner(context, planner.id);
@@ -139,7 +143,9 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                                 name: name,
                                 initialBudget: num.tryParse(money) ?? 0,
                               );
-                              await _plannerRepo.savePlanner(newPlanner).then((planner) async {
+                              await _plannerRepo.savePlanner(newPlanner).then((
+                                planner,
+                              ) async {
                                 await _updatePlannersList();
                               });
                             },
@@ -153,7 +159,12 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                               showDialogDuplicatePlanner(
                                 context,
                                 originalPlanner: planner,
-                                onDuplicate: (DateTime startDate, DateTime endDate, String name) {},
+                                onDuplicate:
+                                    (
+                                      DateTime startDate,
+                                      DateTime endDate,
+                                      String name,
+                                    ) {},
                                 // onDuplicate: (startDate, endDate, name) async {
                                 //   try {
                                 //     final duplicatedPlanner = await _plannerRepo.duplicatePlanner(
@@ -198,6 +209,8 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                         },
                         child: PlannerItemWidget(
                           planner: planner,
+                          isCurrent: planner.id == _currentPlannerId.value,
+                          onToggleCurrent: () => _onToggleCurrent(planner),
                           onPressed: () {
                             _openPlanner(context, planner.id).then((_) {
                               _updatePlannersList();
@@ -216,11 +229,29 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
     );
   }
 
-  Future<void> _updatePlannersList() async {
+  Future<void> _updatePlannersList({bool openCurrentAfterLoad = false}) async {
     await Future.delayed(const Duration(milliseconds: 100));
     final planners = await _plannerRepo.getPlanners();
+    final currentPlannerId = await _plannerRepo.getCurrentPlannerId();
+
+    if (!mounted) {
+      return;
+    }
+
     _actualPlanners.value = planners;
+    _currentPlannerId.value = currentPlannerId;
     setState(() {});
+
+    if (openCurrentAfterLoad && !_openedCurrentOnStart) {
+      _openedCurrentOnStart = true;
+      if (currentPlannerId != null && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _openPlanner(context, currentPlannerId);
+          }
+        });
+      }
+    }
   }
 
   Future _openPlanner(BuildContext context, String plannerId) {
@@ -231,5 +262,28 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _onToggleCurrent(Planner planner) async {
+    try {
+      if (_currentPlannerId.value == planner.id) {
+        await _plannerRepo.clearCurrentPlanner();
+        _currentPlannerId.value = null;
+      } else {
+        await _plannerRepo.setCurrentPlanner(planner.id);
+        _currentPlannerId.value = planner.id;
+      }
+      setState(() {});
+    } on Object catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Не удалось обновить текущий планнер: $error'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 }
