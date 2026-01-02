@@ -109,14 +109,10 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
             // Вызываем onSave перед закрытием экрана
             widget.onSave(state.payment!);
 
-            // Добавляем небольшую задержку перед закрытием экрана,
-            // чтобы дать время на сохранение платежа
-            Future.delayed(const Duration(milliseconds: 300), () {
-              // Закрываем экран только если он все еще открыт
-              if (context.mounted) {
-                Navigator.pop(context);
-              }
-            });
+            // Закрываем экран сразу после вызова onSave
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
           }
         } else if (state.status == edit.PaymentEditStatus.failure) {
           // Показываем сообщение об ошибке
@@ -794,7 +790,6 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
     // Если мы на шаге ввода суммы, сначала сохраняем текущее значение из калькулятора
     if (state.currentStep == 0) {
       _saveCurrentCalculatorValue(context, state);
-      await Future.delayed(const Duration(milliseconds: 500));
     }
 
     // Проверяем, что сумма платежа является числом

@@ -7,7 +7,6 @@ import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment_edit/_index.dart';
 import 'package:moniplan_app/features/planner/planner_bloc/planner_bloc.dart';
 import 'package:moniplan_app/features/planner/planner_bloc/planner_event.dart';
-import 'package:moniplan_app/features/planner/planner_bloc/planner_state.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:rpc_dart/logger.dart';
@@ -43,53 +42,16 @@ Future<void> updateDialog({
         return false;
       }
 
-      // Создаем Completer для ожидания результата операции
-      final completer = Completer<bool>();
-
-      // Сохраняем ссылку на PlannerBloc перед открытием нового экрана
-      final plannerBloc = context.read<PlannerBloc>();
-
-      // Подписываемся на состояние блока планировщика
-      late final StreamSubscription<PlannerState> subscription;
-      subscription = plannerBloc.stream.listen((state) {
-        // Если в состоянии есть ошибки, считаем операцию неуспешной
-        if (state.errors.isNotEmpty) {
-          subscription.cancel();
-          completer.complete(false);
-          return;
-        }
-
-        // Проверяем, содержит ли состояние наш платеж
-        if (state is PlannerBudgetComputedState) {
-          final paymentExists = state.payments.any(
-            (p) => p.paymentId == newPayment.paymentId,
-          );
-          if (paymentExists) {
-            subscription.cancel();
-            completer.complete(true);
-            return;
-          }
-        }
-      });
-
-      // Устанавливаем таймаут на операцию
-      Future.delayed(const Duration(seconds: 3), () {
-        if (!completer.isCompleted) {
-          subscription.cancel();
-          completer.complete(true); // Предполагаем успех по таймауту
-        }
-      });
-
-      // Отправляем событие обновления платежа в блок планировщика
-      plannerBloc.add(
+      // Отправляем событие обновления платежа в блок планировщика и не ждём ответа от БД
+      context.read<PlannerBloc>().add(
         PlannerEvent.updatePayment(
           newPayment: newPayment,
           create: create ?? paymentToEdit == null,
         ),
       );
 
-      // Ждем результат операции
-      return await completer.future;
+      // Считаем операцию успешной сразу после отправки события
+      return true;
     } on Object catch (e) {
       _log.error('Ошибка при сохранении платежа: $e');
       showToast('Ошибка при сохранении платежа');

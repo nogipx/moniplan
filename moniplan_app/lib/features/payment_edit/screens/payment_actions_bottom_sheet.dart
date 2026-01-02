@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -7,7 +5,6 @@ import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment_edit/screens/payment_edit_screen.dart';
 import 'package:moniplan_app/features/planner/planner_bloc/planner_bloc.dart';
 import 'package:moniplan_app/features/planner/planner_bloc/planner_event.dart';
-import 'package:moniplan_app/features/planner/planner_bloc/planner_state.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:rpc_dart/logger.dart';
 
@@ -519,38 +516,6 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
         return;
       }
 
-      // Создаем Completer для ожидания результата операции
-      final completer = Completer<bool>();
-
-      // Подписываемся на состояние блока планировщика
-      late final StreamSubscription<PlannerState> subscription;
-      subscription = bloc.stream.listen((state) {
-        // Если в состоянии есть ошибки, считаем операцию неуспешной
-        if (state.errors.isNotEmpty) {
-          subscription.cancel();
-          completer.complete(false);
-          return;
-        }
-
-        // Проверяем, содержит ли состояние наш платеж
-        if (state is PlannerBudgetComputedState) {
-          final paymentExists = state.payments.any((p) => p.paymentId == updatedPayment.paymentId);
-          if (paymentExists) {
-            subscription.cancel();
-            completer.complete(true);
-            return;
-          }
-        }
-      });
-
-      // Устанавливаем таймаут на операцию
-      Future.delayed(const Duration(seconds: 3), () {
-        if (!completer.isCompleted) {
-          subscription.cancel();
-          completer.complete(true); // Предполагаем успех по таймауту
-        }
-      });
-
       // Отправляем событие обновления платежа в блок планировщика
       bloc.add(
         PlannerEvent.updatePayment(
@@ -558,16 +523,6 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
           create: updatedPayment.paymentId.isEmpty,
         ),
       );
-
-      // Ждем результат операции
-      final success = await completer.future;
-
-      // Показываем сообщение об ошибке, если операция не удалась
-      if (!success && context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Не удалось сохранить платеж')));
-      }
     } on Object catch (e) {
       _log.error('Ошибка при сохранении платежа: $e');
       if (context.mounted) {
