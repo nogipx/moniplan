@@ -107,9 +107,4 @@ class MonisyncBloc extends Bloc<MonisyncEvent, MonisyncState> {
       emit(MonisyncErrorState(message: 'Ошибка при чтении информации о бэкапе'));
     }
   }
-
-  @override
-  Future<void> close() async {
-    return super.close();
-  }
 }

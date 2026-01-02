@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:moniplan_app/_run/_index.dart';
 import 'package:moniplan_app/database/_index.dart';
 import 'package:moniplan_app/features/planners_list/_index.dart';
-import 'package:moniplan_app/features/receive_import_sharing/widgets/receive_import_wrapper.dart';
 import 'package:moniplan_app/modules/periodic_theme_changer/periodic_theme_changer.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:oktoast/oktoast.dart';
@@ -115,7 +114,7 @@ class _MoniplanAppState extends State<MoniplanApp> {
                     dark: dark,
                     light: light,
                   ),
-              const ReceiveImportWrapper(child: PlannersListScreen()),
+              const PlannersListScreen(),
             );
           },
         );

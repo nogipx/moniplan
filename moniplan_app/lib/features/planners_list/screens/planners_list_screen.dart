@@ -5,7 +5,7 @@ import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/monisync/screens/monisync_screen.dart';
 import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
-import 'package:moniplan_app/features/planner/_index.dart';
+import 'package:moniplan_app/features/planner/screens/planner_view_screen_sliver.dart';
 import 'package:moniplan_app/features/planners_list/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:package_info_plus/package_info_plus.dart';

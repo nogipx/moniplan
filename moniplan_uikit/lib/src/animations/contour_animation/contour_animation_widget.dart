@@ -80,7 +80,8 @@ class ContourAnimationWidget extends StatefulWidget {
   _ContourAnimationWidgetState createState() => _ContourAnimationWidgetState();
 }
 
-class _ContourAnimationWidgetState extends State<ContourAnimationWidget> with SingleTickerProviderStateMixin {
+class _ContourAnimationWidgetState extends State<ContourAnimationWidget>
+    with SingleTickerProviderStateMixin {
   AnimationController? _controller;
   late Animation<double> _animation;
 
@@ -95,10 +96,7 @@ class _ContourAnimationWidgetState extends State<ContourAnimationWidget> with Si
         _animation = widget.animation!;
       } else {
         // Создаём и запускаем внутренний контроллер анимации
-        _controller = AnimationController(
-          duration: widget.duration,
-          vsync: this,
-        )..repeat();
+        _controller = AnimationController(duration: widget.duration, vsync: this)..repeat();
         _animation = _controller!;
       }
     } else {
@@ -143,19 +141,27 @@ class _ContourAnimationWidgetState extends State<ContourAnimationWidget> with Si
               _animation.value,
               enabled: _animation.value >= 0,
               debugPainter:
-                  widget.debugMode && widget.debugPainter != null ? widget.debugPainter!(_animation.value) : null,
-              strokeWidth: widget.strokeWidthGenerator != null
-                  ? widget.strokeWidthGenerator!(_animation.value)
-                  : widget.strokeWidth,
-              color: widget.colorGenerator != null ? widget.colorGenerator!(_animation.value) : widget.color,
+                  widget.debugMode && widget.debugPainter != null
+                      ? widget.debugPainter!(_animation.value)
+                      : null,
+              strokeWidth:
+                  widget.strokeWidthGenerator != null
+                      ? widget.strokeWidthGenerator!(_animation.value)
+                      : widget.strokeWidth,
+              color:
+                  widget.colorGenerator != null
+                      ? widget.colorGenerator!(_animation.value)
+                      : widget.color,
               borderColor: widget.borderColor,
               strokeCap: widget.strokeCap,
-              cornerRadius: widget.cornerRadiusGenerator != null
-                  ? widget.cornerRadiusGenerator!(_animation.value)
-                  : widget.cornerRadius,
-              visibleFraction: widget.visibleFractionGenerator != null
-                  ? widget.visibleFractionGenerator!(_animation.value)
-                  : widget.visibleFraction,
+              cornerRadius:
+                  widget.cornerRadiusGenerator != null
+                      ? widget.cornerRadiusGenerator!(_animation.value)
+                      : widget.cornerRadius,
+              visibleFraction:
+                  widget.visibleFractionGenerator != null
+                      ? widget.visibleFractionGenerator!(_animation.value)
+                      : widget.visibleFraction,
               edgeOffsets: widget.edgeOffsets,
             ),
             child: child,
@@ -236,7 +242,8 @@ class ContourAnimationPainter extends CustomPainter {
     // Формула состоит из:
     // - суммарной длины сторон без скругленных углов: 2 * ((right - left) + (bottom - top) - 4 * cornerRadius)
     // - длины дуг скругленных углов: 2 * π * cornerRadius
-    final perimeterLength = 2 * ((right - left) + (bottom - top) - 4 * cornerRadius) + 2 * math.pi * cornerRadius;
+    final perimeterLength =
+        2 * ((right - left) + (bottom - top) - 4 * cornerRadius) + 2 * math.pi * cornerRadius;
 
     // Определяем длину видимого сегмента линии.
     final visibleLength = perimeterLength * visibleFraction;
@@ -282,32 +289,21 @@ class ContourAnimationPainter extends CustomPainter {
     if (end <= pathMetric.length) {
       // Если конец сегмента находится внутри длины пути,
       // извлекаем сегмент напрямую.
-      extractPath = pathMetric.extractPath(
-        start,
-        end,
-      );
+      extractPath = pathMetric.extractPath(start, end);
     } else {
       // Если конец сегмента выходит за пределы пути,
       // необходимо объединить два сегмента:
       // 1. От начальной точки до конца пути.
       // 2. От начала пути до оставшейся части сегмента.
-      extractPath = Path()
-        // Добавляем первый сегмент от [start] до конца пути.
-        ..addPath(
-          pathMetric.extractPath(
-            start,
-            pathMetric.length,
-          ),
-          Offset.zero, // Смещение не требуется.
-        )
-        // Добавляем второй сегмент от начала пути до [(end - длина пути)].
-        ..addPath(
-          pathMetric.extractPath(
-            0,
-            end - pathMetric.length,
-          ),
-          Offset.zero,
-        );
+      extractPath =
+          Path()
+            // Добавляем первый сегмент от [start] до конца пути.
+            ..addPath(
+              pathMetric.extractPath(start, pathMetric.length),
+              Offset.zero, // Смещение не требуется.
+            )
+            // Добавляем второй сегмент от начала пути до [(end - длина пути)].
+            ..addPath(pathMetric.extractPath(0, end - pathMetric.length), Offset.zero);
     }
 
     if (borderColor != null) {
@@ -322,11 +318,16 @@ class ContourAnimationPainter extends CustomPainter {
     }
 
     // Статический объект [Paint] для настройки кисти рисования.
-    final paint = Paint()
-      ..strokeWidth = strokeWidth // Настраиваемая ширина линии.
-      ..color = color // Настраиваемый цвет линии.
-      ..style = PaintingStyle.stroke // Указываем, что рисуем только обводку.
-      ..strokeCap = strokeCap; // Настраиваемые концы линии.
+    final paint =
+        Paint()
+          ..strokeWidth =
+              strokeWidth // Настраиваемая ширина линии.
+          ..color =
+              color // Настраиваемый цвет линии.
+          ..style =
+              PaintingStyle
+                  .stroke // Указываем, что рисуем только обводку.
+          ..strokeCap = strokeCap; // Настраиваемые концы линии.
 
     // Рисуем извлеченный сегмент пути на холсте с использованием настроенной кисти.
     canvas.drawPath(extractPath, paint);

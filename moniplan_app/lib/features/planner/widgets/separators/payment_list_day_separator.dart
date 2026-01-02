@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/payment/_index.dart';
-import 'package:moniplan_app/features/planner/dialogs/day_summary_dialog.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
@@ -44,17 +40,15 @@ class _PaymentListDaySeparatorState extends State<PaymentListDaySeparator> {
       color: Colors.transparent,
       child: InkWell(
         onLongPress: () => _showDaysInfo(context),
-        onTap: () => _showDaySummary(context),
         borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           decoration: BoxDecoration(
             color: indicatorColor,
             borderRadius: BorderRadius.circular(20),
-            border:
-                isSameDay
-                    ? Border.all(color: context.color.primary.withValues(alpha: 0.5), width: 0.5)
-                    : null,
+            border: isSameDay
+                ? Border.all(color: context.color.primary.withValues(alpha: 0.5), width: 0.5)
+                : null,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -111,42 +105,6 @@ class _PaymentListDaySeparatorState extends State<PaymentListDaySeparator> {
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
       ),
-    );
-  }
-
-  void _showDaySummary(BuildContext context) {
-    final plannerState = context.read<PlannerBloc>().state;
-
-    if (plannerState is! PlannerBudgetComputedState) {
-      return;
-    }
-
-    // Находим платежи за выбранный день
-    final dayPayments = plannerState.payments.where((p) => p.date.isSameDay(widget.date)).toList();
-
-    // Вычисляем доходы и расходы за день
-    num dayIncome = 0;
-    num dayOutcome = 0;
-
-    for (final payment in dayPayments) {
-      if (payment.type == PaymentType.income) {
-        dayIncome += payment.normalizedMoney;
-      } else if (payment.type == PaymentType.expense) {
-        dayOutcome += payment.normalizedMoney.abs();
-      }
-    }
-
-    final dayBalance = dayIncome - dayOutcome;
-    final totalBalance = plannerState.moneyFlow.balance;
-
-    DaySummaryDialog.show(
-      context: context,
-      date: widget.date,
-      payments: dayPayments,
-      dayIncome: dayIncome,
-      dayOutcome: dayOutcome,
-      dayBalance: dayBalance,
-      totalBalance: totalBalance,
     );
   }
 
