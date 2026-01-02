@@ -29,14 +29,21 @@ class PaymentsSliverList extends StatelessWidget {
   Widget build(BuildContext context) {
     return SuperSliverList(
       listController: listController,
-      delegate: SliverChildBuilderDelegate(childCount: paymentsByDate.length, (context, index) {
+      delegate: SliverChildBuilderDelegate(childCount: paymentsByDate.length, (
+        context,
+        index,
+      ) {
         final item = paymentsByDate[index];
         return _getSliverItem(context, index, item);
       }),
     );
   }
 
-  Widget _getSliverItem(BuildContext context, int originalIndex, PaymentsDateGrouped group) {
+  Widget _getSliverItem(
+    BuildContext context,
+    int originalIndex,
+    PaymentsDateGrouped group,
+  ) {
     final neighbours = paymentsByDate.getNeighbours(originalIndex);
     final isMonthEdge = group.date.isMonthEdge(
       prevDate: neighbours?.before?.date,
@@ -54,13 +61,20 @@ class PaymentsSliverList extends StatelessWidget {
             isMonthEdge: true,
             today: today,
             payments: group.payments,
-            showDaySeparator: false, // Не показываем разделитель дня в месячном разделителе
+            showDaySeparator:
+                false, // Не показываем разделитель дня в месячном разделителе
           ),
 
           // Разделитель дня (sticky)
           StickyHeaderBuilder(
             builder: (BuildContext context, double stuckAmount) {
-              final normalizedAnimation = normalizeToRange(stuckAmount, -1, 1, 0, 1);
+              final normalizedAnimation = normalizeToRange(
+                stuckAmount,
+                -1,
+                1,
+                0,
+                1,
+              );
 
               return PaymentListSeparator(
                 currDate: group.date,
@@ -72,13 +86,12 @@ class PaymentsSliverList extends StatelessWidget {
             },
             content: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              child:
-                  group.payments.isEmpty
-                      ? const SizedBox(height: 8)
-                      : Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: _buildPaymentsList(group.payments),
-                      ),
+              child: group.payments.isEmpty
+                  ? const SizedBox(height: 8)
+                  : Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _buildPaymentsList(group.payments),
+                    ),
             ),
           ),
         ],
@@ -87,7 +100,13 @@ class PaymentsSliverList extends StatelessWidget {
       // Обычный день (не начало месяца) - показываем только разделитель дня (sticky)
       return StickyHeaderBuilder(
         builder: (BuildContext context, double stuckAmount) {
-          final normalizedAnimation = normalizeToRange(stuckAmount, -1, 1, 0, 1);
+          final normalizedAnimation = normalizeToRange(
+            stuckAmount,
+            -1,
+            1,
+            0,
+            1,
+          );
 
           return PaymentListSeparator(
             currDate: group.date,
@@ -99,13 +118,12 @@ class PaymentsSliverList extends StatelessWidget {
         },
         content: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
-          child:
-              group.payments.isEmpty
-                  ? const SizedBox(height: 8)
-                  : Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: _buildPaymentsList(group.payments),
-                  ),
+          child: group.payments.isEmpty
+              ? const SizedBox(height: 8)
+              : Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _buildPaymentsList(group.payments),
+                ),
         ),
       );
     }
@@ -113,7 +131,9 @@ class PaymentsSliverList extends StatelessWidget {
 
   Widget _buildPaymentsList(List<Payment> payments) {
     // Используем юзкейс для сортировки платежей
-    final sortedPayments = SortPaymentsUsecase(payments: payments.toList()).run();
+    final sortedPayments = SortPaymentsUsecase(
+      payments: payments.toList(),
+    ).run();
 
     return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
@@ -131,12 +151,11 @@ class PaymentsSliverList extends StatelessWidget {
           child: PaymentListItem(
             payment: payment,
             mediateSummary: budget[payment],
-            onPressed:
-                () => updateDialog(
-                  context: context,
-                  paymentToEdit: payment,
-                  plannerRepo: AppDi.instance.getPlannerRepo(),
-                ),
+            onPressed: () => updateDialog(
+              context: context,
+              paymentToEdit: payment,
+              paymentsRepo: AppDi.instance.getPaymentsRepo(),
+            ),
           ),
         );
       },

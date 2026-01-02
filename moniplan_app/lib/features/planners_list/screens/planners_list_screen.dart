@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/monisync/screens/monisync_screen.dart';
-import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
+import 'package:moniplan_app/features/payment/repo/i_planner_actual_info_repo.dart';
+import 'package:moniplan_app/features/payment/repo/i_planner_settings_repo.dart';
+import 'package:moniplan_app/features/payment/repo/i_planners_repo.dart';
+import 'package:moniplan_app/features/payment/repo/i_payments_repo.dart';
 import 'package:moniplan_app/features/planner/screens/planner_view_screen_sliver.dart';
 import 'package:moniplan_app/features/planners_list/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -19,7 +22,12 @@ class PlannersListScreen extends StatefulWidget {
 }
 
 class _PlannersListScreenState extends State<PlannersListScreen> {
-  IPlannerRepo get _plannerRepo => AppDi.instance.getPlannerRepo();
+  IPlannersRepo get _plannersRepo => AppDi.instance.getPlannersRepo();
+  IPaymentsRepo get _paymentsRepo => AppDi.instance.getPaymentsRepo();
+  IPlannerActualInfoRepo get _actualInfoRepo =>
+      AppDi.instance.getPlannerActualInfoRepo();
+  IPlannerSettingsRepo get _settingsRepo =>
+      AppDi.instance.getPlannerSettingsRepo();
   final _actualPlanners = ValueNotifier<List<Planner>>([]);
   final _currentPlannerId = ValueNotifier<String?>(null);
   bool _openedCurrentOnStart = false;
@@ -91,14 +99,9 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                         initialBudget: num.tryParse(money) ?? 0,
                         isGenerationAllowed: true,
                       );
-                      await _plannerRepo.savePlanner(newPlanner).then((
-                        planner,
-                      ) async {
-                        await _updatePlannersList();
-                        if (planner != null) {
-                          _openPlanner(context, planner.id);
-                        }
-                      });
+                      await _plannersRepo.upsert(newPlanner);
+                      await _updatePlannersList();
+                      _openPlanner(context, newPlanner.id);
                     },
                   );
                 },
@@ -143,15 +146,12 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                                 name: name,
                                 initialBudget: num.tryParse(money) ?? 0,
                               );
-                              await _plannerRepo.savePlanner(newPlanner).then((
-                                planner,
-                              ) async {
-                                await _updatePlannersList();
-                              });
+                              await _plannersRepo.upsert(newPlanner);
+                              await _updatePlannersList();
                             },
                             onDelete: () {
                               showDeletePlannerDialog(context, () async {
-                                await _plannerRepo.deletePlanner(planner.id);
+                                await _cascadeDeletePlanner(planner.id);
                                 _updatePlannersList();
                               });
                             },
@@ -167,7 +167,7 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
                                     ) {},
                                 // onDuplicate: (startDate, endDate, name) async {
                                 //   try {
-                                //     final duplicatedPlanner = await _plannerRepo.duplicatePlanner(
+                                //     final duplicatedPlanner = await _plannerService.duplicatePlanner(
                                 //       originalPlannerId: planner.id,
                                 //       newStartDate: startDate,
                                 //       newEndDate: endDate,
@@ -231,14 +231,20 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
 
   Future<void> _updatePlannersList({bool openCurrentAfterLoad = false}) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    final planners = await _plannerRepo.getPlanners();
-    final currentPlannerId = await _plannerRepo.getCurrentPlannerId();
+    final planners = await _plannersRepo.list(limit: 1000);
+    final currentPlannerId =
+        (await _settingsRepo.getSettings())?.currentPlannerId;
+    final plannersWithActualInfo = <Planner>[];
+    for (final planner in planners) {
+      final actualInfo = await _actualInfoRepo.get(planner.id);
+      plannersWithActualInfo.add(planner.copyWith(actualInfo: actualInfo));
+    }
 
     if (!mounted) {
       return;
     }
 
-    _actualPlanners.value = planners;
+    _actualPlanners.value = plannersWithActualInfo;
     _currentPlannerId.value = currentPlannerId;
     setState(() {});
 
@@ -267,10 +273,15 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
   Future<void> _onToggleCurrent(Planner planner) async {
     try {
       if (_currentPlannerId.value == planner.id) {
-        await _plannerRepo.clearCurrentPlanner();
+        await _settingsRepo.deleteSettings();
         _currentPlannerId.value = null;
       } else {
-        await _plannerRepo.setCurrentPlanner(planner.id);
+        final settings =
+            (await _settingsRepo.getSettings()) ??
+            _settingsRepo.createDefaultSettings();
+        await _settingsRepo.saveSettings(
+          settings.copyWith(currentPlannerId: planner.id),
+        );
         _currentPlannerId.value = planner.id;
       }
       setState(() {});
@@ -285,5 +296,22 @@ class _PlannersListScreenState extends State<PlannersListScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _cascadeDeletePlanner(String plannerId) async {
+    final payments = await _paymentsRepo.listByPlanner(plannerId);
+    if (payments.isNotEmpty) {
+      await _paymentsRepo.bulkDelete(
+        plannerId: plannerId,
+        ids: payments.map((p) => p.paymentId).toList(),
+      );
+    }
+    await _actualInfoRepo.delete(plannerId);
+    final currentPlannerId =
+        (await _settingsRepo.getSettings())?.currentPlannerId;
+    if (currentPlannerId == plannerId) {
+      await _settingsRepo.deleteSettings();
+    }
+    await _plannersRepo.delete(plannerId);
   }
 }

@@ -14,7 +14,10 @@ abstract interface class IAppDi {
 
   IDataService getDataService();
 
-  IPlannerRepo getPlannerRepo();
+  IPlannersRepo getPlannersRepo();
+  IPaymentsRepo getPaymentsRepo();
+  IPlannerActualInfoRepo getPlannerActualInfoRepo();
+  IPlannerSettingsRepo getPlannerSettingsRepo();
 
   Future<IMonisyncRepo> getMonisyncRepo();
 }
@@ -33,10 +36,21 @@ class GetItAppDI implements AppDi {
     await db.open();
 
     final dataService = db.dataService;
+    final plannersRepo = PlannersRepoDataService(dataService: dataService);
+    final paymentsRepo = PaymentsRepoDataService(dataService: dataService);
+    final actualInfoRepo = PlannerActualInfoRepoDataService(
+      dataService: dataService,
+    );
+    final settingsRepo = PlannerSettingsRepoDataService(
+      dataService: dataService,
+    );
     _getIt
       ..registerSingleton<IDataService>(dataService)
+      ..registerSingleton<IPlannersRepo>(plannersRepo)
+      ..registerSingleton<IPaymentsRepo>(paymentsRepo)
+      ..registerSingleton<IPlannerActualInfoRepo>(actualInfoRepo)
+      ..registerSingleton<IPlannerSettingsRepo>(settingsRepo)
       ..registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform)
-      ..registerSingleton<IPlannerRepo>(PlannerRepoDataService(dataService: dataService))
       ..registerFactoryAsync<IMonisyncRepo>(() async {
         return MonisyncRepoImpl(dataService: dataService);
       });
@@ -49,7 +63,16 @@ class GetItAppDI implements AppDi {
   IDataService getDataService() => _getIt.get();
 
   @override
-  IPlannerRepo getPlannerRepo() => _getIt.get();
+  IPlannersRepo getPlannersRepo() => _getIt.get();
+
+  @override
+  IPaymentsRepo getPaymentsRepo() => _getIt.get();
+
+  @override
+  IPlannerActualInfoRepo getPlannerActualInfoRepo() => _getIt.get();
+
+  @override
+  IPlannerSettingsRepo getPlannerSettingsRepo() => _getIt.get();
 
   @override
   Future<IMonisyncRepo> getMonisyncRepo() async {

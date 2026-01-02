@@ -5,15 +5,20 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
+import 'package:moniplan_app/features/payment/repo/i_planner_actual_info_repo.dart';
+import 'package:moniplan_app/features/payment/repo/i_planners_repo.dart';
+import 'package:moniplan_app/features/payment/repo/i_payments_repo.dart';
 import 'package:rpc_dart/logger.dart';
+import 'package:uuid/uuid.dart';
 
 import '../usecases/_index.dart';
 import 'planner_event.dart';
 import 'planner_state.dart';
 
 class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
-  final IPlannerRepo _plannerRepo;
+  final IPlannersRepo _plannersRepo;
+  final IPaymentsRepo _paymentsRepo;
+  final IPlannerActualInfoRepo _actualInfoRepo;
   final String plannerId;
   final _log = RpcLogger('PlannerBloc');
 
@@ -40,16 +45,25 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   static const _actualInfoUpdateInterval = Duration(seconds: 10);
   String? _lastActualInfoHash;
 
-  PlannerBloc({required this.plannerId, required IPlannerRepo paymentPlannerRepo})
-    : _plannerRepo = paymentPlannerRepo,
-      super(const PlannerInitialState()) {
+  PlannerBloc({
+    required this.plannerId,
+    required IPlannersRepo plannersRepo,
+    required IPaymentsRepo paymentsRepo,
+    required IPlannerActualInfoRepo actualInfoRepo,
+  }) : _plannersRepo = plannersRepo,
+       _paymentsRepo = paymentsRepo,
+       _actualInfoRepo = actualInfoRepo,
+       super(const PlannerInitialState()) {
     on<PlannerComputeBudgetEvent>(_onCompute, transformer: droppable());
 
     on<PlannerEvent>(
       (e, emit) => switch (e) {
         PlannerUpdatePaymentEvent() => _onUpdatePayment(e, emit),
         PlannerDeletePaymentEvent() => _onDeletePayment(e, emit),
-        PlannerFixateRepeatedPaymentEvent() => _onFixateRepeatedPayment(e, emit),
+        PlannerFixateRepeatedPaymentEvent() => _onFixateRepeatedPayment(
+          e,
+          emit,
+        ),
         _ => emit(state),
       },
       transformer: sequential(),
@@ -82,7 +96,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     _isLoading = true;
     _log.debug('Загружаем платежи из базы данных');
     try {
-      final payments = await _plannerRepo.getPaymentsByPlannerId(plannerId: plannerId);
+      final payments = await _paymentsRepo.listByPlanner(plannerId);
 
       // Обновляем кэш
       _cachedPayments = payments;
@@ -111,7 +125,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
 
     // Загружаем планер
     _log.debug('Загружаем планер из базы данных');
-    final planner = await _plannerRepo.getPlannerById(plannerId);
+    final planner = await _plannersRepo.getById(plannerId);
 
     // Обновляем кэш
     _cachedPlanner = planner;
@@ -137,18 +151,26 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   // Метод для вычисления хэша состояния
   String _computeStateHash(Planner planner) {
     final paymentsHash = planner.payments
-        .map((p) => '${p.paymentId}:${p.isDone}:${p.isEnabled}:${p.date.millisecondsSinceEpoch}')
+        .map(
+          (p) =>
+              '${p.paymentId}:${p.isDone}:${p.isEnabled}:${p.date.millisecondsSinceEpoch}',
+        )
         .join(',');
     return '${planner.id}:${planner.dateStart.millisecondsSinceEpoch}:${planner.dateEnd.millisecondsSinceEpoch}:$paymentsHash';
   }
 
-  FutureOr<void> _onCompute(PlannerComputeBudgetEvent event, Emitter<PlannerState> emit) async {
+  FutureOr<void> _onCompute(
+    PlannerComputeBudgetEvent event,
+    Emitter<PlannerState> emit,
+  ) async {
     final id = plannerId;
     final payments = await _getPaymentsWithCache();
     final planner = await _getPlannerWithCache();
 
     if (planner != null) {
-      final newState = await _computeStateFromPlanner(planner.copyWith(payments: payments));
+      final newState = await _computeStateFromPlanner(
+        planner.copyWith(payments: payments),
+      );
 
       emit(newState.copyWith(plannerId: id));
     }
@@ -160,7 +182,9 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   ) async {
     try {
       // Проверяем, можно ли применить обновление
-      final canApplyUpdate = CheckPaymentCanApplyUpdate(updatedPayment: event.newPayment).run();
+      final canApplyUpdate = CheckPaymentCanApplyUpdate(
+        updatedPayment: event.newPayment,
+      ).run();
       if (!canApplyUpdate.canUpdate) {
         emit(state.copyWith(errors: canApplyUpdate.errorKeys));
         return;
@@ -180,21 +204,26 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       while (retryCount < maxRetries) {
         try {
           // Сохраняем платеж
-          result = await _plannerRepo.savePayment(
+          final existing = await _paymentsRepo.getById(
+            plannerId: plannerId,
+            paymentId: paymentToSave.paymentId,
+          );
+          if (existing == null && !event.create) {
+            throw Exception(
+              'Payment "${paymentToSave.paymentId}" is not linked with Planner "$plannerId"',
+            );
+          }
+          await _paymentsRepo.upsert(
             plannerId: plannerId,
             payment: paymentToSave,
-            allowCreate: event.create,
           );
-
-          // Если сохранение успешно, выходим из цикла
-          if (result != null) {
-            _log.info('Платеж успешно сохранен: ${result.paymentId}');
-            break;
-          } else {
-            _log.warning('Сохранение платежа вернуло null (попытка ${retryCount + 1}/$maxRetries)');
-          }
+          result = paymentToSave;
+          _log.info('Платеж успешно сохранен: ${result.paymentId}');
+          break;
         } on Object catch (e) {
-          _log.error('Ошибка при сохранении платежа (попытка ${retryCount + 1}/$maxRetries): $e');
+          _log.error(
+            'Ошибка при сохранении платежа (попытка ${retryCount + 1}/$maxRetries): $e',
+          );
         }
 
         // Увеличиваем счетчик попыток
@@ -202,7 +231,9 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
 
         // Если достигнуто максимальное количество попыток, выбрасываем исключение
         if (retryCount >= maxRetries) {
-          throw Exception('Не удалось сохранить платеж после $maxRetries попыток');
+          throw Exception(
+            'Не удалось сохранить платеж после $maxRetries попыток',
+          );
         }
 
         // Ждем перед следующей попыткой с экспоненциальной задержкой
@@ -233,7 +264,10 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     PlannerDeletePaymentEvent event,
     Emitter<PlannerState> emit,
   ) async {
-    await _plannerRepo.deletePayment(plannerId: plannerId, paymentId: event.paymentId);
+    await _paymentsRepo.delete(
+      plannerId: plannerId,
+      paymentId: event.paymentId,
+    );
 
     // Инвалидируем кэш после удаления платежа
     _invalidateCache();
@@ -245,7 +279,37 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     PlannerFixateRepeatedPaymentEvent event,
     Emitter<PlannerState> emit,
   ) async {
-    await _plannerRepo.fixateRepeatedPayment(plannerId: plannerId, paymentId: event.paymentId);
+    final payment = await _paymentsRepo.getById(
+      plannerId: plannerId,
+      paymentId: event.paymentId,
+    );
+    if (payment == null || payment.plannerId != plannerId) {
+      throw Exception(
+        'Cannot find payment with id "${event.paymentId}" in planner "$plannerId"',
+      );
+    }
+    if (!payment.isRepeatParent) {
+      throw Exception('Payment should be repeated and parent');
+    }
+
+    final copiedPayment = payment.copyWith(
+      paymentId: const Uuid().v4(),
+      repeat: DateTimeRepeat.noRepeat,
+      dateStart: null,
+      dateEnd: null,
+    );
+    final updatedOriginalPayment = payment.copyWith(
+      date: payment.repeat.next(payment.date),
+    );
+
+    await _paymentsRepo.upsert(
+      plannerId: plannerId,
+      payment: copiedPayment.copyWith(plannerId: plannerId),
+    );
+    await _paymentsRepo.upsert(
+      plannerId: plannerId,
+      payment: updatedOriginalPayment,
+    );
 
     // Инвалидируем кэш после фиксации повторяющегося платежа
     _invalidateCache();
@@ -274,7 +338,10 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
         dateEnd: targetPlanner.dateEnd,
         initialBudget: targetPlanner.initialBudget,
       ).run();
-      targetPlanner = result.planner.copyWith(id: targetPlanner.id, isGenerationAllowed: false);
+      targetPlanner = result.planner.copyWith(
+        id: targetPlanner.id,
+        isGenerationAllowed: false,
+      );
     }
 
     if (targetPlanner.isGenerationAllowed) {
@@ -345,7 +412,8 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
         final now = DateTime.now();
         if (_lastActualInfoHash == actualInfoHash &&
             _lastActualInfoUpdateTime != null &&
-            now.difference(_lastActualInfoUpdateTime!) < _actualInfoUpdateInterval) {
+            now.difference(_lastActualInfoUpdateTime!) <
+                _actualInfoUpdateInterval) {
           _log.debug(
             'Пропускаем обновление actualInfo (последнее обновление было ${now.difference(_lastActualInfoUpdateTime!).inSeconds} сек. назад, хэш не изменился)',
           );
@@ -353,10 +421,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
         }
 
         // Обновляем actualInfo в репозитории
-        await _plannerRepo.updatePlannerActualInfo(
-          plannerId: plannerId,
-          plannerActualInfo: actualInfo,
-        );
+        await _actualInfoRepo.upsert(actualInfo.copyWith(plannerId: plannerId));
 
         // Обновляем время последнего обновления и хэш
         _lastActualInfoUpdateTime = now;
@@ -377,7 +442,8 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
 
     // Проверяем, прошло ли достаточно времени с последнего сохранения
     final now = DateTime.now();
-    if (_lastSaveTime != null && now.difference(_lastSaveTime!) < _debounceTime) {
+    if (_lastSaveTime != null &&
+        now.difference(_lastSaveTime!) < _debounceTime) {
       // Если прошло меньше _debounceTime, не сохраняем
       _log.debug(
         'Сохранение отклонено из-за дебаунса (последнее сохранение было ${now.difference(_lastSaveTime!).inSeconds} сек. назад)',
@@ -394,9 +460,8 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       final currentState = state as PlannerBudgetComputedState;
       if (currentState.actualInfo != null) {
         // Обновляем actualInfo в репозитории, игнорируя проверку хэша
-        await _plannerRepo.updatePlannerActualInfo(
-          plannerId: plannerId,
-          plannerActualInfo: currentState.actualInfo!,
+        await _actualInfoRepo.upsert(
+          currentState.actualInfo!.copyWith(plannerId: plannerId),
         );
 
         // Обновляем время последнего обновления и хэш
@@ -425,9 +490,8 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
       final currentState = state as PlannerBudgetComputedState;
       if (currentState.actualInfo != null) {
         // Обновляем actualInfo в репозитории
-        await _plannerRepo.updatePlannerActualInfo(
-          plannerId: plannerId,
-          plannerActualInfo: currentState.actualInfo!,
+        await _actualInfoRepo.upsert(
+          currentState.actualInfo!.copyWith(plannerId: plannerId),
         );
 
         _log.debug('actualInfo успешно сохранен при закрытии блока');

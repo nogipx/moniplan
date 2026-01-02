@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment/_index.dart';
-import 'package:moniplan_app/features/payment/repo/i_payment_planner_repo.dart';
+import 'package:moniplan_app/features/payment/repo/i_payments_repo.dart';
 import 'package:moniplan_app/features/payment_edit/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:oktoast/oktoast.dart';
@@ -15,14 +15,14 @@ final _log = RpcLogger('dialog_update_payment');
 
 Future<void> updateDialog({
   required BuildContext context,
-  required IPlannerRepo plannerRepo,
+  required IPaymentsRepo paymentsRepo,
   Payment? paymentToEdit,
 }) async {
   Payment? targetPayment;
   if (paymentToEdit != null) {
     targetPayment = paymentToEdit;
     if (targetPayment.isNotParent) {
-      final original = await plannerRepo.getPaymentById(
+      final original = await paymentsRepo.getById(
         plannerId: targetPayment.plannerId,
         paymentId: targetPayment.originalPaymentId ?? '',
       );
@@ -58,7 +58,9 @@ Future<void> updateDialog({
 
         // Проверяем, содержит ли состояние наш платеж
         if (state is PlannerBudgetComputedState) {
-          final paymentExists = state.payments.any((p) => p.paymentId == newPayment.paymentId);
+          final paymentExists = state.payments.any(
+            (p) => p.paymentId == newPayment.paymentId,
+          );
           if (paymentExists) {
             subscription.cancel();
             completer.complete(true);
@@ -77,7 +79,10 @@ Future<void> updateDialog({
 
       // Отправляем событие обновления платежа в блок планировщика
       plannerBloc.add(
-        PlannerEvent.updatePayment(newPayment: newPayment, create: create ?? paymentToEdit == null),
+        PlannerEvent.updatePayment(
+          newPayment: newPayment,
+          create: create ?? paymentToEdit == null,
+        ),
       );
 
       // Ждем результат операции
@@ -115,7 +120,10 @@ Future<void> updateDialog({
     );
   }
 
-  Future<DateTime?> selectDate(BuildContext context, DateTime initialDate) async {
+  Future<DateTime?> selectDate(
+    BuildContext context,
+    DateTime initialDate,
+  ) async {
     final picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -140,7 +148,9 @@ Future<void> updateDialog({
         final updatedPayment = targetPayment?.copyWith(date: selectedDate);
         if (updatedPayment != null) {
           save(updatedPayment);
-          showToast('Платёж перенесен на ${DateFormat('d MMMM y').format(selectedDate)}');
+          showToast(
+            'Платёж перенесен на ${DateFormat('d MMMM y').format(selectedDate)}',
+          );
         }
       }
     });
@@ -151,15 +161,14 @@ Future<void> updateDialog({
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder:
-            (context) => PaymentEditScreen(
-              onSave: (p) async {
-                final success = await save(p, create: true);
-                if (!success && context.mounted) {
-                  showToast('Не удалось сохранить платеж');
-                }
-              },
-            ),
+        builder: (context) => PaymentEditScreen(
+          onSave: (p) async {
+            final success = await save(p, create: true);
+            if (!success && context.mounted) {
+              showToast('Не удалось сохранить платеж');
+            }
+          },
+        ),
       ),
     );
   } else {
