@@ -8,29 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rpc_dart/logger.dart';
 import 'package:rpc_dart_data/rpc_dart_data.dart';
 
-abstract class AppDb extends IAppDb {
-  static late IAppDbFactory _factory;
-  static AppDb? _instance;
-
-  static void setFactory(IAppDbFactory newFactory) {
-    _factory = newFactory;
-    _instance = _factory() as AppDb;
-  }
-
-  factory AppDb() {
-    return _instance ??= _factory() as AppDb;
-  }
-
-  static AppDbImpl detachedInMemory() {
-    final db = AppDbImpl(inMemory: true, log: RpcLogger('TempAppDb'));
-    return db;
-  }
-
-  static AppDb get instance => _instance ??= _factory() as AppDb;
-}
-
 /// Универсальный AppDb поверх rpc_dart_data. Использует SQLite файл на IO и OPFS/IndexedDB на web.
-class AppDbImpl extends ChangeNotifier implements AppDb {
+class AppDbImpl extends ChangeNotifier implements IAppDb {
   AppDbImpl({RpcLogger? log, bool inMemory = false})
     : _log = log ?? RpcLogger('AppDbImpl'),
       _inMemory = inMemory;
