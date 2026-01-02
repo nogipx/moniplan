@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/payment_edit/screens/payment_edit_screen.dart';
+import 'package:moniplan_app/features/planner/planner_bloc/planner_bloc.dart';
+import 'package:moniplan_app/features/planner/planner_bloc/planner_event.dart';
+import 'package:moniplan_app/features/planner/planner_bloc/planner_state.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:rpc_dart/logger.dart';
 
@@ -47,20 +49,19 @@ class PaymentActionsBottomSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => BlocProvider.value(
-            value: plannerBloc,
-            child: PaymentActionsBottomSheet(
-              payment: payment,
-              onDelete: onDelete,
-              onMove: onMove,
-              onFixation: onFixation,
-              onToggleEnabled: onToggleEnabled,
-              onToggleDone: onToggleDone,
-              plannerBloc: plannerBloc,
-              isVirtualPaymentSelected: isVirtualPaymentSelected,
-            ),
-          ),
+      builder: (context) => BlocProvider.value(
+        value: plannerBloc,
+        child: PaymentActionsBottomSheet(
+          payment: payment,
+          onDelete: onDelete,
+          onMove: onMove,
+          onFixation: onFixation,
+          onToggleEnabled: onToggleEnabled,
+          onToggleDone: onToggleDone,
+          plannerBloc: plannerBloc,
+          isVirtualPaymentSelected: isVirtualPaymentSelected,
+        ),
+      ),
     );
   }
 
@@ -268,19 +269,17 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                               ? Icons.check_circle_outline
                               : Icons.cancel_outlined,
                           size: 16,
-                          color:
-                              widget.payment.isEnabled
-                                  ? context.color.primary
-                                  : context.color.error,
+                          color: widget.payment.isEnabled
+                              ? context.color.primary
+                              : context.color.error,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           widget.payment.isEnabled ? 'Активен' : 'Отключен',
                           style: context.text.bodySmall?.copyWith(
-                            color:
-                                widget.payment.isEnabled
-                                    ? context.color.primary
-                                    : context.color.error,
+                            color: widget.payment.isEnabled
+                                ? context.color.primary
+                                : context.color.error,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -288,19 +287,17 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                           Icon(
                             widget.payment.isDone ? Icons.task_alt : Icons.pending_outlined,
                             size: 16,
-                            color:
-                                widget.payment.isDone
-                                    ? context.color.primary
-                                    : context.color.onSurfaceVariant,
+                            color: widget.payment.isDone
+                                ? context.color.primary
+                                : context.color.onSurfaceVariant,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             widget.payment.isDone ? 'Выполнен' : 'Не выполнен',
                             style: context.text.bodySmall?.copyWith(
-                              color:
-                                  widget.payment.isDone
-                                      ? context.color.primary
-                                      : context.color.onSurfaceVariant,
+                              color: widget.payment.isDone
+                                  ? context.color.primary
+                                  : context.color.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -356,15 +353,13 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                   if (isRealPayment && widget.onToggleEnabled != null)
                     _buildCircleButton(
                       context,
-                      icon:
-                          !widget.payment.isEnabled
-                              ? Icons.power_settings_new_rounded
-                              : Icons.power_settings_new_outlined,
+                      icon: !widget.payment.isEnabled
+                          ? Icons.power_settings_new_rounded
+                          : Icons.power_settings_new_outlined,
                       label: !widget.payment.isEnabled ? 'Выключено' : 'Включено',
-                      color:
-                          !widget.payment.isEnabled
-                              ? context.color.tertiary
-                              : context.color.primary,
+                      color: !widget.payment.isEnabled
+                          ? context.color.tertiary
+                          : context.color.primary,
                       onTap: () {
                         widget.onToggleEnabled?.call(
                           widget.payment.copyWith(isEnabled: !widget.payment.isEnabled),
@@ -378,8 +373,9 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                       context,
                       icon: !widget.payment.isDone ? Icons.remove_done : Icons.done,
                       label: !widget.payment.isDone ? 'Не выполнено' : 'Выполнено',
-                      color:
-                          !widget.payment.isDone ? context.color.tertiary : context.color.primary,
+                      color: !widget.payment.isDone
+                          ? context.color.tertiary
+                          : context.color.primary,
                       onTap: () {
                         // Показываем диалог о необходимости фиксации перед выполнением платежа
                         // в двух случаях:
@@ -441,13 +437,12 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder:
-                                (context) => PaymentEditScreen(
-                                  payment: widget.payment,
-                                  onSave: (updatedPayment) async {
-                                    await onSave(context, updatedPayment);
-                                  },
-                                ),
+                            builder: (context) => PaymentEditScreen(
+                              payment: widget.payment,
+                              onSave: (updatedPayment) async {
+                                await onSave(context, updatedPayment);
+                              },
+                            ),
                           ),
                         );
                       },
@@ -469,13 +464,12 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder:
-                                (context) => PaymentEditScreen(
-                                  payment: widget.payment.copyBaseData(),
-                                  onSave: (updatedPayment) async {
-                                    await onSave(context, updatedPayment);
-                                  },
-                                ),
+                            builder: (context) => PaymentEditScreen(
+                              payment: widget.payment.copyBaseData(),
+                              onSave: (updatedPayment) async {
+                                await onSave(context, updatedPayment);
+                              },
+                            ),
                           ),
                         );
                       },
@@ -642,15 +636,13 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
 
   // Показывает диалог о необходимости фиксации перед выполнением платежа
   void _showFixationBeforeCompletionDialog(BuildContext context) {
-    final titleText =
-        widget.isVirtualPaymentSelected
-            ? 'Необходима фиксация виртуального платежа'
-            : 'Необходима фиксация повторяющегося платежа';
+    final titleText = widget.isVirtualPaymentSelected
+        ? 'Необходима фиксация виртуального платежа'
+        : 'Необходима фиксация повторяющегося платежа';
 
-    final messageText =
-        widget.isVirtualPaymentSelected
-            ? 'Вы пытаетесь отметить как выполненный виртуальный платеж из повторяющейся серии.'
-            : 'Вы пытаетесь отметить как выполненный повторяющийся платеж.';
+    final messageText = widget.isVirtualPaymentSelected
+        ? 'Вы пытаетесь отметить как выполненный виртуальный платеж из повторяющейся серии.'
+        : 'Вы пытаетесь отметить как выполненный повторяющийся платеж.';
 
     showDialog(
       context: context,

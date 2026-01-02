@@ -5,12 +5,10 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/payment/repo/i_planner_actual_info_repo.dart';
-import 'package:moniplan_app/features/payment/repo/i_planners_repo.dart';
-import 'package:moniplan_app/features/payment/repo/i_payments_repo.dart';
 import 'package:rpc_dart/logger.dart';
 import 'package:uuid/uuid.dart';
 
+import '../repo/_index.dart';
 import '../usecases/_index.dart';
 import 'planner_event.dart';
 import 'planner_state.dart';
@@ -152,8 +150,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
   String _computeStateHash(Planner planner) {
     final paymentsHash = planner.payments
         .map(
-          (p) =>
-              '${p.paymentId}:${p.isDone}:${p.isEnabled}:${p.date.millisecondsSinceEpoch}',
+          (p) => '${p.paymentId}:${p.isDone}:${p.isEnabled}:${p.date.millisecondsSinceEpoch}',
         )
         .join(',');
     return '${planner.id}:${planner.dateStart.millisecondsSinceEpoch}:${planner.dateEnd.millisecondsSinceEpoch}:$paymentsHash';
@@ -412,8 +409,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
         final now = DateTime.now();
         if (_lastActualInfoHash == actualInfoHash &&
             _lastActualInfoUpdateTime != null &&
-            now.difference(_lastActualInfoUpdateTime!) <
-                _actualInfoUpdateInterval) {
+            now.difference(_lastActualInfoUpdateTime!) < _actualInfoUpdateInterval) {
           _log.debug(
             'Пропускаем обновление actualInfo (последнее обновление было ${now.difference(_lastActualInfoUpdateTime!).inSeconds} сек. назад, хэш не изменился)',
           );
@@ -442,8 +438,7 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
 
     // Проверяем, прошло ли достаточно времени с последнего сохранения
     final now = DateTime.now();
-    if (_lastSaveTime != null &&
-        now.difference(_lastSaveTime!) < _debounceTime) {
+    if (_lastSaveTime != null && now.difference(_lastSaveTime!) < _debounceTime) {
       // Если прошло меньше _debounceTime, не сохраняем
       _log.debug(
         'Сохранение отклонено из-за дебаунса (последнее сохранение было ${now.difference(_lastSaveTime!).inSeconds} сек. назад)',

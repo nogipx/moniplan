@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/payment/_index.dart';
-import 'package:moniplan_app/features/payment/repo/i_payments_repo.dart';
 import 'package:moniplan_app/features/payment_edit/_index.dart';
+import 'package:moniplan_app/features/planner/planner_bloc/planner_bloc.dart';
+import 'package:moniplan_app/features/planner/planner_bloc/planner_event.dart';
+import 'package:moniplan_app/features/planner/planner_bloc/planner_state.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:rpc_dart/logger.dart';
@@ -15,18 +16,20 @@ final _log = RpcLogger('dialog_update_payment');
 
 Future<void> updateDialog({
   required BuildContext context,
-  required IPaymentsRepo paymentsRepo,
   Payment? paymentToEdit,
 }) async {
   Payment? targetPayment;
   if (paymentToEdit != null) {
     targetPayment = paymentToEdit;
     if (targetPayment.isNotParent) {
-      final original = await paymentsRepo.getById(
-        plannerId: targetPayment.plannerId,
-        paymentId: targetPayment.originalPaymentId ?? '',
-      );
-      if (original != null) {
+      final blocState = context.read<PlannerBloc>().state;
+      final payments = blocState.getPayments;
+      final originalId = targetPayment.originalPaymentId;
+      if (originalId != null) {
+        final original = payments.firstWhere(
+          (p) => p.paymentId == originalId,
+          orElse: () => targetPayment!,
+        );
         targetPayment = original;
       }
     }

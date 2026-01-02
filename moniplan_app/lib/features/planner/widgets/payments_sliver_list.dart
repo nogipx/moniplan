@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/payment/_index.dart';
-import 'package:moniplan_app/features/payment/usecases/sort_payments_usecase.dart';
 import 'package:moniplan_app/features/payment_edit/_index.dart';
+import 'package:moniplan_app/features/planner/planner_bloc/planner_state.dart';
+import 'package:moniplan_app/features/planner/usecases/sort_payments_usecase.dart';
 import 'package:moniplan_app/features/planner/widgets/payment_list_item.dart';
 import 'package:moniplan_app/features/planner/widgets/separators/payment_list_separator.dart';
 import 'package:moniplan_app/utils/_index.dart';
@@ -61,8 +60,7 @@ class PaymentsSliverList extends StatelessWidget {
             isMonthEdge: true,
             today: today,
             payments: group.payments,
-            showDaySeparator:
-                false, // Не показываем разделитель дня в месячном разделителе
+            showDaySeparator: false, // Не показываем разделитель дня в месячном разделителе
           ),
 
           // Разделитель дня (sticky)
@@ -154,7 +152,6 @@ class PaymentsSliverList extends StatelessWidget {
             onPressed: () => updateDialog(
               context: context,
               paymentToEdit: payment,
-              paymentsRepo: AppDi.instance.getPaymentsRepo(),
             ),
           ),
         );

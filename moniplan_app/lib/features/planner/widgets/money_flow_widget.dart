@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
-import 'package:moniplan_app/features/payment/usecases/money_flow_usecase.dart';
+import 'package:moniplan_app/features/planner/usecases/money_flow_usecase.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 
 class MoneyFlowWidget extends StatelessWidget {
@@ -14,10 +14,9 @@ class MoneyFlowWidget extends StatelessWidget {
     // Определяем тренд баланса (положительный или отрицательный)
     final balanceTrend = state.balance >= state.initialBalance;
     final trendIcon = balanceTrend ? Icons.trending_up_rounded : Icons.trending_down_rounded;
-    final trendColor =
-        balanceTrend
-            ? context.ext<MoniplanExtraColors>()?.moneyPositive
-            : context.ext<MoniplanExtraColors>()?.moneyNegative;
+    final trendColor = balanceTrend
+        ? context.ext<MoniplanExtraColors>()?.moneyPositive
+        : context.ext<MoniplanExtraColors>()?.moneyNegative;
 
     // Проверяем наличие информации о коррекциях
     final hasCorrections = state.additionalData?['hasCorrections'] == true;
@@ -168,10 +167,9 @@ class MoneyFlowWidget extends StatelessWidget {
       // Для коррекций используем желтый цвет
       overrideColor = Colors.amber[700];
     } else if (isIncome != null) {
-      overrideColor =
-          isIncome
-              ? context.ext<MoniplanExtraColors>()?.moneyPositive
-              : context.ext<MoniplanExtraColors>()?.moneyNegative;
+      overrideColor = isIncome
+          ? context.ext<MoniplanExtraColors>()?.moneyPositive
+          : context.ext<MoniplanExtraColors>()?.moneyNegative;
     }
 
     final moneyWidget = MoneyColoredWidget(
@@ -194,23 +192,21 @@ class MoneyFlowWidget extends StatelessWidget {
             Icon(
               icon,
               size: 14,
-              color:
-                  isCorrection
-                      ? Colors.amber[700]
-                      : isHighlighted
-                      ? context.color.primary
-                      : context.color.onSurfaceVariant,
+              color: isCorrection
+                  ? Colors.amber[700]
+                  : isHighlighted
+                  ? context.color.primary
+                  : context.color.onSurfaceVariant,
             ),
             const SizedBox(width: 4),
             Text(
               label,
               style: textStyle?.copyWith(
-                color:
-                    isCorrection
-                        ? Colors.amber[700]
-                        : isHighlighted
-                        ? context.color.primary
-                        : context.color.onSurfaceVariant,
+                color: isCorrection
+                    ? Colors.amber[700]
+                    : isHighlighted
+                    ? context.color.primary
+                    : context.color.onSurfaceVariant,
               ),
             ),
           ],

@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/features/payment/_index.dart';
 import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
+import 'package:moniplan_app/features/planner/planner_bloc/_index.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:rpc_dart/logger.dart';
@@ -39,8 +39,7 @@ class _PlannerViewScreenSliver extends StatefulWidget {
   const _PlannerViewScreenSliver();
 
   @override
-  State<_PlannerViewScreenSliver> createState() =>
-      _PlannerViewScreenSliverState();
+  State<_PlannerViewScreenSliver> createState() => _PlannerViewScreenSliverState();
 }
 
 class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
@@ -149,7 +148,6 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                 onPressed: () {
                   updateDialog(
                     context: context,
-                    paymentsRepo: AppDi.instance.getPaymentsRepo(),
                   );
                 },
                 child: const Icon(Icons.add),
@@ -223,11 +221,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
     if (!mounted) {
       return;
     }
-    final state = context
-        .read<PlannerBloc>()
-        .state
-        .getPaymentsByDate
-        .getIndexOfDate(date);
+    final state = context.read<PlannerBloc>().state.getPaymentsByDate.getIndexOfDate(date);
     if (state == null || !_listController.isAttached) {
       return;
     }

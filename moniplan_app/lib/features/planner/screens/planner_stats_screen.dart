@@ -6,8 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
-import 'package:moniplan_app/features/payment/planner_bloc/_index.dart';
-import 'package:moniplan_app/features/payment/usecases/compute_actual_planner_info.dart';
+import 'package:moniplan_app/features/planner/planner_bloc/_index.dart';
+import 'package:moniplan_app/features/planner/usecases/compute_actual_planner_info.dart';
 import 'package:moniplan_app/features/planner/widgets/money_flow_widget.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -28,7 +28,8 @@ class PlannerStatsScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator.adaptive());
           }
 
-          final actualInfo = computed.actualInfo ??
+          final actualInfo =
+              computed.actualInfo ??
               ComputeActualPlannerInfo(
                 plannerId: computed.plannerId,
                 lastUpdatedBudget: computed.moneyFlow.balance,
@@ -45,7 +46,10 @@ class PlannerStatsScreen extends StatelessWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               children: [
-                _BalanceChartCard(points: points, initialBalance: computed.moneyFlow.initialBalance),
+                _BalanceChartCard(
+                  points: points,
+                  initialBalance: computed.moneyFlow.initialBalance,
+                ),
                 const SizedBox(height: 16),
                 MoneyFlowWidget(state: computed.moneyFlow),
                 const SizedBox(height: 16),
@@ -93,9 +97,13 @@ class _BalanceChartCard extends StatelessWidget {
       );
     }
 
-    final spots = points.asMap().entries.map(
-      (entry) => FlSpot(entry.key.toDouble(), entry.value.balance.toDouble()),
-    ).toList();
+    final spots = points
+        .asMap()
+        .entries
+        .map(
+          (entry) => FlSpot(entry.key.toDouble(), entry.value.balance.toDouble()),
+        )
+        .toList();
 
     final minY = spots.map((s) => s.y).reduce(min);
     final maxY = spots.map((s) => s.y).reduce(max);
@@ -173,8 +181,9 @@ class _BalanceChartCard extends StatelessWidget {
                         reservedSize: 44,
                         interval: yInterval,
                         getTitlesWidget: (value, _) {
-                          final style = (context.text.bodySmall ?? const TextStyle())
-                              .copyWith(color: context.color.onSurfaceVariant);
+                          final style = (context.text.bodySmall ?? const TextStyle()).copyWith(
+                            color: context.color.onSurfaceVariant,
+                          );
                           return Text(formatter.format(value), style: style);
                         },
                       ),
@@ -186,7 +195,9 @@ class _BalanceChartCard extends StatelessWidget {
                         interval: 1,
                         getTitlesWidget: (value, _) {
                           final index = value.round();
-                          if (!labelIndexes.contains(index) || index < 0 || index >= points.length) {
+                          if (!labelIndexes.contains(index) ||
+                              index < 0 ||
+                              index >= points.length) {
                             return const SizedBox.shrink();
                           }
                           final date = points[index].date;
@@ -345,10 +356,9 @@ class _BalanceChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color:
-            highlight
-                ? context.color.primary.withValues(alpha: 0.08)
-                : context.color.surfaceContainerHighest,
+        color: highlight
+            ? context.color.primary.withValues(alpha: 0.08)
+            : context.color.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: context.color.outlineVariant, width: 0.6),
       ),
@@ -524,7 +534,8 @@ List<_BalancePoint> _buildBalancePoints(PlannerBudgetComputedState state) {
   var balance = state.moneyFlow.initialBalance;
 
   final startDate = state.dateStart ?? (payments.isNotEmpty ? payments.first.date : DateTime.now());
-  final endDate = state.dateEnd ??
+  final endDate =
+      state.dateEnd ??
       (payments.isNotEmpty ? payments.last.date : startDate.add(const Duration(days: 7)));
 
   final paymentsByDay = <DateTime, List<Payment>>{};
