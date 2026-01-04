@@ -1,4 +1,5 @@
 import 'package:moniplan_app/core/_index.dart';
+import 'package:rpc_dart_data/rpc_dart_data.dart';
 
 /// Работа только с коллекцией платежей в рамках конкретного планера.
 abstract interface class IPaymentsRepo {
@@ -17,4 +18,6 @@ abstract interface class IPaymentsRepo {
     required String plannerId,
     required List<String> ids,
   });
+
+  Stream<CollectionChange<Payment>> watchChanges();
 }

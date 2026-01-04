@@ -68,4 +68,9 @@ class PaymentsRepoDataService implements IPaymentsRepo {
     // Идемпотентно удаляем по переданному списку id (уже отфильтрованному по планеру)
     return _payments.bulkDelete(ids);
   }
+
+  @override
+  Stream<CollectionChange<Payment>> watchChanges() {
+    return _payments.watchChanges();
+  }
 }
