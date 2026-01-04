@@ -1,15 +1,10 @@
 name: moniplan_app
 description: A new Flutter project.
 publish_to: 'none'
-version: 3.0.2+102
+version: 3.0.3+103
 
 environment:
   sdk: '>=3.9.0 <4.0.0'
-
-dependency_overrides:
-  pointycastle: ^3.6.2
-#  rpc_dart_data:
-#    path: /Users/nogipx/nogipx_vault/projects/libraries/rpc_dart/packages/rpc_dart_data
 
 dependencies:
   flutter:

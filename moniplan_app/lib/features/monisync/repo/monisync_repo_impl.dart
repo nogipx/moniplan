@@ -198,16 +198,11 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   Future<Uint8List> _exportDatabaseBytes(IDataService target) async {
-    final payload = await _readExportPayload(target);
-    return Uint8List.fromList(utf8.encode(payload));
-  }
-
-  Future<String> _readExportPayload(IDataService target) async {
     final stream = target.exportDatabase();
-    final buffer = StringBuffer();
+    final buffer = BytesBuilder();
     await for (final chunk in stream) {
-      buffer.write(chunk);
+      buffer.add(chunk);
     }
-    return buffer.toString();
+    return buffer.toBytes();
   }
 }
