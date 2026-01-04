@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -32,8 +31,7 @@ class MonisyncScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          MonisyncBloc(appDi: AppDi.instance)..add(MonisyncInitEvent()),
+      create: (context) => MonisyncBloc(appDi: AppDi.instance)..add(MonisyncInitEvent()),
       child: const _MonisyncScreenContent(),
     );
   }
@@ -136,8 +134,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
       const SizedBox(height: 12),
       BackupActionCard(
         title: 'Вставить базу',
-        subtitle:
-            'Импорт базы данных (.json/.ndjson/.db, только для разработки)',
+        subtitle: 'Импорт базы данных (.json/.ndjson/.db, только для разработки)',
         icon: Icons.add_to_home_screen,
         iconColor: Colors.red,
         onTap: () => _importDb(context),
@@ -217,8 +214,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) =>
-          _buildExportOptionsSheet(context, title: 'Резервная копия'),
+      builder: (context) => _buildExportOptionsSheet(context, title: 'Резервная копия'),
     );
 
     if (shareOption == null || !context.mounted) {
@@ -246,8 +242,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
     await Share.shareXFiles(
       [xFile],
       subject: 'Резервная копия Moniplan',
-      text:
-          'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(DateTime.now())}',
+      text: 'Резервная копия Moniplan от ${DateFormat('dd.MM.yyyy').format(DateTime.now())}',
     );
 
     showToast('Резервная копия отправлена');
@@ -302,8 +297,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
 
     // На нативных платформах можно читать первые байты файла
     try {
-      final isNew =
-          filePath.endsWith('.moniplan') || await _isNewFormatFile(filePath);
+      final isNew = filePath.endsWith('.moniplan') || await _isNewFormatFile(filePath);
       if (isNew) {
         await _importNewFormatBackup(context, filePath);
       } else {
@@ -582,13 +576,11 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
 
       if (format == _ExportFormat.dataService) {
         bytes = await _exportDataServiceDump();
-        fileName =
-            'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.ndjson';
+        fileName = 'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.ndjson';
       } else {
         final db = AppDi.instance.getDb();
         bytes = await db.exportSqlite();
-        fileName =
-            'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.db';
+        fileName = 'moniplan_db_${DateFormat('yyyyMMdd_HHmmss').format(now)}.db';
       }
 
       if (!context.mounted) {
@@ -601,8 +593,7 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        builder: (context) =>
-            _buildExportOptionsSheet(context, title: 'База данных'),
+        builder: (context) => _buildExportOptionsSheet(context, title: 'База данных'),
       );
 
       if (shareOption == null) {
@@ -636,15 +627,14 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
 
     try {
       if (extension == 'json' || extension == 'ndjson') {
-        final payload = await _readPickedFileAsString(pickedFile);
+        final payload = await _readPickedFileAsBytes(pickedFile);
         if (payload == null) {
           showToast('Не удалось прочитать файл');
           return;
         }
         final dataService = AppDi.instance.getDataService();
         await dataService.importDatabase(
-          payload: payload,
-          replaceExisting: true,
+          payload: Stream.value(payload),
         );
         showToast('База данных импортирована через IDataService');
       } else {
@@ -731,17 +721,11 @@ class _MonisyncScreenContentState extends State<_MonisyncScreenContent> {
 
   Future<List<int>> _exportDataServiceDump() async {
     final dataService = AppDi.instance.getDataService();
-    final export = await dataService.exportDatabase(
-      includePayloadString: false,
-    );
-    final stream = export.payloadStream;
-    if (stream != null) {
-      final chunks = <int>[];
-      await for (final chunk in stream) {
-        chunks.addAll(chunk);
-      }
-      return chunks;
+    final stream = dataService.exportDatabase();
+    final chunks = <int>[];
+    await for (final chunk in stream) {
+      chunks.addAll(chunk);
     }
-    return utf8.encode(export.payload);
+    return chunks;
   }
 }

@@ -21,7 +21,7 @@ dependencies:
   data_manage: ^3.0.2
   rpc_dart: ^2.4.0
   rpc_dart_transports: ^1.7.1
-  rpc_dart_data: ^3.4.4
+  rpc_dart_data: ^3.5.0
   rpc_flutter: ^0.0.1
 
   # Data management

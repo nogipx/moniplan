@@ -166,7 +166,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
 
   Uint8List? _gzipDecode(Uint8List compressed) {
     try {
-      final decoded = const GZipDecoder().decodeBytes(compressed, verify: false);
+      final decoded = const GZipDecoder().decodeBytes(compressed);
       return Uint8List.fromList(decoded);
     } on Object catch (_) {
       return null;
@@ -194,8 +194,7 @@ class MonisyncRepoImpl implements IMonisyncRepo {
     IDataService target,
     Uint8List bytes,
   ) async {
-    final payload = utf8.decode(bytes);
-    await target.importDatabase(payload: payload, replaceExisting: true);
+    await target.importDatabase(payload: Stream.value(bytes));
   }
 
   Future<Uint8List> _exportDatabaseBytes(IDataService target) async {
@@ -204,15 +203,11 @@ class MonisyncRepoImpl implements IMonisyncRepo {
   }
 
   Future<String> _readExportPayload(IDataService target) async {
-    final export = await target.exportDatabase(includePayloadString: false);
-    final stream = export.payloadStream;
-    if (stream != null) {
-      final buffer = StringBuffer();
-      await for (final chunk in stream.transform(utf8.decoder)) {
-        buffer.write(chunk);
-      }
-      return buffer.toString();
+    final stream = target.exportDatabase();
+    final buffer = StringBuffer();
+    await for (final chunk in stream) {
+      buffer.write(chunk);
     }
-    return export.payload;
+    return buffer.toString();
   }
 }
