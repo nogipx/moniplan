@@ -995,10 +995,10 @@ packages:
     dependency: "direct main"
     description:
       name: rpc_dart_data
-      sha256: "9e2606f5cf404f0c410925573e762554a03ade6b4b4c1b1cb23a6d2d99a8b35d"
+      sha256: "10b1a1db92cd1c9ac83615dec873ceb2224347d3190fac8f7a6a1c47039b118f"
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.0"
+    version: "3.6.0"
   rpc_dart_transports:
     dependency: "direct main"
     description:

@@ -1,12 +1,11 @@
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/database/data_collection.dart';
 import 'package:rpc_dart_data/rpc_dart_data.dart';
 
 import 'i_planner_actual_info_repo.dart';
 
 class PlannerActualInfoRepoDataService implements IPlannerActualInfoRepo {
   PlannerActualInfoRepoDataService({required IDataService dataService})
-    : _actualInfo = DataCollection<PlannerActualInfo>(
+    : _actualInfo = DataServiceCollection<PlannerActualInfo>(
         collection: 'planner_actual_info',
         dataService: dataService,
         fromJson: PlannerActualInfo.fromJson,
@@ -14,7 +13,7 @@ class PlannerActualInfoRepoDataService implements IPlannerActualInfoRepo {
         idSelector: (info) => info.plannerId,
       );
 
-  final DataCollection<PlannerActualInfo> _actualInfo;
+  final IDataServiceCollection<PlannerActualInfo> _actualInfo;
 
   @override
   Future<PlannerActualInfo?> get(String plannerId) async {

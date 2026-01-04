@@ -1,21 +1,19 @@
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/database/data_collection.dart';
 import 'package:rpc_dart_data/rpc_dart_data.dart';
 
 import 'i_planners_repo.dart';
 
 class PlannersRepoDataService implements IPlannersRepo {
   PlannersRepoDataService({required IDataService dataService})
-    : _planners = DataCollection<Planner>(
+    : _planners = DataServiceCollection<Planner>(
         collection: 'planners',
         dataService: dataService,
         fromJson: Planner.fromJson,
-        toJson: (planner) =>
-            planner.copyWith(payments: [], actualInfo: null).toJson(),
+        toJson: (planner) => planner.copyWith(payments: [], actualInfo: null).toJson(),
         idSelector: (planner) => planner.id,
       );
 
-  final DataCollection<Planner> _planners;
+  final IDataServiceCollection<Planner> _planners;
 
   @override
   Future<List<Planner>> list({int limit = 1000}) async {

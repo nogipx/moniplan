@@ -1,12 +1,11 @@
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/database/data_collection.dart';
 import 'package:rpc_dart_data/rpc_dart_data.dart';
 
 import 'i_planner_settings_repo.dart';
 
 class PlannerSettingsRepoDataService implements IPlannerSettingsRepo {
   PlannerSettingsRepoDataService({required IDataService dataService})
-    : _settings = DataCollection<PlannerSettings>(
+    : _settings = DataServiceCollection<PlannerSettings>(
         collection: 'planner_settings',
         dataService: dataService,
         fromJson: PlannerSettings.fromJson,
@@ -14,7 +13,7 @@ class PlannerSettingsRepoDataService implements IPlannerSettingsRepo {
         idSelector: (settings) => settings.id,
       );
 
-  final DataCollection<PlannerSettings> _settings;
+  final IDataServiceCollection<PlannerSettings> _settings;
   static const _settingsId = 'current';
 
   @override

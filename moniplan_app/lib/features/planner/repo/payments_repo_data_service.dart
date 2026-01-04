@@ -1,12 +1,11 @@
 import 'package:moniplan_app/core/_index.dart';
-import 'package:moniplan_app/database/data_collection.dart';
 import 'package:rpc_dart_data/rpc_dart_data.dart';
 
 import 'i_payments_repo.dart';
 
 class PaymentsRepoDataService implements IPaymentsRepo {
   PaymentsRepoDataService({required IDataService dataService})
-    : _payments = DataCollection<Payment>(
+    : _payments = DataServiceCollection<Payment>(
         collection: 'payments',
         dataService: dataService,
         fromJson: Payment.fromJson,
@@ -14,7 +13,7 @@ class PaymentsRepoDataService implements IPaymentsRepo {
         idSelector: (payment) => payment.paymentId,
       );
 
-  final DataCollection<Payment> _payments;
+  final IDataServiceCollection<Payment> _payments;
 
   @override
   Future<List<Payment>> listByPlanner(
