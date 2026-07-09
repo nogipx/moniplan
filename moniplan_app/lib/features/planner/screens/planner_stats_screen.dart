@@ -7,7 +7,10 @@ import 'package:intl/intl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/_common/_index.dart';
 import 'package:moniplan_app/features/planner/planner_bloc/_index.dart';
+import 'package:moniplan_app/features/planner/usecases/analyze_planner_risk_usecase.dart';
+import 'package:moniplan_app/features/planner/usecases/build_balance_series_usecase.dart';
 import 'package:moniplan_app/features/planner/usecases/compute_actual_planner_info.dart';
+import 'package:moniplan_app/features/planner/usecases/split_periods_by_correction_usecase.dart';
 import 'package:moniplan_app/features/planner/widgets/money_flow_widget.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -35,7 +38,39 @@ class PlannerStatsScreen extends StatelessWidget {
                 lastUpdatedBudget: computed.moneyFlow.balance,
                 payments: computed.payments,
               ).run();
-          final points = _buildBalancePoints(computed);
+          final points = BuildBalanceSeriesUseCase(
+            payments: computed.payments,
+            initialBalance: computed.moneyFlow.initialBalance,
+            dateStart: computed.dateStart,
+            dateEnd: computed.dateEnd,
+          ).call();
+
+          final risk = AnalyzePlannerRiskUseCase(
+            series: points,
+            payments: computed.payments,
+            today: DateTime.now(),
+          ).call();
+
+          final periods = SplitPeriodsByCorrectionUseCase(
+            series: points,
+            payments: computed.payments,
+          ).call();
+
+          // График показывает только последний период — после последней
+          // коррекции: более ранние данные уже сверены и не влияют на прогноз.
+          final lastPeriod = periods.isNotEmpty ? periods.last : null;
+          final chartPoints = lastPeriod != null
+              ? points
+                  .where((p) =>
+                      !p.date.dayBound.isBefore(lastPeriod.start.dayBound))
+                  .toList()
+              : points;
+          final chartInitialBalance =
+              lastPeriod?.startBalance ?? computed.moneyFlow.initialBalance;
+          final chartSubtitle =
+              (lastPeriod != null && lastPeriod.startedByCorrection)
+                  ? 'с коррекции ${DateFormat('d MMM', 'ru').format(lastPeriod.start)}'
+                  : null;
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -46,11 +81,20 @@ class PlannerStatsScreen extends StatelessWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               children: [
+                if (risk != null) ...[
+                  _RiskCard(risk: risk),
+                  const SizedBox(height: 16),
+                ],
                 _BalanceChartCard(
-                  points: points,
-                  initialBalance: computed.moneyFlow.initialBalance,
+                  points: chartPoints,
+                  initialBalance: chartInitialBalance,
+                  subtitle: chartSubtitle,
                 ),
                 const SizedBox(height: 16),
+                if (periods.length > 1) ...[
+                  _PeriodsCard(periods: periods),
+                  const SizedBox(height: 16),
+                ],
                 MoneyFlowWidget(state: computed.moneyFlow),
                 const SizedBox(height: 16),
                 _ActualInfoGrid(info: actualInfo),
@@ -64,10 +108,15 @@ class PlannerStatsScreen extends StatelessWidget {
 }
 
 class _BalanceChartCard extends StatelessWidget {
-  const _BalanceChartCard({required this.points, required this.initialBalance});
+  const _BalanceChartCard({
+    required this.points,
+    required this.initialBalance,
+    this.subtitle,
+  });
 
-  final List<_BalancePoint> points;
+  final List<BalancePoint> points;
   final num initialBalance;
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +187,18 @@ class _BalanceChartCard extends StatelessWidget {
                   'Динамика баланса',
                   style: context.text.labelLarge?.copyWith(color: context.color.primary),
                 ),
+                if (subtitle != null) ...[
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      subtitle!,
+                      textAlign: TextAlign.right,
+                      style: context.text.bodySmall?.copyWith(
+                        color: context.color.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 12),
@@ -245,6 +306,21 @@ class _BalanceChartCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (minY < 0)
+                        HorizontalLine(
+                          y: 0,
+                          color: context.color.error,
+                          strokeWidth: 1,
+                          dashArray: [4, 4],
+                          label: HorizontalLineLabel(
+                            show: true,
+                            labelResolver: (_) => 'Ноль',
+                            alignment: Alignment.bottomLeft,
+                            style: context.text.bodySmall?.copyWith(
+                              color: context.color.error,
+                            ),
+                          ),
+                        ),
                     ],
                     verticalLines: [
                       if (todayIndex != null)
@@ -384,6 +460,247 @@ class _BalanceChip extends StatelessWidget {
   }
 }
 
+class _RiskCard extends StatelessWidget {
+  const _RiskCard({required this.risk});
+
+  final PlannerRisk risk;
+
+  @override
+  Widget build(BuildContext context) {
+    final danger = risk.hasShortfall;
+    final accent = danger ? context.color.error : context.color.primary;
+    final df = DateFormat('d MMM', 'ru');
+
+    return Card(
+      elevation: 0,
+      color: context.color.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: danger ? context.color.error : context.color.outlineVariant,
+          width: danger ? 1 : 0.5,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  danger
+                      ? Icons.warning_amber_rounded
+                      : Icons.health_and_safety_outlined,
+                  size: 18,
+                  color: accent,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Прогноз рисков',
+                  style: context.text.labelLarge?.copyWith(color: accent),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (danger)
+              _RiskRow(
+                icon: Icons.error_outline_rounded,
+                color: context.color.error,
+                title: 'Кассовый разрыв ${df.format(risk.shortfallDate!)}',
+                subtitle: 'дно ${df.format(risk.lowestBalanceDate)}',
+                value: risk.lowestBalance,
+              )
+            else
+              _RiskRow(
+                icon: Icons.vertical_align_bottom_rounded,
+                color: context.color.primary,
+                title: 'Дно баланса ${df.format(risk.lowestBalanceDate)}',
+                subtitle: risk.bufferDays != null
+                    ? 'подушка ~${risk.bufferDays!.round()} дн · '
+                        '~${NumberFormat.decimalPattern('ru').format(risk.avgDailyExpense.round())} ₽/день'
+                    : null,
+                value: risk.lowestBalance,
+              ),
+            if (risk.longestGap != null) ...[
+              const SizedBox(height: 10),
+              _RiskRow(
+                icon: Icons.timelapse_rounded,
+                color: context.color.onSurface,
+                title: 'Дольше всего без дохода: ${risk.longestGap!.days} дн',
+                subtitle: '${df.format(risk.longestGap!.start)} — '
+                    '${df.format(risk.longestGap!.end)}, дно',
+                value: risk.longestGap!.lowestBalance,
+              ),
+            ],
+            if (risk.nextGap != null &&
+                risk.nextGap!.start != risk.longestGap?.start) ...[
+              const SizedBox(height: 10),
+              _RiskRow(
+                icon: Icons.event_busy_rounded,
+                color: context.color.onSurfaceVariant,
+                title: 'Ближайший период без дохода: ${risk.nextGap!.days} дн',
+                subtitle: 'до ${df.format(risk.nextGap!.end)}, дно',
+                value: risk.nextGap!.lowestBalance,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RiskRow extends StatelessWidget {
+  const _RiskRow({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.value,
+    this.subtitle,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String? subtitle;
+  final num value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: context.text.bodyMedium),
+              if (subtitle != null)
+                Text(
+                  subtitle!,
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.color.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        MoneyColoredWidget(
+          value: value,
+          currency: CurrencyDataCommon.rub,
+          textStyle: context.text.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PeriodsCard extends StatelessWidget {
+  const _PeriodsCard({required this.periods});
+
+  final List<PlannerPeriod> periods;
+
+  @override
+  Widget build(BuildContext context) {
+    final df = DateFormat('d MMM', 'ru');
+    return Card(
+      elevation: 0,
+      color: context.color.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: context.color.outlineVariant, width: 0.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.dashboard_customize_outlined,
+                  size: 18,
+                  color: context.color.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Периоды по коррекциям',
+                  style: context.text.labelLarge
+                      ?.copyWith(color: context.color.primary),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            for (var i = 0; i < periods.length; i++) ...[
+              if (i > 0)
+                Divider(height: 16, color: context.color.outlineVariant),
+              _PeriodRow(period: periods[i], df: df),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PeriodRow extends StatelessWidget {
+  const _PeriodRow({required this.period, required this.df});
+
+  final PlannerPeriod period;
+  final DateFormat df;
+
+  @override
+  Widget build(BuildContext context) {
+    final low = NumberFormat.compact().format(period.lowestBalance);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          period.startedByCorrection
+              ? Icons.flag_outlined
+              : Icons.play_arrow_rounded,
+          size: 18,
+          color: context.color.secondary,
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${df.format(period.start)} — ${df.format(period.end)}',
+                style: context.text.bodyMedium,
+              ),
+              Text(
+                'дно $low ₽',
+                style: context.text.bodySmall?.copyWith(
+                  color: period.hasShortfall
+                      ? context.color.error
+                      : context.color.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        MoneyColoredWidget(
+          value: period.netChange,
+          currency: CurrencyDataCommon.rub,
+          textStyle: context.text.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _ActualInfoGrid extends StatelessWidget {
   const _ActualInfoGrid({required this.info});
 
@@ -510,84 +827,6 @@ class _StatTile extends StatelessWidget {
   }
 }
 
-class _BalancePoint {
-  _BalancePoint({
-    required this.date,
-    required this.balance,
-    this.delta = 0,
-    this.income = 0,
-    this.outcome = 0,
-  });
-
-  final DateTime date;
-  final num balance;
-  final num delta;
-  final num income;
-  final num outcome;
-}
-
-List<_BalancePoint> _buildBalancePoints(PlannerBudgetComputedState state) {
-  final payments = state.payments.where((p) => p.isEnabled).toList()
-    ..sort((a, b) => a.date.compareTo(b.date));
-
-  final points = <_BalancePoint>[];
-  var balance = state.moneyFlow.initialBalance;
-
-  final startDate = state.dateStart ?? (payments.isNotEmpty ? payments.first.date : DateTime.now());
-  final endDate =
-      state.dateEnd ??
-      (payments.isNotEmpty ? payments.last.date : startDate.add(const Duration(days: 7)));
-
-  final paymentsByDay = <DateTime, List<Payment>>{};
-  for (final payment in payments) {
-    final day = payment.date.dayBound;
-    paymentsByDay.putIfAbsent(day, () => []).add(payment);
-  }
-
-  var cursor = startDate.dayBound;
-  while (!cursor.isAfter(endDate.dayBound)) {
-    final dayPayments = paymentsByDay[cursor] ?? const <Payment>[];
-    var dayIncome = 0.0;
-    var dayOutcome = 0.0;
-    var dayDelta = 0.0;
-
-    for (final payment in dayPayments) {
-      final value = payment.normalizedMoney;
-      dayDelta += value;
-      if (payment.type == PaymentType.income) {
-        dayIncome += value;
-      } else if (payment.type == PaymentType.expense) {
-        dayOutcome += value;
-      }
-    }
-
-    balance += dayDelta;
-    points.add(
-      _BalancePoint(
-        date: cursor,
-        balance: balance,
-        delta: dayDelta,
-        income: dayIncome,
-        outcome: dayOutcome,
-      ),
-    );
-
-    cursor = cursor.add(const Duration(days: 1));
-  }
-
-  if (points.length == 1) {
-    points.add(
-      _BalancePoint(
-        date: points.first.date.add(const Duration(days: 1)),
-        balance: balance,
-        delta: 0,
-      ),
-    );
-  }
-
-  return points;
-}
-
 Set<int> _labelIndexesRange(int start, int end, {int target = 6}) {
   final length = max(1, end - start + 1);
   if (length <= 3) {
@@ -601,7 +840,7 @@ Set<int> _labelIndexesRange(int start, int end, {int target = 6}) {
   return indexes;
 }
 
-int? _findTodayIndex(List<_BalancePoint> points) {
+int? _findTodayIndex(List<BalancePoint> points) {
   final today = DateTime.now().dayBound;
   for (var i = 0; i < points.length; i++) {
     if (points[i].date.isSameDay(today)) {
