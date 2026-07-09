@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:moniplan_app/database/_index.dart';
+import 'package:moniplan_app/features/goals/repo/i_savings_goals_repo.dart';
+import 'package:moniplan_app/features/goals/repo/savings_goals_repo_data_service.dart';
 import 'package:moniplan_app/features/monisync/_index.dart';
 import 'package:moniplan_app/features/monisync/repo/i_manual_monisync_repo.dart';
 import 'package:moniplan_app/features/planner/repo/_index.dart';
@@ -18,6 +20,7 @@ abstract interface class IAppDi {
   IPaymentsRepo getPaymentsRepo();
   IPlannerActualInfoRepo getPlannerActualInfoRepo();
   IPlannerSettingsRepo getPlannerSettingsRepo();
+  ISavingsGoalsRepo getSavingsGoalsRepo();
 
   Future<IMonisyncRepo> getMonisyncRepo();
 }
@@ -44,12 +47,16 @@ class GetItAppDI implements AppDi {
     final settingsRepo = PlannerSettingsRepoDataService(
       dataService: dataService,
     );
+    final savingsGoalsRepo = SavingsGoalsRepoDataService(
+      dataService: dataService,
+    );
     _getIt
       ..registerSingleton<IDataService>(dataService)
       ..registerSingleton<IPlannersRepo>(plannersRepo)
       ..registerSingleton<IPaymentsRepo>(paymentsRepo)
       ..registerSingleton<IPlannerActualInfoRepo>(actualInfoRepo)
       ..registerSingleton<IPlannerSettingsRepo>(settingsRepo)
+      ..registerSingleton<ISavingsGoalsRepo>(savingsGoalsRepo)
       ..registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform)
       ..registerFactoryAsync<IMonisyncRepo>(() async {
         return MonisyncRepoImpl(dataService: dataService);
@@ -73,6 +80,9 @@ class GetItAppDI implements AppDi {
 
   @override
   IPlannerSettingsRepo getPlannerSettingsRepo() => _getIt.get();
+
+  @override
+  ISavingsGoalsRepo getSavingsGoalsRepo() => _getIt.get();
 
   @override
   Future<IMonisyncRepo> getMonisyncRepo() async {
