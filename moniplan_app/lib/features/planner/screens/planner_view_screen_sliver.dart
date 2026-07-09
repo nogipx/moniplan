@@ -3,10 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/features/goals/models/savings_goal.dart';
 import 'package:moniplan_app/features/goals/screens/goals_screen.dart';
+import 'package:moniplan_app/features/goals/usecases/compute_daily_allowance_usecase.dart';
 import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
 import 'package:moniplan_app/features/planner/planner_bloc/_index.dart';
+import 'package:moniplan_app/features/planner/usecases/_index.dart';
 import 'package:moniplan_app/features/savings/screens/savings_screen.dart';
+import 'package:moniplan_app/features/savings/usecases/compute_savings_usecase.dart';
 import 'package:moniplan_app/features/vacation_pay/screens/vacation_pay_screen.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -14,8 +18,12 @@ import 'package:rpc_dart/logger.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
 import 'package:uuid/uuid.dart';
 
+import '../widgets/payment_search_delegate.dart';
 import '../widgets/payments_sliver_list.dart';
 import 'planner_stats_screen.dart';
+
+String _money(num v) =>
+    '${NumberFormat.decimalPattern('ru').format(v.round())} ₽';
 
 class PlannerScreen extends StatelessWidget {
   final String plannerId;
@@ -51,6 +59,48 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
   final _log = RpcLogger('PlannerViewScreen');
 
   bool _isFirstScrolled = false;
+
+  /// Цель «оставить X к зарплате» — для дневного лимита в шапке.
+  SavingsGoal? _savingsGoal;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _reloadGoal());
+  }
+
+  Future<void> _reloadGoal() async {
+    if (!mounted) {
+      return;
+    }
+    final plannerId = context.read<PlannerBloc>().plannerId;
+    final goals =
+        await AppDi.instance.getSavingsGoalsRepo().listByPlanner(plannerId);
+    if (!mounted) {
+      return;
+    }
+    setState(() => _savingsGoal = goals.isEmpty ? null : goals.first);
+  }
+
+  List<BalancePoint> _lastPeriodSeries(PlannerBudgetComputedState s) {
+    final points = BuildBalanceSeriesUseCase(
+      payments: s.payments,
+      initialBalance: s.moneyFlow.initialBalance,
+      dateStart: s.dateStart,
+      dateEnd: s.dateEnd,
+    ).call();
+    final periods = SplitPeriodsByCorrectionUseCase(
+      series: points,
+      payments: s.payments,
+    ).call();
+    final last = periods.isNotEmpty ? periods.last : null;
+    if (last == null) {
+      return points;
+    }
+    return points
+        .where((p) => !p.date.dayBound.isBefore(last.start.dayBound))
+        .toList();
+  }
 
   @override
   void dispose() {
@@ -101,15 +151,60 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
             ? DateFormat(plannerBoundDateFormat).format(dateEndRaw)
             : '';
 
-        final titleWidget = Text(
-          '$dateStartString - $dateEndString',
-          style: context.text.displaySmall,
-        );
-
         final today = DateTime.now().dayBound;
         final paymentsByDate = state.getPaymentsByDate;
 
-        final appBar = AppBar(title: titleWidget);
+        final computed = state.maybeMap(
+          budgetComputed: (s) => s,
+          orElse: () => null,
+        );
+        final nowDate = DateTime.now();
+        SavingsSummary? savings;
+        DailyAllowance? allowance;
+        if (computed != null) {
+          savings = ComputeSavingsUseCase(
+            payments: computed.payments,
+            today: nowDate,
+          ).call();
+          final goal = _savingsGoal;
+          if (goal != null) {
+            allowance = ComputeDailyAllowanceUseCase(
+              series: _lastPeriodSeries(computed),
+              payments: computed.payments,
+              today: nowDate,
+              goal: goal,
+            ).call();
+          }
+        }
+        final showSavings =
+            savings != null && (savings.today != 0 || savings.deposits != 0);
+        final summaryLine = _summaryLine(
+          context,
+          allowance,
+          showSavings ? savings : null,
+        );
+
+        final titleWidget = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '$dateStartString - $dateEndString',
+              style: context.text.titleLarge,
+            ),
+            if (summaryLine != null) summaryLine,
+          ],
+        );
+
+        final appBar = AppBar(
+          title: titleWidget,
+          actions: [
+            IconButton(
+              tooltip: 'Поиск',
+              icon: const Icon(Icons.search),
+              onPressed: () => _openSearch(context),
+            ),
+          ],
+        );
 
         return Scaffold(
           appBar: appBar,
@@ -246,6 +341,50 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
     }
   }
 
+  Widget? _summaryLine(
+    BuildContext context,
+    DailyAllowance? allowance,
+    SavingsSummary? savings,
+  ) {
+    if (allowance == null && savings == null) {
+      return null;
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (allowance != null)
+          Text(
+            'Лимит ${_money(allowance.perDay)}/день',
+            style: context.text.bodySmall?.copyWith(
+              color: allowance.overspent
+                  ? context.color.error
+                  : context.color.onSurfaceVariant,
+            ),
+          ),
+        if (allowance != null && savings != null)
+          Text('   ·   ', style: context.text.bodySmall),
+        if (savings != null)
+          Text(
+            'Копилка ${_money(savings.today)}',
+            style: context.text.bodySmall
+                ?.copyWith(color: context.color.tertiary),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _openSearch(BuildContext context) async {
+    final payments = context.read<PlannerBloc>().state.getPayments;
+    final selected = await showSearch<Payment?>(
+      context: context,
+      delegate: PaymentSearchDelegate(payments: payments),
+    );
+    if (selected != null && mounted) {
+      await _moveToDate(selected.date);
+    }
+  }
+
   void _showToolsSheet(BuildContext context) {
     final bloc = context.read<PlannerBloc>();
     final plannerId = bloc.plannerId;
@@ -313,14 +452,20 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                 subtitle: const Text('Сколько можно тратить в день'),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: bloc,
-                        child: GoalsScreen(plannerId: plannerId),
-                      ),
-                    ),
-                  );
+                  Navigator.of(context)
+                      .push(
+                        MaterialPageRoute(
+                          builder: (_) => BlocProvider.value(
+                            value: bloc,
+                            child: GoalsScreen(plannerId: plannerId),
+                          ),
+                        ),
+                      )
+                      .then((_) {
+                        if (mounted) {
+                          _reloadGoal();
+                        }
+                      });
                 },
               ),
               ListTile(
