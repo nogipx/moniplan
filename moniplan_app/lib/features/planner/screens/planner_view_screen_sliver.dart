@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
+import 'package:moniplan_app/features/goals/screens/goals_screen.dart';
 import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
 import 'package:moniplan_app/features/planner/planner_bloc/_index.dart';
+import 'package:moniplan_app/features/savings/screens/savings_screen.dart';
 import 'package:moniplan_app/features/vacation_pay/screens/vacation_pay_screen.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -107,27 +109,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
         final today = DateTime.now().dayBound;
         final paymentsByDate = state.getPaymentsByDate;
 
-        final bloc = context.read<PlannerBloc>();
-
-        final appBar = AppBar(
-          title: titleWidget,
-          actions: [
-            IconButton(
-              tooltip: 'Статистика',
-              icon: const Icon(Icons.insights_outlined),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => BlocProvider.value(
-                      value: bloc,
-                      child: const PlannerStatsScreen(),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        );
+        final appBar = AppBar(title: titleWidget);
 
         return Scaffold(
           appBar: appBar,
@@ -200,8 +182,9 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                           Expanded(
                             child: Align(
                               alignment: Alignment.centerLeft,
-                              child: ElevatedButton(
-                                child: const Text('Сегодня'),
+                              child: ElevatedButton.icon(
+                                icon: const Icon(Icons.today, size: 18),
+                                label: const Text('Сегодня'),
                                 onPressed: () => _moveToDate(DateTime.now()),
                               ),
                             ),
@@ -215,10 +198,10 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                               alignment: Alignment.centerRight,
                               child: ElevatedButton.icon(
                                 icon: const Icon(
-                                  Icons.handyman_outlined,
+                                  Icons.more_horiz,
                                   size: 18,
                                 ),
-                                label: const Text('Утилиты'),
+                                label: const Text('Ещё'),
                                 onPressed: () => _showToolsSheet(context),
                               ),
                             ),
@@ -264,7 +247,8 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
   }
 
   void _showToolsSheet(BuildContext context) {
-    final plannerId = context.read<PlannerBloc>().plannerId;
+    final bloc = context.read<PlannerBloc>();
+    final plannerId = bloc.plannerId;
 
     showModalBottomSheet<void>(
       context: context,
@@ -275,7 +259,22 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
             children: [
               const Padding(
                 padding: EdgeInsets.all(AppSpace.s16),
-                child: Text('Инструменты'),
+                child: Text('Ещё'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.insights_outlined),
+                title: const Text('Статистика'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: bloc,
+                        child: const PlannerStatsScreen(),
+                      ),
+                    ),
+                  );
+                },
               ),
               ListTile(
                 leading: const Icon(Icons.beach_access_outlined),
@@ -287,6 +286,38 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                     MaterialPageRoute(
                       builder: (_) => VacationPayScreen(
                         targetPlannerId: plannerId,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.savings_outlined),
+                title: const Text('Накопления'),
+                subtitle: const Text('Копилка: отложить и снять'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: bloc,
+                        child: const SavingsScreen(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.speed),
+                title: const Text('Дневной лимит'),
+                subtitle: const Text('Сколько можно тратить в день'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: bloc,
+                        child: GoalsScreen(plannerId: plannerId),
                       ),
                     ),
                   );
