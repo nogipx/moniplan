@@ -164,6 +164,9 @@ class PaymentListItem extends StatelessWidget {
     if (isCorrection) {
       return Icons.sync_alt;
     }
+    if (payment.type.isSavings) {
+      return Icons.savings_outlined;
+    }
     return payment.type == PaymentType.income
         ? Icons.arrow_downward_rounded
         : Icons.arrow_upward_rounded;
@@ -185,6 +188,9 @@ class PaymentListItem extends StatelessWidget {
     if (isCorrection) {
       return Colors.yellowAccent;
     }
+    if (payment.type.isSavings) {
+      return context.color.tertiary;
+    }
 
     return payment.type == PaymentType.income
         ? context.ext<MoniplanExtraColors>()?.moneyPositive ?? Colors.green
@@ -205,6 +211,9 @@ class PaymentListItem extends StatelessWidget {
     }
     if (hasNegativeBalance) {
       return context.color.errorContainer.withValues(alpha: .2);
+    }
+    if (payment.type.isSavings) {
+      return context.color.tertiaryContainer.withValues(alpha: .3);
     }
 
     return payment.type == PaymentType.income
