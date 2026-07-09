@@ -5,6 +5,7 @@ import 'package:moniplan_app/_run/app_di_impl.dart';
 import 'package:moniplan_app/core/_index.dart';
 import 'package:moniplan_app/features/payment_edit/dialogs/dialog_update_payment.dart';
 import 'package:moniplan_app/features/planner/planner_bloc/_index.dart';
+import 'package:moniplan_app/features/vacation_pay/screens/vacation_pay_screen.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
 import 'package:rpc_dart/logger.dart';
@@ -128,36 +129,7 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
           ],
         );
 
-        final fab = Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 24),
-              child: ElevatedButton(
-                child: const Text('Сегодня'),
-                onPressed: () {
-                  _moveToDate(DateTime.now());
-                },
-              ),
-            ),
-            GestureDetector(
-              onLongPress: () {
-                _showCorrectionDialog(context);
-              },
-              child: FloatingActionButton(
-                onPressed: () {
-                  updateDialog(
-                    context: context,
-                  );
-                },
-                child: const Icon(Icons.add),
-              ),
-            ),
-          ],
-        );
-
         return Scaffold(
-          floatingActionButton: fab,
           appBar: appBar,
           body: Stack(
             children: [
@@ -209,6 +181,54 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                   ),
                 ),
               ),
+              // Bottom bar pinned to the safe area: Сегодня | + | Утилиты.
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    child: SizedBox(
+                      height: 56,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: ElevatedButton(
+                                child: const Text('Сегодня'),
+                                onPressed: () => _moveToDate(DateTime.now()),
+                              ),
+                            ),
+                          ),
+                          FloatingActionButton(
+                            onPressed: () => updateDialog(context: context),
+                            child: const Icon(Icons.add),
+                          ),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: ElevatedButton.icon(
+                                icon: const Icon(
+                                  Icons.handyman_outlined,
+                                  size: 18,
+                                ),
+                                label: const Text('Утилиты'),
+                                onPressed: () => _showToolsSheet(context),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -241,6 +261,50 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
         curve: (estimatedDistance) => Curves.fastLinearToSlowEaseIn,
       );
     }
+  }
+
+  void _showToolsSheet(BuildContext context) {
+    final plannerId = context.read<PlannerBloc>().plannerId;
+
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(AppSpace.s16),
+                child: Text('Инструменты'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.beach_access_outlined),
+                title: const Text('Расчёт отпускных'),
+                subtitle: const Text('Добавит выплаты в этот план'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => VacationPayScreen(
+                        targetPlannerId: plannerId,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.tune),
+                title: const Text('Коррекция баланса'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _showCorrectionDialog(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showCorrectionDialog(BuildContext context) {

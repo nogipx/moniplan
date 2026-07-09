@@ -28,6 +28,8 @@ dependencies:
   # Modules
   moniplan_uikit:
     path: ../moniplan_uikit
+  moniplan_payroll:
+    path: ../moniplan_payroll
 
   freezed_annotation: ^3.1.0
   uuid: ^4.5.2

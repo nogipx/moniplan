@@ -1,0 +1,18 @@
+name: moniplan_payroll
+description: Pure Dart engine for RF vacation pay and dismissal compensation. No Flutter, no moniplan dependency.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.9.0 <4.0.0'
+
+dependencies:
+  freezed_annotation: ^3.1.0
+  equatable: ^2.0.7
+  meta: ^1.15.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0
+  build_runner: ^2.4.15
+  freezed: ^3.2.3

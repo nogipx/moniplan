@@ -704,6 +704,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  moniplan_payroll:
+    dependency: "direct main"
+    description:
+      path: "../moniplan_payroll"
+      relative: true
+    source: path
+    version: "0.1.0"
   moniplan_uikit:
     dependency: "direct main"
     description:
