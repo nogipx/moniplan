@@ -13,8 +13,14 @@ import 'package:rpc_dart/logger.dart';
 class PaymentEditScreen extends StatefulWidget {
   final Payment? payment;
   final Function(Payment) onSave;
+  final Set<String> suggestedTags;
 
-  const PaymentEditScreen({required this.onSave, this.payment, super.key});
+  const PaymentEditScreen({
+    required this.onSave,
+    this.payment,
+    this.suggestedTags = const {},
+    super.key,
+  });
 
   @override
   State<PaymentEditScreen> createState() => _PaymentEditScreenState();
@@ -70,15 +76,19 @@ class _PaymentEditScreenState extends State<PaymentEditScreen> {
           },
         ),
       ],
-      child: _PaymentEditView(onSave: widget.onSave),
+      child: _PaymentEditView(
+        onSave: widget.onSave,
+        suggestedTags: widget.suggestedTags,
+      ),
     );
   }
 }
 
 class _PaymentEditView extends StatefulWidget {
   final Function(Payment) onSave;
+  final Set<String> suggestedTags;
 
-  const _PaymentEditView({required this.onSave});
+  const _PaymentEditView({required this.onSave, this.suggestedTags = const {}});
 
   @override
   State<_PaymentEditView> createState() => _PaymentEditViewState();
@@ -165,12 +175,21 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            TextButton.icon(
-                              onPressed: () {
-                                FocusScope.of(context).unfocus();
-                              },
-                              icon: const Icon(Icons.keyboard_hide),
-                              label: const Text('Скрыть клавиатуру'),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.check_circle_outline, size: 20),
+                                const SizedBox(width: 6),
+                                const Text('Выполнен'),
+                                Switch(
+                                  value: state.isDone,
+                                  onChanged: (value) {
+                                    context.read<edit.PaymentEditBloc>().add(
+                                      edit.PaymentEditIsDoneChanged(isDone: value),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                             FilledButton.icon(
                               onPressed: () => _savePayment(context, state),
@@ -197,13 +216,17 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
       children: [
         // Основное содержимое в зависимости от текущего шага
         Expanded(
-          child:
-              state.currentStep == 0
-                  ? _buildCurrentStep(context, state)
-                  : SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: _buildCurrentStep(context, state),
+          child: state.currentStep == 0
+              ? _buildCurrentStep(context, state)
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(
+                    16,
+                    16,
+                    16,
+                    96,
                   ),
+                  child: _buildCurrentStep(context, state),
+                ),
         ),
       ],
     );
@@ -215,7 +238,11 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
       case 0:
         return _buildAmountStep(context, state);
       case 1:
-        return _TitleInputStep(state: state, shouldAutoFocusKeyboard: shouldAutoFocusKeyboard);
+        return _TitleInputStep(
+          state: state,
+          shouldAutoFocusKeyboard: shouldAutoFocusKeyboard,
+          suggestedTags: widget.suggestedTags,
+        );
       case 2:
         return _buildRepeatStep(context, state);
       default:
@@ -404,14 +431,13 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
 
           // Дата начала повторений
           InkWell(
-            onTap:
-                () => _selectDate(context, startDate ?? date, (date) {
-                  if (date != null) {
-                    context.read<edit.PaymentEditBloc>().add(
-                      edit.PaymentEditStartDateChanged(date),
-                    );
-                  }
-                }),
+            onTap: () => _selectDate(context, startDate ?? date, (date) {
+              if (date != null) {
+                context.read<edit.PaymentEditBloc>().add(
+                  edit.PaymentEditStartDateChanged(date),
+                );
+              }
+            }),
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -449,12 +475,11 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
 
           // Дата окончания повторений
           InkWell(
-            onTap:
-                () => _selectDate(context, endDate ?? date, (date) {
-                  if (date != null) {
-                    context.read<edit.PaymentEditBloc>().add(edit.PaymentEditEndDateChanged(date));
-                  }
-                }),
+            onTap: () => _selectDate(context, endDate ?? date, (date) {
+              if (date != null) {
+                context.read<edit.PaymentEditBloc>().add(edit.PaymentEditEndDateChanged(date));
+              }
+            }),
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -509,17 +534,16 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
       },
       borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Icon(
                 selected ? Icons.radio_button_checked : Icons.radio_button_off,
-                color:
-                    selected
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: selected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 20,
               ),
             ),
@@ -599,19 +623,17 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
                           height: 16,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color:
-                                isActive
-                                    ? theme.colorScheme.primary
-                                    : theme.colorScheme.outline.withValues(alpha: 0.3),
+                            color: isActive
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.outline.withValues(alpha: 0.3),
                           ),
                           child: Center(
                             child: Text(
                               '${index + 1}',
                               style: theme.textTheme.labelSmall?.copyWith(
-                                color:
-                                    isActive
-                                        ? theme.colorScheme.onPrimary
-                                        : theme.colorScheme.onSurface,
+                                color: isActive
+                                    ? theme.colorScheme.onPrimary
+                                    : theme.colorScheme.onSurface,
                                 fontSize: 10,
                               ),
                             ),
@@ -622,10 +644,9 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
                       Text(
                         steps[index],
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color:
-                              isActive
-                                  ? theme.colorScheme.primary
-                                  : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: isActive
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                           fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -670,26 +691,25 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
   void _showCancelConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Отменить изменения?'),
-            content: const Text(
-              'Все внесенные изменения будут потеряны. Вы уверены, что хотите выйти без сохранения?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(), // Закрываем диалог
-                child: const Text('Продолжить редактирование'),
-              ),
-              FilledButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Закрываем диалог
-                  Navigator.of(context).pop(); // Закрываем экран редактирования
-                },
-                child: const Text('Выйти без сохранения'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Отменить изменения?'),
+        content: const Text(
+          'Все внесенные изменения будут потеряны. Вы уверены, что хотите выйти без сохранения?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(), // Закрываем диалог
+            child: const Text('Продолжить редактирование'),
           ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Закрываем диалог
+              Navigator.of(context).pop(); // Закрываем экран редактирования
+            },
+            child: const Text('Выйти без сохранения'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -809,8 +829,13 @@ class _PaymentEditViewState extends State<_PaymentEditView> {
 class _TitleInputStep extends StatefulWidget {
   final edit.PaymentEditState state;
   final ValueNotifier<bool> shouldAutoFocusKeyboard;
+  final Set<String> suggestedTags;
 
-  const _TitleInputStep({required this.state, required this.shouldAutoFocusKeyboard});
+  const _TitleInputStep({
+    required this.state,
+    required this.shouldAutoFocusKeyboard,
+    this.suggestedTags = const {},
+  });
 
   @override
   State<_TitleInputStep> createState() => _TitleInputStepState();
@@ -818,6 +843,19 @@ class _TitleInputStep extends StatefulWidget {
 
 class _TitleInputStepState extends State<_TitleInputStep> {
   final _focusNode = FocusNode();
+  final _tagController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _tagController.addListener(_onTagInput);
+  }
+
+  void _onTagInput() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -833,19 +871,45 @@ class _TitleInputStepState extends State<_TitleInputStep> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _tagController.removeListener(_onTagInput);
+    _tagController.dispose();
     super.dispose();
+  }
+
+  void _addTag(BuildContext context, Set<String> systemTags, List<String> userTags) {
+    // Метка должна быть непустой, без служебного ':' и без дублей.
+    final tag = _tagController.text.trim().replaceAll(':', '');
+    if (tag.isEmpty || userTags.contains(tag)) {
+      _tagController.clear();
+      return;
+    }
+    _updateTags(context, systemTags, [...userTags, tag]);
+    _tagController.clear();
+  }
+
+  void _updateTags(
+    BuildContext context,
+    Set<String> systemTags,
+    Iterable<String> userTags,
+  ) {
+    context.read<edit.PaymentEditBloc>().add(
+      edit.PaymentEditTagsChanged({...systemTags, ...userTags}),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     // Используем данные из черновика платежа, если он доступен
-    final title =
-        widget.state.payment != null ? widget.state.payment!.details.name : widget.state.title;
-    final note =
-        widget.state.payment != null ? widget.state.payment!.details.note : widget.state.note;
+    final title = widget.state.payment != null
+        ? widget.state.payment!.details.name
+        : widget.state.title;
+    final note = widget.state.payment != null
+        ? widget.state.payment!.details.note
+        : widget.state.note;
     final date = widget.state.payment != null ? widget.state.payment!.date : widget.state.date;
-    final isDone =
-        widget.state.payment != null ? widget.state.payment!.isDone : widget.state.isDone;
+    final isDone = widget.state.payment != null
+        ? widget.state.payment!.isDone
+        : widget.state.isDone;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -853,37 +917,79 @@ class _TitleInputStepState extends State<_TitleInputStep> {
         Text('Название и примечание', style: context.text.headlineSmall),
         const SizedBox(height: 24),
 
-        // Дата платежа
-        InkWell(
-          onTap:
-              () => _selectDate(context, date, (date) {
-                if (date != null) {
-                  context.read<edit.PaymentEditBloc>().add(edit.PaymentEditDateChanged(date));
-                }
-              }),
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: context.color.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.calendar_today, color: context.color.primary),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Дата платежа', style: context.text.bodyMedium),
-                    const SizedBox(height: 4),
-                    Text(DateFormat('d MMMM y').format(date), style: context.text.titleMedium),
-                  ],
+        // Дата платежа + статус выполнения (квадратная кнопка, цвет = статус)
+        IntrinsicHeight(
+          child: Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () => _selectDate(context, date, (date) {
+                    if (date != null) {
+                      context.read<edit.PaymentEditBloc>().add(edit.PaymentEditDateChanged(date));
+                    }
+                  }),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: context.color.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_today, color: context.color.primary),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Дата платежа', style: context.text.bodyMedium),
+                            const SizedBox(height: 4),
+                            Text(
+                              DateFormat('d MMMM y').format(date),
+                              style: context.text.titleMedium,
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: context.color.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                const Spacer(),
-                Icon(Icons.arrow_forward_ios, size: 16, color: context.color.onSurfaceVariant),
-              ],
-            ),
+              ),
+              const SizedBox(width: 12),
+              AspectRatio(
+                aspectRatio: 1,
+                child: InkWell(
+                  onTap: () => context.read<edit.PaymentEditBloc>().add(
+                    edit.PaymentEditIsDoneChanged(isDone: !isDone),
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isDone
+                          ? context.color.primary.withValues(alpha: 0.18)
+                          : context.color.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDone ? context.color.primary : context.color.outlineVariant,
+                        width: isDone ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        isDone ? Icons.check_circle : Icons.radio_button_unchecked,
+                        color: isDone ? context.color.primary : context.color.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
 
@@ -922,29 +1028,76 @@ class _TitleInputStepState extends State<_TitleInputStep> {
 
         const SizedBox(height: 24),
 
-        // Статус выполнения
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: context.color.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.check_circle_outline, color: context.color.primary),
-              const SizedBox(width: 16),
-              Text('Платеж выполнен', style: context.text.titleMedium),
-              const Spacer(),
-              Switch(
-                value: isDone,
-                onChanged: (value) {
-                  context.read<edit.PaymentEditBloc>().add(
-                    edit.PaymentEditIsDoneChanged(isDone: value),
-                  );
-                },
-              ),
-            ],
-          ),
+        // Метки
+        Builder(
+          builder: (context) {
+            final all = widget.state.tags;
+            final userTags = all.where((t) => t.trim().isNotEmpty && !t.contains(':')).toList()
+              ..sort();
+            final systemTags = all.where((t) => t.contains(':')).toSet();
+            final query = _tagController.text.trim().toLowerCase();
+            final shownSuggestions =
+                widget.suggestedTags
+                    .where((t) => t.trim().isNotEmpty && !t.contains(':') && !userTags.contains(t))
+                    .where((t) => query.isEmpty || t.toLowerCase().contains(query))
+                    .toList()
+                  ..sort();
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Метки', style: context.text.titleMedium),
+                const SizedBox(height: 8),
+                if (userTags.isNotEmpty) ...[
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final tag in userTags)
+                        Chip(
+                          label: Text(tag),
+                          onDeleted: () => _updateTags(
+                            context,
+                            systemTags,
+                            userTags.where((t) => t != tag),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                TextField(
+                  controller: _tagController,
+                  textInputAction: TextInputAction.done,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: 'Добавить метку',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () => _addTag(context, systemTags, userTags),
+                    ),
+                  ),
+                  onSubmitted: (_) => _addTag(context, systemTags, userTags),
+                ),
+                if (shownSuggestions.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final s in shownSuggestions.take(12))
+                        ActionChip(
+                          label: Text(s),
+                          onPressed: () {
+                            _updateTags(context, systemTags, [...userTags, s]);
+                            _tagController.clear();
+                          },
+                        ),
+                    ],
+                  ),
+                ],
+              ],
+            );
+          },
         ),
       ],
     );

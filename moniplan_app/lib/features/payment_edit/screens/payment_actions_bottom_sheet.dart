@@ -69,6 +69,17 @@ class PaymentActionsBottomSheet extends StatefulWidget {
 class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
   final _log = RpcLogger('PaymentActionsBottomSheet');
 
+  Set<String> _suggestedTags() {
+    final bloc = widget.plannerBloc;
+    if (bloc == null) {
+      return const {};
+    }
+    return {
+      for (final p in bloc.state.getPayments)
+        ...p.details.tags.where((t) => t.trim().isNotEmpty && !t.contains(':')),
+    };
+  }
+
   @override
   void initState() {
     super.initState();
@@ -322,6 +333,49 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                       ],
                     ),
                   ],
+
+                  // Метки платежа (если есть)
+                  if (widget.payment.details.tags.any(
+                    (t) => t.trim().isNotEmpty && !t.contains(':'),
+                  )) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.label_outline,
+                          size: 16,
+                          color: context.color.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              for (final tag in widget.payment.details.tags.where(
+                                (t) => t.trim().isNotEmpty && !t.contains(':'),
+                              ))
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: context.color.surfaceContainerHighest,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    tag,
+                                    style: context.text.bodySmall,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -436,6 +490,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                           MaterialPageRoute(
                             builder: (context) => PaymentEditScreen(
                               payment: widget.payment,
+                              suggestedTags: _suggestedTags(),
                               onSave: (updatedPayment) async {
                                 await onSave(context, updatedPayment);
                               },
@@ -463,6 +518,7 @@ class _PaymentActionsBottomSheetState extends State<PaymentActionsBottomSheet> {
                           MaterialPageRoute(
                             builder: (context) => PaymentEditScreen(
                               payment: widget.payment.copyBaseData(),
+                              suggestedTags: _suggestedTags(),
                               onSave: (updatedPayment) async {
                                 await onSave(context, updatedPayment);
                               },

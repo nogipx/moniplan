@@ -69,6 +69,16 @@ class PaymentEditNoteChanged extends PaymentEditEvent {
   List<Object> get props => [note];
 }
 
+/// Изменение меток платежа
+class PaymentEditTagsChanged extends PaymentEditEvent {
+  final Set<String> tags;
+
+  const PaymentEditTagsChanged(this.tags);
+
+  @override
+  List<Object> get props => [tags];
+}
+
 /// Изменение даты платежа
 class PaymentEditDateChanged extends PaymentEditEvent {
   final DateTime date;

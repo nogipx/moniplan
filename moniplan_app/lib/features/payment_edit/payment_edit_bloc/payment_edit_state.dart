@@ -17,6 +17,9 @@ class PaymentEditState extends Equatable {
   /// Примечание к платежу
   final String note;
 
+  /// Метки платежа.
+  final Set<String> tags;
+
   /// Налог (строка для отображения)
   final String tax;
 
@@ -56,6 +59,7 @@ class PaymentEditState extends Equatable {
     String title = '',
     String amount = '',
     String note = '',
+    Set<String> tags = const {},
     String tax = '',
     DateTime? date,
     bool isDone = false,
@@ -73,6 +77,7 @@ class PaymentEditState extends Equatable {
       title: title,
       amount: amount,
       note: note,
+      tags: tags,
       tax: tax,
       date: date ?? DateTime.now(),
       isDone: isDone,
@@ -93,6 +98,7 @@ class PaymentEditState extends Equatable {
     required this.title,
     required this.amount,
     required this.note,
+    required this.tags,
     required this.tax,
     required this.date,
     required this.isDone,
@@ -112,6 +118,7 @@ class PaymentEditState extends Equatable {
     String? title,
     String? amount,
     String? note,
+    Set<String>? tags,
     String? tax,
     DateTime? date,
     bool? isDone,
@@ -131,6 +138,7 @@ class PaymentEditState extends Equatable {
       title: title ?? this.title,
       amount: amount ?? this.amount,
       note: note ?? this.note,
+      tags: tags ?? this.tags,
       tax: tax ?? this.tax,
       date: date ?? this.date,
       isDone: isDone ?? this.isDone,
@@ -162,6 +170,7 @@ class PaymentEditState extends Equatable {
       title: payment.details.name,
       amount: payment.details.money.abs().toString(),
       note: payment.details.note,
+      tags: payment.details.tags,
       tax: taxPercent, // Используем проценты для отображения
       date: payment.date,
       isDone: payment.isDone,
@@ -202,6 +211,9 @@ class PaymentEditState extends Equatable {
     final startDateWithoutTime = startDate?.dayBound;
     final endDateWithoutTime = endDate?.dayBound;
 
+    // Отбрасываем пустые метки.
+    final cleanTags = tags.where((t) => t.trim().isNotEmpty).toSet();
+
     // Создаем или обновляем платеж
     return payment?.copyWith(
           isEnabled: true,
@@ -213,6 +225,7 @@ class PaymentEditState extends Equatable {
           details: payment!.details.copyWith(
             name: title,
             note: note,
+            tags: cleanTags,
             money: amountValue.abs(),
             type: type,
             tax: taxRate, // Используем десятичную дробь для налога
@@ -229,6 +242,7 @@ class PaymentEditState extends Equatable {
           details: PaymentDetails(
             name: title,
             note: note,
+            tags: cleanTags,
             money: amountValue.abs(),
             type: type,
             tax: taxRate, // Используем десятичную дробь для налога
@@ -243,6 +257,7 @@ class PaymentEditState extends Equatable {
     title,
     amount,
     note,
+    tags,
     tax,
     date,
     isDone,

@@ -21,6 +21,7 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
     on<PaymentEditTaxChanged>(_onTaxChanged);
     on<PaymentEditTitleChanged>(_onTitleChanged);
     on<PaymentEditNoteChanged>(_onNoteChanged);
+    on<PaymentEditTagsChanged>(_onTagsChanged);
     on<PaymentEditDateChanged>(_onDateChanged);
     on<PaymentEditIsDoneChanged>(_onIsDoneChanged);
     on<PaymentEditRepeatPeriodChanged>(_onRepeatPeriodChanged);
@@ -65,6 +66,12 @@ class PaymentEditBloc extends Bloc<PaymentEditEvent, PaymentEditState> {
   /// Обработчик изменения примечания к платежу
   void _onNoteChanged(PaymentEditNoteChanged event, Emitter<PaymentEditState> emit) {
     emit(state.copyWith(note: event.note, clearErrorMessage: true));
+    add(const PaymentEditUpdateDraft());
+  }
+
+  /// Обработчик изменения меток платежа
+  void _onTagsChanged(PaymentEditTagsChanged event, Emitter<PaymentEditState> emit) {
+    emit(state.copyWith(tags: event.tags, clearErrorMessage: true));
     add(const PaymentEditUpdateDraft());
   }
 

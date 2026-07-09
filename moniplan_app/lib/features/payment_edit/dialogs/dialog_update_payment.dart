@@ -34,6 +34,11 @@ Future<void> updateDialog({
     }
   }
 
+  final suggestedTags = <String>{
+    for (final p in context.read<PlannerBloc>().state.getPayments)
+      ...p.details.tags.where((t) => t.trim().isNotEmpty && !t.contains(':')),
+  };
+
   Future<bool> save(Payment newPayment, {bool? create}) async {
     try {
       // Проверяем, что платеж валиден
@@ -127,6 +132,7 @@ Future<void> updateDialog({
       context,
       MaterialPageRoute(
         builder: (context) => PaymentEditScreen(
+          suggestedTags: suggestedTags,
           onSave: (p) async {
             final success = await save(p, create: true);
             if (!success && context.mounted) {
