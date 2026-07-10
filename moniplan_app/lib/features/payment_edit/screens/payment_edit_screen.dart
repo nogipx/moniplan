@@ -1012,22 +1012,6 @@ class _TitleInputStepState extends State<_TitleInputStep> {
 
         const SizedBox(height: 24),
 
-        // Поле для примечания
-        TextFormField(
-          initialValue: note,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Примечание',
-            hintText: 'Необязательно',
-          ),
-          maxLines: 3,
-          onChanged: (value) {
-            context.read<edit.PaymentEditBloc>().add(edit.PaymentEditNoteChanged(value));
-          },
-        ),
-
-        const SizedBox(height: 24),
-
         // Метки
         Builder(
           builder: (context) {
@@ -1097,6 +1081,22 @@ class _TitleInputStepState extends State<_TitleInputStep> {
                 ],
               ],
             );
+          },
+        ),
+
+        const SizedBox(height: 24),
+
+        // Поле для примечания
+        TextFormField(
+          initialValue: note,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Примечание',
+            hintText: 'Необязательно',
+          ),
+          maxLines: 3,
+          onChanged: (value) {
+            context.read<edit.PaymentEditBloc>().add(edit.PaymentEditNoteChanged(value));
           },
         ),
       ],
