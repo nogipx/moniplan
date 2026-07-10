@@ -11,6 +11,7 @@ import 'package:moniplan_app/features/planner/planner_bloc/_index.dart';
 import 'package:moniplan_app/features/planner/usecases/_index.dart';
 import 'package:moniplan_app/features/savings/screens/savings_screen.dart';
 import 'package:moniplan_app/features/savings/usecases/compute_savings_usecase.dart';
+import 'package:moniplan_app/features/tags/screens/tags_summary_screen.dart';
 import 'package:moniplan_app/features/vacation_pay/screens/vacation_pay_screen.dart';
 import 'package:moniplan_app/utils/_index.dart';
 import 'package:moniplan_uikit/moniplan_uikit.dart';
@@ -410,6 +411,22 @@ class _PlannerViewScreenSliverState extends State<_PlannerViewScreenSliver> {
                       builder: (_) => BlocProvider.value(
                         value: bloc,
                         child: const PlannerStatsScreen(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.sell_outlined),
+                title: const Text('По меткам'),
+                subtitle: const Text('Суммы по каждой метке'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: bloc,
+                        child: const TagsSummaryScreen(),
                       ),
                     ),
                   );
